@@ -5,7 +5,7 @@ Toutes les évolutions notables de ce projet sont consignées dans ce fichier.
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le projet adhère au
 [Semantic Versioning](https://semver.org/lang/fr/) (D-REL-002, CGPA v5.3).
 
-## [Non publié]
+## [1.14.0] — 2026-07-24
 
 ### Ajouts — WhatsApp P0 en Sandbox Twilio (Sprint N+1, EP-16, US-122/123)
 
