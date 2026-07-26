@@ -114,6 +114,18 @@ patrimoine — tous supprimés en transaction unique, 0 résidu vérifié. Écha
 | Tag | `sha-27dce09d` |
 | `notification_*` après nettoyage | `preference` 0, `outbox` 0, `delivery` 0, `template` 3, `event` 33 (empreinte cumulée du smoke, patron déjà documenté aux Gates précédents) |
 
+## Écart post-confirmation — page `/verify/` bloquée par le basic-auth NPM
+
+Après confirmation du PO de la bonne réception du message WhatsApp, l'ouverture du lien de
+vérification demandait les identifiants basic-auth de l'hôte staging — contraire au contrat de
+sécurité de cette page (accès sans compte, seule preuve = token HMAC de l'URL). Un retrait complet
+du basic-auth sur tout le domaine a été explicitement écarté (exposerait le reste de
+l'environnement de test partagé). **Correctif ciblé**, même patron que l'écart 5 déjà documenté
+(`staging-state.md` §5, bypass `/api/` du 2026-06-30) : bloc `location /verify/ { auth_basic off; }`
+ajouté à `18.conf`, persisté dans `advanced_config` (SQLite NPM), `nginx -s reload` sans redémarrer
+le conteneur NPM. Vérifié : `/verify/receipt/{id}` sans identifiants → 200 ; `/` (racine) → 401
+(reste protégée) ; 9 conteneurs inchangés. Détail : `staging-state.md` §5 écart 6.
+
 ## Avis des rôles
 
 | Rôle | Avis |
