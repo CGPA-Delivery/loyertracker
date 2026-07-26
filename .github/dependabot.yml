@@ -37,6 +37,14 @@ updates:
       timezone: Africa/Kinshasa
     open-pull-requests-limit: 5
     labels: [dependencies, devsecops]
+    groups:
+      # codeql-action/init et codeql-action/analyze doivent monter en version lock-step :
+      # CodeQL échoue en « configuration error » si deux étapes du même workflow utilisent
+      # des versions différentes de l'action. Constaté sur les PR #241/#243 (2026-07-26),
+      # scindées par Dependabot et rouges toutes les deux. Ce groupe force une PR unique.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
 
   - package-ecosystem: docker
     directory: /backend
