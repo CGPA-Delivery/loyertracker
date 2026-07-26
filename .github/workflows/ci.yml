@@ -56,9 +56,16 @@ jobs:
       # aux workflows déclenchés par dependabot[bot] (secrets Dependabot distincts, non
       # configurés ici) — le run échouerait systématiquement en 401. Le scan a lieu quand
       # même au push sur main après merge.
+      #
+      # Coordonnées complètes du plugin (groupId:artifactId:goal) au lieu du préfixe
+      # `sonar:sonar` : le préfixe n'est résolvable que si `org.sonarsource.scanner.maven`
+      # figure dans les pluginGroups (settings.xml) OU si le plugin est déjà dans le cache
+      # Maven local. Sur un cache froid/évincé, `mvn sonar:sonar` échoue en « No plugin found
+      # for prefix 'sonar' » (constaté au push main post-PR #256, 2026-07-26) : donner le
+      # groupId explicite rend la résolution déterministe, sans dépendre de l'état du cache.
       - name: Analyse SonarQube
         if: github.actor != 'dependabot[bot]'
-        run: mvn -B sonar:sonar -DskipTests
+        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -DskipTests
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonar.loyerpro.org
