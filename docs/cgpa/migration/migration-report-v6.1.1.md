@@ -46,7 +46,7 @@ observabilité qualifiée et contrôles Enterprise exécutés.
 
 ## 6. Avis agents
 
-- Governance Officer : migration exécutable, fusion interdite avant contrôles et validation humaine.
+- Governance Officer : avis initial favorable à l’exécution ; fusion alors interdite avant contrôles et validation humaine, conditions désormais satisfaites.
 - Enterprise Architect : GO sous réserve documentaire ; risques Architecture, UX et Finance.
 - DevSecOps Lead / Delivery Architect : GO sous réserve ; supply chain et DCL non démontrés.
 - Release Manager / SRE : cycle 1.14.0 séparé ; observabilité/rollback réels mais limites à
@@ -58,13 +58,13 @@ observabilité qualifiée et contrôles Enterprise exécutés.
 - audit structurel : 97/97 PASS ;
 - `git diff --cached --check` : PASS ;
 - aucun fichier de décision Gate, Production ou migration historique modifié ;
-- CHECK-VAL-01 : PASS sous réserve technique, NO GO fusion.
+- CHECK-VAL-01 : PASS ; décision humaine finale GO pour la fusion.
 
 ## 8. Risques et réserves
 
 Les risques financiers FIN-IMMUT-01/FIN-CONC-01 sont bloquants au prochain jalon financier
 concerné. Les dettes Architecture, UX et Delivery sont assignées dans le Project State. Pour la
-fusion de migration : resynchronisation du PR #276 effectuée ; validation humaine finale manquante.
+fusion de migration : resynchronisation du PR #276 effectuée et validation humaine finale GO reçue.
 
 ## 9. Rollback
 
@@ -74,9 +74,11 @@ et les liens après rollback.
 
 ## 10. Décision
 
-Candidate documentaire : **PASS sous réserve**.
+Migration documentaire : **PASS sous réserves futures non bloquantes pour cette fusion**.
 
-Décision CDO de fusion : **NO GO** tant qu’une validation humaine explicite n’est pas enregistrée.
+Décision CDO humaine de fusion : **GO**, reçue explicitement le 2026-07-27 via la conversation de
+pilotage, après publication des preuves et succès complet de la CI du PR #277. La fusion n’est pas
+exécutée par le présent enregistrement.
 
 Aucun code applicatif, aucune migration SQL, aucune promotion et aucun déploiement n'ont été
 réalisés.

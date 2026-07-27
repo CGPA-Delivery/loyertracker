@@ -4,8 +4,8 @@
 framework:
   current_version: "6.1.1"
   migrated_from: "5.4.1"
-  migration_date: ""
-  migration_status: "candidate_structurally_validated_pending_human_validation"
+  migration_date: "2026-07-27"
+  migration_status: "human_validated_pending_merge"
   # Lignee de migration : 3.0.1 -> 5.0.1 (2026-06-13) -> 5.2 (2026-06-16, additive, sans rejeu de gate) -> 5.3 (2026-06-23, additive, Release Management + UX/UI Governance) -> 5.4 (2026-06-24, additive, gouvernance Staging partagee + STG-ISOL-01) -> 5.4.1 (2026-06-24, normalisation des preuves STG-ISOL-01)
 ```
 
@@ -1837,7 +1837,7 @@ déploiement ».
 - `docs/cgpa/checklists/stg-isol-01-checklist.md`
 - `docs/cgpa/07-devsecops/gate-stg-isol-01-decision.md`
 - `docs/cgpa/05-architecture-conception/adr/ADR-STG-001-isolation-staging-partage.md`
-## 17. Migration CGPA v6.1.1 Enterprise — candidate documentaire
+## 17. Migration CGPA v6.1.1 Enterprise — validation humaine GO
 
 ### Identification
 
@@ -1849,10 +1849,10 @@ déploiement ».
 | Branche | `migration/cgpa-v6.1.1-enterprise` |
 | Base stable | `origin/main` commit `982fd6534cb6bd028b03409c2c06e51b75f55abd` (PR 276 intégré) |
 | Nature | additive, idempotente, réversible, sans rejeu de Gate |
-| Statut | candidate resynchronisée et structurellement validée ; validation humaine en attente |
-| Décision de fusion | non prise ; aucune fusion autorisée par cette section |
+| Statut | migration resynchronisée, structurellement validée et approuvée humainement ; fusion non exécutée |
+| Décision de fusion | **GO humain** reçu le 2026-07-27 via la conversation de pilotage ; fusion autorisée après enregistrement de cette preuve et maintien des checks verts |
 
-La lignée devient, sous réserve de validation humaine finale :
+La lignée cible validée est :
 
 `3.0.1 -> 5.0.1 -> 5.2 -> 5.3 -> 5.4 -> 5.4.1 -> 5.5 -> 5.6 -> 6.0 -> 6.1 -> 6.1.1`.
 
@@ -1988,7 +1988,7 @@ aucune validation autonome.
 | --- | --- | --- | --- | --- | --- |
 | RSV-MIG-611-01 | Bloquant fusion initial | Release Manager | 2026-07-27 | branche resynchronisée sur `origin/main` commit `982fd653`, conflits résolus additivement, contrôles rejoués | **Levée** |
 | RSV-MIG-611-02 | Bloquant fusion initial | Governance Officer | 2026-07-27 | CHECK-VAL-01, 9/9 tests et audit 97/97 PASS | **Levée** |
-| RSV-MIG-611-03 | Bloquant fusion | CDO humain | avant fusion | approbation PR explicite | Ouvert |
+| RSV-MIG-611-03 | Bloquant fusion initial | CDO humain | 2026-07-27 | décision explicite « GO » reçue via la conversation de pilotage, PR #277 | **Levée** |
 | RSV-MIG-611-04 | Majeur | Enterprise Architect | prochain changement architecture | addendum DAT EP-16/V27/V28 et décision OpenAPI | Ouvert |
 | RSV-MIG-611-05 | Majeur | DevSecOps Lead | prochain changement CI/CD | preuve build-once, immutabilité et supply chain ou exemption approuvée | Ouvert |
 | RSV-MIG-611-06 | Majeur | UX/UI Design Lead | prochain lot Frontend | UXR/DDS/DSG, dette et Visual Review | Ouvert |
@@ -2001,5 +2001,7 @@ Project State restauré et les liens sont revérifiés après rollback.
 
 ### Action autorisée
 
-Les tests de l'auditeur (9/9) et l'audit structurel (97/97) sont PASS. Soumettre la branche resynchronisée à validation humaine explicite. Aucun code applicatif, aucune promotion, aucun déploiement et aucune fusion ne
-sont autorisés par cette migration.
+Les tests de l’auditeur (9/9), l’audit structurel (97/97), la CI GitHub complète du commit
+`31a7e3d` et la validation humaine finale sont PASS. La migration peut être fusionnée par le
+workflow GitHub protégé. Cette décision n’autorise aucun code applicatif, aucune promotion Staging
+ni aucun déploiement Production.
