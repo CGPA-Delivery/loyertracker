@@ -6,7 +6,7 @@
 - Cible : CGPA v6.1.1 Enterprise.
 - Mode : additif, réexécutable, auditable et réversible.
 - Branche : `migration/cgpa-v6.1.1-enterprise`.
-- Base stable : `origin/main@1fae0edbf5fa05646d814f3c7e5f4d33d0bfd324`.
+- Base stable resynchronisée : `origin/main` commit `982fd6534cb6bd028b03409c2c06e51b75f55abd` (PR 276 intégré).
 - Référentiel : `setup-cgpa@64a4330897d4b7c1c9e1c6301e4520b3bf4b0a57`.
 
 ## 2. Historique et Gates
@@ -64,7 +64,7 @@ observabilité qualifiée et contrôles Enterprise exécutés.
 
 Les risques financiers FIN-IMMUT-01/FIN-CONC-01 sont bloquants au prochain jalon financier
 concerné. Les dettes Architecture, UX et Delivery sont assignées dans le Project State. Pour la
-fusion de migration : PR #276 à resynchroniser et validation humaine finale manquante.
+fusion de migration : resynchronisation du PR #276 effectuée ; validation humaine finale manquante.
 
 ## 9. Rollback
 
@@ -76,8 +76,7 @@ et les liens après rollback.
 
 Candidate documentaire : **PASS sous réserve**.
 
-Décision CDO de fusion : **NO GO** tant que la branche n'est pas resynchronisée après traitement du
-PR #276 et qu'une validation humaine explicite n'est pas enregistrée.
+Décision CDO de fusion : **NO GO** tant qu’une validation humaine explicite n’est pas enregistrée.
 
 Aucun code applicatif, aucune migration SQL, aucune promotion et aucun déploiement n'ont été
 réalisés.

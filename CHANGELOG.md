@@ -3,7 +3,7 @@
 Toutes les évolutions notables de ce projet sont consignées dans ce fichier.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le projet adhère au
-[Semantic Versioning](https://semver.org/lang/fr/) (D-REL-002, CGPA v6.1.1 ; origine v5.3 conservée dans l'historique).
+[Semantic Versioning](https://semver.org/lang/fr/) (D-REL-002, CGPA v6.1.1 ; origine v5.3 conservée dans l’historique).
 
 
 ## [Non publié]
@@ -18,8 +18,32 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
   structurel.
 - Synchronisation du modèle des agents, du Project State, des Gates et workflows actifs.
 - Aucun changement fonctionnel, aucune migration SQL, aucune promotion ni aucun déploiement.
-- Candidate documentaire en attente de resynchronisation du PR #276, de validation structurelle et
-  de validation humaine finale.
+- Candidate documentaire resynchronisée avec le PR #276 et structurellement validée ; validation
+  humaine finale obligatoire avant fusion.
+
+### Ajouts — verrou d'état de release (gouvernance, R-V54-2)
+
+- `infra/release/production-state.env` : source de vérité versionnée de l'état Production attendu
+  (`RELEASE_VERSION`, `PRODUCTION_TAG`, `FLYWAY_EXPECTED`, `PRODUCTION_DEPLOYED_AT`). Toute bascule
+  de tag en Production doit s'accompagner de sa mise à jour, dans le même commit que le rapport de
+  déploiement technique.
+- `infra/release/check-release-state.sh` : contrôle de cohérence à deux modes, strictement en
+  lecture seule. `--ci` (cohérence du dépôt : compteur Flyway vs fichiers de migration, version vs
+  `CHANGELOG`, format de tag immuable, absence de compteur codé en dur) et `--host` (déclaré vs
+  réel : tag `.env`, compteur Flyway en base, digests des conteneurs).
+- Étape CI bloquante « Verrou d'état de release » dans le job Backend, exécutée avant `mvn verify`.
+- Contrôle d'entrée ajouté en tête des checklists Gate Production (`--host`) et Gate Staging
+  (`--ci`).
+
+### Modifications
+
+- `infra/smoke/smoke-stack.sh` et `SchemaMigrationTest` lisent désormais le compteur Flyway attendu
+  depuis `production-state.env` au lieu de le coder en dur (trois occurrences supprimées) — cause
+  directe des incidents PR #77 et PR #171. Le smoke vérifie en outre, lorsqu'il tourne contre la
+  Production, que le tag déployé correspond au tag déclaré.
+
+Aucun changement fonctionnel, aucune migration SQL, aucun impact sur le comportement applicatif.
+
 ## [1.14.0] — 2026-07-24
 
 ### Ajouts — WhatsApp P0 en Sandbox Twilio (Sprint N+1, EP-16, US-122/123)

@@ -27,7 +27,7 @@
 | Staging Isolation | Applicable | PASS | STG-ISOL-01 historique préservé, contrôle futur obligatoire |
 | Modèle agents | Applicable | PASS | operating model, registry, routing et rôles synchronisés |
 | Audit automatique | Applicable | PASS | 9/9 tests et 97/97 contrôles PASS |
-| Resynchronisation PR #276 | Applicable | Non exécuté | PR ouvert au démarrage ; bloque la fusion |
+| Resynchronisation PR #276 | Applicable | PASS | PR #276 intégré à `main`; branche resynchronisée, conflits résolus additivement |
 | Validation humaine finale | Applicable | Non exécuté | exigée avant fusion |
 
 ## Preuves
@@ -46,7 +46,7 @@ ni un Gate.
 
 | ID | Criticité | Responsable | Échéance | Preuve attendue | Statut |
 | --- | --- | --- | --- | --- | --- |
-| RSV-MIG-611-01 | Bloquant fusion | Release Manager | avant validation finale | resynchronisation après décision humaine PR #276 | Ouvert |
+| RSV-MIG-611-01 | Bloquant fusion initial | Release Manager | 2026-07-27 | resynchronisation sur `origin/main` commit `982fd653`, diff et contrôles revus | Levée |
 | RSV-MIG-611-02 | Bloquant fusion initial | Governance Officer | 2026-07-27 | CHECK-VAL et audit enregistrés | Levée |
 | RSV-MIG-611-03 | Bloquant fusion | CDO humain | avant fusion | approbation explicite de la PR de migration | Ouvert |
 | RSV-MIG-611-04 | Majeur futur | Enterprise Architect | prochain changement architecture | addendum DAT EP-16/V27/V28 et décision OpenAPI | Ouvert |
@@ -57,9 +57,8 @@ ni un Gate.
 
 Résultat technique de la candidate : **PASS sous réserve**.
 
-Les deux contrôles bloquants de fusion encore non exécutés ne peuvent pas être neutralisés par une
+Le contrôle bloquant de fusion encore non exécuté ne peut pas être neutralisé par une
 réserve. Décision CDO pour la fusion : **NO GO**.
 
-Prochaine action autorisée : traiter humainement le PR #276, resynchroniser cette branche, relancer
-CHECK-VAL-01 et l'audit, puis obtenir une validation humaine explicite. Aucun déploiement et aucune
-fusion ne sont autorisés.
+Prochaine action autorisée : soumettre la branche resynchronisée et les preuves à une validation
+humaine explicite. Aucun déploiement et aucune fusion ne sont autorisés.
