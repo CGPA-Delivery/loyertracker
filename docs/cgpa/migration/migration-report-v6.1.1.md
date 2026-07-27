@@ -82,3 +82,17 @@ exécutée par le présent enregistrement.
 
 Aucun code applicatif, aucune migration SQL, aucune promotion et aucun déploiement n'ont été
 réalisés.
+
+## 11. Clôture additive post-fusion
+
+La séquence de fusion a ensuite été exécutée via le workflow GitHub protégé :
+
+- PR #277 fusionnée le 2026-07-27T18:35:59Z ;
+- commit de fusion `86c65be0015269e52f7462ebd5260b3502cdca58` sur `main` ;
+- CI post-fusion `30294489986` : PASS ;
+- CodeQL post-fusion `30294492227` : PASS ;
+- CGPA Framework Audit post-fusion `30294487977` : PASS.
+
+La migration est **terminée**. Aucun déploiement Staging ou Production n'a été effectué. Le build
+et la publication automatique d'images sur ce merge documentaire ne valent pas promotion ; ils
+font l'objet d'un traitement Delivery séparé avec Plan d'Exécution avant modification du pipeline.

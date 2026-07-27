@@ -63,3 +63,15 @@ des preuves et succès complet de la CI du PR #277.
 
 Prochaine action autorisée : pousser cet enregistrement, vérifier à nouveau les checks GitHub puis
 fusionner exclusivement via le workflow protégé de la PR. Aucun déploiement n’est autorisé.
+
+## Clôture post-fusion
+
+- PR : #277, fusionnée le 2026-07-27T18:35:59Z.
+- Commit de fusion : `86c65be0015269e52f7462ebd5260b3502cdca58`.
+- CI post-fusion : run `30294489986`, PASS.
+- CodeQL post-fusion : run `30294492227`, PASS.
+- CGPA Framework Audit post-fusion : run `30294487977`, PASS.
+- Statut final de la migration : **completed**.
+
+Cette preuve additive clôt la séquence autorisée ci-dessus. Elle ne constitue ni un Gate Staging,
+ni un Gate Production, ni une validation applicative supplémentaire.
