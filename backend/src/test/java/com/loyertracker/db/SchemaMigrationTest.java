@@ -2,6 +2,9 @@ package com.loyertracker.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +38,7 @@ class SchemaMigrationTest {
     private Flyway flyway;
 
     @BeforeAll
-    void migrate() {
+    void migrate() throws IOException {
         postgres.start();
         flyway = Flyway.configure()
                 .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
@@ -69,13 +72,38 @@ class SchemaMigrationTest {
         //   generer_alertes() voie A — EP-16 Sprint N, Fondation).
         // + V28 (seed templates P0 WhatsApp + notification_bailleurs_en_attente()/
         //   notification_delivery_appliquer_statut() SECURITY DEFINER — EP-16 Sprint N+1).
-        assertThat(result.migrationsExecuted).isEqualTo(28);
+        //
+        // Le compteur attendu n'est PAS codé en dur ici : il est lu depuis la source de
+        // vérité versionnée infra/release/production-state.env (R-V54-2). Ajouter une
+        // migration sans mettre ce fichier à jour fait échouer ce test ET la CI.
+        assertThat(result.migrationsExecuted).isEqualTo(expectedFlywayCount());
         assertThat(result.success).isTrue();
     }
 
     @AfterAll
     void stop() {
         postgres.stop();
+    }
+
+    /**
+     * Lit {@code FLYWAY_EXPECTED} depuis {@code infra/release/production-state.env}, source de
+     * vérité versionnée de l'état de release (R-V54-2). Évite le compteur codé en dur, dont les
+     * désalignements ont provoqué les incidents PR #77 et PR #171.
+     */
+    private static int expectedFlywayCount() throws IOException {
+        Path stateFile = Path.of("..", "infra", "release", "production-state.env")
+                .toAbsolutePath().normalize();
+        if (!Files.exists(stateFile)) {
+            throw new IllegalStateException("Fichier d'état de release introuvable : " + stateFile);
+        }
+        return Files.readAllLines(stateFile).stream()
+                .map(String::trim)
+                .filter(line -> line.startsWith("FLYWAY_EXPECTED="))
+                .map(line -> line.substring("FLYWAY_EXPECTED=".length()).trim())
+                .findFirst()
+                .map(Integer::parseInt)
+                .orElseThrow(() -> new IllegalStateException(
+                        "FLYWAY_EXPECTED absent de " + stateFile));
     }
 
     @Test

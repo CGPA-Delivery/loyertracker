@@ -85,11 +85,34 @@ token() {
 }
 
 # =============================================================================
-note "0. Sanity : stack healthy, Flyway V1-V28, pool API sous loyertracker_api"
+# Compteur Flyway attendu : lu depuis la source de vérité versionnée (R-V54-2),
+# jamais codé en dur ici — une migration ajoutée sans mise à jour du fichier d'état
+# fait échouer la CI avant merge (incidents PR #77 / #171).
+RELEASE_STATE_FILE="${RELEASE_STATE_FILE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../release" && pwd)/production-state.env}"
+if [[ -f "$RELEASE_STATE_FILE" ]]; then
+  # shellcheck disable=SC1090
+  source "$RELEASE_STATE_FILE"
+else
+  echo "FATAL : fichier d'état de release introuvable : $RELEASE_STATE_FILE" >&2
+  exit 1
+fi
+
+note "0. Sanity : stack healthy, Flyway V1-V$FLYWAY_EXPECTED, pool API sous loyertracker_api"
 docker compose ps --format '{{.Name}} {{.Health}}' | sed 's/^/  /'
 MIG=$(docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
   "SELECT count(*) FROM flyway_schema_history WHERE success")
-[[ "$MIG" == "28" ]] && ok "Flyway : 28 migrations appliquées" || ko "Flyway : $MIG migrations (attendu 28)"
+[[ "$MIG" == "$FLYWAY_EXPECTED" ]] \
+  && ok "Flyway : $MIG migrations appliquées (attendu $FLYWAY_EXPECTED, source production-state.env)" \
+  || ko "Flyway : $MIG migrations (attendu $FLYWAY_EXPECTED)"
+
+# Verrou de dérive : quand le smoke tourne contre la Production, le tag réellement
+# déployé doit correspondre au tag déclaré. Un déploiement non tracé le fait échouer.
+if [[ "${COMPOSE_FILE:-}" == *"docker-compose.prod.yml"* ]]; then
+  DEPLOYED_TAG=$(grep -E '^LOYERTRACKER_TAG=' "${ENV_FILE:-.env}" 2>/dev/null | cut -d= -f2- | tr -d '"'"'"' ')
+  [[ "$DEPLOYED_TAG" == "$PRODUCTION_TAG" ]] \
+    && ok "Tag Production : $DEPLOYED_TAG == PRODUCTION_TAG déclaré" \
+    || ko "DÉRIVE R-V54-2 : tag déployé '$DEPLOYED_TAG' != PRODUCTION_TAG déclaré '$PRODUCTION_TAG'"
+fi
 ROLES=$(docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
   "SELECT DISTINCT usename FROM pg_stat_activity WHERE datname='$POSTGRES_DB' AND application_name LIKE 'PostgreSQL JDBC%'")
 echo "$ROLES" | grep -q '^loyertracker_api$' && ok "Pool API connecté sous loyertracker_api" \

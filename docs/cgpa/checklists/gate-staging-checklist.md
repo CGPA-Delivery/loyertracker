@@ -1,5 +1,16 @@
 # Checklist — Gate Staging
 
+## Contrôle d'entrée — verrou d'état de release (R-V54-2)
+
+**À exécuter en premier.** Vérifie la cohérence interne du dépôt avant toute promotion : compteur
+Flyway déclaré vs fichiers de migration, version vs `CHANGELOG`, format de tag immuable.
+
+- [ ] `bash infra/release/check-release-state.sh --ci` — **exit 0** (également exécuté en CI comme
+      étape bloquante du job Backend ; une migration ajoutée sans réalignement du compteur échoue
+      ici, avant merge).
+- [ ] Si le lot promu modifie l'état Production attendu, `infra/release/production-state.env` est
+      mis à jour **dans le même commit** que le rapport correspondant.
+
 ## Identification
 
 - [ ] Sprint identifié.
