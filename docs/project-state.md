@@ -2022,3 +2022,12 @@ promotion Staging ou Production et ne valide rétroactivement aucun Gate applica
 post-fusion a également confirmé la réserve `RSV-MIG-611-05` : un changement documentaire sur
 `main` reconstruit et publie actuellement les images applicatives et met à jour l'alias mutable
 `latest`. Ce sujet est isolé dans un Plan d'Exécution et une Pull Request Delivery distincts.
+
+### Plan Delivery séparé — reconstruction documentaire et tag `latest`
+
+Le Plan d'Exécution
+`docs/cgpa/06-planification-agile/plan-execution-ci-artefacts-immutables.md` est proposé le
+2026-07-27 pour traiter séparément la reconstruction d'images sur changement documentaire et la
+publication de l'alias mutable `latest`. Statut : **en attente d'approbation humaine**. Aucun code
+CI/CD n'est modifié par cette étape ; l'action autorisée se limite à la revue du plan. La réserve
+`RSV-MIG-611-05` reste ouverte jusqu'aux preuves d'exécution et à la validation de CHECK-CICD-01.
