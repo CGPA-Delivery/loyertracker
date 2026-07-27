@@ -1,45 +1,86 @@
 # Documentation CGPA — LoyerTracker
 
-Ce dossier contient les livrables de gouvernance LoyerTracker alignés sur CGPA v5.4.1.
+Ce dossier contient les livrables de gouvernance LoyerTracker alignés sur **CGPA v6.1.1
+Enterprise**. La migration depuis v5.4.1 est additive : aucun Gate, décision, risque, réserve,
+preuve, release ou rapport historique n'est rejoué ou supprimé.
 
-## Point d'entrée
+## Référentiel actif
 
-- État projet vivant : `docs/project-state.md`
-- État Staging : `docs/staging-state.md`
-- État Production : `docs/prod-state.md`
-- Rapport de migration v5.3 : `docs/cgpa/migration/migration-report-v5.3.md`
-- Rapport de migration v5.4 : `docs/cgpa/migration/migration-report-v5.4.md`
-- Rapport de migration v5.4.1 : `docs/cgpa/migration/migration-report-v5.4.1.md`
+- Référentiel normatif : `CGPA-v6.1.md`.
+- Correctif de synchronisation : `MIGRATION-GUIDE-v6.1.1.md`.
+- Validation : `VALIDATION-FRAMEWORK-v6.1.1.md`.
+- Audit automatique : `AUTOMATED-AUDIT-v6.1.1.md`.
+- État projet vivant : `../project-state.md`.
+- État Staging : `../staging-state.md`.
+- État Production : `../prod-state.md`.
 
-## Référentiel cible
+Les références v5.x conservées dans les rapports historiques décrivent leur contexte d'origine et
+ne sont pas des déclarations actives concurrentes.
 
-Référentiel local : `/home/ubuntu/setup-cgpa/docs/cgpa/CGPA-v5.4.1.md` (évolution additive de
-`CGPA-v5.3.md`, conservé comme référence historique).
+## Quatre architectures
 
-La migration v5.4 est additive : aucun Gate validé, aucune décision historique et aucun risque historique ne sont supprimés.
+- Métier : `01-idee-opportunite/`, `02-expression-besoin/`, `04-cahier-des-charges/` et
+  `architecture/architecture-metier.md`.
+- Logicielle : `05-architecture-conception/dossier-architecture.md`, ADR et
+  `architecture/architecture-logicielle.md`.
+- Technique : `architecture/architecture-technique.md`, `delivery/`, runbook et observabilité.
+- UX/UI : `architecture/architecture-ux-ui.md`, `design/` et `frontend/`.
 
-## Workflows v5.3 (conservés)
+## Gouvernances spécialisées
 
-- `docs/cgpa/workflows/staging-deployment-workflow.md`
-- `docs/cgpa/workflows/production-release-workflow.md`
+- Financial Governance : `finance/ADR-FIN-001.md`, `finance/CHECK-FIN-01.md`,
+  `finance/FIN-ARCH-001.md`, `finance/FIN-DOMAIN-GUIDE.md`.
+- UX/Design/Frontend : `design/`, `frontend/`, Gate 02A et Gate 04A.
+- Staging mutualisé : `adr/ADR-STG-001-staging-isolation.md`,
+  `checklists/stg-isol-01-checklist.md` et les preuves projet historiques.
+- Agents : `agents/agent-operating-model.md`, `agents/agent-registry.md`,
+  `agents/agent-routing-rules.md`.
 
-## Workflows v5.4.1
+## Enterprise Delivery Governance
 
-- `docs/cgpa/workflows/staging-isolation-workflow.md` — contrôle d'isolation Staging (`STG-ISOL-01`)
+Artefacts canoniques :
 
-## Checklists v5.3 (conservées)
+- `delivery/ADR-CICD-001.md`
+- `delivery/ADR-CICD-002.md`
+- `delivery/DELIVERY-PIPELINE-001.md`
+- `delivery/ENV-001.md`
+- `delivery/REL-001.md`
+- `delivery/OBS-001.md`
+- `delivery/DELIVERY-CAPABILITY-MODEL.md`
 
-- `docs/cgpa/checklists/gate-staging-checklist.md`
-- `docs/cgpa/checklists/gate-production-checklist.md`
+Contrôles permanents :
 
-## Checklists v5.4.1
+- `checklists/CHECK-CICD-01.md`
+- `checklists/CHECK-REL-01.md`
+- `checklists/CHECK-OPS-01.md`
+- `checklists/CHECK-VAL-01.md`
 
-- `docs/cgpa/checklists/stg-isol-01-checklist.md`
+Workflows canoniques :
+
+- `workflows/ci-cd-standard-workflow.md`
+- `workflows/environment-promotion-workflow.md`
+- `workflows/release-candidate-workflow.md`
+- `workflows/rollback-workflow.md`
+- `workflows/post-release-monitoring-workflow.md`
 
 ## Règle de promotion
 
-- Sprint validé -> Gate Staging (incl. `STG-ISOL-01`) -> `STAGING_READY` -> déploiement -> `STAGING_DEPLOYED`.
-- Epic, Release ou Hotfix validé -> Gate Production -> `PRODUCTION_READY` -> déploiement -> `PRODUCTION_DEPLOYED`.
-- Aucun Sprint ne déclenche automatiquement la Production.
-- L'environnement Staging (`ai-test-server`) est mutualisé avec d'autres projets : tout
-  déploiement Staging doit satisfaire `STG-ISOL-01` (CGPA v5.4.1).
+`Plan approuvé -> CI conforme -> artefact immutable -> Gate 06A -> CHECK-CICD-01 ->
+STG-ISOL-01 -> Gate Staging -> Staging -> RC exacte -> CHECK-REL-01 -> Gate 07A ->
+CHECK-OPS-01 pré-Production -> Gate 09 / Gate Production -> même artefact en Production ->
+CHECK-OPS-01 post-Production -> Gate 10`.
+
+Un push ou un merge n'est jamais une autorisation de déploiement. L'environnement Staging
+`ai-test-server` est mutualisé ; `STG-ISOL-01` est bloquant à chaque promotion.
+
+## Migration v6.1.1
+
+- Audit initial : `migration/audit-initial-v6.1.1.md`.
+- Plan d'Exécution :
+  `06-planification-agile/plan-execution-migration-cgpa-v6.1.1.md`.
+- Rapport de migration : `migration/migration-report-v6.1.1.md`.
+- Rapport CHECK-VAL-01 : `reports/CHECK-VAL-01-loyertracker-v6.1.1.md`.
+- Rapport d'audit automatique : `reports/AUTOMATED-AUDIT-REPORT-loyertracker-v6.1.1.md`.
+
+La migration documentaire ne valide pas automatiquement l'application, Staging, Production, une
+Release Candidate ou un Gate. La fusion exige une validation humaine finale.

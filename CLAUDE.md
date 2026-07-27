@@ -1,47 +1,58 @@
-# CLAUDE.md — Règles Claude Code CGPA v5.4.1
+# CLAUDE.md — Règles copilote CGPA v6.1.1 Enterprise
 
-Claude Code agit comme copilote stratégique et technique dans le cadre CGPA v5.4.1.
+Claude Code agit comme copilote stratégique et technique sous CGPA v6.1.1.
 
 ## Avant toute action
 
 1. Lire `docs/project-state.md`.
-2. Identifier la phase courante et les Gates validés.
-3. Vérifier l'impact sur Staging, Production et Release Management.
-4. Préserver l'historique des décisions, risques et Gates.
+2. Identifier phase, Gates, preuves, réserves, action autorisée et DCL.
+3. Vérifier l'impact Métier, Logiciel, Technique et UX/UI.
+4. Vérifier l'applicabilité Financial, Frontend, Staging Isolation et Enterprise Delivery.
+5. Préserver décisions, risques, Gates, preuves, releases et migrations historiques.
 
-## Responsabilités v5.3 (conservées)
+## Autorité
 
-- Respecter la Release Management Policy.
-- Vérifier le Gate Staging avant promotion Staging.
-- Vérifier le Gate Production avant toute mise en Production.
-- Maintenir `docs/project-state.md`, `docs/staging-state.md` et `docs/prod-state.md`.
-- Tracer toute réserve datée et assignée.
+Le CGPA Chief Delivery Officer conserve la decision CGPA finale. Le Release Manager produit
+uniquement l'avis spécialisé de promotion. Aucun pipeline, score, audit automatique ou agent
+spécialisé ne remplace la validation humaine requise.
 
-## Responsabilités v5.4
+## Verrous
 
-- L'environnement Staging (`ai-test-server`) est mutualisé avec d'autres projets : vérifier le
-  Gate `STG-ISOL-01` avant toute promotion Staging.
-- Ne jamais proposer ou exécuter une commande Docker à portée globale
-  (`docker stop $(docker ps -q)`, `docker compose down` sans cible, `docker system prune -a`)
-  sur cet hôte.
-- Maintenir l'inventaire des ressources Staging mutualisées (`docs/staging-state.md` §11).
+- Aucun code applicatif sans Plan d'Exécution approuvé.
+- Aucune écriture directe sur `main`.
+- Aucun push ou merge ne vaut autorisation de promotion.
+- Aucune Production sans Gate 09 / Gate Production valide.
+- Même artefact immutable entre Staging et Production.
+- Rollback application, données, infrastructure et flags documenté selon applicabilité.
+- CHECK-CICD-01, CHECK-REL-01, CHECK-OPS-01 et CHECK-VAL-01 appliqués au prochain jalon concerné.
+- Un contrôle applicable sans preuve est `non exécuté`, jamais `non applicable`.
+- Une réserve ne neutralise jamais un bloqueur.
 
-## Interdictions
+## Staging mutualisé
 
-- Supprimer ou réécrire une décision historique.
-- Supprimer un risque historique.
-- Supprimer un Gate validé.
-- Confondre clôture Sprint et autorisation Production.
-- Démarrer un Sprint ou un Hotfix sans plan ou justification de gouvernance.
-- Déployer en Staging mutualisé sans vérifier `STG-ISOL-01`.
+`ai-test-server` héberge plusieurs projets. `STG-ISOL-01` est bloquant avant promotion. Toute
+commande Docker globale, tout `down` non ciblé et tout prune global sont interdits. Les contrôles
+avant/après doivent couvrir conteneurs tiers, noms Compose, réseaux, volumes, ports, secrets et
+routage.
 
-## Documents de référence
+## Gouvernances applicables
 
+- UX/Design/Frontend pour tout changement Angular significatif ;
+- Financial Governance pour loyers, paiements, garanties, honoraires, soldes, devises et
+  quittances ;
+- DevSecOps et Enterprise Delivery pour code, migration, infrastructure, pipeline, image,
+  dépendance, secret ou environnement ;
+- traçabilité et revue humaine de toute contribution IA significative.
+
+## Références
+
+- `docs/project-state.md`
 - `docs/cgpa/README.md`
-- `docs/cgpa/migration/migration-report-v5.3.md`
-- `docs/cgpa/migration/migration-report-v5.4.md`
-- `docs/cgpa/migration/migration-report-v5.4.1.md`
-- `docs/cgpa/adr/ADR-STG-001-staging-isolation.md`
-- `docs/cgpa/checklists/gate-staging-checklist.md`
-- `docs/cgpa/checklists/gate-production-checklist.md`
-- `docs/cgpa/checklists/stg-isol-01-checklist.md`
+- `docs/cgpa/CGPA-v6.1.md`
+- `docs/cgpa/VALIDATION-FRAMEWORK-v6.1.1.md`
+- `docs/cgpa/AUTOMATED-AUDIT-v6.1.1.md`
+- `docs/cgpa/agents/`
+- `docs/cgpa/delivery/`
+- `docs/cgpa/gates/`
+- `docs/cgpa/checklists/`
+- `docs/cgpa/workflows/`

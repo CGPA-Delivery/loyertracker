@@ -3,9 +3,23 @@
 Toutes les évolutions notables de ce projet sont consignées dans ce fichier.
 
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le projet adhère au
-[Semantic Versioning](https://semver.org/lang/fr/) (D-REL-002, CGPA v5.3).
+[Semantic Versioning](https://semver.org/lang/fr/) (D-REL-002, CGPA v6.1.1 ; origine v5.3 conservée dans l’historique).
+
 
 ## [Non publié]
+
+### Gouvernance — migration CGPA v6.1.1 Enterprise
+
+- Migration additive depuis v5.4.1, sans rejeu ni suppression de Gate, décision, risque, réserve,
+  preuve ou release historique.
+- Ajout des quatre architectures, des packs Financial Governance, UX/Design/Frontend et Enterprise
+  Delivery Governance.
+- Ajout des contrôles CHECK-CICD-01, CHECK-REL-01, CHECK-OPS-01, CHECK-VAL-01 et de l'auditeur
+  structurel.
+- Synchronisation du modèle des agents, du Project State, des Gates et workflows actifs.
+- Aucun changement fonctionnel, aucune migration SQL, aucune promotion ni aucun déploiement.
+- Candidate documentaire resynchronisée avec le PR #276 et structurellement validée ; validation
+  humaine finale obligatoire avant fusion.
 
 ### Ajouts — verrou d'état de release (gouvernance, R-V54-2)
 

@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "framework_version": "6.1.1",
+  "required_paths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "README.md",
+    "CHANGELOG.md",
+    "docs/project-state.md",
+    "docs/cgpa/README.md",
+    "docs/cgpa/CGPA-v6.1.md",
+    "docs/cgpa/MIGRATION-GUIDE-v6.1.1.md",
+    "docs/cgpa/VALIDATION-FRAMEWORK-v6.1.1.md",
+    "docs/cgpa/AUTOMATED-AUDIT-v6.1.1.md",
+    "docs/cgpa/architecture/architecture-metier.md",
+    "docs/cgpa/architecture/architecture-logicielle.md",
+    "docs/cgpa/architecture/architecture-technique.md",
+    "docs/cgpa/architecture/architecture-ux-ui.md",
+    "docs/cgpa/finance/ADR-FIN-001.md",
+    "docs/cgpa/finance/CHECK-FIN-01.md",
+    "docs/cgpa/finance/FIN-ARCH-001.md",
+    "docs/cgpa/finance/FIN-DOMAIN-GUIDE.md",
+    "docs/cgpa/delivery/ADR-CICD-001.md",
+    "docs/cgpa/delivery/ADR-CICD-002.md",
+    "docs/cgpa/delivery/DELIVERY-PIPELINE-001.md",
+    "docs/cgpa/delivery/ENV-001.md",
+    "docs/cgpa/delivery/REL-001.md",
+    "docs/cgpa/delivery/OBS-001.md",
+    "docs/cgpa/delivery/DELIVERY-CAPABILITY-MODEL.md",
+    "docs/cgpa/delivery/loyertracker-delivery-strategy.md",
+    "docs/cgpa/agents/agent-operating-model.md",
+    "docs/cgpa/agents/agent-registry.md",
+    "docs/cgpa/agents/agent-routing-rules.md",
+    "docs/cgpa/gates/gate-06A-devsecops.md",
+    "docs/cgpa/gates/gate-staging-readiness.md",
+    "docs/cgpa/gates/gate-07A-release.md",
+    "docs/cgpa/gates/gate-09-production-readiness.md",
+    "docs/cgpa/gates/gate-10-mise-en-production.md",
+    "docs/cgpa/checklists/CHECK-CICD-01.md",
+    "docs/cgpa/checklists/CHECK-REL-01.md",
+    "docs/cgpa/checklists/CHECK-OPS-01.md",
+    "docs/cgpa/checklists/CHECK-VAL-01.md",
+    "docs/cgpa/checklists/stg-isol-01-checklist.md",
+    "docs/cgpa/workflows/ci-cd-standard-workflow.md",
+    "docs/cgpa/workflows/environment-promotion-workflow.md",
+    "docs/cgpa/workflows/release-candidate-workflow.md",
+    "docs/cgpa/workflows/rollback-workflow.md",
+    "docs/cgpa/workflows/post-release-monitoring-workflow.md",
+    "docs/cgpa/templates/project-state.md",
+    ".github/workflows/cgpa-framework-audit.yml",
+    "tools/cgpa_audit.py",
+    "tools/tests/test_cgpa_audit.py"
+  ],
+  "required_content": {
+    "README.md": [
+      "Version courante : **CGPA v6.1.1",
+      "CGPA Chief Delivery Officer v6.1.1"
+    ],
+    "AGENTS.md": [
+      "CGPA v6.1.1",
+      "CGPA Chief Delivery Officer v6.1.1",
+      "STG-ISOL-01",
+      "CHECK-FIN-01"
+    ],
+    "CLAUDE.md": [
+      "CGPA v6.1.1",
+      "CGPA Chief Delivery Officer conserve la decision CGPA finale"
+    ],
+    "docs/project-state.md": [
+      "current_version: \"6.1.1\"",
+      "Branch Strategy",
+      "Promotion Strategy",
+      "Release Candidate actuelle",
+      "Rollback Strategy",
+      "Observability Strategy",
+      "Operations Readiness",
+      "Delivery Capability Level actuel",
+      "Delivery Capability Level cible",
+      "CHECK-CICD-01",
+      "CHECK-REL-01",
+      "CHECK-OPS-01",
+      "CHECK-VAL-01",
+      "Financial Governance",
+      "Quatre architectures"
+    ],
+    "docs/cgpa/VALIDATION-FRAMEWORK-v6.1.1.md": [
+      "Un score, une checklist, un pipeline ou un avis specialise ne remplace jamais la decision",
+      "tout FAIL bloquant impose FAIL a la checklist et NO GO au Gate concerne",
+      "Une reserve ne peut pas neutraliser un bloqueur"
+    ],
+    "docs/cgpa/gates/gate-staging-readiness.md": [
+      "CHECK-CICD-01",
+      "STG-ISOL-01",
+      "CGPA Chief Delivery Officer"
+    ],
+    "docs/cgpa/gates/gate-07A-release.md": [
+      "CHECK-REL-01",
+      "immutable",
+      "CGPA Chief Delivery Officer"
+    ],
+    "docs/cgpa/gates/gate-09-production-readiness.md": [
+      "CHECK-REL-01",
+      "CHECK-OPS-01",
+      "rollback",
+      "CGPA Chief Delivery Officer"
+    ],
+    "docs/cgpa/checklists/CHECK-VAL-01.md": [
+      "PASS / PASS sous reserve / FAIL / non applicable / non execute",
+      "Tout FAIL bloquant produit NO GO",
+      "CGPA Chief Delivery Officer v6.1.1 porte la decision CGPA finale"
+    ],
+    "docs/cgpa/AUTOMATED-AUDIT-v6.1.1.md": [
+      "ne produit jamais GO, GO sous reserve ou NO GO",
+      "Un PASS automatique signifie uniquement que les invariants structurels configures sont satisfaits"
+    ],
+    ".github/workflows/cgpa-framework-audit.yml": [
+      "python -m unittest discover",
+      "python tools/cgpa_audit.py",
+      "permissions:",
+      "contents: read"
+    ]
+  },
+  "markdown_link_scopes": [
+    "README.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/cgpa/README.md",
+    "docs/cgpa/architecture",
+    "docs/cgpa/delivery",
+    "docs/cgpa/finance",
+    "docs/cgpa/gates",
+    "docs/cgpa/checklists/CHECK-CICD-01.md",
+    "docs/cgpa/checklists/CHECK-REL-01.md",
+    "docs/cgpa/checklists/CHECK-OPS-01.md",
+    "docs/cgpa/checklists/CHECK-VAL-01.md",
+    "docs/cgpa/workflows/ci-cd-standard-workflow.md",
+    "docs/cgpa/workflows/environment-promotion-workflow.md",
+    "docs/cgpa/workflows/release-candidate-workflow.md",
+    "docs/cgpa/workflows/rollback-workflow.md",
+    "docs/cgpa/workflows/post-release-monitoring-workflow.md",
+    "docs/cgpa/migration/audit-initial-v6.1.1.md",
+    "docs/cgpa/06-planification-agile/plan-execution-migration-cgpa-v6.1.1.md"
+  ],
+  "active_text_paths": [
+    "README.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/project-state.md",
+    "docs/cgpa/README.md",
+    "docs/cgpa/VALIDATION-FRAMEWORK-v6.1.1.md",
+    "docs/cgpa/AUTOMATED-AUDIT-v6.1.1.md"
+  ],
+  "mojibake_markers": ["Ã", "Â", "â€"]
+}

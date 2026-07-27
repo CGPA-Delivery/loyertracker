@@ -1,10 +1,12 @@
 # LoyerTracker
 
+> Version courante : **CGPA v6.1.1 Enterprise**. La migration depuis v5.4.1 est additive, sans rejeu des Gates historiques. Le CGPA Chief Delivery Officer v6.1.1 conserve la décision finale ; aucune fusion sans validation humaine.
+
 Application web de **gestion locative bailleur-centrée avec délégation fine par bien** : centralisation des baux, suivi des paiements de loyer mois par mois (à terme échu), gestion des garanties locatives, honoraires de gestion délégués, et alertes sur les échéances clés (loyers en retard, fin de bail, préavis, garanties non restituées).
 
 ## État du projet
 
-Projet gouverné par le **CGPA**. Le projet a été démarré avec le référentiel local v1.0 (`setup-cgpa/`) et migré de manière additive jusqu'à **CGPA v5.4.1**. Le point d'entrée de reprise est `docs/project-state.md`. Phases de gouvernance franchies :
+Projet gouverné par le **CGPA**. Le projet a été démarré avec le référentiel local v1.0 (`setup-cgpa/`) et migré de manière additive jusqu'à **CGPA v6.1.1 Enterprise**. Le point d'entrée de reprise est `docs/project-state.md`. Phases de gouvernance franchies :
 
 | Gate | Phase | Statut |
 |------|-------|--------|
@@ -22,7 +24,7 @@ Projet gouverné par le **CGPA**. Le projet a été démarré avec le référent
 
 ## Phase actuelle
 
-CGPA v5.4.1 : **Phase 7 — Développement** pour les lots post-go-live. Production `1.7.0` LIVE depuis le 2026-07-03 (`sha-6a358eb6`, release clôturée le 2026-07-04 — Sprint 9 EP-12a Garantie ledger US-94). Sprint 10 (EP-12b, usage métier garantie US-95/96/97) fusionné sur `main` (PR #168), promotion Staging/Production à décider.
+CGPA v6.1.1 : **Phase 7 — Développement contrôlé** pour les lots post-go-live. Production `1.14.0` en hypercare ; la migration documentaire ne rejoue ni ne valide automatiquement aucun Gate applicatif.
 
 ## Stack
 
@@ -64,7 +66,7 @@ gh secret list                       # vérifier les secrets enregistrés
 |-------|-------------|
 | Architecture & ADR | `docs/cgpa/05-architecture-conception/` |
 | Backlog & sprints | `docs/cgpa/06-planification-agile/` |
-| Project State CGPA v5.3 | `docs/project-state.md` |
+| Project State CGPA v6.1.1 | `docs/project-state.md` |
 | Plan d'implémentation DevSecOps | `docs/cgpa/07-devsecops/plan-implementation.md` |
 | Migration CGPA v5.3 | `docs/cgpa/migration/migration-report-v5.3.md` |
 | Migration CGPA v5.4.1 | `docs/cgpa/migration/migration-report-v5.4.1.md` |
