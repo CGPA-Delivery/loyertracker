@@ -6,6 +6,40 @@
 
 
 
+## 0O. Déploiement Production `1.14.0` — 2026-07-24 (EP-16 Sprint N+1) — **régularisé a posteriori le 2026-07-27, `PRODUCTION_DEPLOYED` NON prononcé**
+
+> **Déploiement technique réellement exécuté le 2026-07-24 ~12:48–12:49 UTC par le PO, sans
+> rapport écrit au moment de la bascule** ; constaté et régularisé le 2026-07-27 par contrôles en
+> lecture seule (`deploiement-technique-v1.14.0-report.md`). Le déploiement est **techniquement
+> conforme** à toutes les conditions du Gate Production (`gate-production-sprint-n1-ep16-decision.md`)
+> et du Préflight (`preflight-backup-v1.14.0-report.md`) : candidat `sha-27dce09d`, digests exacts,
+> `api`+`nginx` seuls recréés (`postgres` créé le 2026-07-01, Keycloak et monitoring inchangés),
+> migration **V28 additive** appliquée (28/28 — seed de 3 templates + 2 fonctions `SECURITY
+> DEFINER`), rollback `sha-e4744d92` présent localement et viable même après V28. **Mais la
+> validation finale (smoke Production ≥ 63 PASS) n'a jamais été exécutée** : la Production a
+> tourné trois jours sur une release non validée fonctionnellement, sans incident observable
+> (0 `ERROR`, 0 5xx, 0 alerte sur 26 h). Par cohérence avec la régularisation `1.11.0` du
+> 2026-07-19, **`PRODUCTION_DEPLOYED` n'est pas prononcé** tant que le smoke n'a pas été rejoué.
+> Écart de gouvernance en **récidive** de celui de `1.11.0` — consigné `R-V54-2`.
+
+| Contrôle | Résultat |
+|---|---|
+| Release | `1.14.0` — EP-16 Sprint N+1 (WhatsApp P0, US-122/123) |
+| Tag / digests | `sha-27dce09d` ; API `sha256:089028b45a93afd4f12d5aa22cfc63a38f5687bb1d0f7204bc1965154ce8d7ff` ; Web `sha256:7dbc551ee722e1da7697d71749b94a731fce0b028b7b7288c88d8346488e8bc8` |
+| Rollback | `sha-e4744d92` (`1.13.0`) — images présentes localement ; viable même après V28 (additive) |
+| Déploiement | `api` + `nginx` recréés ciblés le 2026-07-24 12:48:50/12:48:51 UTC ; PostgreSQL, Keycloak et monitoring inchangés ; aucune commande Docker globale |
+| Flyway | V28 appliquée le 2026-07-24 12:49:00 UTC, **28/28** ; 3 templates seedés, 2 fonctions `SECURITY DEFINER` présentes |
+| K8 / ADR-18 | **Aucune variable Twilio dans le `.env` hôte** (0 occurrence). Le `docker-compose.yml` injecte les variables EP-16 avec repli sûr : credentials **vides**, `NOTIFICATIONS_EXTERNAL_ENABLED`/`TWILIO_WHATSAPP_ENABLED`/`TWILIO_SMS_ENABLED` = `false`, `NOTIFICATION_DRY_RUN` = `true` ⇒ `NoopNotificationProvider` seul actif |
+| Preuve d'inactivité externe | 17 événements `LOYER_EN_RETARD` dans `notification_event`, mais `notification_outbox` = **0** et `notification_delivery` = **0** — aucune tentative d'envoi |
+| Smoke | **NON EXÉCUTÉ** — condition 6 du Gate Production non satisfaite |
+| Services | 8/8 actifs, 4/4 healthy, `RestartCount=0` sur `api`/`nginx` |
+| Observabilité | Prometheus 5/5 `up` ; Alertmanager **0 alerte** ; 0 ligne 5xx ; 0 `ERROR` API (26 h) ; `/healthz` et site public 200 |
+| État CGPA | **`PRODUCTION_DEPLOYED` NON prononcé** — validation finale requise, sur autorisation PO explicite distincte |
+
+Rapports : `docs/cgpa/09-production/gate-production-sprint-n1-ep16-decision.md`,
+`docs/cgpa/09-production/preflight-backup-v1.14.0-report.md`,
+`docs/cgpa/09-production/deploiement-technique-v1.14.0-report.md`.
+
 ## 0N. Déploiement Production `1.13.0` — 2026-07-22/23 (EP-16 Sprint N)
 
 > **`PRODUCTION_DEPLOYED` atteint le 2026-07-23 ~16:13 UTC.** Gate Production GO sous réserve
