@@ -1,0 +1,83 @@
+# Rapport de migration — CGPA v6.1.1 Enterprise
+
+## 1. Source et cible
+
+- Source : CGPA v5.4.1.
+- Cible : CGPA v6.1.1 Enterprise.
+- Mode : additif, réexécutable, auditable et réversible.
+- Branche : `migration/cgpa-v6.1.1-enterprise`.
+- Base stable : `origin/main@1fae0edbf5fa05646d814f3c7e5f4d33d0bfd324`.
+- Référentiel : `setup-cgpa@64a4330897d4b7c1c9e1c6301e4520b3bf4b0a57`.
+
+## 2. Historique et Gates
+
+La lignée 3.0.1→5.0.1→5.2→5.3→5.4→5.4.1 est conservée. Les acquis v5.5, v5.6, v6.0,
+v6.1 et v6.1.1 sont ajoutés pour les prochains jalons applicables. Aucun Gate historique,
+y compris les NO GO, n'est rejoué ou modifié. Aucun rapport de release ou preuve historique n'est
+supprimé.
+
+## 3. Livrables
+
+- instructions actives AGENTS/CLAUDE/README synchronisées ;
+- Project State enrichi, état Production courant clarifié ;
+- référentiel v6.1, guides de migration, Validation Framework et audit ;
+- quatre vues d'architecture projet ;
+- packs UX/Design/Frontend et registre de dette ;
+- Financial Governance et registre d'écarts projet ;
+- Enterprise Delivery Pack, Gates, checklists et workflows ;
+- modèle des agents v6.1.1 complet ;
+- auditeur, tests et workflow CI ;
+- audit initial, Plan d'Exécution, CHECK-VAL-01 et rapports.
+
+## 4. Applicabilité
+
+- UX/Design/Frontend : applicable aux prochains lots Angular significatifs ; non-rejeu historique.
+- Financial Governance : applicable sans exemption globale ; CHECK-FIN-01 au prochain jalon
+  financier.
+- STG-ISOL-01 : applicable à chaque promotion sur `ai-test-server`.
+- Delivery : contrôles applicables au prochain changement/promotion/RC/Production concerné.
+- Migration documentaire : n'atteste aucune qualité applicative ni aucun Gate.
+
+## 5. Delivery Capability Level
+
+DCL actuel : non déclaré. Les preuves suggèrent des capacités proches de DCL 3 sans décision.
+DCL cible : DCL 4 après preuves build-once, immutabilité registry, rollback courant,
+observabilité qualifiée et contrôles Enterprise exécutés.
+
+## 6. Avis agents
+
+- Governance Officer : migration exécutable, fusion interdite avant contrôles et validation humaine.
+- Enterprise Architect : GO sous réserve documentaire ; risques Architecture, UX et Finance.
+- DevSecOps Lead / Delivery Architect : GO sous réserve ; supply chain et DCL non démontrés.
+- Release Manager / SRE : cycle 1.14.0 séparé ; observabilité/rollback réels mais limites à
+  qualifier.
+
+## 7. Validation
+
+- tests auditeur : 9/9 PASS ;
+- audit structurel : 97/97 PASS ;
+- `git diff --cached --check` : PASS ;
+- aucun fichier de décision Gate, Production ou migration historique modifié ;
+- CHECK-VAL-01 : PASS sous réserve technique, NO GO fusion.
+
+## 8. Risques et réserves
+
+Les risques financiers FIN-IMMUT-01/FIN-CONC-01 sont bloquants au prochain jalon financier
+concerné. Les dettes Architecture, UX et Delivery sont assignées dans le Project State. Pour la
+fusion de migration : PR #276 à resynchroniser et validation humaine finale manquante.
+
+## 9. Rollback
+
+Rollback Git non destructif : commit inverse avant fusion ou `git revert` après partage/fusion.
+Aucun `reset --hard`, `clean`, force-push ou réécriture d'historique. Vérifier le Project State
+et les liens après rollback.
+
+## 10. Décision
+
+Candidate documentaire : **PASS sous réserve**.
+
+Décision CDO de fusion : **NO GO** tant que la branche n'est pas resynchronisée après traitement du
+PR #276 et qu'une validation humaine explicite n'est pas enregistrée.
+
+Aucun code applicatif, aucune migration SQL, aucune promotion et aucun déploiement n'ont été
+réalisés.

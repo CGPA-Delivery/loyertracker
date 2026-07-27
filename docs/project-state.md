@@ -2,10 +2,10 @@
 
 ```yaml
 framework:
-  current_version: "5.4.1"
-  migrated_from: "5.4"
-  migration_date: "2026-06-24"
-  migration_status: "completed"
+  current_version: "6.1.1"
+  migrated_from: "5.4.1"
+  migration_date: ""
+  migration_status: "candidate_structurally_validated_pending_human_validation"
   # Lignee de migration : 3.0.1 -> 5.0.1 (2026-06-13) -> 5.2 (2026-06-16, additive, sans rejeu de gate) -> 5.3 (2026-06-23, additive, Release Management + UX/UI Governance) -> 5.4 (2026-06-24, additive, gouvernance Staging partagee + STG-ISOL-01) -> 5.4.1 (2026-06-24, normalisation des preuves STG-ISOL-01)
 ```
 
@@ -799,9 +799,9 @@ framework:
 
 * Nom du projet : LoyerTracker
 * Type de projet : application web de gestion locative bailleur-centree avec delegation fine par bien
-* Version actuelle : 1.13.0 (SemVer) — **EN PRODUCTION** depuis le 2026-07-23 (`PRODUCTION_DEPLOYED`, `sha-e4744d92`, `https://loyertracker.loyerpro.org`) — cf. `docs/prod-state.md` §0N pour l'historique complet des releases jusqu'ici.
+* Version actuelle : 1.14.0 (SemVer) — **EN PRODUCTION** (`PRODUCTION_DEPLOYED` le 2026-07-27, `sha-27dce09d`, `https://loyertracker.loyerpro.org`) ; hypercare T0 PASS, T+12/T+24 et clôture CDO encore distincts — cf. `docs/prod-state.md` §0O.
 * Depot : `/home/ubuntu/loyertracker`
-* Branche active de référence : `main` alignée sur `origin/main`. Production courante : **`sha-e4744d92`** (Release `1.13.0` — EP-16 Sprint N Fondation notifications, `PRODUCTION_DEPLOYED` le 2026-07-23). Migration V27 additive : rollback applicatif seul viable même après application.
+* Branche stable de référence : `main` ; migration préparée sur `migration/cgpa-v6.1.1-enterprise`. Production courante : **`sha-27dce09d`** (Release `1.14.0`, `PRODUCTION_DEPLOYED` le 2026-07-27). La dernière release clôturée reste `1.13.0` (`sha-e4744d92`) et sert de rollback applicatif, V28 étant additive.
 * Derniere mise a jour : 2026-07-27 (**Arbitrage PO sur `R-V54-2` — option (a) retenue, Plan d’Exécution proposé, aucun codage autorisé.** Le PO tranche en faveur d’un **fichier d’état de release versionné** (`infra/release/production-state.env` : `RELEASE_VERSION`, `PRODUCTION_TAG`, `FLYWAY_EXPECTED`, `PRODUCTION_DEPLOYED_AT`) contrôlé à trois endroits — CI, smoke, et un contrôle de dérive dédié `infra/release/check-release-state.sh` à deux modes lecture seule (`--ci` cohérence compteur/migrations et version/CHANGELOG ; `--host` déclaré vs réel sur `.env`, base et digests). Motif structurant : (a) est la seule des trois options à produire une **détection automatique**, (b) et (c) restant tributaires de la discipline humaine — précisément ce qui a échoué deux fois (`1.11.0` puis `1.14.0`). **Bénéfice collatéral majeur** : le mécanisme supprime le **compteur Flyway codé en dur à trois endroits** (`infra/smoke/smoke-stack.sh:92` ×2, `SchemaMigrationTest.java:72`), douleur récurrente à l’origine des incidents PR #77 et PR #171 — une migration ajoutée sans réalignement fera désormais **échouer la CI avant merge**. **Limite assumée et tracée** : la CI n’ayant aucun accès à l’hôte (clé SSH strictement locale), la dérive est détectée au **premier contrôle suivant** et non en temps réel ; l’apport réel est que la fenêtre d’aveuglement passe de « indéfinie, découverte fortuite » (3 jours pour `1.14.0`) à « prochain contrôle », et que l’oubli devient **impossible à ignorer** puisqu’il fait échouer le smoke. Extension identifiée hors périmètre : agent poussant l’état de l’hôte vers le Pushgateway existant, avec alerte Alertmanager sur divergence. Plan d’Exécution Niveau 1 : `docs/cgpa/06-planification-agile/plan-execution-rv542-verrou-etat-release.md`. **Conformément au verrou CGPA rappelé par `R-S04-1`, aucune ligne de code n’est autorisée avant un GO explicite du PO sur ce plan** ; `R-V54-2` reste **Ouvert** jusqu’à livraison, ses critères de fermeture étant définis dans le plan. §11, §13 et §14 mis à jour ; aucun impact Gate/Sprint/Staging/Production, état release inchangé.)
 * Derniere mise a jour precedente : 2026-07-27 (**Hypercare `1.14.0` — Checkpoint T0 PASS ~16:57 UTC.** Contrôlé à `2026-07-27T16:57:05Z` (`date -u` vérifié), ~11 min après `PRODUCTION_DEPLOYED`. Tous les contrôles verts : 8/8 actifs 4/4 healthy `RestartCount=0` (redémarrage complet de l’hôte du 2026-07-26 14:42 UTC antérieur à la validation, aucun redémarrage causé par elle), tag `sha-27dce09d` et digests conformes, Flyway 28/28, tables `notification_*` à 17/0/0/3/0 identiques au pré-validation, baseline 3/2/8/8/8/1/8/7 inchangée, `bailleur-test` désactivé et `directAccessGrantsEnabled=false`, **quatre flags externes vérifiés dans le conteneur API** (trois à `false`, `NOTIFICATION_DRY_RUN=true`), `/healthz` et site public 200, Prometheus 5/5, **Alertmanager 0 alerte** (le `BackupHeartbeatMissing` des T0 `1.10.0`/`1.13.0` ne s’est pas produit : heartbeat poussé au Préflight et hôte allumé en continu), Hikari `pending`=0, 0 5xx et 0 `ERROR` sur 15 min, 30 Gio disque libres et charge 0,00. **Point de contrôle spécifique satisfait : le résidu `notification_event` découvert au T0 de `1.13.0` ne s’est pas reproduit** — la leçon (inclure toute nouvelle table alimentée en écriture inline dans la liste post-nettoyage) a été appliquée à la validation finale, 0 ligne résiduelle confirmée, aucune correction nécessaire. **Particularité** : la fenêtre d’hypercare démarre à la date de la preuve (2026-07-27), pas du déploiement réel (2026-07-24) — les trois jours antérieurs restent contrôlés a posteriori mais sans télémétrie continue, même principe que `1.11.0`. **T+12 (cible 2026-07-28 ~04:46 UTC) et T+24 (cible ~16:46 UTC) restent à instruire ; clôture CDO interdite avant.** Plan : `docs/cgpa/09-production/plan-etape-hypercare-v1.14.0.md`.)
 * Mise a jour anterieure : 2026-07-27 (**Validation finale `1.14.0` — PASS, `PRODUCTION_DEPLOYED` atteint ~16:46 UTC.** Exécutée sur autorisation PO explicite et distincte, elle lève la réserve bloquante ouverte le jour même par la régularisation du déploiement technique. **Contrôle d'entrée sans anomalie** — `bailleur-test@test.local` déjà `enabled=false` et `directAccessGrantsEnabled=false`, contrairement à `1.13.0` où un réimport de realm l'avait réactivé ; Flyway 28/28, compteur du smoke aligné à 28, baseline 3/2/8/8/8/1/8/7. **Smoke Production : 63 PASS / 0 FAIL au premier passage** (RUN_ID `1785170429`, code de sortie 0 capturé directement et non masqué par un pipe), couverture identique aux validations précédentes (JWT réels via Nginx TLS, parcours bailleur avec `locataireId`, invitation→acceptation Admin API→JWT gestionnaire, honoraires, alertes PREAVIS, audit, isolation cross-tenant live, RGPD export + effacement 403/204, garde-fous AuthN/ports, surface publique de vérification sans oracle) ; échafaudage `directAccessGrants` révoqué automatiquement. **Volet notifications validé en conditions réelles de Production — différence de fond avec `1.13.0` où les tables restaient vides** : le run a produit **8 `notification_event`** (5 `LOYER_EN_RETARD`, 1 `PAIEMENT_RECU`, 1 `BAIL_CREE`, 1 `PREAVIS`) tandis que **`notification_outbox` et `notification_delivery` sont restés à 0** avant, pendant et après — y compris pour `PAIEMENT_RECU`, sans template approuvé donc `DEAD` sans envoi. **Condition 6 du Gate Production satisfaite en Production réelle ; aucun envoi externe possible**, `NoopNotificationProvider` seul actif. **Nettoyage transactionnel : 47 lignes en une seule transaction** (dont les 8 `notification_event` du run, séparés des 17 préexistants appartenant à un bailleur réel ; 0 quittance référencée vérifiée avant suppression), 2 comptes Keycloak smoke supprimés, `bailleur-test` redésactivé. **État final : baseline métier et tables `notification_*` restaurées à l'identique** (3/2/8/8/8/1/8/7 et 17/0/0/3/0), 8/8 actifs 4/4 healthy, Prometheus 5/5, Alertmanager 0 alerte, 0 5xx, 0 résidu. **Note de méthode tracée** : une première tentative de nettoyage a échoué **avant tout `DELETE`** (expansion des marqueurs `$$` par le shell distant), transaction interrompue par `ON_ERROR_STOP=1`, état de la base explicitement revérifié comme inchangé avant relance par stdin. **Note non bloquante** : 1 `ERROR` API pendant le smoke (`duplicate key … bailleur_keycloak_id_key`) — pattern déjà documenté à l'hypercare `1.10.0`, l'API répond 409 correctement. **`PRODUCTION_DEPLOYED` prononcé à la date de sa preuve** (2026-07-27), le déploiement réel datant du 2026-07-24 — même principe que la régularisation `1.11.0`. §3, §3A, §11 et §14 mis à jour ; `docs/prod-state.md` §0O complété. **Prochaines étapes : hypercare T0/T+12/T+24 puis clôture CDO.** L'écart **R-V54-2** reste **ouvert** — sa mesure structurelle est indépendante de cette validation.)
@@ -1823,3 +1823,173 @@ déploiement ».
 - `docs/cgpa/checklists/stg-isol-01-checklist.md`
 - `docs/cgpa/07-devsecops/gate-stg-isol-01-decision.md`
 - `docs/cgpa/05-architecture-conception/adr/ADR-STG-001-isolation-staging-partage.md`
+
+
+## 17. Migration CGPA v6.1.1 Enterprise — candidate documentaire
+
+### Identification
+
+| Champ | Valeur |
+| --- | --- |
+| Version source | CGPA v5.4.1 |
+| Version cible | CGPA v6.1.1 Enterprise |
+| Référentiel canonique | `setup-cgpa@64a4330897d4b7c1c9e1c6301e4520b3bf4b0a57` |
+| Branche | `migration/cgpa-v6.1.1-enterprise` |
+| Base stable | `origin/main@1fae0edbf5fa05646d814f3c7e5f4d33d0bfd324` |
+| Nature | additive, idempotente, réversible, sans rejeu de Gate |
+| Statut | candidate en attente de CHECK-VAL-01, resynchronisation PR #276 et validation humaine |
+| Décision de fusion | non prise ; aucune fusion autorisée par cette section |
+
+La lignée devient, sous réserve de validation humaine finale :
+
+`3.0.1 -> 5.0.1 -> 5.2 -> 5.3 -> 5.4 -> 5.4.1 -> 5.5 -> 5.6 -> 6.0 -> 6.1 -> 6.1.1`.
+
+Les versions intermédiaires apportent respectivement Financial Governance, UX/Design Governance,
+les quatre architectures et Frontend Governance, puis Enterprise Delivery Governance. Aucun Gate
+historique n'est rejoué. Les nouveaux contrôles s'appliquent au prochain changement ou Gate
+concerné.
+
+### Project State courant
+
+Production courante prouvée : **`1.14.0`, `sha-27dce09d`, `PRODUCTION_DEPLOYED` le
+2026-07-27**. Le checkpoint hypercare T0 est PASS ; T+12, T+24 et la clôture CDO restent des actes
+distincts non exécutés par cette migration. La dernière release pleinement clôturée reste
+`1.13.0`.
+
+Clarifications additives :
+
+- les mentions historiques de Production `1.13.0` restent vraies pour leur date mais ne décrivent
+  plus l'état courant ;
+- `RSV-STG-01` est **fermée depuis le 2026-06-25** selon le registre §16 ; toute mention
+  « maintenue » dans un bandeau historique est superseded par ce registre ;
+- l'état final de `R-V54-2` dépend du PR #276 encore ouvert au démarrage de la migration ; sa
+  décision ne sera ni copiée ni anticipée avant traitement humain de ce PR.
+
+### Quatre architectures
+
+| Architecture | État | Référence | Réserve |
+| --- | --- | --- | --- |
+| Métier | documentée et indexée | `docs/cgpa/architecture/architecture-metier.md` | contenu historique dispersé, index désormais actif |
+| Logicielle | socle solide, synchronisation partielle | `docs/cgpa/architecture/architecture-logicielle.md` | addendum EP-16/V27/V28 et OpenAPI à traiter |
+| Technique | documentée et mappée Delivery | `docs/cgpa/architecture/architecture-technique.md` | build-once/supply chain et rollback courant à prouver |
+| UX/UI | applicable, dette ouverte | `docs/cgpa/architecture/architecture-ux-ui.md` | UXR/DDS/DSG et traçabilité au prochain lot Frontend |
+
+L'exemption historique de non-rejeu du Gate 02A est conservée. Une exemption future n'est possible
+que pour un lot strictement documentaire, backend ou infrastructure sans impact UI, avec
+justification et approbation. Gate 02A et Gate 04A sont obligatoires au prochain lot Frontend
+significatif.
+
+### Financial Governance
+
+Financial Governance est **applicable sans exemption globale**. Références :
+`docs/cgpa/finance/` et
+`docs/cgpa/finance/financial-governance-status-loyertracker.md`.
+
+CHECK-FIN-01 est obligatoire au prochain changement ou Gate financier. Les risques
+`FIN-IMMUT-01`, `FIN-CONC-01`, `FIN-ROUND-01` et `FIN-COMP-01` sont ouverts. Les deux
+premiers sont bloquants pour le prochain jalon concerné tant qu'une preuve suffisante n'existe pas.
+Ils n'invalident pas rétroactivement les releases.
+
+### Enterprise Delivery Governance
+
+#### Branch Strategy
+
+GitHub Flow adapté : branche dédiée, Pull Request, checks requis stricts, résolution des
+conversations, interdiction d'écriture directe sur `main` et validation humaine finale.
+
+#### Promotion Strategy
+
+Local/Dev -> Test CI -> Staging mutualisé -> Production dédiée. Merge et push ne valent pas
+autorisation. Les promotions utilisent les Gates et contrôles du jalon.
+
+#### Release Candidate actuelle
+
+Aucune Release Candidate n'est créée par la migration. La release Production `1.14.0` est un
+cycle opérationnel distinct en hypercare. Toute future RC est identifiée par version, commit, tag
+et digest immutable.
+
+#### Artefact immutable
+
+Les tags `sha-<8>` et digests sont tracés historiquement. L'immutabilité registry et le principe
+build-once/scan/sign/promote du même artefact restent à démontrer au prochain changement CI/CD.
+
+#### Rollback Strategy
+
+Redéploiement du tag précédent, sauvegarde/restauration données et configuration/infrastructure/
+flags selon applicabilité. CHECK-REL-01 et CHECK-OPS-01 doivent rattacher la preuve à la RC exacte.
+
+#### Observability Strategy
+
+Logs JSON, Actuator, Prometheus, Alertmanager, Blackbox, Pushgateway, smoke et hypercare. La
+télémétrie est discontinue lorsque l'hôte Production est volontairement éteint ; cette limite est
+qualifiée à chaque décision.
+
+#### Operations Readiness
+
+Readiness réelle mais non automatiquement validée par la migration. CHECK-OPS-01 pré-Production et
+post-Production est obligatoire au prochain cycle.
+
+#### Delivery Capability Level actuel
+
+**Non déclaré** : les preuves indiquent des capacités proches du DCL 3, mais aucune décision
+formelle n'est prise par la migration.
+
+#### Delivery Capability Level cible
+
+**DCL 4**, sous réserve de preuves build-once, immutabilité registry, rollback courant,
+observabilité qualifiée, CHECK-CICD-01/CHECK-REL-01/CHECK-OPS-01 exécutés et validation humaine.
+
+### Environnements et Staging Isolation
+
+Staging reste mutualisé sur `ai-test-server`. ADR-STG-001 et STG-ISOL-01 historiques sont
+préservés. STG-ISOL-01 n'est pas rejoué et demeure bloquant avant chaque prochaine promotion :
+noms Compose, réseaux, volumes, ports, secrets, pipeline, routage et absence d'impact interprojet
+sont vérifiés avant/après. Toute commande Docker globale reste interdite.
+
+### Gates et contrôles applicables
+
+- Gate 06A : appliquer au prochain changement significatif de pipeline/capacité, sans rejouer le
+  GO historique.
+- CHECK-CICD-01 : prochain changement significatif et prochaine promotion Staging.
+- Gate Staging + STG-ISOL-01 : prochaine promotion Staging.
+- CHECK-FIN-01 : prochain changement/Gate financier.
+- Gate 02A / Gate 04A et Visual Review : prochain lot Frontend significatif.
+- CHECK-REL-01 et Gate 07A : prochaine RC exacte.
+- CHECK-OPS-01 pré-Production et Gate 09 : prochaine promotion Production.
+- CHECK-OPS-01 post-Production et Gate 10 : prochain contrôle d'exécution.
+- CHECK-VAL-01 : présente migration documentaire.
+
+### Modèle des agents et IA
+
+Le modèle opératoire, le registre et le routage v6.1.1 sont actifs sous
+`docs/cgpa/agents/`. Les avis Governance, Architecture, DevSecOps/Delivery, Release et SRE de
+l'audit initial sont tracés dans
+`docs/cgpa/migration/audit-initial-v6.1.1.md`.
+
+La migration a été préparée avec contribution IA significative. Elle reste soumise à revue humaine,
+aux mêmes contrôles de confidentialité, sécurité, licence et propriété intellectuelle, et ne produit
+aucune validation autonome.
+
+### Risques et réserves de migration
+
+| ID | Criticité | Responsable | Échéance | Preuve attendue | Statut |
+| --- | --- | --- | --- | --- | --- |
+| RSV-MIG-611-01 | Bloquant fusion | Release Manager | avant validation finale | branche resynchronisée après traitement PR #276, diff revu | Ouvert |
+| RSV-MIG-611-02 | Bloquant fusion initial | Governance Officer | 2026-07-27 | CHECK-VAL-01, 9/9 tests et audit 97/97 PASS | **Levée** |
+| RSV-MIG-611-03 | Bloquant fusion | CDO humain | avant fusion | approbation PR explicite | Ouvert |
+| RSV-MIG-611-04 | Majeur | Enterprise Architect | prochain changement architecture | addendum DAT EP-16/V27/V28 et décision OpenAPI | Ouvert |
+| RSV-MIG-611-05 | Majeur | DevSecOps Lead | prochain changement CI/CD | preuve build-once, immutabilité et supply chain ou exemption approuvée | Ouvert |
+| RSV-MIG-611-06 | Majeur | UX/UI Design Lead | prochain lot Frontend | UXR/DDS/DSG, dette et Visual Review | Ouvert |
+
+### Rollback de migration
+
+Rollback Git non destructif uniquement : commit inverse avant fusion ou `git revert` après partage.
+`git reset --hard`, `git clean`, force-push et réécriture d'historique sont interdits. Le
+Project State restauré et les liens sont revérifiés après rollback.
+
+### Action autorisée
+
+Les tests de l'auditeur (9/9) et l'audit structurel (97/97) sont PASS. Corriger uniquement les écarts documentaires de la
+branche, resynchroniser après le traitement humain du PR #276, puis soumettre la Pull Request à
+validation humaine. Aucun code applicatif, aucune promotion, aucun déploiement et aucune fusion ne
+sont autorisés par cette migration.
