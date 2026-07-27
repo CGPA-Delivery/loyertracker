@@ -45,6 +45,14 @@ jobs:
           java-version: "21"
           cache: maven
 
+      # Verrou d'état de release (R-V54-2) : cohérence entre le compteur Flyway déclaré dans
+      # infra/release/production-state.env, les fichiers de migration, la version du CHANGELOG
+      # et le format du tag. Bloquant : une migration ajoutée sans mise à jour du fichier
+      # d'état échoue ici, avant merge (incidents PR #77 / #171).
+      - name: Verrou d'état de release
+        working-directory: .
+        run: bash infra/release/check-release-state.sh --ci
+
       # mvn verify : compile + tests (SchemaMigrationTest démarre un PostgreSQL via Docker,
       # disponible nativement sur les runners GitHub) + rapport et quality gate JaCoCo.
       - name: Build, tests et couverture
