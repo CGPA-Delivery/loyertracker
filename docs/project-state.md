@@ -1991,7 +1991,7 @@ aucune validation autonome.
 | RSV-MIG-611-02 | Bloquant fusion initial | Governance Officer | 2026-07-27 | CHECK-VAL-01, 9/9 tests et audit 97/97 PASS | **Levée** |
 | RSV-MIG-611-03 | Bloquant fusion initial | CDO humain | 2026-07-27 | décision explicite « GO » reçue via la conversation de pilotage, PR #277 | **Levée** |
 | RSV-MIG-611-04 | Majeur | Enterprise Architect | prochain changement architecture | addendum DAT EP-16/V27/V28 et décision OpenAPI | Ouvert |
-| RSV-MIG-611-05 | Majeur | DevSecOps Lead | prochain changement CI/CD | preuve build-once, immutabilité et supply chain ou exemption approuvée | Ouvert |
+| RSV-MIG-611-05 | Majeur | DevSecOps Lead | prochain changement CI/CD | preuve build-once, immutabilité et supply chain ou exemption approuvée | **Levée** le 2026-07-28 à la fusion de la PR #285 (commit `ceafa32`) — cf. « Clôture post-fusion supply-chain » |
 | RSV-MIG-611-06 | Majeur | UX/UI Design Lead | prochain lot Frontend | UXR/DDS/DSG, dette et Visual Review | Ouvert |
 
 ### Rollback de migration
@@ -2304,3 +2304,25 @@ Preuves locales : garde 7/7 PASS, lecture GHCR live API/Web PASS, scan actif PAS
 
 
 Le 2026-07-28, après examen de la PR #287 au commit ab9aae33687db62da5086321792ff51d873cffda, le validateur humain a déclaré : « j'ai approuvé #287 ». Cette déclaration vaut GO humain final pour la PR Delivery non destructive. La fusion protégée devient autorisable sous maintien de tous les checks au vert, mais reste une action distincte non encore demandée. Aucun déploiement, promotion ou changement GHCR n'est autorisé par cette validation.
+
+### Clôture post-fusion — quarantaine des alias GHCR `latest` (PR #287)
+
+La PR #287 a été fusionnée par le workflow GitHub protégé le **2026-07-28T15:12:16Z**, sans
+contournement administrateur. Le commit de fusion exact est
+`624f3f3c7dcf0b124933cf258f9c330027d8d765`, confirmé sur `origin/main`. Les preuves de la PR au
+commit `e4ac7d18e46cf80c0a2aef30c60cb3577e264855` sont toutes conformes : Backend, Frontend,
+Sécurité (gitleaks + SCA + Trivy), CodeQL `java-kotlin` et `javascript-typescript`, audit
+structurel CGPA et **Registry Policy (« Quarantaine GHCR latest ») PASS** ; les deux jobs Docker
+sont correctement **SKIPPED**, le lot n'ayant aucun impact image.
+
+`PE-GHCR-LATEST-01` est ainsi exécuté en **quarantaine non destructive** : aucune version, aucun
+manifeste, aucun tag et aucun digest GHCR n'a été supprimé ni modifié. La politique versionnée
+`infra/ci/legacy-latest-policy.json`, la garde `infra/ci/legacy-latest-guard.sh` et le workflow
+quotidien `.github/workflows/registry-policy.yml` à permissions de lecture contrôlent désormais la
+dérive, le doublon, la disparition non instruite et toute référence applicative active vers
+`latest`.
+
+`CHECK-CICD-01` est **PASS au jalon post-fusion `main`**. La réserve `RSV-GHCR-EXT-01` (absence de
+consommateur externe non prouvée) reste **ouverte** sous responsabilité DevSecOps Lead, avec
+réévaluation au plus tard le **2026-10-28**. Aucun DCL supérieur n'est déclaré. Aucun déploiement,
+aucune promotion et aucune mutation GHCR n'a été exécuté ni autorisé par cette fusion.
