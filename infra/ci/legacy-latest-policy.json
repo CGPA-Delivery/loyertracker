@@ -1,0 +1,15 @@
+{
+  "owner": "jptshilombo",
+  "packages": {
+    "loyertracker-api": {
+      "version_id": 1073590800,
+      "digest": "sha256:5dcd38449045a19ff866edd65572ce49773d6e9e57a494bab96e9601fe67e0fd",
+      "historical_tag": "sha-19d0d0a4"
+    },
+    "loyertracker-web": {
+      "version_id": 1073591135,
+      "digest": "sha256:87ae45aee77310bc71ee20589564d6e6e759b00a16ca26e259f84b4dcc9997df",
+      "historical_tag": "sha-19d0d0a4"
+    }
+  }
+}

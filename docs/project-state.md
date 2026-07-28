@@ -2290,3 +2290,17 @@ post-fusion sont tous PASS : CI `30340116595`, CodeQL `30340116667` et audit CGP
 `30340116657`. Le job Packaging a néanmoins reconstruit les images et publié les tags SHA et
 `latest`, ce qui confirme à nouveau le périmètre du Plan Delivery #279. La branche de #279 est
 resynchronisée additivement sur ce `main` vert ; aucun changement CI/CD n'est encore implémenté.
+
+
+### Exécution Delivery non destructive — quarantaine des alias GHCR latest
+
+Le 2026-07-28, l'implémentation de PE-GHCR-LATEST-01 est engagée sur la branche dédiée agent/retirement-latest-ghcr et la PR Delivery brouillon #287. La documentation officielle GitHub Packages ne démontre pas le détachement du seul tag. Comme les versions 1073590800 et 1073591135 portent chacune sha-19d0d0a4 avec latest, la décision d'exécution est QUARANTAINE. Aucune version, aucun manifeste, aucun tag et aucun digest GHCR n'est supprimé ou modifié.
+
+Une politique versionnée, une garde testable et un workflow quotidien à permissions de lecture contrôlent la dérive, le doublon, la disparition non instruite et toute référence applicative active vers latest. Le rapport docs/cgpa/07-devsecops/report-execution-retrait-alias-latest-ghcr.md conserve les digests et les preuves.
+
+RSV-MIG-611-04, RSV-MIG-611-06 et Financial Governance ne sont pas déclenchées par ce lot sans changement d'architecture applicative, d'interface ou de logique financière. Elles restent applicables uniquement aux prochains changements concernés, sans rejeu des Gates historiques.
+
+Preuves locales : garde 7/7 PASS, lecture GHCR live API/Web PASS, scan actif PASS, classificateur 11/11 PASS, tests auditeur 9/9 PASS, audit CGPA 97/97 PASS, YAML et diff PASS. Preuves distantes au commit 75f966729dda2d5ebf08cee762bf483967bfdb8a : CI 30370787645, CodeQL 30370788981, audit CGPA 30370787968 et Registry Policy 30370788321 PASS ; les deux jobs Docker sont SKIPPED. CHECK-CICD-01 est PASS au jalon PR. Statut : PR brouillon en attente de validation humaine finale. Aucun déploiement, promotion, relèvement DCL ou mutation GHCR n'est autorisé. La réserve sur les consommateurs externes reste ouverte sous responsabilité DevSecOps Lead, avec réévaluation au plus tard le 2026-10-28.
+
+
+Le 2026-07-28, après examen de la PR #287 au commit ab9aae33687db62da5086321792ff51d873cffda, le validateur humain a déclaré : « j'ai approuvé #287 ». Cette déclaration vaut GO humain final pour la PR Delivery non destructive. La fusion protégée devient autorisable sous maintien de tous les checks au vert, mais reste une action distincte non encore demandée. Aucun déploiement, promotion ou changement GHCR n'est autorisé par cette validation.

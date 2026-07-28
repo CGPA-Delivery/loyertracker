@@ -1,0 +1,33 @@
+name: Registry Policy
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  legacy-latest-quarantine:
+    name: Quarantaine GHCR latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Test quarantine guard
+        run: bash infra/ci/test-legacy-latest-guard.sh
+
+      - name: Reject active latest references
+        run: bash infra/ci/legacy-latest-guard.sh scan
+
+      - name: Verify historical aliases are frozen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash infra/ci/legacy-latest-guard.sh live
