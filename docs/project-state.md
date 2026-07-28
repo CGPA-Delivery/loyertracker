@@ -5,7 +5,7 @@ framework:
   current_version: "6.1.1"
   migrated_from: "5.4.1"
   migration_date: "2026-07-27"
-  migration_status: "human_validated_pending_merge"
+  migration_status: "completed"
   # Lignee de migration : 3.0.1 -> 5.0.1 (2026-06-13) -> 5.2 (2026-06-16, additive, sans rejeu de gate) -> 5.3 (2026-06-23, additive, Release Management + UX/UI Governance) -> 5.4 (2026-06-24, additive, gouvernance Staging partagee + STG-ISOL-01) -> 5.4.1 (2026-06-24, normalisation des preuves STG-ISOL-01)
 ```
 
@@ -1849,8 +1849,9 @@ déploiement ».
 | Branche | `migration/cgpa-v6.1.1-enterprise` |
 | Base stable | `origin/main` commit `982fd6534cb6bd028b03409c2c06e51b75f55abd` (PR 276 intégré) |
 | Nature | additive, idempotente, réversible, sans rejeu de Gate |
-| Statut | migration resynchronisée, structurellement validée et approuvée humainement ; fusion non exécutée |
+| Statut | **migration terminée** ; PR #277 fusionnée sur `main`, contrôles post-fusion PASS |
 | Décision de fusion | **GO humain** reçu le 2026-07-27 via la conversation de pilotage ; fusion autorisée après enregistrement de cette preuve et maintien des checks verts |
+| Fusion | PR #277 fusionnée le 2026-07-27T18:35:59Z, commit `86c65be0015269e52f7462ebd5260b3502cdca58` |
 
 La lignée cible validée est :
 
@@ -2005,3 +2006,19 @@ Les tests de l’auditeur (9/9), l’audit structurel (97/97), la CI GitHub comp
 `31a7e3d` et la validation humaine finale sont PASS. La migration peut être fusionnée par le
 workflow GitHub protégé. Cette décision n’autorise aucun code applicatif, aucune promotion Staging
 ni aucun déploiement Production.
+
+### Clôture post-fusion
+
+La PR #277 a été fusionnée via le workflow GitHub protégé le 2026-07-27T18:35:59Z. Le commit de
+fusion exact est `86c65be0015269e52f7462ebd5260b3502cdca58`, également observé sur
+`origin/main`. Les contrôles déclenchés sur ce commit sont tous terminés avec succès :
+
+- CI, run `30294489986` : Backend, Frontend, Sécurité et Packaging Docker PASS ;
+- CodeQL, run `30294492227` : PASS ;
+- CGPA Framework Audit, run `30294487977` : PASS.
+
+La migration CGPA v6.1.1 Enterprise est donc **terminée**. Cette clôture n'autorise aucune
+promotion Staging ou Production et ne valide rétroactivement aucun Gate applicatif. L'exécution
+post-fusion a également confirmé la réserve `RSV-MIG-611-05` : un changement documentaire sur
+`main` reconstruit et publie actuellement les images applicatives et met à jour l'alias mutable
+`latest`. Ce sujet est isolé dans un Plan d'Exécution et une Pull Request Delivery distincts.
