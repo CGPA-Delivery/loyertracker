@@ -178,7 +178,8 @@ jobs:
           SONAR_HOST_URL: https://sonar.loyerpro.org
 
   # ----------------------------------------------------------------------------------
-  # Sécurité : scan de secrets, analyse de composition (SCA) et scan d'image conteneur.
+  # Sécurité source : scan de secrets et analyse de composition. Les images sont
+  # construites une seule fois, scannées et attestées dans le job Packaging.
   # ----------------------------------------------------------------------------------
   security:
     name: Sécurité (gitleaks + SCA + Trivy)
@@ -232,49 +233,18 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
 
-      # 4. Scan de l'image conteneur de l'API (vulnérabilités OS + dépendances Java + secrets
-      #    éventuellement empaquetés dans les couches — scanners vuln,secret par défaut).
-      - name: Build de l'image API (pour le scan)
-        run: docker build -t loyertracker-api:ci ./backend
-
-      - name: Trivy (scan image)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: loyertracker-api:ci
-          scanners: "vuln,secret"
-          severity: "CRITICAL,HIGH"
-          exit-code: "1"
-          ignore-unfixed: true
-
-      # 5. Scan de l'image conteneur Web (Nginx + assets SPA) — même politique que l'API.
-      #    Les deux images publiées au registry (job docker-build) sont ainsi toutes deux
-      #    couvertes par le gate image avant tout push.
-      - name: Build de l'image Web (pour le scan)
-        run: docker build -f frontend/Dockerfile -t loyertracker-web:ci .
-
-      - name: Trivy (scan image Web)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: loyertracker-web:ci
-          scanners: "vuln,secret"
-          severity: "CRITICAL,HIGH"
-          exit-code: "1"
-          ignore-unfixed: true
-
   # ----------------------------------------------------------------------------------
-  # Packaging + livraison : build des deux images Docker une fois la qualité validée et
-  # uniquement si leurs contextes ont changé, puis push vers GHCR sur la branche principale
-  # (chaîne de livraison, lot Production Readiness 1). Seuls les tags IMMUABLES `sha-<8>`
-  # sont publiés ; déploiement et rollback utilisent toujours ce tag explicite.
+  # Supply chain : chaque image est construite une seule fois, puis cette image exacte est
+  # scannée, documentée par SBOM, publiée sans écrasement, signée et attestée. Sur PR, le job
+  # s'arrête après build/scan/SBOM ; aucune permission de publication n'est alors utilisée.
   # ----------------------------------------------------------------------------------
   docker-build:
-    name: Packaging Docker
+    name: Build, scan et SBOM Docker
     needs: [detect-images, backend, frontend, security]
     if: needs.detect-images.outputs.images_changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # push GHCR via GITHUB_TOKEN (aucun secret supplémentaire)
     env:
       REGISTRY: ghcr.io
       IMAGE_BASE: ghcr.io/${{ github.repository_owner }}
@@ -283,31 +253,210 @@ jobs:
 
       - name: Tag court du commit
         id: meta
-        run: echo "tag=sha-${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "tag=sha-${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+          bash infra/ci/test-supply-chain.sh
 
-      # Image API (multi-stage Maven → JRE Alpine non-root).
-      - name: Build image API
+      - name: Build unique image API
         run: docker build -t loyertracker-api:${{ steps.meta.outputs.tag }} ./backend
 
-      # Image Web (SPA Angular buildée + Nginx reverse-proxy, contexte racine — ADR-08).
-      - name: Build image Web
+      - name: Scan image API exacte
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: loyertracker-api:${{ steps.meta.outputs.tag }}
+          scanners: "vuln,secret"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+          ignore-unfixed: true
+
+      - name: SBOM SPDX image API exacte
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: loyertracker-api:${{ steps.meta.outputs.tag }}
+          format: spdx-json
+          output: sbom-api.spdx.json
+
+      - name: Build unique image Web
         run: docker build -f frontend/Dockerfile -t loyertracker-web:${{ steps.meta.outputs.tag }} .
 
-      # Livraison : uniquement sur push de la branche principale (jamais depuis une PR,
-      # dont le GITHUB_TOKEN reste en lecture seule). La qualité est déjà validée par
-      # `needs` (backend + frontend + sécurité, scans Trivy des deux images inclus).
+      - name: Scan image Web exacte
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: loyertracker-web:${{ steps.meta.outputs.tag }}
+          scanners: "vuln,secret"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+          ignore-unfixed: true
+
+      - name: SBOM SPDX image Web exacte
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: loyertracker-web:${{ steps.meta.outputs.tag }}
+          format: spdx-json
+          output: sbom-web.spdx.json
+
+      - name: Exporter les images exactes sans reconstruction
+        run: |
+          docker save --output loyertracker-images.tar \
+            "loyertracker-api:${{ steps.meta.outputs.tag }}" \
+            "loyertracker-web:${{ steps.meta.outputs.tag }}"
+
+      - name: Transférer les images et SBOM vers la publication contrôlée
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: supply-chain-build-${{ github.run_id }}
+          path: |
+            loyertracker-images.tar
+            sbom-api.spdx.json
+            sbom-web.spdx.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  publish-images:
+    name: Publication, signatures et attestations
+    needs: [detect-images, docker-build]
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      needs.detect-images.outputs.images_changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_BASE: ghcr.io/${{ github.repository_owner }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Télécharger les images exactes et les SBOM
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: supply-chain-build-${{ github.run_id }}
+
+      - name: Charger les images sans reconstruction
+        run: docker load --input loyertracker-images.tar
+
+      - name: Tag court du commit
+        id: meta
+        run: echo "tag=sha-${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
       - name: Connexion à GHCR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push des images vers GHCR (sha immutable)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Publier image API sans écrasement
+        id: publish-api
         run: |
-          for img in loyertracker-api loyertracker-web; do
-            docker tag "$img:${{ steps.meta.outputs.tag }}" "$IMAGE_BASE/$img:${{ steps.meta.outputs.tag }}"
-            docker push "$IMAGE_BASE/$img:${{ steps.meta.outputs.tag }}"
+          digest="$(bash infra/ci/supply-chain.sh publish \
+            "loyertracker-api:${{ steps.meta.outputs.tag }}" \
+            "$IMAGE_BASE/loyertracker-api" "${{ steps.meta.outputs.tag }}")"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Publier image Web sans écrasement
+        id: publish-web
+        run: |
+          digest="$(bash infra/ci/supply-chain.sh publish \
+            "loyertracker-web:${{ steps.meta.outputs.tag }}" \
+            "$IMAGE_BASE/loyertracker-web" "${{ steps.meta.outputs.tag }}")"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+      - name: Installer Cosign
+        uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
+
+      - name: Signer et vérifier les images par digest
+        env:
+          API_DIGEST: ${{ steps.publish-api.outputs.digest }}
+          WEB_DIGEST: ${{ steps.publish-web.outputs.digest }}
+          COSIGN_YES: "true"
+        run: |
+          identity="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/ci.yml@refs/heads/main"
+          issuer="https://token.actions.githubusercontent.com"
+          for ref in \
+            "$IMAGE_BASE/loyertracker-api@$API_DIGEST" \
+            "$IMAGE_BASE/loyertracker-web@$WEB_DIGEST"; do
+            cosign sign "$ref"
+            cosign verify \
+              --certificate-identity "$identity" \
+              --certificate-oidc-issuer "$issuer" \
+              "$ref"
           done
+
+      - name: Attester provenance API
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4
+        with:
+          subject-name: ${{ env.IMAGE_BASE }}/loyertracker-api
+          subject-digest: ${{ steps.publish-api.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attester SBOM API
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4
+        with:
+          subject-name: ${{ env.IMAGE_BASE }}/loyertracker-api
+          subject-digest: ${{ steps.publish-api.outputs.digest }}
+          sbom-path: sbom-api.spdx.json
+          push-to-registry: true
+
+      - name: Attester provenance Web
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4
+        with:
+          subject-name: ${{ env.IMAGE_BASE }}/loyertracker-web
+          subject-digest: ${{ steps.publish-web.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attester SBOM Web
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4
+        with:
+          subject-name: ${{ env.IMAGE_BASE }}/loyertracker-web
+          subject-digest: ${{ steps.publish-web.outputs.digest }}
+          sbom-path: sbom-web.spdx.json
+          push-to-registry: true
+
+      - name: Vérifier les attestations GitHub
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API_DIGEST: ${{ steps.publish-api.outputs.digest }}
+          WEB_DIGEST: ${{ steps.publish-web.outputs.digest }}
+        run: |
+          for ref in \
+            "oci://$IMAGE_BASE/loyertracker-api@$API_DIGEST" \
+            "oci://$IMAGE_BASE/loyertracker-web@$WEB_DIGEST"; do
+            gh attestation verify "$ref" -R "$GITHUB_REPOSITORY"
+            gh attestation verify "$ref" -R "$GITHUB_REPOSITORY" \
+              --predicate-type https://spdx.dev/Document/v2.3
+          done
+
+      - name: Générer le manifeste de release vérifié
+        env:
+          API_DIGEST: ${{ steps.publish-api.outputs.digest }}
+          WEB_DIGEST: ${{ steps.publish-web.outputs.digest }}
+        run: |
+          bash infra/ci/supply-chain.sh manifest release-manifest.json \
+            "$GITHUB_SHA" "${{ steps.meta.outputs.tag }}" \
+            "$IMAGE_BASE/loyertracker-api@$API_DIGEST" \
+            "$IMAGE_BASE/loyertracker-web@$WEB_DIGEST" \
+            sbom-api.spdx.json sbom-web.spdx.json \
+            "$GITHUB_WORKFLOW_REF" \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          jq . release-manifest.json
+
+      - name: Conserver les preuves supply-chain
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: supply-chain-release-${{ github.run_id }}
+          path: |
+            sbom-api.spdx.json
+            sbom-web.spdx.json
+            release-manifest.json
+          if-no-files-found: error
+          retention-days: 90

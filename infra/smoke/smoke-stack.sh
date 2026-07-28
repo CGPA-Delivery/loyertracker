@@ -105,13 +105,17 @@ MIG=$(docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
   && ok "Flyway : $MIG migrations appliquées (attendu $FLYWAY_EXPECTED, source production-state.env)" \
   || ko "Flyway : $MIG migrations (attendu $FLYWAY_EXPECTED)"
 
-# Verrou de dérive : quand le smoke tourne contre la Production, le tag réellement
-# déployé doit correspondre au tag déclaré. Un déploiement non tracé le fait échouer.
+# Verrou de dérive : en Production, les références digest du .env doivent correspondre
+# exactement à l'état déclaré. Un déploiement non tracé fait échouer le smoke.
 if [[ "${COMPOSE_FILE:-}" == *"docker-compose.prod.yml"* ]]; then
-  DEPLOYED_TAG=$(grep -E '^LOYERTRACKER_TAG=' "${ENV_FILE:-.env}" 2>/dev/null | cut -d= -f2- | tr -d '"'"'"' ')
-  [[ "$DEPLOYED_TAG" == "$PRODUCTION_TAG" ]] \
-    && ok "Tag Production : $DEPLOYED_TAG == PRODUCTION_TAG déclaré" \
-    || ko "DÉRIVE R-V54-2 : tag déployé '$DEPLOYED_TAG' != PRODUCTION_TAG déclaré '$PRODUCTION_TAG'"
+  DEPLOYED_API_REF=$(grep -E '^API_IMAGE_REF=' "${ENV_FILE:-.env}" 2>/dev/null | cut -d= -f2- | tr -d '"'"'"' ')
+  DEPLOYED_WEB_REF=$(grep -E '^WEB_IMAGE_REF=' "${ENV_FILE:-.env}" 2>/dev/null | cut -d= -f2- | tr -d '"'"'"' ')
+  [[ "$DEPLOYED_API_REF" == "$PRODUCTION_API_IMAGE_REF" ]] \
+    && ok "Digest API Production conforme" \
+    || ko "DÉRIVE R-V54-2 : API_IMAGE_REF '$DEPLOYED_API_REF' != '$PRODUCTION_API_IMAGE_REF'"
+  [[ "$DEPLOYED_WEB_REF" == "$PRODUCTION_WEB_IMAGE_REF" ]] \
+    && ok "Digest Web Production conforme" \
+    || ko "DÉRIVE R-V54-2 : WEB_IMAGE_REF '$DEPLOYED_WEB_REF' != '$PRODUCTION_WEB_IMAGE_REF'"
 fi
 ROLES=$(docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
   "SELECT DISTINCT usename FROM pg_stat_activity WHERE datname='$POSTGRES_DB' AND application_name LIKE 'PostgreSQL JDBC%'")

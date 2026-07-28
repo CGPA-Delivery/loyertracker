@@ -29,8 +29,12 @@ GitHub Actions, GitLab CI, Azure DevOps, Jenkins, CircleCI ou tout autre outil s
 * Les artefacts doivent etre versionnes.
 * Un changement sans impact sur les contextes de construction ne doit pas publier un nouvel
   artefact. La détection de portée doit être déterministe, versionnée et testée.
-* Les publications LoyerTracker utilisent exclusivement le tag immutable `sha-<8>` ; l'alias
-  mutable `latest` est interdit.
+* Les publications LoyerTracker utilisent exclusivement un tag de recherche non réutilisable
+  `sha-<8>` ; l'alias mutable `latest` est interdit.
+* Chaque image est construite une fois, puis cette image exacte est scannée, documentée par SBOM,
+  publiée, signée et attestée.
+* Le manifeste de release enregistre les références digest API/Web ; seules ces références sont
+  promouvables entre environnements.
 * Les echecs bloquants doivent empecher la promotion.
 * Les preuves doivent etre conservees ou referencees.
 

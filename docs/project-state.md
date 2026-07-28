@@ -2129,6 +2129,26 @@ l'implémentation du Plan sur une nouvelle branche et une nouvelle PR Delivery, 
 requis et validation humaine finale distincte avant fusion. `RSV-MIG-611-05` reste **ouverte** ;
 aucune promotion Staging ou Production n'est autorisée.
 
+La PR de planification #283 a été fusionnée par le workflow GitHub protégé le 2026-07-28T09:32:55Z.
+Son commit de fusion exact est `4c39aa8ea6ba4abccabbc80a2a2731f15053cdbd`. Les contrôles
+post-fusion sont tous PASS : CI `30347048336`, CodeQL `30347048202` et audit CGPA
+`30347048345`; Packaging Docker est SKIPPED sur ce changement documentaire. L'implémentation
+autorisée part de ce `main` vert sur la branche dédiée
+`agent/supply-chain-rsv-mig-611-05`.
+
+L'implémentation locale applique le Plan sans changement métier : build-once API/Web, scan et SBOM
+sur les images exactes, transfert sans reconstruction vers un job `main` à permissions isolées,
+garde anti-écrasement, digests, signatures Cosign keyless, attestations GitHub, manifeste de
+release et contrats de promotion par `API_IMAGE_REF` / `WEB_IMAGE_REF`. Les digests du tag
+Production historique `sha-27dce09d` ont été résolus en lecture seule et enregistrés dans
+`infra/release/production-state.env`; aucun déploiement n'a été exécuté.
+
+Preuves locales : tests supply-chain PASS, syntaxe Bash PASS, verrou d'état de release PASS,
+syntaxe YAML PASS, rendu Compose Staging/Production PASS et `git diff --check` PASS. Le rapport
+`docs/cgpa/07-devsecops/report-execution-supply-chain-rsv-mig-611-05.md` porte le détail. Statut :
+**implémentation en cours — preuves CI de PR, CHECK-CICD-01 et validation humaine finale requises**.
+`RSV-MIG-611-05` reste **ouverte** ; aucune promotion Staging ou Production n'est autorisée.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279

@@ -32,6 +32,8 @@ assert_scope true "frontend" "frontend/src/app/app.ts"
 assert_scope true "configuration Nginx" "infra/nginx/nginx.conf"
 assert_scope true "contexte Docker global" ".dockerignore"
 assert_scope true "workflow de packaging" ".github/workflows/ci.yml"
+assert_scope true "contrôles supply-chain" \
+  "infra/ci/supply-chain.sh" "infra/ci/test-supply-chain.sh"
 assert_scope true "lot mixte" \
   "docs/project-state.md" "backend/pom.xml" "README.md"
 assert_scope true "chemin préfixé" "./frontend/Dockerfile"

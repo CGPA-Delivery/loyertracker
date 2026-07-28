@@ -10,7 +10,8 @@ while IFS= read -r path; do
   path="${path#./}"
 
   case "$path" in
-    backend/* | frontend/* | infra/nginx/nginx.conf | .dockerignore | .github/workflows/ci.yml)
+    backend/* | frontend/* | infra/nginx/nginx.conf | infra/ci/supply-chain.sh | \
+      infra/ci/test-supply-chain.sh | .dockerignore | .github/workflows/ci.yml)
       images_changed=true
       break
       ;;
