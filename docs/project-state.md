@@ -2117,11 +2117,17 @@ scan de l'image exacte, SBOM SPDX, signature Cosign keyless, attestations GitHub
 de SBOM, refus d'écrasement, manifeste de release et promotion par références digest. Le niveau
 cible est limité à SLSA v1 Build Level 2, sous réserve de preuves vérifiées.
 
-Statut : **Plan proposé — approbation humaine requise**. Aucun workflow, code applicatif, contrat
-Compose ou script de déploiement n'est modifié dans ce lot documentaire. L'action autorisée est
-exclusivement la revue et la décision humaines sur le Plan. `RSV-MIG-611-05` reste **ouverte** ;
-aucune implémentation, fusion applicative, promotion Staging ou Production n'est autorisée avant
-l'approbation explicite du Plan, puis une PR Delivery séparée et sa validation humaine finale.
+Le 2026-07-28, après mise à disposition de la PR #283 et de ses preuves distantes au commit
+`aa4367cbac7928266427fb1567969c4f38f3f99c`, le validateur humain a déclaré dans la conversation
+de pilotage : « je valide le plan ». Cette décision vaut **approbation humaine du Plan**. Les
+preuves examinables sont CI `30346281761` PASS, CodeQL `30346284854` PASS et audit CGPA
+`30346287944` PASS ; Packaging Docker est correctement SKIPPED sur ce lot documentaire.
+
+Statut : **Plan approuvé humainement**. Aucun workflow, code applicatif, contrat Compose ou script
+de déploiement n'est modifié dans cette PR de planification. L'action autorisée devient
+l'implémentation du Plan sur une nouvelle branche et une nouvelle PR Delivery, avec contrôles
+requis et validation humaine finale distincte avant fusion. `RSV-MIG-611-05` reste **ouverte** ;
+aucune promotion Staging ou Production n'est autorisée.
 
 ### Blocage SonarQube Backend et plan de remédiation couverture
 

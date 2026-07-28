@@ -9,12 +9,17 @@
 | Date de proposition | 2026-07-28 |
 | Réserve traitée | `RSV-MIG-611-05` |
 | Nature | DevSecOps / Enterprise Delivery Governance |
-| Statut | **PROPOSÉ — approbation humaine requise** |
+| Statut | **APPROUVÉ HUMAINEMENT** |
 | Autorité finale | CGPA Chief Delivery Officer v6.1.1 |
 | Validation requise | Revue et approbation humaines explicites avant toute implémentation |
 
 Ce document est un Plan d'Exécution. Il ne constitue ni une preuve d'implémentation, ni un
 CHECK-CICD-01 PASS, ni un Gate 06A, ni une autorisation de promotion Staging ou Production.
+
+Le 2026-07-28, après mise à disposition de la PR #283 et de ses preuves CI, le validateur humain a
+déclaré dans la conversation de pilotage : « je valide le plan ». Cette décision approuve le
+présent Plan et autorise son implémentation dans une nouvelle branche et une nouvelle PR Delivery.
+Elle ne vaut ni validation anticipée de l'implémentation, ni autorisation de promotion.
 
 ## 2. Contexte et preuves disponibles
 
@@ -259,11 +264,10 @@ reconstruira pas l'image.
 
 ## 15. Conditions d'approbation et action autorisée
 
-Avant approbation, seule la revue de ce Plan est autorisée. Après approbation humaine explicite,
-l'action autorisée sera l'implémentation sur une nouvelle branche et une nouvelle PR Delivery,
-sans promotion d'environnement. Toute divergence substantielle — technologie de signature,
-identité de promotion, niveau SLSA cible ou permissions — impose une mise à jour du Plan et une
-nouvelle validation humaine.
+Le Plan est approuvé humainement. L'action autorisée est désormais son implémentation sur une
+nouvelle branche et une nouvelle PR Delivery, sans promotion d'environnement. Toute divergence
+substantielle — technologie de signature, identité de promotion, niveau SLSA cible ou permissions
+— impose une mise à jour du Plan et une nouvelle validation humaine.
 
 La fusion de l'implémentation restera soumise aux contrôles requis, à la consolidation CGPA et à
 une validation humaine finale distincte.
