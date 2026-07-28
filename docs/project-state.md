@@ -2143,6 +2143,10 @@ release et contrats de promotion par `API_IMAGE_REF` / `WEB_IMAGE_REF`. Les dige
 Production historique `sha-27dce09d` ont été résolus en lecture seule et enregistrés dans
 `infra/release/production-state.env`; aucun déploiement n'a été exécuté.
 
+La PR Delivery #284 est ouverte en brouillon depuis la branche
+`agent/supply-chain-rsv-mig-611-05`. Elle ne publie, ne signe et n'atteste aucune image sur
+l'événement Pull Request ; le job à permissions élevées est limité au push sur `main`.
+
 Preuves locales : tests supply-chain PASS, syntaxe Bash PASS, verrou d'état de release PASS,
 syntaxe YAML PASS, rendu Compose Staging/Production PASS et `git diff --check` PASS. Le rapport
 `docs/cgpa/07-devsecops/report-execution-supply-chain-rsv-mig-611-05.md` porte le détail. Statut :

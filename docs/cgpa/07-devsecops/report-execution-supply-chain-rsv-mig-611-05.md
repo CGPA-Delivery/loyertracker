@@ -6,9 +6,10 @@
 |---|---|
 | Plan approuvé | `PE-SC-RSV-MIG-611-05` |
 | Branche | `agent/supply-chain-rsv-mig-611-05` |
+| Pull Request | #284 |
 | Base | `main` — `4c39aa8ea6ba4abccabbc80a2a2731f15053cdbd` |
 | Date | 2026-07-28 |
-| Statut | Implémentation locale — preuves PR et post-fusion requises |
+| Statut | PR en brouillon — preuves PR et post-fusion requises |
 
 ## Périmètre exécuté
 
