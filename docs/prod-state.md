@@ -6,7 +6,21 @@
 
 
 
-## 0O. Déploiement Production `1.14.0` — 2026-07-24 (EP-16 Sprint N+1) — régularisé le 2026-07-27, **`PRODUCTION_DEPLOYED` atteint le 2026-07-27 ~16:46 UTC**
+## 0O. Déploiement Production `1.14.0` — 2026-07-24 (EP-16 Sprint N+1) — régularisé le 2026-07-27, **`PRODUCTION_DEPLOYED` le 2026-07-27 ~16:46 UTC, RELEASE CLÔTURÉE le 2026-07-28** ✅
+
+> **RELEASE `1.14.0` CLÔTURÉE — CDO GO (2026-07-28 ~15:49 UTC).** Hypercare complète et sans
+> incident (T0 PASS, T+12 et T+24 PASS sous surveillance), aucun critère de suspension atteint.
+> État relevé **live à la clôture** : tag `sha-27dce09d` et digests inchangés depuis le Gate,
+> Flyway 28/28, 8/8 actifs, 4/4 `(healthy)`, `RestartCount=0`, **invariant financier 0 écart**,
+> contrôle `OBS-S10-01` 0 ligne, `notification_outbox`/`notification_delivery` **à 0**,
+> credentials Twilio vides et absents du `.env`, `bailleur-test` désactivé, Prometheus 5/5,
+> Hikari pending 0, **0 5xx et 0 `ERROR` depuis le boot**, site public 200. **K8/ADR-18 respecté
+> et prouvé sous trafic réel non simulé.** **`R-V54-2` FERMÉ.** Réserves maintenues sans rapport
+> avec `1.14.0` : `RSV-PROD-EP16-N1-02`, `RSV-STG-01`, `RSV-GHCR-EXT-01`, `RSV-MIG-611-04/06` ;
+> `RSV-PROD-EP16-N1-01` satisfaite et **permanente** jusqu'au GO du Sprint N+2. Deux écarts de
+> fenêtre assumés et tracés (T+12 rattrapage, **T+24 anticipé hors fenêtre sur instruction PO**).
+> **`1.14.0` devient la base de rollback.** Prochaine action : **GO du Sprint N+2**, sur
+> instruction PO distincte. Décision : `cloture-release-v1.14.0.md`.
 
 > **Mise à jour du 2026-07-28 — hypercare `1.14.0` complète, T0 / T+12 / T+24 tous PASS, sans
 > incident. Clôture CDO restant à instruire.** T0 PASS (2026-07-27 ~16:57 UTC) ; **T+12 PASS sous
