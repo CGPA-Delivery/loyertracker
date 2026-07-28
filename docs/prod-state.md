@@ -8,6 +8,30 @@
 
 ## 0O. Déploiement Production `1.14.0` — 2026-07-24 (EP-16 Sprint N+1) — régularisé le 2026-07-27, **`PRODUCTION_DEPLOYED` atteint le 2026-07-27 ~16:46 UTC**
 
+> **Mise à jour du 2026-07-28 — hypercare `1.14.0` complète, T0 / T+12 / T+24 tous PASS, sans
+> incident. Clôture CDO restant à instruire.** T0 PASS (2026-07-27 ~16:57 UTC) ; **T+12 PASS sous
+> surveillance** (2026-07-28 15:33:34 UTC — fenêtre cible 04:16–05:16 UTC tombée hôte
+> volontairement éteint, boot 06:50:32 UTC, rattrapage qualifié comme `1.9.0`/`1.12.0`) ;
+> **T+24 PASS sous surveillance** (2026-07-28 15:44 UTC — **anticipé d'~1 h sur la cible et hors
+> fenêtre, sur instruction PO explicite**, l'hôte étant allumé et la fenêtre atteignable ; écart
+> de pilotage assumé et tracé, précédents `1.7.0`/`1.8.0`). Sur tout le cycle : 8/8 conteneurs
+> actifs, 4/4 `(healthy)`, **`RestartCount=0`**, tag `sha-27dce09d` et digests
+> (`sha256:089028b4…` / `sha256:7dbc551e…`) **sans dérive**, Flyway **28/28**, **invariant
+> financier 0 écart** sur 8 garanties, contrôle `OBS-S10-01` **0 ligne ambiguë**,
+> `notification_outbox`/`notification_delivery` **à 0**, credentials Twilio **vides** et absents
+> du `.env` (**K8/ADR-18 respecté**), `bailleur-test` désactivé, `directAccessGrants=false`,
+> Prometheus 5/5 `up`, Hikari pending 0, **0 ligne 5xx et 0 `ERROR` depuis le boot**, site public
+> 200. Seule alerte active : `BackupHeartbeatMissing` — **non bloquante**, cron de backup à
+> 02:15 UTC non joué hôte éteint, Pushgateway purgé au boot (pattern `1.10.0`/`1.13.0`).
+> **Fait nouveau majeur** : 17 événements métier **réels** ont été créés le 2026-07-27 entre
+> 18:29 et 18:34 UTC par le bailleur `5df3adf2-…` (rôle `BAILLEUR`, 20 actions auditées :
+> 3 `RETENUE_LOYER` puis 14 `POINTER_PAIEMENT`) — usage légitime, authentifié et intégralement
+> tracé, qui **invalide l'hypothèse permanente « aucun trafic réel »** utilisée depuis `1.4.0`
+> pour qualifier les écarts de fenêtre. Effet probant : `outbox`/`delivery` restent à 0 **sous
+> trafic réel non simulé**, meilleure preuve obtenue à ce jour du respect de K8/ADR-18.
+> Surveillance planifiée **close** ; la **clôture de release CDO reste un acte distinct**, non
+> prononcé. Détail : `plan-etape-hypercare-v1.14.0.md`.
+
 > **Mise à jour du 2026-07-27 ~16:46 UTC — validation finale PASS, réserve bloquante levée.** Le
 > smoke Production a été exécuté sur autorisation PO explicite : **63 PASS / 0 FAIL au premier
 > passage** (RUN_ID `1785170429`, code de sortie 0), Flyway 28/28, contrôle d'entrée sans anomalie

@@ -182,7 +182,62 @@ sans rapport avec `1.14.0`. La dernière sauvegarde vérifiée reste celle du Pr
 
 ## Checkpoint T+24 — cible 2026-07-28 ~16:46 UTC ± 30 min
 
-**À instruire** dans sa fenêtre réelle (16:16–17:16 UTC). Mêmes contrôles que T0 et T+12.
+**Statut : PASS sous surveillance** — exécuté le **2026-07-28 de 15:43:52 à 15:44:25 UTC**
+(`date -u` capturé sur l'hôte), soit **≈ T+22h58**.
+
+### Écart de fenêtre — qualifié
+
+Le checkpoint a été **anticipé d'environ 1 h sur la cible** et exécuté **hors de la fenêtre**
+(16:16–17:16 UTC), sur **instruction explicite du PO** demandant son exécution immédiate. L'hôte
+était allumé et la fenêtre atteignable ; l'anticipation relève donc d'un choix de pilotage
+assumé, non d'une contrainte d'exploitation. Elle est tracée à ce titre, sans impact sur les
+mesures. Précédents d'anticipation qualifiée : `1.7.0` et `1.8.0` (T+24 anticipé d'~7 h).
+
+En conséquence, la qualification retenue est **« PASS sous surveillance »** et non un `PASS`
+plein : la période 15:44–16:46 UTC n'est pas couverte par une observation directe. Elle reste
+néanmoins couverte indirectement par `RestartCount=0` depuis le boot et par l'absence totale
+d'erreur applicative sur toute la journée.
+
+| Contrôle | Résultat | vs T+12 |
+|---|---|---|
+| Stack | 8/8 actifs, 4/4 `(healthy)`, `RestartCount=0` (`StartedAt=2026-07-28T06:50:32Z` inchangé) | identique |
+| Tag / digests | `sha-27dce09d` ; API `sha256:089028b45a93afd4…`, Web `sha256:7dbc551ee722e1da…` | identiques — **aucune dérive** |
+| Flyway | **28/28** succès, 0 échec | identique |
+| Tables `notification_*` | **34 `event`, 0 `outbox`, 0 `delivery`, 3 `template`, 0 `preference`** | identique — **`outbox`/`delivery` toujours à 0** |
+| Résidu du RUN_ID de validation | **0 ligne** sur `bailleur_id=c7296c69-…` | identique |
+| Baseline métier | 3 bailleurs, 2 patrimoines, 8 biens, 8 baux, 8 garanties, 1 gestionnaire, 8 locataires, 7 quittances | **inchangée** |
+| **Activité métier depuis le T+12** | **0 action** dans `audit_log` depuis 15:33 UTC — explique la stabilité de `notification_event` à 34 | — |
+| **Invariant financier** | **0 écart** sur les 8 garanties ; 13 mouvements au total | identique |
+| Contrôle `OBS-S10-01` (§2) | **0 ligne ambiguë** | identique |
+| Keycloak | `bailleur-test@test.local` `enabled=false` ; `direct_access_grants_enabled=false` sur `loyertracker-spa` **et** `loyertracker-admin` | identique |
+| Flags externes | `NOTIFICATIONS_EXTERNAL_ENABLED=false`, `TWILIO_WHATSAPP_ENABLED=false`, `TWILIO_SMS_ENABLED=false`, `NOTIFICATION_DRY_RUN=true` | identique |
+| **Credentials Twilio** | `ACCOUNT_SID`, `AUTH_TOKEN`, `WHATSAPP_FROM` → **longueur 0** ; **0 occurrence** dans le `.env` — **K8 / ADR-18 respecté** | identique |
+| Santé | `/healthz` **200** ; site public `https://loyertracker.loyerpro.org` **200** | identique |
+| Observabilité | Prometheus **5/5** cibles `up` ; Alertmanager **1 alerte** : `BackupHeartbeatMissing` (qualifiée non bloquante, cf. note T+12) | identique |
+| Pool Hikari | `hikaricp_connections_pending` = **0** | identique |
+| Logs Nginx | **0** ligne 5xx sur 15 min **et 0 depuis le boot** | identique |
+| Logs API | **0** entrée `ERROR` sur 15 min **et 0 depuis le boot** | identique |
+| Capacité | 30 Gio disque libres (22 % utilisé), ~1 Gio mémoire disponible, charge 0,38 / 0,14 / 0,05 | stable |
+
+**Aucun critère de suspension atteint.**
+
+## Synthèse de l'hypercare `1.14.0`
+
+| Checkpoint | Cible | Exécution | Statut |
+|---|---|---|---|
+| T0 | — | 2026-07-27 ~16:57 UTC | **PASS** |
+| T+12 | 2026-07-28 ~04:46 UTC | 2026-07-28 15:33:34 UTC (rattrapage, hôte éteint en fenêtre) | **PASS sous surveillance** |
+| T+24 | 2026-07-28 ~16:46 UTC | 2026-07-28 15:44 UTC (anticipé ~1 h sur instruction PO) | **PASS sous surveillance** |
+
+**Hypercare `1.14.0` sans incident.** Sur l'ensemble du cycle : aucun redémarrage inattendu,
+aucune dérive de tag ni de digest, Flyway stable à 28/28, invariant financier à 0 écart, 0 ligne
+en `notification_outbox`/`notification_delivery`, aucun credential Twilio, 0 erreur 5xx et 0
+entrée `ERROR` applicative. Les deux écarts de fenêtre sont qualifiés et tracés ; la seule alerte
+active (`BackupHeartbeatMissing`) est un pattern d'exploitation connu, exclu des critères de
+suspension.
+
+La surveillance planifiée est **close**. La **clôture de release CDO reste un acte distinct**,
+non prononcé par le présent document et subordonné à une instruction PO explicite.
 
 ### Rappel du pattern d'exploitation
 
