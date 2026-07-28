@@ -100,7 +100,13 @@ finales restent obligatoires avant fusion.
 
 Actionlint n'est pas installé dans l'environnement local. La preuve du workflow GitHub Actions et CHECK-CICD-01 au jalon PR restent obligatoires.
 
-## 8. Risques, réserves et rollback
+## 8. Preuves distantes de la PR
+
+Au commit 75f966729dda2d5ebf08cee762bf483967bfdb8a, les contrôles sont conformes : CI 30370787645 PASS, CodeQL 30370788981 PASS, audit CGPA 30370787968 PASS et Registry Policy 30370788321 PASS. La garde Quarantaine GHCR latest a vérifié les deux packages en lecture seule. Build, scan et SBOM Docker ainsi que Publication, signatures et attestations sont SKIPPED. Aucun artefact n'a été reconstruit ou publié.
+
+CHECK-CICD-01 est PASS au jalon Test CI de la PR. La validation humaine finale reste obligatoire avant fusion.
+
+## 9. Risques, réserves et rollback
 
 | Élément | Niveau | Traitement |
 |---|---|---|
