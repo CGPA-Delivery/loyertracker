@@ -163,3 +163,13 @@ force-push, reset destructif ou suppression de package n'est autorisé.
 Le Plan d'Exécution est approuvé. L'implémentation peut commencer sur une branche Delivery dédiée,
 avec une Pull Request distincte, CHECK-CICD-01, CI complète et validation humaine finale avant
 fusion. Cette décision n'autorise aucune promotion Staging ou Production.
+
+## 15. Validation finale de l'implémentation
+
+La PR #281 porte l'implémentation au commit
+`80f0c480f91bf670df04d1a963526ed07c6bac19`. CHECK-CICD-01 au jalon Test CI est PASS ; la CI
+`30342050329`, CodeQL `30342050187` et l'audit CGPA `30342050611` sont tous PASS. Le 2026-07-28,
+après revue, le validateur humain a déclaré dans la conversation de pilotage : « j ai validé ».
+Cette déclaration vaut **GO humain final pour la fusion de la PR #281**, sous réserve que le commit
+documentaire enregistrant la décision conserve tous les contrôles requis au vert. Elle n'autorise
+aucune promotion Staging ou Production.

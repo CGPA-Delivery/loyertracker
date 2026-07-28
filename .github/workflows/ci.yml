@@ -25,6 +25,36 @@ permissions:
 
 jobs:
   # ----------------------------------------------------------------------------------
+  # Portée artefacts : classification versionnée et testée du delta de la PR ou du push.
+  # Le résultat ne relâche aucun contrôle qualité/sécurité ; il évite seulement de
+  # reconstruire et publier les images applicatives lorsque leurs contextes sont inchangés.
+  # ----------------------------------------------------------------------------------
+  detect-images:
+    name: Détection changements images
+    runs-on: ubuntu-latest
+    outputs:
+      images_changed: ${{ steps.scope.outputs.images_changed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Tester le classificateur
+        run: bash infra/ci/test-artifact-scope.sh
+
+      - name: Classifier le delta
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -Eeuo pipefail
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA="$(git rev-parse "${GITHUB_SHA}^")"
+          fi
+          git diff --name-only "$BASE_SHA" "$GITHUB_SHA" |
+            bash infra/ci/artifact-scope.sh >> "$GITHUB_OUTPUT"
+
+  # ----------------------------------------------------------------------------------
   # Backend : compilation, tests (dont migration Flyway via Testcontainers) + couverture.
   # ----------------------------------------------------------------------------------
   backend:
@@ -232,14 +262,15 @@ jobs:
           ignore-unfixed: true
 
   # ----------------------------------------------------------------------------------
-  # Packaging + livraison : build des deux images Docker une fois la qualité validée,
-  # puis push vers GHCR sur la branche principale uniquement (chaîne de livraison,
-  # lot Production Readiness 1). Tags IMMUABLES `sha-<8>` (déploiement et rollback par
-  # tag explicite) + alias `latest` (repère, jamais utilisé pour déployer).
+  # Packaging + livraison : build des deux images Docker une fois la qualité validée et
+  # uniquement si leurs contextes ont changé, puis push vers GHCR sur la branche principale
+  # (chaîne de livraison, lot Production Readiness 1). Seuls les tags IMMUABLES `sha-<8>`
+  # sont publiés ; déploiement et rollback utilisent toujours ce tag explicite.
   # ----------------------------------------------------------------------------------
   docker-build:
     name: Packaging Docker
-    needs: [backend, frontend, security]
+    needs: [detect-images, backend, frontend, security]
+    if: needs.detect-images.outputs.images_changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -273,12 +304,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push des images vers GHCR (sha + latest)
+      - name: Push des images vers GHCR (sha immutable)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           for img in loyertracker-api loyertracker-web; do
             docker tag "$img:${{ steps.meta.outputs.tag }}" "$IMAGE_BASE/$img:${{ steps.meta.outputs.tag }}"
-            docker tag "$img:${{ steps.meta.outputs.tag }}" "$IMAGE_BASE/$img:latest"
             docker push "$IMAGE_BASE/$img:${{ steps.meta.outputs.tag }}"
-            docker push "$IMAGE_BASE/$img:latest"
           done

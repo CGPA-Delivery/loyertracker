@@ -27,6 +27,10 @@ GitHub Actions, GitLab CI, Azure DevOps, Jenkins, CircleCI ou tout autre outil s
 * Le pipeline ne doit pas contenir de secrets en clair.
 * Les commandes destructives globales sont interdites.
 * Les artefacts doivent etre versionnes.
+* Un changement sans impact sur les contextes de construction ne doit pas publier un nouvel
+  artefact. La détection de portée doit être déterministe, versionnée et testée.
+* Les publications LoyerTracker utilisent exclusivement le tag immutable `sha-<8>` ; l'alias
+  mutable `latest` est interdit.
 * Les echecs bloquants doivent empecher la promotion.
 * Les preuves doivent etre conservees ou referencees.
 
