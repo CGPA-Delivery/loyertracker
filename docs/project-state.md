@@ -2093,6 +2093,35 @@ déclaration vaut **GO humain final pour la fusion de #282**. Le commit document
 la décision doit conserver les contrôles requis au vert avant fusion protégée. Aucune promotion
 Staging ou Production n'est autorisée.
 
+La PR #282 a été fusionnée via le workflow GitHub protégé le 2026-07-28. Son commit de fusion
+`82900c53b53b0455c9604f7eb52f868b76527093` est confirmé sur `origin/main`. Les contrôles
+post-fusion sont tous PASS : CI `30345311180`, CodeQL `30345311082` et audit CGPA
+`30345311139`. Le cas documentaire attendu est confirmé : Détection changements images PASS,
+Backend, Frontend et Sécurité PASS, Packaging Docker **SKIPPED**. Aucun artefact applicatif n'a
+été publié et aucune promotion n'a été exécutée.
+
+### Plan Supply Chain séparé — capacités résiduelles de RSV-MIG-611-05
+
+L'audit en lecture seule du 2026-07-28 confirme que `RSV-MIG-611-05` reste ouverte uniquement pour
+les capacités supply-chain hors du lot #281/#282 : build-once non démontré en raison de deux
+constructions Docker distinctes, SBOM absente, signature absente, attestation SLSA absente,
+non-écrasement global du tag non prouvé et promotions encore exprimées par tag plutôt que par
+digest exact. Cette observation ne révoque aucune preuve historique et ne démontre pas une
+compromission.
+
+Le Plan d'Exécution
+`docs/cgpa/06-planification-agile/plan-execution-supply-chain-rsv-mig-611-05.md` est proposé
+additivement le 2026-07-28 sur une branche dédiée. Il prévoit build-once, scan de l'image exacte,
+SBOM SPDX, signature Cosign keyless, attestations GitHub de provenance et de SBOM, refus
+d'écrasement, manifeste de release et promotion par références digest. Le niveau cible est limité
+à SLSA v1 Build Level 2, sous réserve de preuves vérifiées.
+
+Statut : **Plan proposé — approbation humaine requise**. Aucun workflow, code applicatif, contrat
+Compose ou script de déploiement n'est modifié dans ce lot documentaire. L'action autorisée est
+exclusivement la revue et la décision humaines sur le Plan. `RSV-MIG-611-05` reste **ouverte** ;
+aucune implémentation, fusion applicative, promotion Staging ou Production n'est autorisée avant
+l'approbation explicite du Plan, puis une PR Delivery séparée et sa validation humaine finale.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
