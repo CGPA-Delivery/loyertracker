@@ -2213,6 +2213,46 @@ final pour la clôture documentaire et la fusion protégée de #285** au commit
 la fusion de ce commit, sous maintien des checks requis. Cette décision n'autorise aucun
 déploiement ni aucune promotion Staging ou Production.
 
+### Plan séparé — retrait gouverné des alias GHCR `latest`
+
+L'audit initial en lecture seule du 2026-07-28 confirme que le pipeline actif ne publie plus
+`latest`, que Staging et Production utilisent des références digest et qu'aucun consommateur actif
+versionné n'a été trouvé dans le dépôt. L'absence de consommateur externe n'est toutefois pas
+prouvée et devra être validée par les responsables d'environnements.
+
+GHCR expose encore un alias historique `latest` par package. Pour l'API, la version `1073590800`
+porte `sha-19d0d0a4` et `latest` sur le digest
+`sha256:5dcd38449045a19ff866edd65572ce49773d6e9e57a494bab96e9601fe67e0fd`. Pour le Web, la version
+`1073591135` porte les mêmes tags sur le digest
+`sha256:87ae45aee77310bc71ee20589564d6e6e759b00a16ca26e259f84b4dcc9997df`. Supprimer une version
+co-étiquetée risquerait donc de supprimer aussi le tag SHA et le manifeste historiques ; cette
+action est interdite sans preuve d'un détachement limité au seul alias.
+
+Le Plan d'Exécution `PE-GHCR-LATEST-01`, documenté dans
+`docs/cgpa/06-planification-agile/plan-execution-retrait-alias-latest-ghcr.md`, est proposé sur la
+branche `agent/plan-retirement-latest-ghcr` et la PR de planification #286. Il privilégie le
+retrait sélectif du seul alias si sa granularité est prouvée ; sinon, il impose une quarantaine
+gouvernée, figée sur les digests historiques et surveillée. Il interdit la suppression de
+versions, tout alias de remplacement, toute reconstruction et toute promotion.
+
+Statut : **Plan proposé — approbation humaine requise**. L'action autorisée est limitée à la revue
+du Plan. Aucun code, workflow ou artefact GHCR n'est modifié par cette planification. Une future
+implémentation exige une branche et une PR Delivery distinctes ; toute mutation distante exige en
+plus un GO humain destructif ciblé sur les identifiants résolus immédiatement avant l'action.
+
+Le 2026-07-28, après examen de la PR #286 au commit
+`6795042533c15ce893207c1788ff80e951d91ce3`, le validateur humain a déclaré dans la conversation
+de pilotage : « j'ai approuvé ». Cette décision vaut **approbation humaine du Plan
+`PE-GHCR-LATEST-01`**. Les preuves examinables sont CI `30361885514` PASS, CodeQL
+`30361885770` PASS et audit CGPA `30361885958` PASS ; les jobs Docker sont correctement SKIPPED
+pour ce changement documentaire.
+
+Statut additif : **Plan approuvé humainement**. L'action autorisée devient l'implémentation sur une
+nouvelle branche et une nouvelle PR Delivery, sans mutation GHCR pendant l'instruction. Si le
+retrait sélectif devient techniquement admissible, un GO humain destructif distinct restera
+obligatoire sur les deux cibles résolues. Cette approbation ne couvre aucun déploiement ou
+promotion.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
