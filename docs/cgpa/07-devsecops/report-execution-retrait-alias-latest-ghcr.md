@@ -106,7 +106,11 @@ Au commit 75f966729dda2d5ebf08cee762bf483967bfdb8a, les contrôles sont conforme
 
 CHECK-CICD-01 est PASS au jalon Test CI de la PR. La validation humaine finale reste obligatoire avant fusion.
 
-## 9. Risques, réserves et rollback
+## 9. Validation humaine finale
+
+Le 2026-07-28, après examen de la PR #287 au commit ab9aae33687db62da5086321792ff51d873cffda et de ses contrôles conformes, le validateur humain a déclaré dans la conversation de pilotage : « j'ai approuvé #287 ». Cette déclaration vaut GO humain final pour la PR Delivery #287. Elle autorise une fusion protégée uniquement après maintien des checks requis au vert ; elle n'autorise aucune mutation GHCR, promotion ou mise en Production.
+
+## 10. Risques, réserves et rollback
 
 | Élément | Niveau | Traitement |
 |---|---|---|
