@@ -130,3 +130,14 @@ Première exécution distante sur le commit `e000673481e8094eef6877e9802adc50d1f
 
 Le blocage de couverture à 79,9 % est donc levé sans modification du seuil ni exclusion. La PR
 reste en brouillon et sa fusion demeure conditionnée à une validation humaine finale explicite.
+
+## 13. Validation humaine finale
+
+Le 2026-07-28, après revue de la PR #280 et de ses preuves terminales sur le commit
+`b52f054e222ab4505ac956ed0e2e0e6212859192`, le validateur humain a déclaré dans la conversation
+de pilotage : « j'ai revu #280 et c'est ok pour moi ». Cette déclaration est enregistrée comme
+**GO humain final pour la fusion de #280**.
+
+Le présent ajout transcrit la décision sans modifier les tests, le code de Production, les seuils,
+la CI ou les environnements. La fusion reste exécutée exclusivement par le workflow GitHub protégé
+après confirmation des checks du commit de transcription.

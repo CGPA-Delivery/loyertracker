@@ -2047,3 +2047,9 @@ La PR de remédiation #280 a ensuite fourni les preuves distantes sur le commit
 PASS, Quality Gate SonarQube Backend PASS, Frontend/Sécurité/Packaging PASS, CodeQL
 `30338746266` PASS et audit structurel `30338746311` PASS. Le blocage Sonar est levé sans
 contournement. La PR reste en brouillon ; la fusion exige encore la validation humaine finale.
+
+Le 2026-07-28, le validateur humain a confirmé après revue de #280 : « j'ai revu #280 et c'est ok
+pour moi ». La décision vaut **GO humain final pour la fusion de #280** sur les preuves du commit
+`b52f054e222ab4505ac956ed0e2e0e6212859192`. Le commit qui enregistre cette décision est une
+transcription documentaire additive uniquement ; il doit conserver les checks au vert avant fusion
+par le workflow GitHub protégé. Cette autorisation ne couvre aucun déploiement ou promotion.
