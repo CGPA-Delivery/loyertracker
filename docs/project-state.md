@@ -2061,6 +2061,16 @@ ce lot traite la portée de Packaging et le tag mutable, mais ne prétend pas fe
 signature, la SBOM, l'attestation SLSA ni le verrou d'immutabilité global du registry. Aucune
 promotion Staging ou Production n'est autorisée.
 
+La PR #281 fournit les preuves distantes au commit
+`80f0c480f91bf670df04d1a963526ed07c6bac19` : CI `30342050329` entièrement PASS, dont Détection
+changements images, Backend/Sonar, Frontend, Sécurité et Packaging ; CodeQL `30342050187` PASS ;
+audit CGPA `30342050611` PASS. CHECK-CICD-01 est **PASS au jalon Test CI** ; les sections Dev,
+Staging et Production sont hors périmètre et non exécutées. Le 2026-07-28, après revue de #281,
+le validateur humain a déclaré : « j ai validé ». Cette déclaration vaut **GO humain final pour la
+fusion de #281**. Le commit documentaire enregistrant cette décision doit conserver tous les
+checks requis au vert avant la fusion protégée. Aucune promotion Staging ou Production n'est
+autorisée ; `RSV-MIG-611-05` reste ouverte pour les capacités supply-chain hors lot.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
