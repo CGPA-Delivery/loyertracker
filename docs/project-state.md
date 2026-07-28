@@ -2028,6 +2028,8 @@ post-fusion a également confirmé la réserve `RSV-MIG-611-05` : un changement 
 Le Plan d'Exécution
 `docs/cgpa/06-planification-agile/plan-execution-ci-artefacts-immutables.md` est proposé le
 2026-07-27 pour traiter séparément la reconstruction d'images sur changement documentaire et la
-publication de l'alias mutable `latest`. Statut : **en attente d'approbation humaine**. Aucun code
-CI/CD n'est modifié par cette étape ; l'action autorisée se limite à la revue du plan. La réserve
-`RSV-MIG-611-05` reste ouverte jusqu'aux preuves d'exécution et à la validation de CHECK-CICD-01.
+publication de l'alias mutable `latest`. **GO humain reçu le 2026-07-28 via la conversation de
+pilotage, après examen des PR #278 et #279 ; Plan d'Exécution approuvé.** Aucun code CI/CD n'est
+modifié par cette décision. L'action autorisée est l'implémentation sur une branche et une PR
+Delivery distinctes, avec CHECK-CICD-01 et validation humaine finale avant fusion. La réserve
+`RSV-MIG-611-05` reste ouverte jusqu'aux preuves d'exécution.

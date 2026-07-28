@@ -8,7 +8,9 @@
 - Étape : remédiation Delivery `RSV-MIG-611-05`.
 - Date : 2026-07-27.
 - Responsables : DevSecOps Lead, Delivery Architect et Release Manager.
-- Statut : **en attente d'approbation humaine**.
+- Statut : **approuvé humainement**.
+- Décision : **GO explicite reçu le 2026-07-28 via la conversation de pilotage**, après examen
+  humain des PR #278 et #279.
 
 ## 2. D'où l'on vient
 
@@ -158,5 +160,6 @@ force-push, reset destructif ou suppression de package n'est autorisé.
 
 ## 14. Action autorisée à ce stade
 
-Publier et faire examiner ce Plan d'Exécution. **Aucune modification du pipeline n'est autorisée
-avant approbation humaine explicite.**
+Le Plan d'Exécution est approuvé. L'implémentation peut commencer sur une branche Delivery dédiée,
+avec une Pull Request distincte, CHECK-CICD-01, CI complète et validation humaine finale avant
+fusion. Cette décision n'autorise aucune promotion Staging ou Production.
