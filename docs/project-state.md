@@ -2071,6 +2071,28 @@ fusion de #281**. Le commit documentaire enregistrant cette décision doit conse
 checks requis au vert avant la fusion protégée. Aucune promotion Staging ou Production n'est
 autorisée ; `RSV-MIG-611-05` reste ouverte pour les capacités supply-chain hors lot.
 
+La PR #281 a été fusionnée par le workflow GitHub protégé le 2026-07-28T08:45:38Z. Le commit de
+fusion `05c210d9ffe2fe2e67ea1f0b4f6111026b705180` est confirmé sur `origin/main`. Les contrôles
+post-fusion sont tous PASS : CI `30343697515`, CodeQL `30343697493` et audit CGPA
+`30343697448`. La détection a classé le delta du workflow `images_changed=true` et le Packaging a
+publié exclusivement les images `sha-05c210d9` : API
+`sha256:5e92a90c376538054338e70f86da310554891d6e11a246a5aea33c7f8d14f0dd` et Web
+`sha256:7a7f8f3b0d24370d48453d78cc2280b6fa1df0f77f9410fa5124d301e62b4a30`. Les logs de publication
+ne contiennent aucune commande de tag ou push vers `latest`. Le traitement de la reconstruction
+documentaire et de l'alias mutable est donc livré côté `main` ; la PR documentaire additive #282
+enregistre cette clôture et doit fournir la preuve distante du cas
+`images_changed=false` avec Packaging sauté. `RSV-MIG-611-05` reste ouverte uniquement pour les
+capacités supply-chain hors lot. Aucun déploiement ni aucune promotion n'a été exécuté.
+
+La PR #282 fournit au commit `4093d8e52768f26bd541439f086e97bf797b1588` la preuve distante du
+cas documentaire : CI `30344299564` PASS avec Détection changements images PASS, Backend,
+Frontend et Sécurité PASS, tandis que Packaging Docker est **SKIPPED** ; CodeQL `30344302002`
+PASS et audit CGPA `30344299587` PASS. Le 2026-07-28, après examen, le validateur humain a déclaré
+dans la conversation de pilotage : « #282 est examiner et tu le le Go pour la fusion ». Cette
+déclaration vaut **GO humain final pour la fusion de #282**. Le commit documentaire enregistrant
+la décision doit conserver les contrôles requis au vert avant fusion protégée. Aucune promotion
+Staging ou Production n'est autorisée.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
