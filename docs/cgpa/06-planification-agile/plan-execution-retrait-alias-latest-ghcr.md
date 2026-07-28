@@ -10,7 +10,7 @@
 | Nature | DevSecOps / Enterprise Delivery Governance |
 | Branche de planification | `agent/plan-retirement-latest-ghcr` |
 | Pull Request de planification | #286 |
-| Statut | **PROPOSÉ — APPROBATION HUMAINE REQUISE** |
+| Statut | **APPROUVÉ HUMAINEMENT** |
 | Autorité finale | CGPA Chief Delivery Officer v6.1.1 |
 | Responsables pressentis | DevSecOps Lead, Delivery Architect, Release Manager |
 
@@ -19,6 +19,13 @@ suppression dans GHCR, ni promotion Staging ou Production. L'implémentation exi
 humaine explicite du Plan, une branche et une Pull Request Delivery distinctes. Toute opération
 destructive distante exige en plus une décision humaine explicite sur les identifiants GHCR
 résolus immédiatement avant l'action.
+
+Le 2026-07-28, après mise à disposition de la PR #286 et de ses preuves, le validateur humain a
+déclaré dans la conversation de pilotage : « j'ai approuvé ». Cette décision vaut **approbation
+humaine de `PE-GHCR-LATEST-01`** au commit
+`6795042533c15ce893207c1788ff80e951d91ce3`. Elle autorise l'implémentation sur une nouvelle
+branche et une nouvelle PR Delivery, mais ne vaut ni validation anticipée de l'implémentation, ni
+GO destructif pour une mutation GHCR, ni autorisation de promotion.
 
 ## 2. Contexte historique préservé
 
@@ -238,6 +245,7 @@ Décisions possibles sur ce Plan :
   preuve attendue ;
 - `NO GO` : aucune implémentation ni mutation GHCR.
 
-À ce stade, seule la revue humaine du Plan dans la PR #286 est autorisée. Même après approbation,
-le Plan n'autorise pas à lui seul la suppression distante : le GO destructif ciblé prévu à
-l'étape 8 reste obligatoire si la stratégie `RETRAIT_SÉLECTIF` devient techniquement admissible.
+Le Plan est approuvé humainement. L'implémentation est autorisée sur une nouvelle branche et une
+nouvelle PR Delivery, sans mutation GHCR pendant l'instruction. Le Plan n'autorise pas à lui seul
+la suppression distante : le GO destructif ciblé prévu à l'étape 8 reste obligatoire si la
+stratégie `RETRAIT_SÉLECTIF` devient techniquement admissible.

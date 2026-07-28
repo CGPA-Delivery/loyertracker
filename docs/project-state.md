@@ -2240,6 +2240,19 @@ du Plan. Aucun code, workflow ou artefact GHCR n'est modifié par cette planific
 implémentation exige une branche et une PR Delivery distinctes ; toute mutation distante exige en
 plus un GO humain destructif ciblé sur les identifiants résolus immédiatement avant l'action.
 
+Le 2026-07-28, après examen de la PR #286 au commit
+`6795042533c15ce893207c1788ff80e951d91ce3`, le validateur humain a déclaré dans la conversation
+de pilotage : « j'ai approuvé ». Cette décision vaut **approbation humaine du Plan
+`PE-GHCR-LATEST-01`**. Les preuves examinables sont CI `30361885514` PASS, CodeQL
+`30361885770` PASS et audit CGPA `30361885958` PASS ; les jobs Docker sont correctement SKIPPED
+pour ce changement documentaire.
+
+Statut additif : **Plan approuvé humainement**. L'action autorisée devient l'implémentation sur une
+nouvelle branche et une nouvelle PR Delivery, sans mutation GHCR pendant l'instruction. Si le
+retrait sélectif devient techniquement admissible, un GO humain destructif distinct restera
+obligatoire sur les deux cibles résolues. Cette approbation ne couvre aucun déploiement ou
+promotion.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
