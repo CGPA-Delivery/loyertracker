@@ -184,3 +184,14 @@ Packaging attendu ; seules les images `sha-05c210d9` ont été publiées. Digest
 `sha256:7a7f8f3b0d24370d48453d78cc2280b6fa1df0f77f9410fa5124d301e62b4a30`. Aucune commande de
 publication `latest` n'apparaît dans l'étape GHCR. La PR documentaire additive distincte #282
 enregistre cette clôture et doit prouver le cas réel `images_changed=false` avec Packaging sauté.
+
+## 17. Validation finale de la clôture
+
+La PR #282 fournit au commit `4093d8e52768f26bd541439f086e97bf797b1588` la preuve distante
+du cas documentaire : CI `30344299564` PASS avec Détection changements images PASS, Backend,
+Frontend et Sécurité PASS, et Packaging Docker **SKIPPED** ; CodeQL `30344302002` PASS ; audit
+CGPA `30344299587` PASS. Le 2026-07-28, après examen, le validateur humain a déclaré dans la
+conversation de pilotage : « #282 est examiner et tu le le Go pour la fusion ». Cette déclaration
+vaut **GO humain final pour la fusion de #282**, sous réserve que le commit documentaire qui
+enregistre la décision conserve les contrôles requis au vert. Elle n'autorise aucune promotion
+Staging ou Production.

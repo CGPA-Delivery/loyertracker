@@ -2084,6 +2084,15 @@ enregistre cette clôture et doit fournir la preuve distante du cas
 `images_changed=false` avec Packaging sauté. `RSV-MIG-611-05` reste ouverte uniquement pour les
 capacités supply-chain hors lot. Aucun déploiement ni aucune promotion n'a été exécuté.
 
+La PR #282 fournit au commit `4093d8e52768f26bd541439f086e97bf797b1588` la preuve distante du
+cas documentaire : CI `30344299564` PASS avec Détection changements images PASS, Backend,
+Frontend et Sécurité PASS, tandis que Packaging Docker est **SKIPPED** ; CodeQL `30344302002`
+PASS et audit CGPA `30344299587` PASS. Le 2026-07-28, après examen, le validateur humain a déclaré
+dans la conversation de pilotage : « #282 est examiner et tu le le Go pour la fusion ». Cette
+déclaration vaut **GO humain final pour la fusion de #282**. Le commit documentaire enregistrant
+la décision doit conserver les contrôles requis au vert avant fusion protégée. Aucune promotion
+Staging ou Production n'est autorisée.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
