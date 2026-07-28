@@ -2033,3 +2033,41 @@ pilotage, après examen des PR #278 et #279 ; Plan d'Exécution approuvé.** Auc
 modifié par cette décision. L'action autorisée est l'implémentation sur une branche et une PR
 Delivery distinctes, avec CHECK-CICD-01 et validation humaine finale avant fusion. La réserve
 `RSV-MIG-611-05` reste ouverte jusqu'aux preuves d'exécution.
+
+### Blocage SonarQube Backend et plan de remédiation couverture
+
+Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
+`30336894626` ont reproduit le même blocage : build/tests/JaCoCo Backend PASS, mais Quality Gate
+SonarQube en échec sur `new_coverage = 79,9 %` pour un seuil de 80 % (257 nouvelles lignes non
+couvertes sur 1 586 ; `new_violations = 0`). La fusion de #279 et l'implémentation Delivery sont
+suspendues sans contournement. Le Plan d'Exécution
+`docs/cgpa/06-planification-agile/plan-execution-remediation-couverture-backend-sonar.md` est
+**approuvé humainement le 2026-07-28** via la conversation de pilotage. Action autorisée : tests
+Backend ciblés uniquement, seuil/exclusions/workflow inchangés, PR dédiée et validation humaine
+finale avant fusion. Aucun déploiement n'est autorisé.
+
+L'exécution locale du plan a ajouté 6 tests métier de `NotificationPreference` sans modifier le
+code de Production. `mvn -B verify` est PASS avec 211 tests, 0 échec/erreur/ignoré, Spotless PASS et
+garde JaCoCo PASS. La classe ciblée gagne 44 lignes et 13 branches couvertes (52/53 lignes et
+16/17 branches couvertes après remédiation). Le Quality Gate SonarQube et les autres contrôles CI
+restent des preuves distantes obligatoires à recueillir sur la PR ; aucune fusion ni promotion
+n'est autorisée sur la seule base de ces résultats locaux.
+
+La PR de remédiation #280 a ensuite fourni les preuves distantes sur le commit
+`e000673481e8094eef6877e9802adc50d1f05c80` : CI `30338746285` entièrement PASS, 211 tests Backend
+PASS, Quality Gate SonarQube Backend PASS, Frontend/Sécurité/Packaging PASS, CodeQL
+`30338746266` PASS et audit structurel `30338746311` PASS. Le blocage Sonar est levé sans
+contournement. La PR reste en brouillon ; la fusion exige encore la validation humaine finale.
+
+Le 2026-07-28, le validateur humain a confirmé après revue de #280 : « j'ai revu #280 et c'est ok
+pour moi ». La décision vaut **GO humain final pour la fusion de #280** sur les preuves du commit
+`b52f054e222ab4505ac956ed0e2e0e6212859192`. Le commit qui enregistre cette décision est une
+transcription documentaire additive uniquement ; il doit conserver les checks au vert avant fusion
+par le workflow GitHub protégé. Cette autorisation ne couvre aucun déploiement ou promotion.
+
+La PR #280 a été fusionnée via le workflow GitHub protégé le 2026-07-28T07:52:57Z. Le commit de
+fusion `77dae643655f782319a20a3bb54ed8d008eab781` est confirmé sur `origin/main`. Les contrôles
+post-fusion sont tous PASS : CI `30340116595`, CodeQL `30340116667` et audit CGPA
+`30340116657`. Le job Packaging a néanmoins reconstruit les images et publié les tags SHA et
+`latest`, ce qui confirme à nouveau le périmètre du Plan Delivery #279. La branche de #279 est
+resynchronisée additivement sur ce `main` vert ; aucun changement CI/CD n'est encore implémenté.
