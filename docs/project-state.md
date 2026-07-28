@@ -2034,3 +2034,10 @@ suspendues sans contournement. Le Plan d'Exécution
 **approuvé humainement le 2026-07-28** via la conversation de pilotage. Action autorisée : tests
 Backend ciblés uniquement, seuil/exclusions/workflow inchangés, PR dédiée et validation humaine
 finale avant fusion. Aucun déploiement n'est autorisé.
+
+L'exécution locale du plan a ajouté 6 tests métier de `NotificationPreference` sans modifier le
+code de Production. `mvn -B verify` est PASS avec 211 tests, 0 échec/erreur/ignoré, Spotless PASS et
+garde JaCoCo PASS. La classe ciblée gagne 44 lignes et 13 branches couvertes (52/53 lignes et
+16/17 branches couvertes après remédiation). Le Quality Gate SonarQube et les autres contrôles CI
+restent des preuves distantes obligatoires à recueillir sur la PR ; aucune fusion ni promotion
+n'est autorisée sur la seule base de ces résultats locaux.

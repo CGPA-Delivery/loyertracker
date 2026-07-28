@@ -96,3 +96,23 @@ environnement n'étant modifié, le rollback retire uniquement les tests et les 
 Ajouter les tests Backend ciblés décrits par ce plan sur la branche
 `agent/backend-coverage-quality-gate`, publier une PR dédiée et recueillir les preuves CI. Cette
 décision n'autorise ni la fusion sans validation humaine finale, ni une promotion ou un déploiement.
+
+## 11. Rapport d'exécution local
+
+Exécution du 2026-07-28 sur la branche `agent/backend-coverage-quality-gate` :
+
+- fichier ajouté :
+  `backend/src/test/java/com/loyertracker/notifications/NotificationPreferenceTest.java` ;
+- périmètre respecté : aucun fichier `backend/src/main/**`, seuil, exclusion, configuration Sonar,
+  workflow, migration SQL ou environnement modifié ;
+- tests ciblés : 6 exécutés, 0 échec, 0 erreur, 0 ignoré ;
+- `mvn -B verify` complet : **BUILD SUCCESS**, 211 tests, 0 échec, 0 erreur, 0 ignoré ;
+- Spotless : PASS ;
+- garde JaCoCo locale du paquet sécurité : PASS ;
+- `NotificationPreference.java` après remédiation : 52 lignes couvertes et 1 manquée,
+  16 branches couvertes et 1 manquée, contre 8 lignes couvertes/45 manquées et
+  3 branches couvertes/14 manquées avant remédiation ;
+- gain local ciblé : 44 lignes et 13 branches supplémentaires couvertes.
+
+Le Quality Gate SonarQube distant, la CI GitHub et `new_violations = 0` restent à confirmer sur la
+Pull Request. Ces preuves locales n'autorisent pas la fusion.
