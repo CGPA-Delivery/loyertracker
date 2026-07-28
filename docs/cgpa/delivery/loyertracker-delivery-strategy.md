@@ -23,6 +23,14 @@ publiées portent exclusivement le tag de recherche non réutilisable `sha-<8>` 
 de release, accompagnées de SBOM, signatures keyless et attestations. Les tags `latest`
 historiques ne sont ni supprimés ni réécrits par cette évolution.
 
+Les deux alias historiques encore présents dans GHCR sont placés en **quarantaine** : `latest`
+reste figé sur les versions, digests et tags SHA inventoriés dans
+`infra/ci/legacy-latest-policy.json`, sans autorité de promotion. Un workflow en lecture seule
+contrôle quotidiennement leur absence de dérive et refuse toute référence applicative active.
+La suppression physique est différée : l'API GitHub Packages documente la suppression d'une
+version, pas le détachement d'un tag individuel, alors que chaque version concernée porte aussi
+le tag historique légitime `sha-19d0d0a4`. Aucun alias de remplacement n'est créé.
+
 ## Rollback Strategy
 
 Références digest applicatives précédentes, sauvegarde/restauration données,
