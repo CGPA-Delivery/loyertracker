@@ -9,6 +9,7 @@
 | Date de proposition | 2026-07-28 |
 | Nature | DevSecOps / Enterprise Delivery Governance |
 | Branche de planification | `agent/plan-retirement-latest-ghcr` |
+| Pull Request de planification | #286 |
 | Statut | **PROPOSÉ — APPROBATION HUMAINE REQUISE** |
 | Autorité finale | CGPA Chief Delivery Officer v6.1.1 |
 | Responsables pressentis | DevSecOps Lead, Delivery Architect, Release Manager |
@@ -237,6 +238,6 @@ Décisions possibles sur ce Plan :
   preuve attendue ;
 - `NO GO` : aucune implémentation ni mutation GHCR.
 
-À ce stade, seule la revue humaine du Plan est autorisée. Même après approbation, le Plan
-n'autorise pas à lui seul la suppression distante : le GO destructif ciblé prévu à l'étape 8 reste
-obligatoire si la stratégie `RETRAIT_SÉLECTIF` devient techniquement admissible.
+À ce stade, seule la revue humaine du Plan dans la PR #286 est autorisée. Même après approbation,
+le Plan n'autorise pas à lui seul la suppression distante : le GO destructif ciblé prévu à
+l'étape 8 reste obligatoire si la stratégie `RETRAIT_SÉLECTIF` devient techniquement admissible.

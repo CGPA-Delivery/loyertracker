@@ -2230,10 +2230,10 @@ action est interdite sans preuve d'un détachement limité au seul alias.
 
 Le Plan d'Exécution `PE-GHCR-LATEST-01`, documenté dans
 `docs/cgpa/06-planification-agile/plan-execution-retrait-alias-latest-ghcr.md`, est proposé sur la
-branche `agent/plan-retirement-latest-ghcr`. Il privilégie le retrait sélectif du seul alias si sa
-granularité est prouvée ; sinon, il impose une quarantaine gouvernée, figée sur les digests
-historiques et surveillée. Il interdit la suppression de versions, tout alias de remplacement,
-toute reconstruction et toute promotion.
+branche `agent/plan-retirement-latest-ghcr` et la PR de planification #286. Il privilégie le
+retrait sélectif du seul alias si sa granularité est prouvée ; sinon, il impose une quarantaine
+gouvernée, figée sur les digests historiques et surveillée. Il interdit la suppression de
+versions, tout alias de remplacement, toute reconstruction et toute promotion.
 
 Statut : **Plan proposé — approbation humaine requise**. L'action autorisée est limitée à la revue
 du Plan. Aucun code, workflow ou artefact GHCR n'est modifié par cette planification. Une future
