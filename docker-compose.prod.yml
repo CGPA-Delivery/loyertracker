@@ -2,12 +2,14 @@ name: loyertracker
 
 # Overrides production : à utiliser avec
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-# Différences clés : images consommées depuis GHCR par tag IMMUABLE `sha-<8>` (jamais `latest`,
+# Différences clés : images consommées depuis GHCR par références digest exactes (jamais `latest`,
 # jamais buildées localement — ADR-08, Environment Promotion Model), Keycloak en mode production
 # (start --optimized), volumes nommés persistants, aucun montage de code source.
 #
-# Comme en staging, définir LOYERTRACKER_TAG sur un tag immuable :
-#   LOYERTRACKER_TAG=sha-xxxxxxxx docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Comme en staging, définir les références du manifeste de release :
+#   API_IMAGE_REF=ghcr.io/.../loyertracker-api@sha256:... \
+#   WEB_IMAGE_REF=ghcr.io/.../loyertracker-web@sha256:... \
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
   postgres:
@@ -33,14 +35,14 @@ services:
     restart: always
 
   api:
-    # GHCR, tag immuable — jamais `latest`, jamais de build local en production (parité staging).
-    image: ${REGISTRY_BASE:-ghcr.io/jptshilombo}/loyertracker-api:${LOYERTRACKER_TAG:?Définir LOYERTRACKER_TAG=sha-xxxxxxxx (tag immuable, jamais latest)}
+    # GHCR par digest exact — jamais un tag, jamais de build local en Production.
+    image: ${API_IMAGE_REF:?Définir API_IMAGE_REF=ghcr.io/.../loyertracker-api@sha256:...}
     build: !reset null
     restart: always
 
   nginx:
-    # Image web (SPA Angular intégrée à Nginx) tirée de GHCR par tag immuable.
-    image: ${REGISTRY_BASE:-ghcr.io/jptshilombo}/loyertracker-web:${LOYERTRACKER_TAG:?Définir LOYERTRACKER_TAG=sha-xxxxxxxx (tag immuable, jamais latest)}
+    # Image web tirée de GHCR par digest exact.
+    image: ${WEB_IMAGE_REF:?Définir WEB_IMAGE_REF=ghcr.io/.../loyertracker-web@sha256:...}
     build: !reset null
     # Ports hôte paramétrables (parité staging, lot Production Readiness 4b) pour cohabiter avec un
     # reverse-proxy mutualisé qui termine le TLS public (ex. Nginx hôte + certbot sur 80/443 →

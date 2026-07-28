@@ -2129,6 +2129,48 @@ l'implémentation du Plan sur une nouvelle branche et une nouvelle PR Delivery, 
 requis et validation humaine finale distincte avant fusion. `RSV-MIG-611-05` reste **ouverte** ;
 aucune promotion Staging ou Production n'est autorisée.
 
+La PR de planification #283 a été fusionnée par le workflow GitHub protégé le 2026-07-28T09:32:55Z.
+Son commit de fusion exact est `4c39aa8ea6ba4abccabbc80a2a2731f15053cdbd`. Les contrôles
+post-fusion sont tous PASS : CI `30347048336`, CodeQL `30347048202` et audit CGPA
+`30347048345`; Packaging Docker est SKIPPED sur ce changement documentaire. L'implémentation
+autorisée part de ce `main` vert sur la branche dédiée
+`agent/supply-chain-rsv-mig-611-05`.
+
+L'implémentation locale applique le Plan sans changement métier : build-once API/Web, scan et SBOM
+sur les images exactes, transfert sans reconstruction vers un job `main` à permissions isolées,
+garde anti-écrasement, digests, signatures Cosign keyless, attestations GitHub, manifeste de
+release et contrats de promotion par `API_IMAGE_REF` / `WEB_IMAGE_REF`. Les digests du tag
+Production historique `sha-27dce09d` ont été résolus en lecture seule et enregistrés dans
+`infra/release/production-state.env`; aucun déploiement n'a été exécuté.
+
+La PR Delivery #284 est ouverte et prête pour revue depuis la branche
+`agent/supply-chain-rsv-mig-611-05`. Elle ne publie, ne signe et n'atteste aucune image sur
+l'événement Pull Request ; le job à permissions élevées est limité au push sur `main`.
+
+Preuves locales : 11/11 tests du classificateur, tests supply-chain, syntaxe Bash, verrou d'état de
+release, syntaxe YAML, rendu Compose Staging/Production, tests de l'auditeur 9/9, audit structurel
+97/97 et `git diff --check` sont PASS. Le rapport
+`docs/cgpa/07-devsecops/report-execution-supply-chain-rsv-mig-611-05.md` porte le détail.
+
+La PR #284 fournit au commit `9f7b19153cf39eed4bd536a9fb4431e828fae970` les preuves distantes
+suivantes : CI `30349568577` PASS, CodeQL `30349568482` PASS et audit CGPA `30349568388` PASS. Le
+job `Build, scan et SBOM Docker` `90244351038` est PASS : construction unique des images API/Web,
+scan des images exactes, SBOM SPDX puis export et transfert sans reconstruction. Le job
+`Publication, signatures et attestations` `90245031177` est **SKIPPED**, comme exigé sur Pull
+Request ; aucune permission de publication n'a donc été exercée. CHECK-CICD-01 est **PASS au jalon
+Test CI de la PR**. Une observation non bloquante préexistante demeure : l'action Gitleaks épinglée
+cible Node.js 20 et GitHub Actions la force à s'exécuter avec Node.js 24.
+
+Le 2026-07-28, après examen des preuves de la PR prête pour revue, le validateur humain a déclaré
+dans la conversation de pilotage : « tu peux fusionner ». Cette déclaration vaut **GO humain final
+pour la fusion de #284** sur le commit `9f7b19153cf39eed4bd536a9fb4431e828fae970`. Le commit
+documentaire qui enregistre la décision doit conserver les contrôles requis au vert avant fusion
+via le workflow GitHub protégé. Cette autorisation ne couvre aucun déploiement ou promotion.
+
+Statut : **fusion autorisée sous maintien des contrôles requis**. Après fusion, les preuves `main` de
+publication immuable, signatures, attestations et manifeste resteront obligatoires. `RSV-MIG-611-05` reste **ouverte** ; aucune
+promotion Staging ou Production n'est autorisée.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279

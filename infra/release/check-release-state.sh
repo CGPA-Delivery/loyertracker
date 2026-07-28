@@ -44,7 +44,8 @@ EOF
 # shellcheck disable=SC1090
 source "$STATE_FILE"
 
-for var in RELEASE_VERSION PRODUCTION_TAG FLYWAY_EXPECTED PRODUCTION_DEPLOYED_AT; do
+for var in RELEASE_VERSION PRODUCTION_TAG PRODUCTION_API_IMAGE_REF PRODUCTION_WEB_IMAGE_REF \
+  FLYWAY_EXPECTED PRODUCTION_DEPLOYED_AT; do
   [[ -n "${!var:-}" ]] || { echo "${RED}FATAL${RESET} variable manquante dans $STATE_FILE : $var" >&2; exit 1; }
 done
 
@@ -94,6 +95,16 @@ check_ci() {
     ko "PRODUCTION_TAG=$PRODUCTION_TAG ne respecte pas le format sha-<8 hex> (jamais 'latest')"
   fi
 
+  # Le tag est conservé pour la lisibilité historique ; les digests font autorité.
+  local ref
+  for ref in "$PRODUCTION_API_IMAGE_REF" "$PRODUCTION_WEB_IMAGE_REF"; do
+    if [[ "$ref" =~ ^ghcr\.io/jptshilombo/loyertracker-(api|web)@sha256:[0-9a-f]{64}$ ]]; then
+      ok "référence digest Production valide : $ref"
+    else
+      ko "référence digest Production invalide : $ref"
+    fi
+  done
+
   # 4. Horodatage RFC3339 UTC
   if [[ "$PRODUCTION_DEPLOYED_AT" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then
     ok "PRODUCTION_DEPLOYED_AT=$PRODUCTION_DEPLOYED_AT au format RFC3339 UTC"
@@ -131,17 +142,17 @@ check_host() {
   local api="${API_CONTAINER:-loyertracker-api-1}"
   local web="${WEB_CONTAINER:-loyertracker-nginx-1}"
 
-  # 1. Tag déclaré == tag du .env hôte
+  # 1. Références digest déclarées == références du .env hôte
   if [[ -f "$env_file" ]]; then
-    local real_tag
-    real_tag=$(grep -E '^LOYERTRACKER_TAG=' "$env_file" | cut -d= -f2- | tr -d '"'"'"' ')
-    if [[ "$real_tag" == "$PRODUCTION_TAG" ]]; then
-      ok "tag hôte = $real_tag == PRODUCTION_TAG"
-    else
-      ko "DÉRIVE : .env hôte = '$real_tag' mais PRODUCTION_TAG déclaré = '$PRODUCTION_TAG'"
-      echo "        → un déploiement a eu lieu sans mise à jour du fichier d'état,"
-      echo "          ou le fichier d'état annonce un déploiement non réalisé (R-V54-2)"
-    fi
+    local real_api_ref real_web_ref
+    real_api_ref=$(grep -E '^API_IMAGE_REF=' "$env_file" | cut -d= -f2- | tr -d '"'"'"' ')
+    real_web_ref=$(grep -E '^WEB_IMAGE_REF=' "$env_file" | cut -d= -f2- | tr -d '"'"'"' ')
+    [[ "$real_api_ref" == "$PRODUCTION_API_IMAGE_REF" ]] \
+      && ok "digest API hôte conforme" \
+      || ko "DÉRIVE : API_IMAGE_REF hôte '$real_api_ref' != déclaré '$PRODUCTION_API_IMAGE_REF'"
+    [[ "$real_web_ref" == "$PRODUCTION_WEB_IMAGE_REF" ]] \
+      && ok "digest Web hôte conforme" \
+      || ko "DÉRIVE : WEB_IMAGE_REF hôte '$real_web_ref' != déclaré '$PRODUCTION_WEB_IMAGE_REF'"
   else
     ko "fichier .env introuvable : $env_file"
   fi
@@ -159,17 +170,18 @@ check_host() {
     ko "DÉRIVE : Flyway réel = $real_mig mais FLYWAY_EXPECTED = $FLYWAY_EXPECTED"
   fi
 
-  # 3. Images actives cohérentes avec le tag déclaré
-  local c
-  for c in "$api" "$web"; do
-    local img
+  # 3. Images actives cohérentes avec les références digest déclarées
+  local pair c expected img
+  for pair in "$api|$PRODUCTION_API_IMAGE_REF" "$web|$PRODUCTION_WEB_IMAGE_REF"; do
+    c="${pair%%|*}"
+    expected="${pair#*|}"
     img=$(docker inspect -f '{{.Config.Image}}' "$c" 2>/dev/null || true)
     if [[ -z "$img" ]]; then
       ko "conteneur introuvable : $c"
-    elif [[ "$img" == *":$PRODUCTION_TAG" ]]; then
+    elif [[ "$img" == "$expected" ]]; then
       ok "$c exécute $img"
     else
-      ko "DÉRIVE : $c exécute '$img', attendu un tag ':$PRODUCTION_TAG'"
+      ko "DÉRIVE : $c exécute '$img', attendu '$expected'"
     fi
   done
 }

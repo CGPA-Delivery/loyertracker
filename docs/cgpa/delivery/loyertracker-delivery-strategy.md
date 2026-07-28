@@ -15,16 +15,19 @@ Production.
 
 ## Release Strategy
 
-SemVer. Release Candidate identifiée par commit, tag image et digest. Même artefact entre Staging
+SemVer. Release Candidate identifiée par commit, tag de recherche et références digest. Même artefact entre Staging
 et Production. Le pipeline classe le delta par rapport aux contextes Docker avant le Packaging :
 un changement sans impact image ne construit ni ne publie de nouvel artefact GHCR. Les images
-publiées portent exclusivement le tag immutable `sha-<8>` ; l'alias mutable `latest` est interdit.
-Les tags `latest` historiques ne sont ni supprimés ni réécrits par cette évolution.
+publiées portent exclusivement le tag de recherche non réutilisable `sha-<8>` ; l'alias mutable
+`latest` est interdit. Les promotions utilisent les références digest exactes API/Web du manifeste
+de release, accompagnées de SBOM, signatures keyless et attestations. Les tags `latest`
+historiques ne sont ni supprimés ni réécrits par cette évolution.
 
 ## Rollback Strategy
 
-Tag applicatif précédent, sauvegarde/restauration données, configuration/infrastructure et feature
-flags selon applicabilité. Conditions et preuves sont propres à chaque RC.
+Références digest applicatives précédentes, sauvegarde/restauration données,
+configuration/infrastructure et feature flags selon applicabilité. Conditions et preuves sont
+propres à chaque RC ; aucun rollback ne reconstruit l'artefact.
 
 ## Observability Strategy
 

@@ -18,8 +18,8 @@ Dev/Test (le Test est exercé en CI, distinct du Dev local).
 |---|---|---|---|---|
 | **Dev** | Intégration locale développeur | `docker-compose.yml` + `.env` local | images **buildées localement** (code monté) | Actif |
 | **Test** | Tests automatiques et fonctionnels | CI GitHub Actions (`ci.yml`, `codeql.yml`) | éphémère : Testcontainers (backend), Chrome headless (frontend), stack Compose jetable (smoke) | Actif |
-| **Staging** | Validation d'un incrément en conditions représentatives | `docker-compose.staging.yml` sur `ai-test-server` | **GHCR** `ghcr.io/jptshilombo`, **tag immuable `sha-<8>`** | Actif, **exposé publiquement** (`https://loyertracker.staging.loyerpro.org`) |
-| **Production** | Utilisateurs finaux | `docker-compose.prod.yml` (+ `docker-compose.yml`) | GHCR, tag immuable `sha-<8>` | **Provisionné, LIVE depuis le 2026-06-20** (Gate 10 GO) |
+| **Staging** | Validation d'un incrément en conditions représentatives | `docker-compose.staging.yml` sur `ai-test-server` | **GHCR**, références digest API/Web du manifeste | Actif, **exposé publiquement** (`https://loyertracker.staging.loyerpro.org`) |
+| **Production** | Utilisateurs finaux | `docker-compose.prod.yml` (+ `docker-compose.yml`) | GHCR, mêmes références digest validées en Staging | **Provisionné, LIVE depuis le 2026-06-20** (Gate 10 GO) |
 
 **Staging et Production sont distincts** (exigence non négociable v5.2). Production est
 provisionnée sur un hôte dédié (`loyertracker-prod-server`) depuis le **Gate 10 — Mise en
@@ -35,12 +35,12 @@ Staging (cf. §STG-ISOL-01 ci-dessous, CGPA v5.4).
 
 * **Dev → Test** : tout push déclenche la CI (build + tests + scans). Aucun artefact
   promu sans CI verte.
-* **Test → Staging** : seul un merge sur `main` publie les images GHCR (`sha-<8>` + alias
-  `latest`, jamais déployé par `latest`) ; le déploiement staging consomme un **tag
-  immuable explicite** (`LOYERTRACKER_TAG=sha-<8>`).
+* **Test → Staging** : seul un merge sur `main` pertinent publie les images GHCR sous un tag de
+  recherche `sha-<8>`, sans `latest`. Le déploiement consomme les références
+  `API_IMAGE_REF` et `WEB_IMAGE_REF` par digest exact issues du manifeste vérifié.
 * **Staging → Production** : autorisé uniquement si le **Gate Staging Readiness** est GO
   **et** le **Gate 07A — Release Readiness** est GO (version identifiée, changelog,
-  release notes, rollback documenté).
+  release notes, rollback documenté). Les références digest sont strictement identiques.
 
 Une promotion n'est autorisée que si le gate applicable est **GO** ou **GO sous réserve
 avec actions correctives datées**.
@@ -51,12 +51,13 @@ Chaque promotion trace (cf. `docs/staging-state.md` §8 — historique des redé
 
 | Champ | Où | Exemple |
 |---|---|---|
-| Version / commit promu | `LOYERTRACKER_TAG` | `sha-73359c5c` |
+| Version / commit promu | manifeste de release | commit complet + tag de recherche |
+| Artefacts exacts | manifeste de release | `API_IMAGE_REF` et `WEB_IMAGE_REF` par digest |
 | Environnement source → cible | `staging-state.md` §8 | `main` → Staging |
 | Décision de gate | `staging-state.md` §6, registre des décisions | Gate Staging Readiness GO (2026-06-14) |
 | Responsable | registre des décisions | `jptshilombo@gmail.com` |
 | Date | `staging-state.md` §8 | 2026-06-16 |
-| Rollback identifié | `staging-state.md` §7 | redéploiement du `LOYERTRACKER_TAG` précédent (tags immuables) |
+| Rollback identifié | `staging-state.md` §7 | redéploiement des deux références digest précédentes |
 
 ## Proportionnalité (CGPA v5.2)
 
@@ -128,6 +129,11 @@ Détail opérationnel : `docs/cgpa/07-devsecops/runbook-exploitation.md` §0.1.
   **GHCR à tag immuable `sha-<8>`** (jamais `latest` en déploiement). À aligner sur la
   source d'images GHCR + tag immuable lors du cadrage du cap production (Plan d'Exécution
   R-V52-5 / Gate 07A).
+
+> **Historique préservé — réserve levée antérieurement puis contrôle renforcé en v6.1.1** :
+> Production a été alignée sur GHCR sans `latest`, puis le lot supply-chain de
+> `RSV-MIG-611-05` a remplacé l'autorité du tag par les références digest API/Web du manifeste.
+> Le texte ci-dessus reste la trace de l'écart initial et ne décrit plus la configuration active.
 
 ---
 *Livrable CGPA v5.2 — Environment Promotion Model (ENV-01). Réf. :

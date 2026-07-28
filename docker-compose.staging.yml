@@ -4,16 +4,17 @@ name: loyertracker-staging
 # de dev (point d'entrée unique Nginx TLS, ports internes non publiés — ADR-08), avec les
 # différences suivantes :
 #   - AUCUN build local : les images applicatives (api, nginx) sont tirées du registry GHCR,
-#     publiées par la CI sur `main` (lot 1). Déploiement et rollback se font EXCLUSIVEMENT
-#     par tag immuable `sha-<8>` : LOYERTRACKER_TAG est obligatoire, jamais `latest`.
+#     publiées par la CI sur `main`. Déploiement et rollback utilisent EXCLUSIVEMENT les
+#     références digest exactes du manifeste de release.
 #   - Limites de ressources (deploy.resources) et politiques de redémarrage explicites.
 #   - L'image web embarque la SPA buildée et la conf Nginx : seuls les certificats TLS
 #     (secrets, non versionnés) sont montés au runtime — lisibles par l'uid 101 (non-root).
 #
 # Usage (depuis la racine du dépôt, .env de staging en place) :
 #   docker compose -f docker-compose.staging.yml up -d
-#   LOYERTRACKER_TAG=sha-xxxxxxxx (exporté ou dans .env)
-# Rollback : redéployer avec le LOYERTRACKER_TAG précédent.
+#   API_IMAGE_REF=ghcr.io/.../loyertracker-api@sha256:...
+#   WEB_IMAGE_REF=ghcr.io/.../loyertracker-web@sha256:...
+# Rollback : redéployer les deux références digest du manifeste précédent.
 
 services:
   postgres:
@@ -95,8 +96,8 @@ services:
           memory: 512M
 
   api:
-    # Image publiée par la CI (lot 1) — tag immuable obligatoire, jamais `latest`.
-    image: ${REGISTRY_BASE:-ghcr.io/jptshilombo}/loyertracker-api:${LOYERTRACKER_TAG:?Définir LOYERTRACKER_TAG=sha-xxxxxxxx (tag immuable, jamais latest)}
+    # Référence digest exacte issue du manifeste supply-chain, jamais un tag flottant.
+    image: ${API_IMAGE_REF:?Définir API_IMAGE_REF=ghcr.io/.../loyertracker-api@sha256:...}
     environment:
       DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       # Runtime : rôle applicatif à privilèges minimaux (RLS FORCE effective — ADR-01).
@@ -153,8 +154,8 @@ services:
           memory: 1G
 
   nginx:
-    # Image web publiée par la CI (SPA buildée + Nginx non-root) — même tag que l'API.
-    image: ${REGISTRY_BASE:-ghcr.io/jptshilombo}/loyertracker-web:${LOYERTRACKER_TAG:?Définir LOYERTRACKER_TAG=sha-xxxxxxxx (tag immuable, jamais latest)}
+    # Référence digest Web exacte, indépendante de la référence API.
+    image: ${WEB_IMAGE_REF:?Définir WEB_IMAGE_REF=ghcr.io/.../loyertracker-web@sha256:...}
     ports:
       # Remap ports privilégiés hôte → ports non privilégiés du conteneur (Nginx non-root).
       # Ports hôte paramétrables (défaut 80/443 pour un hôte dédié) : sur un hôte partagé où
