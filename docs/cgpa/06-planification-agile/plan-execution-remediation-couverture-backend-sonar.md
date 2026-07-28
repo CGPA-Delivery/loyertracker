@@ -116,3 +116,17 @@ Exécution du 2026-07-28 sur la branche `agent/backend-coverage-quality-gate` :
 
 Le Quality Gate SonarQube distant, la CI GitHub et `new_violations = 0` restent à confirmer sur la
 Pull Request. Ces preuves locales n'autorisent pas la fusion.
+
+## 12. Preuves distantes de la Pull Request #280
+
+Première exécution distante sur le commit `e000673481e8094eef6877e9802adc50d1f05c80` :
+
+- CI GitHub run `30338746285` : Backend PASS, Frontend PASS, Sécurité PASS et Packaging Docker
+  PASS ;
+- Backend : 211 tests, 0 échec, 0 erreur, 0 ignoré et build PASS ;
+- SonarQube Backend : `QUALITY GATE STATUS: PASSED` ;
+- CodeQL run `30338746266` : Java/Kotlin PASS et JavaScript/TypeScript PASS ;
+- audit structurel run `30338746311` : PASS.
+
+Le blocage de couverture à 79,9 % est donc levé sans modification du seuil ni exclusion. La PR
+reste en brouillon et sa fusion demeure conditionnée à une validation humaine finale explicite.

@@ -2041,3 +2041,9 @@ garde JaCoCo PASS. La classe ciblée gagne 44 lignes et 13 branches couvertes (5
 16/17 branches couvertes après remédiation). Le Quality Gate SonarQube et les autres contrôles CI
 restent des preuves distantes obligatoires à recueillir sur la PR ; aucune fusion ni promotion
 n'est autorisée sur la seule base de ces résultats locaux.
+
+La PR de remédiation #280 a ensuite fourni les preuves distantes sur le commit
+`e000673481e8094eef6877e9802adc50d1f05c80` : CI `30338746285` entièrement PASS, 211 tests Backend
+PASS, Quality Gate SonarQube Backend PASS, Frontend/Sécurité/Packaging PASS, CodeQL
+`30338746266` PASS et audit structurel `30338746311` PASS. Le blocage Sonar est levé sans
+contournement. La PR reste en brouillon ; la fusion exige encore la validation humaine finale.
