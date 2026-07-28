@@ -173,3 +173,14 @@ après revue, le validateur humain a déclaré dans la conversation de pilotage 
 Cette déclaration vaut **GO humain final pour la fusion de la PR #281**, sous réserve que le commit
 documentaire enregistrant la décision conserve tous les contrôles requis au vert. Elle n'autorise
 aucune promotion Staging ou Production.
+
+## 16. Clôture post-fusion
+
+La PR #281 a été fusionnée par le workflow GitHub protégé le 2026-07-28T08:45:38Z au commit
+`05c210d9ffe2fe2e67ea1f0b4f6111026b705180`. Les workflows post-fusion CI `30343697515`, CodeQL
+`30343697493` et audit CGPA `30343697448` sont PASS. Le delta contenant le workflow a déclenché le
+Packaging attendu ; seules les images `sha-05c210d9` ont été publiées. Digests : API
+`sha256:5e92a90c376538054338e70f86da310554891d6e11a246a5aea33c7f8d14f0dd`, Web
+`sha256:7a7f8f3b0d24370d48453d78cc2280b6fa1df0f77f9410fa5124d301e62b4a30`. Aucune commande de
+publication `latest` n'apparaît dans l'étape GHCR. Une PR documentaire additive distincte doit
+enregistrer cette clôture et prouver le cas réel `images_changed=false` avec Packaging sauté.
