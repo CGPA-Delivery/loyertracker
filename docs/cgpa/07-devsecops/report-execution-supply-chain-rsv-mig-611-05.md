@@ -9,7 +9,7 @@
 | Pull Request | #284 |
 | Base | `main` — `4c39aa8ea6ba4abccabbc80a2a2731f15053cdbd` |
 | Date | 2026-07-28 |
-| Statut | Preuves PR acquises — validation humaine finale et preuves post-fusion requises |
+| Statut | Validation humaine finale reçue — preuves post-fusion requises |
 
 ## Périmètre exécuté
 
@@ -56,17 +56,17 @@ Cette inscription documentaire ne constitue pas un redéploiement.
 ## Preuves distantes de la PR
 
 Les preuves suivantes sont acquises au commit
-`0131faa8e9317da088b14a43402f10e9f379216f` :
+`9f7b19153cf39eed4bd536a9fb4431e828fae970` :
 
 | Contrôle | Preuve | Résultat |
 |---|---|---|
-| CI | run `30348725484` | PASS |
-| Backend, Frontend et Sécurité | jobs du run `30348725484` | PASS |
-| Détection changements images | job `90241008485` | PASS |
-| Build unique, scans et SBOM API/Web | job `90241779428` | PASS |
-| Publication, signatures et attestations | job `90242839965` | SKIPPED attendu sur Pull Request |
-| CodeQL | run `30348725512` | PASS Java/Kotlin et JavaScript/TypeScript |
-| Audit CGPA | run `30348725501` | PASS |
+| CI | run `30349568577` | PASS |
+| Backend, Frontend et Sécurité | jobs du run `30349568577` | PASS |
+| Détection changements images | job `90243607922` | PASS |
+| Build unique, scans et SBOM API/Web | job `90244351038` | PASS |
+| Publication, signatures et attestations | job `90245031177` | SKIPPED attendu sur Pull Request |
+| CodeQL | run `30349568482` | PASS Java/Kotlin et JavaScript/TypeScript |
+| Audit CGPA | run `30349568388` | PASS |
 
 Le job `Build, scan et SBOM Docker` a construit chaque image une fois, scanné l'image exacte,
 produit son SBOM SPDX, exporté les deux images et transféré l'ensemble sans reconstruction. Le job
@@ -90,8 +90,13 @@ Une PR de `git revert` du commit de fusion restaurera le workflow et les contrat
 Les images, SBOM, signatures, attestations et manifestes déjà produits seront conservés. Aucun
 rollback ne supprime un package et aucun historique n'est réécrit.
 
-## Décision requise
+## Décision humaine finale
 
-Une validation humaine finale distincte de la PR #284 est obligatoire avant fusion. Après fusion,
-le run `main` devra prouver publication, signatures, attestations, manifeste et absence de
-reconstruction. `RSV-MIG-611-05` reste ouverte jusque-là.
+Le 2026-07-28, après mise à disposition de la PR prête pour revue et de ses preuves, le validateur
+humain a déclaré dans la conversation de pilotage : « tu peux fusionner ». Cette décision vaut
+**GO humain final pour la fusion de #284** sur le commit
+`9f7b19153cf39eed4bd536a9fb4431e828fae970`. Le commit documentaire qui enregistre cette
+décision doit conserver tous les contrôles requis au vert avant la fusion protégée.
+
+Après fusion, le run `main` devra prouver publication, signatures, attestations, manifeste et
+absence de reconstruction. `RSV-MIG-611-05` reste ouverte jusque-là.

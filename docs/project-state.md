@@ -2143,7 +2143,7 @@ release et contrats de promotion par `API_IMAGE_REF` / `WEB_IMAGE_REF`. Les dige
 Production historique `sha-27dce09d` ont été résolus en lecture seule et enregistrés dans
 `infra/release/production-state.env`; aucun déploiement n'a été exécuté.
 
-La PR Delivery #284 est ouverte en brouillon depuis la branche
+La PR Delivery #284 est ouverte et prête pour revue depuis la branche
 `agent/supply-chain-rsv-mig-611-05`. Elle ne publie, ne signe et n'atteste aucune image sur
 l'événement Pull Request ; le job à permissions élevées est limité au push sur `main`.
 
@@ -2152,18 +2152,23 @@ release, syntaxe YAML, rendu Compose Staging/Production, tests de l'auditeur 9/9
 97/97 et `git diff --check` sont PASS. Le rapport
 `docs/cgpa/07-devsecops/report-execution-supply-chain-rsv-mig-611-05.md` porte le détail.
 
-La PR #284 fournit au commit `0131faa8e9317da088b14a43402f10e9f379216f` les preuves distantes
-suivantes : CI `30348725484` PASS, CodeQL `30348725512` PASS et audit CGPA `30348725501` PASS. Le
-job `Build, scan et SBOM Docker` `90241779428` est PASS : construction unique des images API/Web,
+La PR #284 fournit au commit `9f7b19153cf39eed4bd536a9fb4431e828fae970` les preuves distantes
+suivantes : CI `30349568577` PASS, CodeQL `30349568482` PASS et audit CGPA `30349568388` PASS. Le
+job `Build, scan et SBOM Docker` `90244351038` est PASS : construction unique des images API/Web,
 scan des images exactes, SBOM SPDX puis export et transfert sans reconstruction. Le job
-`Publication, signatures et attestations` `90242839965` est **SKIPPED**, comme exigé sur Pull
+`Publication, signatures et attestations` `90245031177` est **SKIPPED**, comme exigé sur Pull
 Request ; aucune permission de publication n'a donc été exercée. CHECK-CICD-01 est **PASS au jalon
 Test CI de la PR**. Une observation non bloquante préexistante demeure : l'action Gitleaks épinglée
 cible Node.js 20 et GitHub Actions la force à s'exécuter avec Node.js 24.
 
-Statut : **PR techniquement vérifiée, validation humaine finale de #284 requise avant fusion**.
-Après une éventuelle fusion autorisée, les preuves `main` de publication immuable, signatures,
-attestations et manifeste resteront obligatoires. `RSV-MIG-611-05` reste **ouverte** ; aucune
+Le 2026-07-28, après examen des preuves de la PR prête pour revue, le validateur humain a déclaré
+dans la conversation de pilotage : « tu peux fusionner ». Cette déclaration vaut **GO humain final
+pour la fusion de #284** sur le commit `9f7b19153cf39eed4bd536a9fb4431e828fae970`. Le commit
+documentaire qui enregistre la décision doit conserver les contrôles requis au vert avant fusion
+via le workflow GitHub protégé. Cette autorisation ne couvre aucun déploiement ou promotion.
+
+Statut : **fusion autorisée sous maintien des contrôles requis**. Après fusion, les preuves `main` de
+publication immuable, signatures, attestations et manifeste resteront obligatoires. `RSV-MIG-611-05` reste **ouverte** ; aucune
 promotion Staging ou Production n'est autorisée.
 
 ### Blocage SonarQube Backend et plan de remédiation couverture
