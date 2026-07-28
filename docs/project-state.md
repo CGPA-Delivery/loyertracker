@@ -2330,3 +2330,27 @@ dérive, le doublon, la disparition non instruite et toute référence applicati
 consommateur externe non prouvée) reste **ouverte** sous responsabilité DevSecOps Lead, avec
 réévaluation au plus tard le **2026-10-28**. Aucun DCL supérieur n'est déclaré. Aucun déploiement,
 aucune promotion et aucune mutation GHCR n'a été exécuté ni autorisé par cette fusion.
+
+### Clôture post-fusion — hypercare `1.14.0` T+12 et T+24 (PR #288)
+
+Le 2026-07-28, le validateur humain a déclaré dans la conversation de pilotage : « j'ai validé
+#288, fusionne-la ». Cette déclaration vaut **GO humain final** pour la fusion de la PR
+documentaire d'hypercare.
+
+La PR #288 a été fusionnée par le workflow GitHub protégé le **2026-07-28T15:57:13Z**, sans
+contournement administrateur. Le commit de fusion exact est
+`87dba26374630ead4e8e4e853b86cee7de8fad33`, confirmé sur `origin/main`. Les preuves de la PR au
+commit `69158be` sont toutes conformes : Backend, Frontend, Sécurité (gitleaks + SCA + Trivy),
+CodeQL `java-kotlin` et `javascript-typescript`, audit structurel CGPA et Registry Policy PASS ;
+les deux jobs Docker sont correctement **SKIPPED**, le lot étant strictement documentaire.
+
+Les contrôles **post-fusion sur `main`** au commit `87dba263` sont tous **PASS** : CI
+`30375894880`, CodeQL `30375894923`, audit CGPA `30375894867` et Registry Policy `30375894962`.
+
+L'hypercare `1.14.0` est ainsi **complète et tracée sur `main`** : T0 PASS, T+12 et T+24
+**PASS sous surveillance**, aucun critère de suspension atteint. Les deux écarts de fenêtre
+restent qualifiés et tracés — T+12 en rattrapage (contrainte d'exploitation, hôte volontairement
+éteint) et T+24 anticipé hors fenêtre (choix de pilotage PO, hôte allumé et fenêtre atteignable).
+
+Aucun déploiement, aucune promotion, aucune mutation GHCR et aucune écriture en base de
+Production n'a été exécuté ni autorisé par cette fusion.
