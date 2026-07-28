@@ -182,5 +182,5 @@ La PR #281 a été fusionnée par le workflow GitHub protégé le 2026-07-28T08:
 Packaging attendu ; seules les images `sha-05c210d9` ont été publiées. Digests : API
 `sha256:5e92a90c376538054338e70f86da310554891d6e11a246a5aea33c7f8d14f0dd`, Web
 `sha256:7a7f8f3b0d24370d48453d78cc2280b6fa1df0f77f9410fa5124d301e62b4a30`. Aucune commande de
-publication `latest` n'apparaît dans l'étape GHCR. Une PR documentaire additive distincte doit
-enregistrer cette clôture et prouver le cas réel `images_changed=false` avec Packaging sauté.
+publication `latest` n'apparaît dans l'étape GHCR. La PR documentaire additive distincte #282
+enregistre cette clôture et doit prouver le cas réel `images_changed=false` avec Packaging sauté.

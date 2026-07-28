@@ -2079,8 +2079,8 @@ publié exclusivement les images `sha-05c210d9` : API
 `sha256:5e92a90c376538054338e70f86da310554891d6e11a246a5aea33c7f8d14f0dd` et Web
 `sha256:7a7f8f3b0d24370d48453d78cc2280b6fa1df0f77f9410fa5124d301e62b4a30`. Les logs de publication
 ne contiennent aucune commande de tag ou push vers `latest`. Le traitement de la reconstruction
-documentaire et de l'alias mutable est donc livré côté `main` ; une PR documentaire additive
-distincte enregistre cette clôture et doit fournir la preuve distante du cas
+documentaire et de l'alias mutable est donc livré côté `main` ; la PR documentaire additive #282
+enregistre cette clôture et doit fournir la preuve distante du cas
 `images_changed=false` avec Packaging sauté. `RSV-MIG-611-05` reste ouverte uniquement pour les
 capacités supply-chain hors lot. Aucun déploiement ni aucune promotion n'a été exécuté.
 
