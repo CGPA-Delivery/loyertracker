@@ -152,7 +152,7 @@ CHECK-CICD-01 est **PASS au jalon post-fusion `main`** : les images construites 
 résolues par digest, signées et attestées, puis décrites dans un manifeste vérifiable. Les
 critères techniques résiduels de `RSV-MIG-611-05` sont satisfaits.
 
-La levée de `RSV-MIG-611-05` est **proposée à la validation humaine finale** dans une PR
-documentaire additive distincte. Elle ne devient effective qu'après cette revue et la fusion
+La levée de `RSV-MIG-611-05` est **proposée à la validation humaine finale** dans la PR
+documentaire additive distincte #285. Elle ne devient effective qu'après cette revue et la fusion
 protégée de la PR de clôture. Aucun DCL supérieur n'est déclaré et aucune promotion Staging ou
 Production n'a été exécutée ou autorisée par ces preuves.

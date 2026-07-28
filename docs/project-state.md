@@ -2203,7 +2203,7 @@ empreintes SBOM et vérifications détaillées.
 
 CHECK-CICD-01 est **PASS au jalon post-fusion `main`**. Les critères techniques résiduels de
 `RSV-MIG-611-05` sont satisfaits ; sa levée est **proposée** dans la PR documentaire de clôture
-dédiée et reste soumise à validation humaine finale avant fusion. Aucun DCL supérieur n'est
+dédiée #285 et reste soumise à validation humaine finale avant fusion. Aucun DCL supérieur n'est
 déclaré. Aucun déploiement ni aucune promotion Staging ou Production n'a été exécuté ou autorisé.
 
 ### Blocage SonarQube Backend et plan de remédiation couverture
