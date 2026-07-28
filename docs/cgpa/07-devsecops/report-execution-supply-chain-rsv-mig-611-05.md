@@ -9,7 +9,7 @@
 | Pull Request | #284 |
 | Base | `main` — `4c39aa8ea6ba4abccabbc80a2a2731f15053cdbd` |
 | Date | 2026-07-28 |
-| Statut | PR en brouillon — preuves PR et post-fusion requises |
+| Statut | Preuves PR acquises — validation humaine finale et preuves post-fusion requises |
 
 ## Périmètre exécuté
 
@@ -42,23 +42,47 @@ Cette inscription documentaire ne constitue pas un redéploiement.
 
 | Contrôle | Résultat |
 |---|---|
+| Tests `infra/ci/test-artifact-scope.sh` | PASS — 11/11 |
 | Tests `infra/ci/test-supply-chain.sh` | PASS |
 | Syntaxe Bash des quatre scripts concernés | PASS |
 | `check-release-state.sh --ci` | PASS |
 | YAML du workflow | PASS |
 | `docker compose config --no-interpolate` Staging | PASS |
 | `docker compose config --no-interpolate` Production | PASS |
+| Tests de l'auditeur CGPA | PASS — 9/9 |
+| Audit structurel local | PASS — 97/97 |
 | `git diff --check` | PASS |
 
-Les tests applicatifs, scans distants, SBOM réelles et contrôles GitHub restent à acquérir sur la
-PR. Les signatures, attestations et le manifeste publiant ne peuvent être prouvés que sur le run
-post-fusion `main`.
+## Preuves distantes de la PR
+
+Les preuves suivantes sont acquises au commit
+`0131faa8e9317da088b14a43402f10e9f379216f` :
+
+| Contrôle | Preuve | Résultat |
+|---|---|---|
+| CI | run `30348725484` | PASS |
+| Backend, Frontend et Sécurité | jobs du run `30348725484` | PASS |
+| Détection changements images | job `90241008485` | PASS |
+| Build unique, scans et SBOM API/Web | job `90241779428` | PASS |
+| Publication, signatures et attestations | job `90242839965` | SKIPPED attendu sur Pull Request |
+| CodeQL | run `30348725512` | PASS Java/Kotlin et JavaScript/TypeScript |
+| Audit CGPA | run `30348725501` | PASS |
+
+Le job `Build, scan et SBOM Docker` a construit chaque image une fois, scanné l'image exacte,
+produit son SBOM SPDX, exporté les deux images et transféré l'ensemble sans reconstruction. Le job
+à permissions élevées n'a pas été exécuté sur l'événement Pull Request. La CI signale une
+observation non bloquante préexistante : l'action Gitleaks épinglée cible Node.js 20 et est forcée
+par GitHub Actions à s'exécuter avec Node.js 24.
+
+Les signatures, attestations, digests publiés et le manifeste ne peuvent être prouvés que sur le
+run post-fusion `main`.
 
 ## CHECK-CICD-01 et Gates
 
-CHECK-CICD-01 n'est pas encore déclaré PASS pour le lot : les preuves PR et post-fusion manquent.
-Le Gate 06A historique n'est pas rejoué. Aucun Gate Staging, Gate 07A, Gate Production ou Gate 10
-n'est ouvert par cette implémentation.
+CHECK-CICD-01 est **PASS au jalon Test CI de la PR**. La publication immuable, les signatures,
+attestations et le manifeste restent non exécutés et ne pourront être évalués qu'au jalon
+post-fusion `main`. Le Gate 06A historique n'est pas rejoué. Aucun Gate Staging, Gate 07A, Gate
+Production ou Gate 10 n'est ouvert par cette implémentation.
 
 ## Rollback
 
@@ -68,6 +92,6 @@ rollback ne supprime un package et aucun historique n'est réécrit.
 
 ## Décision requise
 
-Après CI PR conforme, une validation humaine finale distincte est obligatoire avant fusion. Après
-fusion, le run `main` devra prouver publication, signatures, attestations, manifeste et absence de
+Une validation humaine finale distincte de la PR #284 est obligatoire avant fusion. Après fusion,
+le run `main` devra prouver publication, signatures, attestations, manifeste et absence de
 reconstruction. `RSV-MIG-611-05` reste ouverte jusque-là.

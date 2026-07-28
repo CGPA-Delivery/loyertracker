@@ -2147,11 +2147,24 @@ La PR Delivery #284 est ouverte en brouillon depuis la branche
 `agent/supply-chain-rsv-mig-611-05`. Elle ne publie, ne signe et n'atteste aucune image sur
 l'événement Pull Request ; le job à permissions élevées est limité au push sur `main`.
 
-Preuves locales : tests supply-chain PASS, syntaxe Bash PASS, verrou d'état de release PASS,
-syntaxe YAML PASS, rendu Compose Staging/Production PASS et `git diff --check` PASS. Le rapport
-`docs/cgpa/07-devsecops/report-execution-supply-chain-rsv-mig-611-05.md` porte le détail. Statut :
-**implémentation en cours — preuves CI de PR, CHECK-CICD-01 et validation humaine finale requises**.
-`RSV-MIG-611-05` reste **ouverte** ; aucune promotion Staging ou Production n'est autorisée.
+Preuves locales : 11/11 tests du classificateur, tests supply-chain, syntaxe Bash, verrou d'état de
+release, syntaxe YAML, rendu Compose Staging/Production, tests de l'auditeur 9/9, audit structurel
+97/97 et `git diff --check` sont PASS. Le rapport
+`docs/cgpa/07-devsecops/report-execution-supply-chain-rsv-mig-611-05.md` porte le détail.
+
+La PR #284 fournit au commit `0131faa8e9317da088b14a43402f10e9f379216f` les preuves distantes
+suivantes : CI `30348725484` PASS, CodeQL `30348725512` PASS et audit CGPA `30348725501` PASS. Le
+job `Build, scan et SBOM Docker` `90241779428` est PASS : construction unique des images API/Web,
+scan des images exactes, SBOM SPDX puis export et transfert sans reconstruction. Le job
+`Publication, signatures et attestations` `90242839965` est **SKIPPED**, comme exigé sur Pull
+Request ; aucune permission de publication n'a donc été exercée. CHECK-CICD-01 est **PASS au jalon
+Test CI de la PR**. Une observation non bloquante préexistante demeure : l'action Gitleaks épinglée
+cible Node.js 20 et GitHub Actions la force à s'exécuter avec Node.js 24.
+
+Statut : **PR techniquement vérifiée, validation humaine finale de #284 requise avant fusion**.
+Après une éventuelle fusion autorisée, les preuves `main` de publication immuable, signatures,
+attestations et manifeste resteront obligatoires. `RSV-MIG-611-05` reste **ouverte** ; aucune
+promotion Staging ou Production n'est autorisée.
 
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
