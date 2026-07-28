@@ -1,0 +1,98 @@
+# Plan d'Exécution — Remédiation du Quality Gate Backend SonarQube
+
+## 1. Identification
+
+- Projet : LoyerTracker.
+- Version applicative : inchangée.
+- Phase CGPA : Phase 06 — DevSecOps Readiness.
+- Sujet : blocage du Quality Gate Backend observé après la fusion de la PR #278.
+- Date : 2026-07-28.
+- Responsables : QA Lead, Engineering Lead et DevSecOps Lead.
+- Statut : **approuvé humainement**.
+- Décision : **GO explicite reçu le 2026-07-28 via la conversation de pilotage**.
+
+## 2. Constat prouvé
+
+- CI `main` post-fusion #278, run `30336444301` : échec Backend à l'analyse SonarQube.
+- CI PR #279, run `30336894626` : même échec sur deux tentatives du même SHA.
+- Build, tests Maven et garde JaCoCo locale : PASS.
+- Quality Gate : `new_coverage = 79,9 %`, seuil bloquant `80 %`.
+- Mesures complémentaires : `new_line_coverage = 83,8 %`,
+  `new_branch_coverage = 62,1 %`, 257 lignes non couvertes sur 1 586.
+- `new_violations = 0`, duplication et security hotspots conformes.
+- La PR #279 ne modifie aucun fichier Backend : le déficit appartient à la baseline récente et
+  n'est pas causé par son diff documentaire.
+
+## 3. Objectif
+
+Restaurer un Quality Gate Backend conforme par des tests utiles et ciblés sur du code récent,
+avec une marge au-dessus de 80 %, sans masquer ni requalifier la dette.
+
+## 4. Périmètre
+
+### Inclus
+
+- analyse locale du rapport JaCoCo et des fichiers Backend modifiés dans la période SonarQube ;
+- ajout ou renforcement de tests Backend déterministes ;
+- mise à jour additive du Project State et preuve d'exécution ;
+- validation Maven, JaCoCo, SonarQube et CI GitHub.
+
+### Exclus
+
+- modification du seuil de 80 % ;
+- exclusion SonarQube ou JaCoCo supplémentaire ;
+- `continue-on-error`, skip ou neutralisation de l'analyse ;
+- changement de comportement métier ou de code de Production ;
+- modification Frontend, SQL, Docker, Staging ou Production ;
+- promotion d'artefact ou déploiement.
+
+## 5. Fichiers concernés
+
+- À créer ou modifier : tests sous `backend/src/test/**`, déterminés après analyse de couverture.
+- À modifier : `docs/project-state.md` et le présent rapport après exécution.
+- À ne pas modifier : `backend/src/main/**`, `pom.xml`, configuration SonarQube, Quality Gate,
+  workflows CI/CD, migrations Flyway et fichiers d'environnement.
+
+## 6. Étapes d'exécution
+
+1. Produire le rapport JaCoCo local par `mvn verify`.
+2. Croiser les classes récentes avec les branches/lignes non couvertes du rapport XML/HTML.
+3. Sélectionner le plus petit ensemble de scénarios métier significatifs permettant une marge
+   raisonnable au-dessus de 80 %.
+4. Ajouter uniquement des tests déterministes, sans modifier le code de Production.
+5. Exécuter les tests ciblés puis `mvn verify` complet.
+6. Vérifier l'absence de modification hors périmètre et exécuter l'audit CGPA.
+7. Publier une PR dédiée et exiger le Quality Gate SonarQube PASS.
+8. Ne reprendre la fusion de #279 qu'après retour au vert de `main` et de la PR de remédiation.
+
+## 7. Risques et mitigations
+
+| Risque | Impact | Mitigation |
+| --- | --- | --- |
+| test artificiel sans valeur métier | couverture fragile | couvrir décisions, erreurs ou branches observables |
+| marge trop faible | échec persistant à 79,9/80,0 | viser une marge mesurable, pas un arrondi minimal |
+| test instable | CI non fiable | pas de temps réel, réseau externe ou ordre global implicite |
+| dérive fonctionnelle | périmètre élargi | aucune modification de `src/main` |
+| contournement du Gate | perte de gouvernance | seuil, exclusions et workflow intacts |
+
+## 8. Tests et critères d'acceptation
+
+- tests ciblés : PASS ;
+- `mvn verify` : PASS ;
+- garde JaCoCo locale : PASS ;
+- Quality Gate SonarQube Backend : PASS avec `new_coverage >= 80 %` ;
+- `new_violations = 0` ;
+- CI, CodeQL, Sécurité et audit CGPA : PASS ;
+- diff limité aux tests et documents annoncés ;
+- validation humaine finale avant fusion.
+
+## 9. Rollback
+
+Rollback Git non destructif par `git revert` via une PR dédiée. Aucun seuil, artefact, donnée ou
+environnement n'étant modifié, le rollback retire uniquement les tests et les preuves associées.
+
+## 10. Action autorisée
+
+Ajouter les tests Backend ciblés décrits par ce plan sur la branche
+`agent/backend-coverage-quality-gate`, publier une PR dédiée et recueillir les preuves CI. Cette
+décision n'autorise ni la fusion sans validation humaine finale, ni une promotion ou un déploiement.

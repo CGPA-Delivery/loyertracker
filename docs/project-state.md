@@ -2022,3 +2022,15 @@ promotion Staging ou Production et ne valide rétroactivement aucun Gate applica
 post-fusion a également confirmé la réserve `RSV-MIG-611-05` : un changement documentaire sur
 `main` reconstruit et publie actuellement les images applicatives et met à jour l'alias mutable
 `latest`. Ce sujet est isolé dans un Plan d'Exécution et une Pull Request Delivery distincts.
+
+### Blocage SonarQube Backend et plan de remédiation couverture
+
+Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
+`30336894626` ont reproduit le même blocage : build/tests/JaCoCo Backend PASS, mais Quality Gate
+SonarQube en échec sur `new_coverage = 79,9 %` pour un seuil de 80 % (257 nouvelles lignes non
+couvertes sur 1 586 ; `new_violations = 0`). La fusion de #279 et l'implémentation Delivery sont
+suspendues sans contournement. Le Plan d'Exécution
+`docs/cgpa/06-planification-agile/plan-execution-remediation-couverture-backend-sonar.md` est
+**approuvé humainement le 2026-07-28** via la conversation de pilotage. Action autorisée : tests
+Backend ciblés uniquement, seuil/exclusions/workflow inchangés, PR dédiée et validation humaine
+finale avant fusion. Aucun déploiement n'est autorisé.
