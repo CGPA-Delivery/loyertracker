@@ -2111,10 +2111,11 @@ compromission.
 
 Le Plan d'Exécution
 `docs/cgpa/06-planification-agile/plan-execution-supply-chain-rsv-mig-611-05.md` est proposé
-additivement le 2026-07-28 sur une branche dédiée. Il prévoit build-once, scan de l'image exacte,
-SBOM SPDX, signature Cosign keyless, attestations GitHub de provenance et de SBOM, refus
-d'écrasement, manifeste de release et promotion par références digest. Le niveau cible est limité
-à SLSA v1 Build Level 2, sous réserve de preuves vérifiées.
+additivement le 2026-07-28 sur la branche dédiée
+`agent/plan-supply-chain-rsv-mig-611-05` et la PR de planification #283. Il prévoit build-once,
+scan de l'image exacte, SBOM SPDX, signature Cosign keyless, attestations GitHub de provenance et
+de SBOM, refus d'écrasement, manifeste de release et promotion par références digest. Le niveau
+cible est limité à SLSA v1 Build Level 2, sous réserve de preuves vérifiées.
 
 Statut : **Plan proposé — approbation humaine requise**. Aucun workflow, code applicatif, contrat
 Compose ou script de déploiement n'est modifié dans ce lot documentaire. L'action autorisée est
