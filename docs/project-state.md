@@ -2171,6 +2171,41 @@ Statut : **fusion autorisée sous maintien des contrôles requis**. Après fusio
 publication immuable, signatures, attestations et manifeste resteront obligatoires. `RSV-MIG-611-05` reste **ouverte** ; aucune
 promotion Staging ou Production n'est autorisée.
 
+### Clôture post-fusion supply-chain — RSV-MIG-611-05
+
+Le 2026-07-28, le validateur humain a explicitement autorisé le remplacement du check requis
+obsolète `Packaging Docker` par `Build, scan et SBOM Docker` dans la protection de `main`, puis la
+fusion immédiate de #284. Le remplacement a conservé le mode strict, les cinq autres checks
+requis, leur rattachement à GitHub Actions, les exigences de revue, l'application aux
+administrateurs et la résolution obligatoire des conversations.
+
+La PR #284 a été fusionnée par le workflow protégé, sans contournement administrateur, le
+2026-07-28T12:21:12Z. Son commit de fusion exact est
+`f2ca329776e8ab431d541159f95180fcd1420057`. Les contrôles post-fusion sont tous PASS : CI
+`30358581924`, CodeQL `30358581818` et audit CGPA `30358581832`. Dans la CI, le job
+`Build, scan et SBOM Docker` `90273320383` et le job isolé `Publication, signatures et
+attestations` `90274481734` sont PASS.
+
+Le manifeste du tag immutable `sha-f2ca3297` porte les références exactes :
+
+- API :
+  `ghcr.io/jptshilombo/loyertracker-api@sha256:94a6d9502ba27dc439fd63207c424d018ef9b25b31e6a62c28a3cc79c3045f56` ;
+- Web :
+  `ghcr.io/jptshilombo/loyertracker-web@sha256:73af1dd5f1e063df189fab549625047c72be30610ff1b3edd4c0593b24105a9d`.
+
+Les deux scans, signatures Cosign, attestations GitHub de provenance et attestations SBOM sont
+vérifiés. L'artefact de preuve `supply-chain-release-30358581924`, identifiant `8688095843`, a
+pour empreinte d'archive SHA-256
+`2ef4e864de7cb134408255ae9aa87f8c49417ef037d08331f021f3cc13d676e3` et une rétention annoncée
+de 90 jours. Le rapport
+`docs/cgpa/07-devsecops/report-execution-supply-chain-rsv-mig-611-05.md` conserve les digests,
+empreintes SBOM et vérifications détaillées.
+
+CHECK-CICD-01 est **PASS au jalon post-fusion `main`**. Les critères techniques résiduels de
+`RSV-MIG-611-05` sont satisfaits ; sa levée est **proposée** dans la PR documentaire de clôture
+dédiée et reste soumise à validation humaine finale avant fusion. Aucun DCL supérieur n'est
+déclaré. Aucun déploiement ni aucune promotion Staging ou Production n'a été exécuté ou autorisé.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279

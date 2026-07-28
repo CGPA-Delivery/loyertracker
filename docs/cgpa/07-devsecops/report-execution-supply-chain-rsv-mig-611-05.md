@@ -100,3 +100,59 @@ décision doit conserver tous les contrôles requis au vert avant la fusion prot
 
 Après fusion, le run `main` devra prouver publication, signatures, attestations, manifeste et
 absence de reconstruction. `RSV-MIG-611-05` reste ouverte jusque-là.
+
+## Preuves post-fusion sur `main`
+
+Le 2026-07-28, le validateur humain a explicitement autorisé le remplacement du check requis
+obsolète `Packaging Docker` par son successeur `Build, scan et SBOM Docker` dans la protection de
+`main`, puis la fusion immédiate de #284. Seul ce nom de check a été remplacé : le mode strict,
+les cinq autres checks requis, l'application GitHub Actions, les revues, l'application aux
+administrateurs et la résolution des conversations sont restés inchangés.
+
+La PR #284 a été fusionnée par le workflow GitHub protégé, sans contournement administrateur, le
+2026-07-28T12:21:12Z. Le commit de fusion exact est
+`f2ca329776e8ab431d541159f95180fcd1420057`.
+
+| Contrôle | Preuve | Résultat |
+|---|---|---|
+| CI `main` | run `30358581924` | PASS |
+| Backend, Frontend et Sécurité | jobs du run `30358581924` | PASS |
+| Build unique, scans et SBOM API/Web | job `90273320383` | PASS |
+| Publication, signatures et attestations | job `90274481734` | PASS |
+| CodeQL | run `30358581818` | PASS Java/Kotlin et JavaScript/TypeScript |
+| Audit CGPA | run `30358581832` | PASS |
+
+Le manifeste de release du run `main` identifie le tag immutable `sha-f2ca3297` et les références
+exactes suivantes :
+
+- API :
+  `ghcr.io/jptshilombo/loyertracker-api@sha256:94a6d9502ba27dc439fd63207c424d018ef9b25b31e6a62c28a3cc79c3045f56`,
+  SBOM SHA-256
+  `d6f0c2cab981eea91dd988570a99061864e079a8e756f8263696ff26ba57b075` ;
+- Web :
+  `ghcr.io/jptshilombo/loyertracker-web@sha256:73af1dd5f1e063df189fab549625047c72be30610ff1b3edd4c0593b24105a9d`,
+  SBOM SHA-256
+  `26683002331cc5477603b19bb496a3d267faa348f6b77f6103eb981d417ce1b6`.
+
+Pour les deux images, le manifeste porte `imageScan: passed`, `cosignSignature: verified`,
+`githubProvenance: verified` et `githubSbomAttestation: verified`. Il référence le workflow
+`jptshilombo/loyertracker/.github/workflows/ci.yml@refs/heads/main` et a été généré le
+2026-07-28T12:31:29Z.
+
+L'artefact de preuve `supply-chain-release-30358581924`, identifiant `8688095843`, contient les
+deux SBOM SPDX et `release-manifest.json`. Son archive a l'empreinte SHA-256
+`2ef4e864de7cb134408255ae9aa87f8c49417ef037d08331f021f3cc13d676e3`, une taille de
+30 826 octets et une rétention annoncée de 90 jours. Il est consultable dans le run CI
+`30358581924`.
+
+## Conclusion de clôture proposée
+
+CHECK-CICD-01 est **PASS au jalon post-fusion `main`** : les images construites une seule fois ont
+été scannées, documentées par SBOM, transférées sans reconstruction, publiées sans écrasement,
+résolues par digest, signées et attestées, puis décrites dans un manifeste vérifiable. Les
+critères techniques résiduels de `RSV-MIG-611-05` sont satisfaits.
+
+La levée de `RSV-MIG-611-05` est **proposée à la validation humaine finale** dans une PR
+documentaire additive distincte. Elle ne devient effective qu'après cette revue et la fusion
+protégée de la PR de clôture. Aucun DCL supérieur n'est déclaré et aucune promotion Staging ou
+Production n'a été exécutée ou autorisée par ces preuves.
