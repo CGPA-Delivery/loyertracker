@@ -19,6 +19,6 @@ public class NoopNotificationProvider implements NotificationProvider {
 
     @Override
     public ResultatEnvoi envoyer(DemandeEnvoi demande) {
-        return new ResultatEnvoi(true, null, null);
+        return ResultatEnvoi.accepte(null);
     }
 }

@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
@@ -23,8 +25,13 @@ import com.loyertracker.notifications.CanalNotification;
  * existant, aucun compte Twilio de Production ce sprint). Appelle directement l'API REST Messages
  * de Twilio (authentification HTTP Basic {@code accountSid:authToken}) via {@link RestClient} — un
  * appel HTTP simple suffit et évite la dépendance au SDK officiel, plus lourde, pour ce seul
- * besoin d'émission. Ne gère jamais le canal {@link CanalNotification#SMS} (US-124, hors périmètre
- * Sprint N+1) : {@link #envoyer} le rejette explicitement.
+ * besoin d'émission.
+ *
+ * <p>Depuis le Sprint N+2 (US-124), le canal {@link CanalNotification#SMS} est également pris en
+ * charge, à la seule différence du préfixe {@code whatsapp:} et du numéro expéditeur. Tant que
+ * {@code twilio.sms-from} n'est pas provisionné, un envoi SMS est refusé en
+ * {@link com.loyertracker.notifications.CategorieErreurNotification#PERMANENT} plutôt que tenté —
+ * jamais d'envoi silencieux sur un autre canal.</p>
  *
  * <p>Bean actif uniquement si {@code app.notifications.whatsapp.enabled=true} — en exclusion
  * mutuelle avec {@link NoopNotificationProvider} (même flag, conditions opposées).</p>
@@ -40,15 +47,18 @@ public class TwilioNotificationProvider implements NotificationProvider {
     private final RestClient restClient;
     private final String accountSid;
     private final String whatsappFrom;
+    private final String smsFrom;
     private final String statusCallbackUrl;
 
     public TwilioNotificationProvider(
             @Value("${twilio.account-sid:}") String accountSid,
             @Value("${twilio.auth-token:}") String authToken,
             @Value("${twilio.whatsapp-from:}") String whatsappFrom,
+            @Value("${twilio.sms-from:}") String smsFrom,
             @Value("${twilio.status-callback-base-url:https://loyertracker.loyerpro.org}") String statusCallbackBaseUrl) {
         this.accountSid = accountSid;
         this.whatsappFrom = whatsappFrom;
+        this.smsFrom = smsFrom;
         this.statusCallbackUrl = statusCallbackBaseUrl + "/api/public/notifications/callback";
         String basic = Base64.getEncoder()
                 .encodeToString((accountSid + ":" + authToken).getBytes());
@@ -59,13 +69,21 @@ public class TwilioNotificationProvider implements NotificationProvider {
 
     @Override
     public ResultatEnvoi envoyer(DemandeEnvoi demande) {
-        if (demande.canal() != CanalNotification.WHATSAPP) {
-            // US-124 (SMS fallback) hors périmètre Sprint N+1 : jamais un envoi silencieux.
-            return new ResultatEnvoi(false, null, "CANAL_NON_SUPPORTE_SPRINT_N1");
+        String expediteur = switch (demande.canal()) {
+            case WHATSAPP -> whatsappFrom;
+            case SMS -> smsFrom;
+            case IN_APP -> null;
+        };
+        if (expediteur == null || expediteur.isBlank()) {
+            // Canal non provisionné (IN_APP ne transite jamais par un fournisseur ; SMS sans numéro
+            // expéditeur configuré). Permanent : réessayer à l'identique ne peut pas aboutir, et un
+            // envoi silencieux sur un autre canal serait une violation du consentement (K3).
+            return ResultatEnvoi.echecPermanent("CANAL_NON_PROVISIONNE");
         }
+        String prefixe = demande.canal() == CanalNotification.WHATSAPP ? "whatsapp:" : "";
         MultiValueMap<String, String> corps = new LinkedMultiValueMap<>();
-        corps.add("To", "whatsapp:" + demande.phoneE164());
-        corps.add("From", "whatsapp:" + whatsappFrom);
+        corps.add("To", prefixe + demande.phoneE164());
+        corps.add("From", prefixe + expediteur);
         corps.add("Body", rendre(demande.templateCode(), demande.variables()));
         corps.add("StatusCallback", statusCallbackUrl);
         try {
@@ -75,12 +93,23 @@ public class TwilioNotificationProvider implements NotificationProvider {
                     .retrieve()
                     .body(TwilioMessageResponse.class);
             if (reponse == null || reponse.sid() == null) {
-                return new ResultatEnvoi(false, null, "REPONSE_TWILIO_VIDE");
+                return ResultatEnvoi.echecTemporaire("REPONSE_TWILIO_VIDE");
             }
-            return new ResultatEnvoi(true, reponse.sid(), null);
+            return ResultatEnvoi.accepte(reponse.sid());
+        } catch (HttpClientErrorException e) {
+            // 4xx : requête refusée par Twilio (numéro invalide, destinataire hors Sandbox, opt-out,
+            // template rejeté). Rejouer à l'identique donnerait le même résultat — sauf 429
+            // (quota momentané), qui reste temporaire par nature.
+            if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+                log.warn("Envoi {} throttlé par Twilio (temporaire).", demande.canal());
+                return ResultatEnvoi.echecTemporaire("TWILIO_THROTTLE");
+            }
+            log.warn("Envoi {} refusé définitivement par Twilio (HTTP {}).", demande.canal(),
+                    e.getStatusCode().value());
+            return ResultatEnvoi.echecPermanent("TWILIO_REFUS_" + e.getStatusCode().value());
         } catch (RestClientException e) {
-            log.warn("Échec d'envoi WhatsApp via Twilio (transitoire) : {}", e.getMessage());
-            return new ResultatEnvoi(false, null, "ERREUR_TRANSPORT_TWILIO");
+            log.warn("Échec d'envoi {} via Twilio (transitoire) : {}", demande.canal(), e.getMessage());
+            return ResultatEnvoi.echecTemporaire("ERREUR_TRANSPORT_TWILIO");
         }
     }
 

@@ -42,6 +42,8 @@ import com.loyertracker.notifications.provider.NotificationProvider.ResultatEnvo
 import com.loyertracker.securite.TenantContext;
 import com.loyertracker.testsupport.RlsTestDataSourceConfig;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 import jakarta.persistence.EntityManager;
 
 /**
@@ -60,6 +62,8 @@ import jakarta.persistence.EntityManager;
 class NotificationDispatchIntegrationTest {
 
     private static final String AUTH_TOKEN_TEST = "test-twilio-auth-token";
+    /** Plafond volontairement hors d'atteinte pour les tests qui ne portent pas sur le budget. */
+    private static final long BUDGET_LARGE = 1_000_000L;
     private static final String CALLBACK_URL = "https://loyertracker.loyerpro.org/api/public/notifications/callback";
 
     @Container
@@ -122,7 +126,7 @@ class NotificationDispatchIntegrationTest {
         seedPreference(bailleurId, recipientId);
         UUID outboxId = seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
 
-        NotificationDispatcher dispatcher = dispatcherAvec(demande -> new ResultatEnvoi(true, "SID123", null));
+        NotificationDispatcher dispatcher = dispatcherAvec(demande -> ResultatEnvoi.accepte("SID123"));
         int traites = dispatcher.traiterLot(50);
 
         assertThat(traites).isEqualTo(1);
@@ -148,7 +152,7 @@ class NotificationDispatchIntegrationTest {
         List<String> variablesRecues = new ArrayList<>();
         NotificationDispatcher dispatcher = dispatcherAvec(demande -> {
             variablesRecues.add(demande.variables().get("lienVerification"));
-            return new ResultatEnvoi(true, "SID-LIEN", null);
+            return ResultatEnvoi.accepte("SID-LIEN");
         });
         dispatcher.traiterLot(50);
 
@@ -186,7 +190,7 @@ class NotificationDispatchIntegrationTest {
         UUID outboxId = seedOutboxPending(bailleurId, eventId, recipientId, "GARANTIE_DEBITEE");
 
         NotificationDispatcher dispatcher = dispatcherAvec(
-                demande -> new ResultatEnvoi(false, null, "ERREUR_TRANSPORT_TWILIO"), 2);
+                demande -> ResultatEnvoi.echecTemporaire("ERREUR_TRANSPORT_TWILIO"), 2);
 
         dispatcher.traiterLot(50);
         assertThat(statutOutbox(outboxId)).isEqualTo("RETRY");
@@ -258,13 +262,202 @@ class NotificationDispatchIntegrationTest {
     // --- Helpers -----------------------------------------------------------------------------
 
     /** Reconstruit un Dispatcher avec un fournisseur de test contrôlable, mêmes collaborateurs réels. */
+    // =====================================================================================
+    // EP-16 Sprint N+2 Lot A — US-124 (fallback SMS contrôlé) et US-126 (garde-fous)
+    // =====================================================================================
+
+    // --- US-126 : kill switch maître -------------------------------------------------------
+
+    @Test
+    void killSwitchFermeSuspendLeDispatchSansPerdreLaLigne() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreference(bailleurId, recipientId);
+        UUID outboxId = seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        NotificationDispatcher dispatcher = dispatcherAvec(
+                demande -> { throw new AssertionError("le fournisseur ne doit jamais être appelé"); },
+                5, false, BUDGET_LARGE, false);
+        int traites = dispatcher.traiterLot(50);
+
+        assertThat(traites).isZero();
+        // La ligne reste intacte : ni consommée, ni marquée en échec — elle repartira à la
+        // réouverture du kill switch.
+        assertThat(statutOutbox(outboxId)).isEqualTo("PENDING");
+        assertThat(tentatives(outboxId)).isZero();
+        assertThat(compter("SELECT count(*) FROM notification_delivery")).isZero();
+    }
+
+    // --- US-126 : plafond budgétaire -------------------------------------------------------
+
+    @Test
+    void plafondBudgetaireNulInterditToutEnvoi() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreference(bailleurId, recipientId);
+        UUID outboxId = seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        // Valeur par défaut de production : aucun envoi externe autorisé tant qu'un plafond n'a
+        // pas été décidé (K8/ADR-18).
+        NotificationDispatcher dispatcher = dispatcherAvec(
+                demande -> { throw new AssertionError("le fournisseur ne doit jamais être appelé"); },
+                5, true, 0L, false);
+
+        assertThat(dispatcher.traiterLot(50)).isZero();
+        assertThat(statutOutbox(outboxId)).isEqualTo("PENDING");
+    }
+
+    @Test
+    void depassementDuPlafondSimuleArreteLeDispatchSansPerdreLaLigne() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreference(bailleurId, recipientId);
+
+        // Premier envoi sous un plafond de 1 : accepté, il consomme tout le budget du mois.
+        UUID premier = seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+        assertThat(dispatcherAvec(demande -> ResultatEnvoi.accepte("SID-BUDGET-1"), 5, true, 1L, false)
+                .traiterLot(50)).isEqualTo(1);
+        assertThat(statutOutbox(premier)).isEqualTo("PROCESSED");
+
+        // Second envoi, même plafond : la consommation réelle du mois (1) atteint le plafond.
+        UUID eventSuivant = seedEvent(bailleurId, "LOYER_EN_RETARD");
+        UUID second = seedOutboxPending(bailleurId, eventSuivant, recipientId, "LOYER_EN_RETARD");
+        int traites = dispatcherAvec(
+                demande -> { throw new AssertionError("le plafond aurait dû arrêter le lot"); },
+                5, true, 1L, false).traiterLot(50);
+
+        assertThat(traites).isZero();
+        assertThat(statutOutbox(second)).isEqualTo("PENDING");
+    }
+
+    // --- US-124 : échec permanent ----------------------------------------------------------
+
+    @Test
+    void echecPermanentMarqueDeadImmediatementSansConsommerLesTentatives() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreference(bailleurId, recipientId);
+        UUID outboxId = seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        dispatcherAvec(demande -> ResultatEnvoi.echecPermanent("TWILIO_REFUS_400"), 5, true,
+                BUDGET_LARGE, false).traiterLot(50);
+
+        // DEAD dès la première tentative : rejouer à l'identique ne peut pas aboutir.
+        assertThat(statutOutbox(outboxId)).isEqualTo("DEAD");
+        assertThat(compter("SELECT count(*) FROM notification_delivery")).isZero();
+    }
+
+    // --- US-124 : le fallback ne se déclenche JAMAIS par défaut ----------------------------
+
+    @Test
+    void aucunFallbackSmsQuandLaPolitiqueEstDesactivee() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        // Destinataire pourtant pleinement consentant au SMS : seule la politique manque.
+        seedPreferenceAvecFallbackSms(bailleurId, recipientId);
+        seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        dispatcherAvec(demande -> ResultatEnvoi.echecPermanent("TWILIO_REFUS_400"), 5, true,
+                BUDGET_LARGE, false).traiterLot(50);
+
+        assertThat(compterSmsEnFile(eventId)).isZero();
+    }
+
+    @Test
+    void aucunFallbackSmsSansOptInDuDestinataire() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        // Politique activée, mais sms_opt_in = false et aucun canal de secours désigné (K3).
+        seedPreference(bailleurId, recipientId);
+        seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        dispatcherAvec(demande -> ResultatEnvoi.echecPermanent("TWILIO_REFUS_400"), 5, true,
+                BUDGET_LARGE, true).traiterLot(50);
+
+        assertThat(compterSmsEnFile(eventId)).isZero();
+    }
+
+    @Test
+    void aucunFallbackSmsSurUnEchecSeulementTemporaire() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreferenceAvecFallbackSms(bailleurId, recipientId);
+        seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        dispatcherAvec(demande -> ResultatEnvoi.echecTemporaire("ERREUR_TRANSPORT_TWILIO"), 5, true,
+                BUDGET_LARGE, true).traiterLot(50);
+
+        // Seul un échec PERMANENT ouvre le fallback : un incident réseau doit être réessayé.
+        assertThat(compterSmsEnFile(eventId)).isZero();
+    }
+
+    // --- US-124 : un unique SMS quand toutes les conditions sont réunies -------------------
+
+    @Test
+    void fallbackSmsDeclencheUnUniqueSmsQuandToutesLesConditionsSontReunies() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreferenceAvecFallbackSms(bailleurId, recipientId);
+        seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        dispatcherAvec(demande -> ResultatEnvoi.echecPermanent("TWILIO_REFUS_400"), 5, true,
+                BUDGET_LARGE, true).traiterLot(50);
+
+        assertThat(compterSmsEnFile(eventId)).isEqualTo(1);
+    }
+
+    @Test
+    void unSecondEchecPermanentNeCreeJamaisUnDeuxiemeSms() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreferenceAvecFallbackSms(bailleurId, recipientId);
+        seedOutboxPending(bailleurId, eventId, recipientId, "QUITTANCE_DISPONIBLE");
+
+        NotificationDispatcher dispatcher = dispatcherAvec(
+                demande -> ResultatEnvoi.echecPermanent("TWILIO_REFUS_400"), 5, true, BUDGET_LARGE, true);
+        dispatcher.traiterLot(50);
+        assertThat(compterSmsEnFile(eventId)).isEqualTo(1);
+
+        // Le SMS mis en file échoue à son tour, définitivement : aucun fallback d'un fallback,
+        // aucune boucle, et toujours un seul SMS pour cet événement.
+        dispatcher.traiterLot(50);
+
+        assertThat(compterSmsEnFile(eventId)).isEqualTo(1);
+    }
+
     private NotificationDispatcher dispatcherAvec(NotificationProvider provider) {
         return dispatcherAvec(provider, 5);
     }
 
     private NotificationDispatcher dispatcherAvec(NotificationProvider provider, int maxTentatives) {
+        return dispatcherAvec(provider, maxTentatives, true, BUDGET_LARGE, false);
+    }
+
+    /**
+     * Construit un dispatcher entièrement paramétré (US-124/US-126). Les valeurs par défaut de
+     * production — kill switch fermé, plafond budgétaire à 0, fallback désactivé — bloquent tout
+     * envoi : chaque test doit donc ouvrir explicitement ce dont il a besoin, ce qui rend le
+     * caractère « fermé par défaut » du socle vérifiable plutôt que supposé.
+     */
+    private NotificationDispatcher dispatcherAvec(NotificationProvider provider, int maxTentatives,
+            boolean externeActive, long plafondMensuel, boolean fallbackActive) {
+        NotificationMetrics metrics = new NotificationMetrics(new SimpleMeterRegistry());
+        NotificationBudgetService budget =
+                new NotificationBudgetService(em, metrics, plafondMensuel, 0.8d);
+        NotificationFallbackService fallback = new NotificationFallbackService(outboxRepository,
+                preferenceRepository, metrics, fallbackActive);
         return new NotificationDispatcher(em, tenant, txManager, outboxService, outboxRepository,
-                preferenceRepository, templateRepository, deliveryService, provider, json, maxTentatives);
+                preferenceRepository, templateRepository, deliveryService, provider, json, metrics,
+                budget, fallback, externeActive, maxTentatives);
     }
 
     private ResultActions appelerCallbackSigne(String sid, String messageStatus, String errorCode)
@@ -345,6 +538,23 @@ class NotificationDispatchIntegrationTest {
                 VALUES (gen_random_uuid(), ?, 'LOCATAIRE', ?, '+33600000000', 'WHATSAPP', true, false,
                         now(), 'FORMULAIRE_LOYERTRACKER', true)
                 """, bailleurId, recipientId);
+    }
+
+    /** Destinataire pleinement consentant au fallback SMS : opt-in SMS + canal de secours SMS. */
+    private void seedPreferenceAvecFallbackSms(UUID bailleurId, UUID recipientId) {
+        jdbc.update("""
+                INSERT INTO notification_preference
+                    (id, bailleur_id, recipient_type, recipient_id, phone_e164, preferred_channel,
+                     fallback_channel, whatsapp_opt_in, sms_opt_in, consent_at, consent_source, enabled)
+                VALUES (gen_random_uuid(), ?, 'LOCATAIRE', ?, '+33600000000', 'WHATSAPP', 'SMS',
+                        true, true, now(), 'FORMULAIRE_LOYERTRACKER', true)
+                """, bailleurId, recipientId);
+    }
+
+    private long compterSmsEnFile(UUID eventId) {
+        return jdbc.queryForObject(
+                "SELECT count(*) FROM notification_outbox WHERE event_id = ? AND channel = 'SMS'",
+                Long.class, eventId);
     }
 
     private UUID seedOutboxPending(UUID bailleurId, UUID eventId, UUID recipientId, String notificationType) {

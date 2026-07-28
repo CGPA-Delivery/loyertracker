@@ -8,6 +8,41 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Ajouts — EP-16 Sprint N+2 Lot A : fallback SMS et garde-fous (US-124, US-126)
+
+- **US-124 — fallback SMS contrôlé.** Un échec WhatsApp classé `PERMANENT` peut déclencher un
+  unique SMS de secours, sous quatre conditions cumulatives : politique activée
+  (`NOTIFICATION_FALLBACK_ENABLED`, **`false` par défaut**, arbitrage K5), opt-in SMS explicite du
+  destinataire et canal de secours désigné (K3), et aucun SMS déjà en file. L'unicité est garantie
+  en dernier ressort par la contrainte `uq_notification_outbox_idempotence` : un second SMS de
+  secours est structurellement impossible. Aucun fallback d'un fallback — aucune boucle possible.
+- **Classification des erreurs fournisseur** (`ResultatEnvoi.categorieErreur`) : `TEMPORAIRE`
+  (nouvelle tentative) vs `PERMANENT` (`DEAD` immédiat, sans consommer le quota de tentatives).
+  Seul `PERMANENT` ouvre le fallback ; un incident réseau est réessayé, jamais basculé.
+- **Canal SMS pris en charge** par `TwilioNotificationProvider`. Sans `TWILIO_SMS_FROM`
+  provisionné, un envoi SMS est refusé en `PERMANENT` plutôt que tenté.
+- **US-126 — kill switch câblé.** `app.notifications.external.enabled` était déclaré depuis le
+  Sprint N mais **n'était lu par aucun code** : le garde-fou documenté était inerte. Il coupe
+  désormais le dispatch en amont de tout appel réseau, sans redémarrage du fournisseur, en
+  laissant les lignes `PENDING` intactes.
+- **US-126 — plafond budgétaire mensuel** (`NOTIFICATION_BUDGET_MENSUEL_MAX`, **`0` par défaut**,
+  soit aucun envoi autorisé). Atteint, il arrête le lot sans rien détruire. Consommation globale
+  lue par la fonction `notification_envois_du_mois()` (migration **V29**, additive, `SECURITY
+  DEFINER`, retour strictement agrégé — aucune donnée personnelle exposée).
+- **US-126 — métriques `notification.*`** (Micrometer) : dispatch par canal et issue, fallback par
+  issue (les refus sont comptés au même titre que les déclenchements), consommation et plafond
+  budgétaires, blocages kill switch et budget. **Aucun label ne porte de donnée personnelle** —
+  seules des énumérations fermées, contrainte structurante documentée.
+- **US-126 — quatre alertes Alertmanager** portant `component: notifications` : budget approché
+  (80 %), budget épuisé, taux d'échec permanent élevé, kill switch fermé.
+- **US-126 — runbook dédié** `docs/cgpa/runbook-notifications.md` (incident Twilio, reprise
+  manuelle bornée, plafond, rotation des secrets, diagnostic du fallback) et extension **additive**
+  de `docs/cgpa/observability-governance.md`.
+- Neuf tests d'intégration dédiés couvrant les critères GO : fallback jamais déclenché sans
+  politique ni opt-in, unicité du SMS, kill switch bloquant, dépassement de plafond simulé.
+- **Aucune activation de canal externe en Production** (K8, ADR-18) : le Sprint N+2 doit d'abord
+  être clos en GO. Aucun credential Twilio ajouté à la Production.
+
 ### Gouvernance — migration CGPA v6.1.1 Enterprise
 
 - Migration additive depuis v5.4.1, sans rejeu ni suppression de Gate, décision, risque, réserve,

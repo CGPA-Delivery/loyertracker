@@ -118,6 +118,13 @@ class SecurityIntegrationTest {
     com.loyertracker.notifications.NotificationDispatcher notificationDispatcher;
     @MockitoBean
     com.loyertracker.notifications.NotificationDeliveryService notificationDeliveryService;
+    // Notifications (V29, EP-16 Sprint N+2 Lot A) : le garde-fou budgétaire lit l'EntityManager et
+    // le fallback les repositories JPA — neutralisés comme les autres pour ce test de contrat
+    // sans BDD.
+    @MockitoBean
+    com.loyertracker.notifications.NotificationBudgetService notificationBudgetService;
+    @MockitoBean
+    com.loyertracker.notifications.NotificationFallbackService notificationFallbackService;
 
     @Test
     void health_estPublic() throws Exception {
