@@ -2023,6 +2023,17 @@ post-fusion a également confirmé la réserve `RSV-MIG-611-05` : un changement 
 `main` reconstruit et publie actuellement les images applicatives et met à jour l'alias mutable
 `latest`. Ce sujet est isolé dans un Plan d'Exécution et une Pull Request Delivery distincts.
 
+### Plan Delivery séparé — reconstruction documentaire et tag `latest`
+
+Le Plan d'Exécution
+`docs/cgpa/06-planification-agile/plan-execution-ci-artefacts-immutables.md` est proposé le
+2026-07-27 pour traiter séparément la reconstruction d'images sur changement documentaire et la
+publication de l'alias mutable `latest`. **GO humain reçu le 2026-07-28 via la conversation de
+pilotage, après examen des PR #278 et #279 ; Plan d'Exécution approuvé.** Aucun code CI/CD n'est
+modifié par cette décision. L'action autorisée est l'implémentation sur une branche et une PR
+Delivery distinctes, avec CHECK-CICD-01 et validation humaine finale avant fusion. La réserve
+`RSV-MIG-611-05` reste ouverte jusqu'aux preuves d'exécution.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
@@ -2053,3 +2064,10 @@ pour moi ». La décision vaut **GO humain final pour la fusion de #280** sur le
 `b52f054e222ab4505ac956ed0e2e0e6212859192`. Le commit qui enregistre cette décision est une
 transcription documentaire additive uniquement ; il doit conserver les checks au vert avant fusion
 par le workflow GitHub protégé. Cette autorisation ne couvre aucun déploiement ou promotion.
+
+La PR #280 a été fusionnée via le workflow GitHub protégé le 2026-07-28T07:52:57Z. Le commit de
+fusion `77dae643655f782319a20a3bb54ed8d008eab781` est confirmé sur `origin/main`. Les contrôles
+post-fusion sont tous PASS : CI `30340116595`, CodeQL `30340116667` et audit CGPA
+`30340116657`. Le job Packaging a néanmoins reconstruit les images et publié les tags SHA et
+`latest`, ce qui confirme à nouveau le périmètre du Plan Delivery #279. La branche de #279 est
+resynchronisée additivement sur ce `main` vert ; aucun changement CI/CD n'est encore implémenté.
