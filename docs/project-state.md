@@ -2034,6 +2034,33 @@ modifié par cette décision. L'action autorisée est l'implémentation sur une 
 Delivery distinctes, avec CHECK-CICD-01 et validation humaine finale avant fusion. La réserve
 `RSV-MIG-611-05` reste ouverte jusqu'aux preuves d'exécution.
 
+La PR de planification #279 a été resynchronisée additivement après #280, puis fusionnée via le
+workflow GitHub protégé le 2026-07-28T08:07:55Z. Son commit de fusion exact
+`19d0d0a460a0da34ba6dc6d12306dd761aec7a58` est confirmé sur `origin/main`. Les contrôles
+post-fusion sont tous PASS : CI `30341142282`, CodeQL `30341138176` et audit CGPA
+`30341142358`. Le Packaging post-fusion a encore construit et publié API/Web avec les tags SHA et
+`latest` : cette dernière occurrence est une preuve de l'état antérieur, pas une promotion
+Staging ou Production.
+
+### Exécution Delivery — CI sélective et artefacts immutables
+
+L'implémentation autorisée est isolée sur la branche `agent/ci-artifacts-immutable`, issue du
+commit `19d0d0a460a0da34ba6dc6d12306dd761aec7a58`. Elle ajoute un classificateur Bash versionné et
+testé des chemins affectant les contextes Docker, conditionne le seul job Packaging à sa sortie et
+supprime toute commande de publication de l'alias mutable `latest`. Les contrôles Backend,
+Frontend et Sécurité restent systématiques ; les builds d'images éphémères du contrôle Sécurité
+restent donc exécutés, tandis qu'aucun nouvel artefact GHCR n'est construit ou publié par le job
+Packaging lorsque `images_changed=false`.
+
+Preuves locales acquises avant ouverture de PR : 10/10 cas du classificateur PASS, syntaxe Bash
+PASS, syntaxe YAML PASS, tests de l'auditeur 9/9 PASS, audit structurel 97/97 PASS, absence de
+commande `docker tag`/`docker push` vers `latest` dans le workflow modifié et
+`git diff --check` PASS. Les preuves distantes de la PR, CHECK-CICD-01 et la
+validation humaine finale restent obligatoires avant fusion. `RSV-MIG-611-05` reste **ouverte** :
+ce lot traite la portée de Packaging et le tag mutable, mais ne prétend pas fermer à lui seul la
+signature, la SBOM, l'attestation SLSA ni le verrou d'immutabilité global du registry. Aucune
+promotion Staging ou Production n'est autorisée.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279

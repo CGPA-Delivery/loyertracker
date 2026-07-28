@@ -16,7 +16,10 @@ Production.
 ## Release Strategy
 
 SemVer. Release Candidate identifiée par commit, tag image et digest. Même artefact entre Staging
-et Production. Les tags `latest` ne sont jamais déployés.
+et Production. Le pipeline classe le delta par rapport aux contextes Docker avant le Packaging :
+un changement sans impact image ne construit ni ne publie de nouvel artefact GHCR. Les images
+publiées portent exclusivement le tag immutable `sha-<8>` ; l'alias mutable `latest` est interdit.
+Les tags `latest` historiques ne sont ni supprimés ni réécrits par cette évolution.
 
 ## Rollback Strategy
 
