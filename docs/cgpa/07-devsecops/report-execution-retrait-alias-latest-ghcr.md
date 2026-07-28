@@ -7,6 +7,7 @@
 | Plan approuvé | `PE-GHCR-LATEST-01` |
 | Date d'exécution | 2026-07-28 |
 | Branche | `agent/retirement-latest-ghcr` |
+| Pull Request Delivery | #287 |
 | Stratégie retenue | `QUARANTAINE` |
 | Nature | Delivery / DevSecOps, non destructive |
 | Mutation GHCR | Aucune |

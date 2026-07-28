@@ -2294,7 +2294,7 @@ resynchronisée additivement sur ce `main` vert ; aucun changement CI/CD n'est e
 
 ### Exécution Delivery non destructive — quarantaine des alias GHCR latest
 
-Le 2026-07-28, l'implémentation de PE-GHCR-LATEST-01 est engagée sur la branche dédiée agent/retirement-latest-ghcr. La documentation officielle GitHub Packages ne démontre pas le détachement du seul tag. Comme les versions 1073590800 et 1073591135 portent chacune sha-19d0d0a4 avec latest, la décision d'exécution est QUARANTAINE. Aucune version, aucun manifeste, aucun tag et aucun digest GHCR n'est supprimé ou modifié.
+Le 2026-07-28, l'implémentation de PE-GHCR-LATEST-01 est engagée sur la branche dédiée agent/retirement-latest-ghcr et la PR Delivery brouillon #287. La documentation officielle GitHub Packages ne démontre pas le détachement du seul tag. Comme les versions 1073590800 et 1073591135 portent chacune sha-19d0d0a4 avec latest, la décision d'exécution est QUARANTAINE. Aucune version, aucun manifeste, aucun tag et aucun digest GHCR n'est supprimé ou modifié.
 
 Une politique versionnée, une garde testable et un workflow quotidien à permissions de lecture contrôlent la dérive, le doublon, la disparition non instruite et toute référence applicative active vers latest. Le rapport docs/cgpa/07-devsecops/report-execution-retrait-alias-latest-ghcr.md conserve les digests et les preuves.
 
