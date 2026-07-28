@@ -156,3 +156,12 @@ La levée de `RSV-MIG-611-05` est **proposée à la validation humaine finale** 
 documentaire additive distincte #285. Elle ne devient effective qu'après cette revue et la fusion
 protégée de la PR de clôture. Aucun DCL supérieur n'est déclaré et aucune promotion Staging ou
 Production n'a été exécutée ou autorisée par ces preuves.
+
+## Validation humaine de la clôture
+
+Le 2026-07-28, après examen de la PR #285 et de ses contrôles tous conformes, le validateur humain
+a déclaré dans la conversation de pilotage : « j'ai validé ». Cette décision vaut **GO humain
+final pour la clôture documentaire et la fusion protégée de #285** au commit
+`ceafa32c279c0c5861c715894b6ce6f30c0a1019`. La levée de `RSV-MIG-611-05` devient effective à
+la fusion de ce commit, sous maintien des checks requis. Aucun déploiement ni aucune promotion
+Staging ou Production n'est autorisé.

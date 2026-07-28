@@ -2206,6 +2206,13 @@ CHECK-CICD-01 est **PASS au jalon post-fusion `main`**. Les critères techniques
 dédiée #285 et reste soumise à validation humaine finale avant fusion. Aucun DCL supérieur n'est
 déclaré. Aucun déploiement ni aucune promotion Staging ou Production n'a été exécuté ou autorisé.
 
+Le 2026-07-28, après examen de la PR #285 et de ses contrôles tous conformes, le validateur humain
+a déclaré dans la conversation de pilotage : « j'ai validé ». Cette décision vaut **GO humain
+final pour la clôture documentaire et la fusion protégée de #285** au commit
+`ceafa32c279c0c5861c715894b6ce6f30c0a1019`. La levée de `RSV-MIG-611-05` devient effective à
+la fusion de ce commit, sous maintien des checks requis. Cette décision n'autorise aucun
+déploiement ni aucune promotion Staging ou Production.
+
 ### Blocage SonarQube Backend et plan de remédiation couverture
 
 Après la fusion de #278, la CI `main` `30336444301` puis deux tentatives du run PR #279
