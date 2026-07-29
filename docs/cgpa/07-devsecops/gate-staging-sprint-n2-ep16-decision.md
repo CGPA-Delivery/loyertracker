@@ -242,6 +242,41 @@ confirmation du 2026-07-28 est comprise et tranchée. **Le NO GO du 2026-07-28 r
 décision en vigueur.** Aucune action de provisionnement, de configuration ou de test SMS n'a été
 exécutée dans le cadre de cette vérification.
 
+### Mise à jour — confirmation PO sur la capacité SMS (2026-07-29)
+
+**Déclaration du PO**, dans la conversation de pilotage, en réponse directe aux trois points
+ouverts ci-dessus :
+
+1. « Je confirme que ce numéro est bien la capacité destinée à US-124 » — le numéro
+   `+19379825074` (créé le 2026-07-24) est confirmé comme le numéro prévu pour le fallback SMS.
+2. **Arbitrage retenu : Option A — rester en Trial.** Le(s) numéro(s) destinataire(s) de test
+   seront ajoutés aux « Verified Caller IDs » de la console Twilio. Le PO accepte explicitement que
+   la vérification fonctionnelle du Gate se fasse en conditions restreintes (destinataire vérifié,
+   préfixe « Sent from a Twilio trial account »), non en conditions réelles d'exploitation.
+3. Consignation demandée dans le dossier Gate — objet de la présente entrée.
+
+**Effet sur la décision.** Les points (a) et (b) requis pour lever le bloqueur 2 sont désormais
+**confirmés par le PO**. Le point (c) — discrépance avec la déclaration du 2026-07-28 — est
+implicitement tranché par cette confirmation : le PO valide aujourd'hui le numéro comme capacité
+légitime, ce qui supersède sa déclaration antérieure sans qu'une cause distincte ait été
+documentée. **Le bloqueur 2 est donc considéré `levé`, sous la portée explicitement acceptée par
+le PO (conditions Trial/destinataire vérifié, non conditions réelles).**
+
+**Action résiduelle avant vérification fonctionnelle.** L'ajout effectif du/des numéro(s)
+destinataire(s) aux Verified Caller IDs Twilio n'est **pas encore constaté** — c'est une action de
+configuration Twilio distincte, à la main du PO/exploitant, préalable au test réel du fallback SMS
+lors de la ré-instruction du Gate.
+
+**Statut d'ensemble.** Les trois bloqueurs du NO GO du 2026-07-28 sont désormais tous levés ou
+consignés comme résolus (1 : artefact publié ; 2 : capacité SMS confirmée par le PO, portée Trial
+acceptée ; 3 : CI au vert). **Ceci ne vaut toujours ni promotion ni GO Staging** : conformément à
+`CLAUDE.md`, seule une **ré-instruction explicite du Gate** — checklist
+`gate-staging-sprint-n2-ep16-checklist-reinstruction.md`, `STG-ISOL-01` avant/après, sauvegarde
+vérifiée, vérification fonctionnelle réelle du fallback SMS — peut produire une nouvelle décision
+GO, GO sous réserve ou NO GO. Les pré-requis encore ouverts de cette checklist (avis Enterprise
+Architect `RSV-MIG-611-04`, décision sur `RSV-STG-N2-01`, ajout du destinataire vérifié Twilio)
+restent à lever avant l'ouverture de cette ré-instruction.
+
 ## Rappels de verrous
 
 - **K8 / ADR-18 inchangé** : aucune activation de canal externe en Production, aucun credential

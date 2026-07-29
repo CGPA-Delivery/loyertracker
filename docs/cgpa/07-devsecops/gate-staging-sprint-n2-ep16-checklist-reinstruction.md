@@ -19,10 +19,11 @@
 Ces trois points ne sont **pas des cases de checklist standard** : ce sont les conditions propres à
 ce Sprint qui doivent être actées **avant** de commencer l'exécution de la checklist ci-dessous.
 
-- [ ] **Confirmation PO — capacité SMS.** Le PO confirme explicitement (a) que `+19379825074` est
-      la capacité destinée à US-124, (b) l'arbitrage Trial retenu (destinataire vérifié accepté
-      pour ce Gate, ou passage à un compte payant), (c) la discrépance avec sa déclaration du
-      2026-07-28 est comprise. Cf. addendum du 2026-07-29 dans le dossier de décision.
+- [x] **Confirmation PO — capacité SMS.** Confirmée le 2026-07-29 : `+19379825074` est la capacité
+      destinée à US-124 ; arbitrage retenu **Option A (Trial + destinataire vérifié)** ; discrépance
+      du 2026-07-28 considérée superseded par cette confirmation. Cf. addendum du 2026-07-29 dans le
+      dossier de décision. **Reste ouvert :** ajout effectif du/des destinataire(s) aux Verified
+      Caller IDs Twilio, non encore constaté.
 - [ ] **Confirmation Enterprise Architect — `RSV-MIG-611-04`.** Le Lot A introduit une fonction SQL
       et une logique de dispatch nouvelles ; l'EA confirme si un addendum DAT / décision OpenAPI
       est requis avant promotion.
@@ -101,8 +102,10 @@ ce Sprint qui doivent être actées **avant** de commencer l'exécution de la ch
 
 ## Vérification fonctionnelle spécifique au Lot A
 
-- [ ] Fallback SMS observé au moins une fois en conditions convenues avec le PO (destinataire
-      vérifié Trial, ou compte payant selon l'arbitrage du pré-requis PO ci-dessus).
+- [ ] Destinataire(s) de test ajouté(s) aux « Verified Caller IDs » de la console Twilio (Option A
+      confirmée par le PO le 2026-07-29) — préalable obligatoire au point suivant.
+- [ ] Fallback SMS observé au moins une fois vers ce destinataire vérifié (conditions Trial,
+      préfixe « Sent from a Twilio trial account » accepté par le PO).
 - [ ] Kill switch et plafond testés en Staging (pas seulement en local/CI).
 - [ ] Aucune activation de canal externe ni credential Twilio introduit en configuration Production
       (K8 / ADR-18 inchangé tant que le Sprint N+2 n'est pas clos en GO).
