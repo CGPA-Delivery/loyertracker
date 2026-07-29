@@ -203,6 +203,45 @@ devra être **ré-instruit explicitement** (étape 5 du chemin de remédiation) 
 levé ou US-124 explicitement retirée du périmètre, sauvegarde vérifiée et `STG-ISOL-01`
 avant/après — avant tout déploiement sur `ai-test-server`.
 
+### Mise à jour — numéro Twilio identifié, statut PO à confirmer (2026-07-29)
+
+**Constat, non une décision.** En reprise de ce dossier, une vérification en lecture seule de
+l'API Twilio (`GET IncomingPhoneNumbers`, `GET Accounts/{sid}.json`) a été effectuée pour objectiver
+l'état de la capacité SMS avant d'engager le PO/exploitant sur l'étape 4 du chemin de remédiation.
+
+| Vérification | Méthode | Résultat |
+|---|---|---|
+| Existence du numéro | `GET IncomingPhoneNumbers.json?PhoneNumber=+19379825074` | **Numéro présent**, `sid` `PNc5341a7da6d82d3e606b0c88af674bc0`, créé `2026-07-24T11:32:30Z`, statut `in-use` |
+| Capacités du numéro | idem | `sms: true`, `mms: true`, `voice: true` |
+| Type de compte | `GET Accounts/{sid}.json` | **`Trial`**, statut `active` (« My first Twilio account ») |
+
+**Discrépance signalée.** Le numéro a été créé le **2026-07-24**, soit **quatre jours avant**
+l'instruction du Gate le 2026-07-28, où le dossier consigne : « Confirmation PO du 2026-07-28 : le
+compte couvre la Sandbox WhatsApp, aucun numéro SMS n'est provisionné ». Ce constat technique
+contredit donc la confirmation PO alors recueillie. Deux explications possibles, non arbitrées ici :
+la confirmation du 2026-07-28 était erronée ou incomplète, ou la compréhension du périmètre
+(Sandbox WhatsApp vs numéro SMS dédié) a changé depuis. **Seul le PO peut lever cette ambiguïté.**
+
+**Limite Trial non résolue par la simple existence du numéro.** Le compte Twilio associé est en
+mode **Trial**, ce qui impose deux contraintes à l'exécution réelle d'US-124 :
+- l'envoi SMS n'est possible **que vers des numéros destinataires explicitement vérifiés** dans la
+  console Twilio (pas d'envoi vers un numéro non vérifié) ;
+- chaque SMS sortant est préfixé par « Sent from a Twilio trial account », ce qui altère le contenu
+  réellement reçu par rapport à une exploitation en compte payant.
+
+Le critère d'acceptation central d'US-124 (« un unique SMS est tenté ») pourrait donc être
+vérifiable **en conditions restreintes** (destinataire vérifié) mais pas en **conditions réelles
+d'exploitation** telles qu'envisagées à l'instruction du 2026-07-28.
+
+**Effet sur la décision.** Aucun. Ce constat est une vérification technique en lecture seule, pas
+une confirmation PO et pas une levée de bloqueur. Le bloqueur 2 reste consigné **`non levé`** tant
+que le PO n'a pas explicitement confirmé (a) que ce numéro est bien la capacité SMS destinée à
+US-124, (b) l'arbitrage sur la contrainte Trial (destinataire vérifié acceptable pour la
+vérification du Gate, ou passage à un compte payant requis), et (c) que la discrépance avec la
+confirmation du 2026-07-28 est comprise et tranchée. **Le NO GO du 2026-07-28 reste donc la
+décision en vigueur.** Aucune action de provisionnement, de configuration ou de test SMS n'a été
+exécutée dans le cadre de cette vérification.
+
 ## Rappels de verrous
 
 - **K8 / ADR-18 inchangé** : aucune activation de canal externe en Production, aucun credential
