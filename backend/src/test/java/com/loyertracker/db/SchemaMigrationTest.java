@@ -73,9 +73,9 @@ class SchemaMigrationTest {
         // + V28 (seed templates P0 WhatsApp + notification_bailleurs_en_attente()/
         //   notification_delivery_appliquer_statut() SECURITY DEFINER — EP-16 Sprint N+1).
         //
-        // Le compteur attendu n'est PAS codé en dur ici : il est lu depuis la source de
-        // vérité versionnée infra/release/production-state.env (R-V54-2). Ajouter une
-        // migration sans mettre ce fichier à jour fait échouer ce test ET la CI.
+        // Le compteur attendu n'est PAS codé en dur ici : il est lu depuis FLYWAY_EXPECTED_REPO
+        // dans la source de vérité versionnée infra/release/production-state.env (R-V54-2).
+        // Ajouter une migration sans mettre ce fichier à jour fait échouer ce test ET la CI.
         assertThat(result.migrationsExecuted).isEqualTo(expectedFlywayCount());
         assertThat(result.success).isTrue();
     }
@@ -86,9 +86,10 @@ class SchemaMigrationTest {
     }
 
     /**
-     * Lit {@code FLYWAY_EXPECTED} depuis {@code infra/release/production-state.env}, source de
-     * vérité versionnée de l'état de release (R-V54-2). Évite le compteur codé en dur, dont les
-     * désalignements ont provoqué les incidents PR #77 et PR #171.
+     * Lit {@code FLYWAY_EXPECTED_REPO} depuis {@code infra/release/production-state.env}, source
+     * de vérité versionnée de l'état de release (R-V54-2) — le compte du DÉPÔT, pas celui
+     * réellement déployé en Production (distinction introduite par RSV-STG-N2-01). Évite le
+     * compteur codé en dur, dont les désalignements ont provoqué les incidents PR #77 et PR #171.
      */
     private static int expectedFlywayCount() throws IOException {
         Path stateFile = Path.of("..", "infra", "release", "production-state.env")
@@ -98,12 +99,12 @@ class SchemaMigrationTest {
         }
         return Files.readAllLines(stateFile).stream()
                 .map(String::trim)
-                .filter(line -> line.startsWith("FLYWAY_EXPECTED="))
-                .map(line -> line.substring("FLYWAY_EXPECTED=".length()).trim())
+                .filter(line -> line.startsWith("FLYWAY_EXPECTED_REPO="))
+                .map(line -> line.substring("FLYWAY_EXPECTED_REPO=".length()).trim())
                 .findFirst()
                 .map(Integer::parseInt)
                 .orElseThrow(() -> new IllegalStateException(
-                        "FLYWAY_EXPECTED absent de " + stateFile));
+                        "FLYWAY_EXPECTED_REPO absent de " + stateFile));
     }
 
     @Test

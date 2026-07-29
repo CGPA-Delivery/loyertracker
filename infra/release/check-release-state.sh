@@ -45,7 +45,7 @@ EOF
 source "$STATE_FILE"
 
 for var in RELEASE_VERSION PRODUCTION_TAG PRODUCTION_API_IMAGE_REF PRODUCTION_WEB_IMAGE_REF \
-  FLYWAY_EXPECTED PRODUCTION_DEPLOYED_AT; do
+  FLYWAY_EXPECTED_REPO FLYWAY_EXPECTED_PROD PRODUCTION_DEPLOYED_AT; do
   [[ -n "${!var:-}" ]] || { echo "${RED}FATAL${RESET} variable manquante dans $STATE_FILE : $var" >&2; exit 1; }
 done
 
@@ -54,17 +54,17 @@ done
 # =============================================================================
 check_ci() {
   note "Verrou d'état de release — mode CI (cohérence du dépôt)"
-  echo "  déclaré : release=$RELEASE_VERSION tag=$PRODUCTION_TAG flyway=$FLYWAY_EXPECTED"
+  echo "  déclaré : release=$RELEASE_VERSION tag=$PRODUCTION_TAG flyway_repo=$FLYWAY_EXPECTED_REPO"
 
-  # 1. FLYWAY_EXPECTED == nombre de fichiers de migration
+  # 1. FLYWAY_EXPECTED_REPO == nombre de fichiers de migration
   local migration_dir="$REPO_ROOT/backend/src/main/resources/db/migration"
   if [[ -d "$migration_dir" ]]; then
     local count
     count=$(find "$migration_dir" -maxdepth 1 -name 'V*.sql' -type f | wc -l | tr -d ' ')
-    if [[ "$count" == "$FLYWAY_EXPECTED" ]]; then
-      ok "FLYWAY_EXPECTED=$FLYWAY_EXPECTED == $count fichiers V*.sql"
+    if [[ "$count" == "$FLYWAY_EXPECTED_REPO" ]]; then
+      ok "FLYWAY_EXPECTED_REPO=$FLYWAY_EXPECTED_REPO == $count fichiers V*.sql"
     else
-      ko "FLYWAY_EXPECTED=$FLYWAY_EXPECTED mais $count fichiers V*.sql dans db/migration/"
+      ko "FLYWAY_EXPECTED_REPO=$FLYWAY_EXPECTED_REPO mais $count fichiers V*.sql dans db/migration/"
       echo "        → une migration a été ajoutée ou retirée sans mettre à jour"
       echo "          infra/release/production-state.env (incidents PR #77 / #171)"
     fi
@@ -135,7 +135,7 @@ check_ci() {
 # =============================================================================
 check_host() {
   note "Verrou d'état de release — mode HÔTE (déclaré vs réel)"
-  echo "  déclaré : release=$RELEASE_VERSION tag=$PRODUCTION_TAG flyway=$FLYWAY_EXPECTED"
+  echo "  déclaré : release=$RELEASE_VERSION tag=$PRODUCTION_TAG flyway_prod=$FLYWAY_EXPECTED_PROD"
 
   local env_file="${ENV_FILE:-$REPO_ROOT/.env}"
   local pg="${PG_CONTAINER:-loyertracker-postgres-1}"
@@ -164,10 +164,10 @@ check_host() {
     "SELECT count(*) FROM flyway_schema_history WHERE success" 2>/dev/null | tr -d ' ')
   if [[ -z "$real_mig" ]]; then
     ko "impossible de lire flyway_schema_history (conteneur $pg injoignable ?)"
-  elif [[ "$real_mig" == "$FLYWAY_EXPECTED" ]]; then
-    ok "Flyway réel = $real_mig == FLYWAY_EXPECTED"
+  elif [[ "$real_mig" == "$FLYWAY_EXPECTED_PROD" ]]; then
+    ok "Flyway réel = $real_mig == FLYWAY_EXPECTED_PROD"
   else
-    ko "DÉRIVE : Flyway réel = $real_mig mais FLYWAY_EXPECTED = $FLYWAY_EXPECTED"
+    ko "DÉRIVE : Flyway réel = $real_mig mais FLYWAY_EXPECTED_PROD = $FLYWAY_EXPECTED_PROD"
   fi
 
   # 3. Images actives cohérentes avec les références digest déclarées

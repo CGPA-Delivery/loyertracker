@@ -77,6 +77,18 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
   directe des incidents PR #77 et PR #171. Le smoke vérifie en outre, lorsqu'il tourne contre la
   Production, que le tag déployé correspond au tag déclaré.
 
+### Corrections — RSV-STG-N2-01 (verrou d'état de release)
+
+- `FLYWAY_EXPECTED` scindé en deux variables dans `production-state.env` : `FLYWAY_EXPECTED_REPO`
+  (nombre de fichiers `V*.sql` du dépôt, contrôlé par `--ci`, `SchemaMigrationTest` et le smoke) et
+  `FLYWAY_EXPECTED_PROD` (compte réellement appliqué en Production, contrôlé par `--host`, ne
+  bougeant qu'à la bascule). La variable unique servait ces deux usages, qui divergent pendant tout
+  sprint ajoutant une migration avant sa bascule en Production — réserve non bloquante consignée au
+  Gate Staging Sprint N+2 EP-16 (2026-07-28).
+- `FLYWAY_EXPECTED_PROD` remis à sa valeur réelle (28, pour `1.14.0`/`sha-27dce09d`, inchangée) :
+  `--host` ne signalera plus de fausse dérive tant que le Sprint N+2 (V29) n'est pas basculé en
+  Production.
+
 Aucun changement fonctionnel, aucune migration SQL, aucun impact sur le comportement applicatif.
 
 ## [1.14.0] — 2026-07-24

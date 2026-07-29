@@ -97,13 +97,13 @@ else
   exit 1
 fi
 
-note "0. Sanity : stack healthy, Flyway V1-V$FLYWAY_EXPECTED, pool API sous loyertracker_api"
+note "0. Sanity : stack healthy, Flyway V1-V$FLYWAY_EXPECTED_REPO, pool API sous loyertracker_api"
 docker compose ps --format '{{.Name}} {{.Health}}' | sed 's/^/  /'
 MIG=$(docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
   "SELECT count(*) FROM flyway_schema_history WHERE success")
-[[ "$MIG" == "$FLYWAY_EXPECTED" ]] \
-  && ok "Flyway : $MIG migrations appliquées (attendu $FLYWAY_EXPECTED, source production-state.env)" \
-  || ko "Flyway : $MIG migrations (attendu $FLYWAY_EXPECTED)"
+[[ "$MIG" == "$FLYWAY_EXPECTED_REPO" ]] \
+  && ok "Flyway : $MIG migrations appliquées (attendu $FLYWAY_EXPECTED_REPO, source production-state.env)" \
+  || ko "Flyway : $MIG migrations (attendu $FLYWAY_EXPECTED_REPO)"
 
 # Verrou de dérive : en Production, les références digest du .env doivent correspondre
 # exactement à l'état déclaré. Un déploiement non tracé fait échouer le smoke.
