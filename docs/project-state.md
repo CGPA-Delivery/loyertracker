@@ -2421,3 +2421,27 @@ runtime »).
 
 Aucun bump de dépendance ni `npm audit fix` n'a été exécuté par cette vérification — un correctif
 relèverait d'un Plan d'Exécution distinct sous gouvernance DevSecOps.
+
+### Clôture post-fusion — confirmation SMS Sandbox et vérification Dependabot (PR #296)
+
+Le 2026-07-29, le validateur humain a déclaré dans la conversation de pilotage : « merge la PR
+296 ». Cette déclaration vaut **GO humain final** pour la fusion de la PR documentaire #296
+(`docs(cgpa): confirmation SMS Sandbox et verification Dependabot`), limité à la fusion
+elle-même.
+
+La PR #296 a été fusionnée par le workflow GitHub protégé le **2026-07-29T14:41:10Z**, sans
+contournement administrateur. Le commit de fusion exact est
+`c8c79c30ea9fafacbc206b609678c4f4f6adaeb4`, confirmé sur `origin/main`. Les contrôles
+**post-fusion sur `main`** à ce commit sont tous **PASS** : Backend, Frontend, Sécurité (gitleaks
++ SCA + Trivy), CodeQL `java-kotlin`/`javascript-typescript`, audit structurel CGPA et Registry
+Policy (« Quarantaine GHCR latest ») ; `Build/scan SBOM Docker` et `Publication, signatures et
+attestations` sont correctement **`skipped`**, le lot étant strictement documentaire, sans impact
+image. `CHECK-CICD-01` est **PASS au jalon post-fusion `main`**.
+
+Cette fusion consigne deux constats déjà documentés ci-dessus (confirmation PO du numéro Sandbox
+SMS Twilio, vérification DevSecOps des 8 alertes Dependabot) sans les modifier. Conformément à
+`CLAUDE.md`, elle ne constitue **ni une promotion ni un GO Staging/Production**. Le NO GO du
+Sprint N+2 du 2026-07-28 reste la décision en vigueur — le bloqueur SMS Twilio nécessite toujours
+la ré-instruction explicite du Gate Staging (étape 5 du chemin de remédiation) avant tout
+déploiement sur `ai-test-server`. Aucun déploiement, aucune promotion et aucune écriture en base
+de Production n'a été exécuté ni autorisé par cette fusion.
