@@ -2467,3 +2467,32 @@ successives, chacune limitée à tracer la précédente. Conformément à `CLAUD
 constitue **ni une promotion ni un GO Staging/Production**. Le NO GO du Sprint N+2 du 2026-07-28
 reste la décision en vigueur, inchangée par ce lot. Aucun déploiement, aucune promotion et aucune
 écriture en base de Production n'a été exécuté ni autorisé par cette fusion.
+
+### Clôture post-fusion — traçabilité de la clôture de la PR #297 (PR #298)
+
+Le 2026-07-29, le validateur humain a déclaré dans la conversation de pilotage : « merge la PR
+298 ». Cette déclaration vaut **GO humain final** pour la fusion de la PR documentaire #298
+(`docs(cgpa): consigner la fusion de la PR 297 et les controles post-fusion`), limité à la fusion
+elle-même.
+
+La PR #298 a été fusionnée par le workflow GitHub protégé le **2026-07-29T15:12:54Z**, sans
+contournement administrateur. Le commit de fusion exact est
+`8c2ed1eec8a2d13ac52f77a276a39e6e6c3590f4`, confirmé sur `origin/main`. Les contrôles
+**post-fusion sur `main`** à ce commit sont tous **PASS** : Backend, Frontend, Sécurité (gitleaks
++ SCA + Trivy), CodeQL `java-kotlin`/`javascript-typescript`, audit structurel CGPA et Registry
+Policy (« Quarantaine GHCR latest ») ; `Build/scan SBOM Docker` et `Publication, signatures et
+attestations` sont correctement **`skipped`**, le lot étant strictement documentaire, sans impact
+image. `CHECK-CICD-01` est **PASS au jalon post-fusion `main`**.
+
+Cette fusion consigne la clôture de la PR #297 elle-même, poursuivant la chaîne documentaire de
+clôtures successives ouverte depuis la PR #294. Conformément à `CLAUDE.md`, elle ne constitue
+**ni une promotion ni un GO Staging/Production**. Le NO GO du Sprint N+2 du 2026-07-28 reste la
+décision en vigueur, inchangée par ce lot. Aucun déploiement, aucune promotion et aucune écriture
+en base de Production n'a été exécuté ni autorisé par cette fusion.
+
+**Observation d'altitude.** Cette chaîne de PR documentaires (chacune consignant la fusion et les
+contrôles post-fusion de la précédente) est auto-entretenue et n'a pas de terminaison naturelle :
+consigner la clôture de #298 nécessiterait une PR #299, et ainsi de suite. Aucun contenu métier,
+technique ou de gouvernance n'est ajouté au-delà de la traçabilité de fusion déjà exposée par
+l'historique Git et les runs GitHub Actions eux-mêmes. Un arbitrage humain sur l'utilité de
+poursuivre cette chaîne au-delà de ce point est suggéré, sans qu'il s'agisse d'un blocage.
