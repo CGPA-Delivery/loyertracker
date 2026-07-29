@@ -51,6 +51,53 @@ Détection : automatique (Prometheus/Alertmanager) **et** manuelle (runbook §7/
 `docker-compose.monitoring.yml` (profil `monitoring`, opt-in), combinable avec le compose de base
 (dev) ou de staging ; notification injectée par `.env` (`ALERTMANAGER_WEBHOOK_URL`, jamais versionnée).
 
+## Addendum EP-16 Sprint N+2 — Notifications externes (US-126)
+
+*Extension **additive** : aucun élément OBS-01/02/03 ci-dessus n'est modifié ni retiré. Ce
+addendum étend le périmètre supervisé à la chaîne de notification externe, qui devient le premier
+**service externe critique** de l'architecture — cas explicitement noté « hors périmètre » du MVP
+jusqu'à EP-16.*
+
+### Composant critique ajouté (OBS-03)
+
+| Composant | Sonde |
+|---|---|
+| Chaîne de notification externe (Twilio WhatsApp/SMS) | compteurs et jauges `notification_*` exposés par l'API sur `/api/actuator/prometheus` |
+
+### Incidents détectables ajoutés (OBS-02)
+
+Quatre règles portant toutes le label `component: notifications` (`infra/monitoring/alerts.yml`) :
+
+| Alerte | Sévérité | Signification |
+|---|---|---|
+| `NotificationBudgetProche` | warning | Consommation ≥ 80 % du plafond mensuel — avertit **avant** l'arrêt, pour laisser arbitrer |
+| `NotificationBudgetEpuise` | critical | Plafond atteint : dispatch arrêté, notifications en file (aucune perte) |
+| `NotificationEchecPermanentEleve` | warning | > 20 % d'échecs définitifs — symptôme de configuration, pas d'incident réseau |
+| `NotificationKillSwitchFerme` | warning | Dispatch suspendu volontairement : attendu en incident, anormal en régime nominal |
+
+### Métriques exposées (OBS-01)
+
+`notification_dispatch_total{canal,issue}`, `notification_fallback_total{issue}`,
+`notification_budget_consomme`, `notification_budget_plafond`,
+`notification_budget_bloque_total`, `notification_killswitch_bloque_total`.
+
+### Contrainte structurante — aucune PII en label
+
+**Aucun label de ces métriques ne porte de donnée personnelle**, et cette propriété doit être
+préservée par toute évolution ultérieure. Les seules dimensions autorisées sont des énumérations
+fermées (canal, issue). Deux raisons cumulatives, l'une technique et l'autre réglementaire : chaque
+valeur de label crée une série temporelle persistante — un numéro de téléphone ou un identifiant de
+destinataire produirait une cardinalité non bornée ; et Prometheus n'est pas un système conçu pour
+héberger des données personnelles, ni soumis aux mêmes contrôles d'accès que la base sous RLS.
+
+La supervision indique **qu'**un problème existe et de quelle nature ; `notification_outbox` et
+`notification_delivery`, sous RLS, indiquent **qui** est concerné.
+
+### Exploitation
+
+Runbook dédié : `docs/cgpa/runbook-notifications.md` — incident Twilio, kill switch, reprise
+manuelle bornée, plafond budgétaire, rotation des secrets, diagnostic du fallback.
+
 ## Lien avec les gates
 
 - **Gate Staging Readiness (enrichi v5.2)** : logs disponibles ✅, monitoring actif ✅,

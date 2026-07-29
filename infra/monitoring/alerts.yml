@@ -92,3 +92,55 @@ groups:
         annotations:
           summary: "Aucun heartbeat de sauvegarde"
           description: "Aucune métrique de sauvegarde reçue par le Pushgateway (cron de backup absent ou jamais exécuté)."
+
+      # =====================================================================================
+      # --- Notifications externes (EP-16 Sprint N+2, US-126) ---
+      # Toutes ces règles portent `component: notifications` pour un routage Alertmanager dédié.
+      # Aucune n'expose de donnée personnelle : les métriques sous-jacentes n'ont pour seuls
+      # labels que des énumérations fermées (canal, issue) — cf. NotificationMetrics.
+      # =====================================================================================
+
+      # Plafond budgétaire mensuel approché : avertit AVANT l'arrêt, pour laisser le temps
+      # d'arbitrer (relever le plafond ou laisser le mois se terminer).
+      - alert: NotificationBudgetProche
+        expr: |
+          notification_budget_plafond > 0
+            and notification_budget_consomme / notification_budget_plafond >= 0.8
+            and notification_budget_consomme < notification_budget_plafond
+        for: 5m
+        labels: { severity: warning, component: notifications }
+        annotations:
+          summary: "Budget de notifications externes à plus de 80% du plafond mensuel"
+          description: "La consommation du mois approche le plafond configuré. Au-delà, le dispatch s'arrête et les notifications restent en file (PENDING, aucune perte). Arbitrer : relever le plafond ou laisser le mois s'achever."
+
+      # Plafond atteint : le dispatch est arrêté. Sévérité critique car des notifications
+      # métier s'accumulent sans être remises.
+      - alert: NotificationBudgetEpuise
+        expr: notification_budget_plafond > 0 and notification_budget_consomme >= notification_budget_plafond
+        for: 5m
+        labels: { severity: critical, component: notifications }
+        annotations:
+          summary: "Plafond budgétaire de notifications atteint — dispatch arrêté"
+          description: "Le plafond mensuel est atteint : plus aucune notification externe n'est remise au fournisseur. Les lignes restent PENDING et repartiront au mois suivant ou dès relèvement du plafond. Voir docs/cgpa/runbook-notifications.md."
+
+      # Taux élevé d'échecs définitifs : symptôme d'un problème de configuration (numéro
+      # expéditeur, template rejeté, destinataires hors Sandbox) plutôt que d'un incident réseau.
+      - alert: NotificationEchecPermanentEleve
+        expr: |
+          sum(rate(notification_dispatch_total{issue="ECHEC_PERMANENT"}[15m]))
+            / clamp_min(sum(rate(notification_dispatch_total[15m])), 0.001) > 0.2
+        for: 15m
+        labels: { severity: warning, component: notifications }
+        annotations:
+          summary: "Plus de 20% des envois de notification échouent définitivement"
+          description: "Un taux élevé d'échecs PERMANENT indique en général une erreur de configuration (numéro expéditeur, template non approuvé, destinataire hors Sandbox), pas un incident transitoire. Voir docs/cgpa/runbook-notifications.md."
+
+      # Kill switch fermé alors que des lots sont tentés : état d'exploitation volontaire, mais
+      # qui doit rester visible pour ne pas être oublié.
+      - alert: NotificationKillSwitchFerme
+        expr: increase(notification_killswitch_bloque_total[30m]) > 0
+        for: 5m
+        labels: { severity: warning, component: notifications }
+        annotations:
+          summary: "Kill switch des notifications externes fermé"
+          description: "app.notifications.external.enabled=false : le dispatch est suspendu et les notifications s'accumulent en file. Attendu pendant un incident Twilio ou avant activation ; anormal en régime nominal."

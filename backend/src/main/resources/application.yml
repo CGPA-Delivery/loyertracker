@@ -117,6 +117,21 @@ app:
     sms:
       enabled: ${TWILIO_SMS_ENABLED:false}
     dry-run: ${NOTIFICATION_DRY_RUN:true}
+    fallback:
+      # EP-16 Sprint N+2 (US-124) : fallback SMS sur échec WhatsApp PERMANENT. Fermé par défaut —
+      # l'arbitrage K5 du 2026-07-19 a tranché « pas de fallback automatique au premier pilote ».
+      # Même activé, un SMS n'est tenté que si le destinataire a un opt-in SMS explicite ET a
+      # désigné SMS comme canal de secours (K3). Un unique SMS par événement, garanti par la
+      # contrainte d'unicité de notification_outbox.
+      enabled: ${NOTIFICATION_FALLBACK_ENABLED:false}
+    budget:
+      # Garde-fou de coût (US-126, RSV-EP16-03). Plafond MENSUEL GLOBAL d'envois externes, tous
+      # bailleurs confondus (un seul compte Twilio facturé). 0 = aucun envoi externe autorisé :
+      # valeur sûre par défaut, cohérente avec K8/ADR-18. Atteint, le plafond ARRÊTE le dispatch —
+      # les lignes restent PENDING, aucune n'est perdue ni marquée en échec.
+      mensuel-max: ${NOTIFICATION_BUDGET_MENSUEL_MAX:0}
+      # Part du plafond à partir de laquelle l'alerte Alertmanager se déclenche (0,8 = 80 %).
+      seuil-alerte: ${NOTIFICATION_BUDGET_SEUIL_ALERTE:0.8}
     dispatch:
       # Sondage de l'Outbox (patron polling worker, distinct des crons quotidiens alertes/échéances).
       interval-ms: ${NOTIFICATION_DISPATCH_INTERVAL_MS:15000}
@@ -130,6 +145,10 @@ twilio:
   account-sid: ${TWILIO_ACCOUNT_SID:}
   auth-token: ${TWILIO_AUTH_TOKEN:}
   whatsapp-from: ${TWILIO_WHATSAPP_FROM:}
+  # EP-16 Sprint N+2 (US-124) : numéro expéditeur SMS. Vide par défaut — tant qu'aucun numéro n'est
+  # provisionné, un envoi SMS est refusé en PERMANENT plutôt que tenté (jamais d'envoi silencieux
+  # sur un autre canal). Le provisionnement est un acte d'exploitation hors périmètre CGPA.
+  sms-from: ${TWILIO_SMS_FROM:}
   status-callback-base-url: ${TWILIO_STATUS_CALLBACK_BASE_URL:https://loyertracker.loyerpro.org}
 
 # Admin API Keycloak — création de compte gestionnaire (US-12, ADR-10, R6). Client confidentiel

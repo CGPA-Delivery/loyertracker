@@ -3,12 +3,12 @@
 | Champ | Valeur |
 |---|---|
 | Date | 2026-07-19 |
-| Statut | **Approuvé — GO explicite du PO reçu le 2026-07-19 (Sprint N) et le 2026-07-24 (Sprint N+1).** Sprint N (Fondation) livré, déployé et clôturé (`1.13.0`). **Sprint N+1 (WhatsApp P0) autorisé à démarrer depuis le 2026-07-24.** Sprint N+2 reste soumis à son propre GO distinct, après clôture Gate Staging/Production du Sprint N+1 |
-| Origine | Instruction PO du 2026-07-19 (« formaliser EP-16 notifications multicanales Twilio ») ; GO Sprint N+1 : instruction PO du 2026-07-24 (« GO explicite pour le Sprint N+1 ») |
+| Statut | **Approuvé — GO explicite du PO reçu le 2026-07-19 (Sprint N), le 2026-07-24 (Sprint N+1) et le 2026-07-28 (Sprint N+2).** Sprints N et N+1 livrés, déployés et clôturés (`1.13.0`, `1.14.0`). **Sprint N+2 autorisé à démarrer depuis le 2026-07-28, en exécution scindée** (cf. §« Séquencement du Sprint N+2 ») |
+| Origine | Instruction PO du 2026-07-19 (« formaliser EP-16 notifications multicanales Twilio ») ; GO Sprint N+1 : instruction PO du 2026-07-24 (« GO explicite pour le Sprint N+1 ») ; GO Sprint N+2 : instruction PO du 2026-07-28 (« GO du Sprint N+2 ») |
 | Backlog couvert | EP-16 — US-119 → US-126 (`addendum-backlog-ep16-notifications.md`) |
 | ADR | **ADR-18** (Acceptée — kickoff K1→K8 clos et GO Plan reçu, 2026-07-19) |
 | Release cible | Sprint N : `1.13.0` (clôturée) ; Sprint N+1 : à déterminer (proposée `1.14.0`) ; Sprint N+2 : à déterminer |
-| État d’exécution | Sprint N codé, fusionné, `STAGING_DEPLOYED`, Gate Production GO sous réserve, **`PRODUCTION_DEPLOYED` le 2026-07-23, release `1.13.0` clôturée le 2026-07-24** (`cloture-release-v1.13.0.md`). **GO explicite du PO reçu le 2026-07-24 pour le démarrage du Sprint N+1** (US-122/123, WhatsApp P0 Twilio Sandbox) — codage autorisé à démarrer ; Gate Staging/Production du Sprint N+1 et GO du Sprint N+2 restent des étapes distinctes non encore instruites |
+| État d’exécution | Sprints N et N+1 clos : `1.13.0` clôturée le 2026-07-24, **`1.14.0` clôturée le 2026-07-28** (`cloture-release-v1.14.0.md`). **GO explicite du PO reçu le 2026-07-28 pour le Sprint N+2** — codage autorisé **uniquement sur US-124 et US-126** ; **US-125 est bloquée** par les Gates 02A/04A (cf. §« Séquencement du Sprint N+2 »). Gate Staging et Gate Production du Sprint N+2 restent des étapes distinctes non instruites |
 
 ## Arbitrages PO — K1→K8 tranchés le 2026-07-19
 
@@ -92,6 +92,54 @@ projet.
 | Dépendances | Sprint N+1 clos en GO ; K5/K6/K7/K8 tranchés (2026-07-19) |
 | Risques | RSV-EP16-03, RSV-EP16-05 |
 | Critères GO (fin de sprint) | ✅ Fallback SMS jamais déclenché sans opt-in + politique explicite (test dédié) ✅ plafond budgétaire testé (dépassement simulé ⇒ arrêt/limitation) ✅ isolation cross-tenant de l'historique (test dédié) ✅ `observability-governance.md` étendu ✅ runbook rédigé et revu ✅ CI complète verte ✅ Gate Staging → **Gate Production distinct, sous condition K8** |
+
+## Séquencement du Sprint N+2 — GO du 2026-07-28
+
+Le GO explicite du PO est reçu le 2026-07-28, la condition de dépendance (« Sprint N+1 clos en
+GO ») étant satisfaite par la clôture de la release `1.14.0` le jour même.
+
+L'instruction du GO a révélé un **verrou CGPA bloquant sur US-125**, porté à la connaissance du PO
+avant tout codage. Le Sprint N+2 est donc exécuté **scindé en deux lots distincts**, sur arbitrage
+PO du 2026-07-28.
+
+### Lot A — US-124 + US-126 : autorisé, démarrage immédiat
+
+| Champ | Valeur |
+|---|---|
+| Périmètre | US-124 (SMS fallback contrôlé, 5 pts) + US-126 (observabilité, sécurité et exploitation, 8 pts) |
+| Nature | **Backend et infrastructure, sans impact UI** |
+| Fondement | Couvert par le présent Plan d'Exécution, approuvé le 2026-07-19 et objet du GO du 2026-07-28 |
+| Gates 02A/04A | **Non applicables** — cas d'exemption explicitement prévu par `docs/project-state.md` (« lot strictement documentaire, backend ou infrastructure sans impact UI ») |
+| Action autorisée | Codage, tests et documentation. Aucun déploiement, aucune promotion, aucune activation de canal externe |
+
+### Lot B — US-125 : bloqué par les Gates 02A et 04A
+
+| Champ | Valeur |
+|---|---|
+| Périmètre | US-125 (interface de préférences et historique, 8 pts) |
+| Nature | **Premier lot Frontend significatif du projet** — « aucun écran existant à étendre » (analyse d'impact §6) |
+| Verrou | `docs/project-state.md` : « **Gate 02A et Gate 04A sont obligatoires au prochain lot Frontend significatif** ». Échéance de la réserve **`RSV-MIG-611-06`** |
+| État des livrables | **`UXR-001`, `DDS-001` et `DSG-001` sont des gabarits vides** (structures sans contenu renseigné). Le Gate 04A échouerait en l'état |
+| Prérequis | Phase 04A instruite (UXR-001, DDS-001, DSG-001, inventaire de composants, UI specifications, responsive, accessibilité, Design Debt Register), puis **Gate 02A** puis **Gate 04A** statués |
+| Action autorisée | **Aucun codage Frontend.** Instruction de la Phase 04A sur décision PO distincte |
+
+### Points de vigilance ouverts
+
+1. **Cohérence K5 / US-124.** L'arbitrage K5 du 2026-07-19 a tranché « **pas de fallback
+   automatique au premier pilote** ». US-124 reste compatible à condition que la politique de
+   fallback soit livrée **désactivée par défaut** et que son activation demeure un acte
+   d'exploitation explicite. À vérifier au Gate Staging du Sprint N+2.
+2. **Capacité SMS Twilio à provisionner.** Le compte utilisé au Sprint N+1 couvre la Sandbox
+   WhatsApp ; **aucun numéro SMS n'est provisionné** (confirmation PO du 2026-07-28). Le
+   provisionnement est **hors périmètre de ce Plan** et constitue un **prérequis au Gate Staging**
+   du Sprint N+2 : sans capacité SMS réelle, les critères d'acceptation d'US-124 ne sont pas
+   vérifiables en conditions réelles.
+3. **`RSV-MIG-611-04` probablement déclenchée.** US-124 et US-125 introduisent de nouveaux
+   endpoints et une logique de dispatch ; l'addendum DAT et la décision OpenAPI attendus par cette
+   réserve deviennent exigibles. À confirmer par l'Enterprise Architect avant le Gate Staging.
+4. **K8 / ADR-18 inchangé.** Le GO du Sprint N+2 **n'autorise aucune activation de canal externe
+   en Production** ni aucun ajout de credential Twilio à la Production. Cette activation reste
+   subordonnée à la **clôture en GO** du Sprint N+2, distincte de son démarrage.
 
 ## Stratégie Twilio Sandbox
 
