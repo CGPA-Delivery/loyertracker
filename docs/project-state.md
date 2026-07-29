@@ -2592,3 +2592,44 @@ Production), à résorber avant le prochain cycle. Détail complet :
 instruire explicitement. Conformément à `CLAUDE.md`, aucune mutation ni aucun déploiement
 Production n'a été exécuté ou autorisé par cette instruction ; `PRODUCTION_DEPLOYED` reste non
 atteint.
+
+### Préflight Production `1.15.0` (EP-16 Sprint N+2 Lot A) — PASS (2026-07-29, ~18:05–18:13 UTC)
+
+**Instruction explicite reçue dans la conversation de pilotage** : « instruis le Préflight
+Production du Sprint N+2 ». Aucune réserve bloquante héritée : `1.14.0` déjà clôturée (CDO GO le
+2026-07-28, hypercare complète sans incident).
+
+**Contrôles lecture seule sur `loyertracker-prod-server`** : 8/8 actifs `healthy`,
+`RestartCount=0`, tag `sha-27dce09d` inchangé, Flyway **28/28** (V29 pas encore appliquée),
+`bailleur-test` désactivé et `directAccessGrantsEnabled=false`, Prometheus 5/5, Alertmanager
+1 alerte `BackupHeartbeatMissing` (pattern récurrent, résolue par ce Préflight), 0 5xx/0 `ERROR`
+(30 min), site public 200, 30 Gio libres. Baseline métier : 2 bailleurs réels/2 patrimoines/8
+biens/8 baux/13 mouvements de garantie/1 gestionnaire/8 locataires/7 quittances ; tables
+`notification_*` à 34/0/0/3/0 — cohérent avec `NoopNotificationProvider` seul actif. **Absence
+explicite de toute variable Twilio/notification confirmée dans le `.env` de production** (0
+occurrence, condition 5 du Gate Production).
+
+**Backup vérifié** : `loyertracker-20260729-181310.dump` (863686 octets, SHA-256 `9a423e04…`) +
+globals (1108 octets, SHA-256 `0abcbaa5…`), modes 600. Migration **V29 strictement additive**
+confirmée (une fonction `SECURITY DEFINER`, aucune table/colonne modifiée) : aucun second backup
+post-migration requis. Candidat `sha-ac374193` confirmé (digests Staging API `9603330e…`/Web
+`3d7ddb5f…`), rollback `sha-27dce09d` déjà présent localement sur l'hôte.
+
+**Écart de séquencement découvert et corrigé** : une première tentative de promotion de
+`CHANGELOG.md` en `[1.15.0]` dans ce même commit a été **rejetée par la CI**
+(`check-release-state.sh --ci` : « ÉCART RELEASE_VERSION=1.14.0 mais le CHANGELOG est en tête à
+1.15.0 »). Ce contrôle, ajouté par le verrou R-V54-2 le 2026-07-27, n'existait pas encore lors des
+Préflights précédents (dont celui de `1.14.0`, qui avait promu le CHANGELOG à cette même étape
+sans être détecté). `RELEASE_VERSION` déclare la version **réellement déployée en Production** ;
+la promouvoir avant tout déploiement effectif aurait réintroduit l'écart que R-V54-2 doit
+justement éliminer. **Correction** : `CHANGELOG.md` reste `[Non publié]` ; sa promotion en
+`[1.15.0]` est différée au **même commit que `RELEASE_VERSION=1.15.0`** dans
+`production-state.env`, au moment du déploiement technique — même principe déjà appliqué à
+`FLYWAY_EXPECTED_PROD`. La condition 4 du Gate Production est reportée en conséquence, sans remise
+en cause du verdict PASS de ce Préflight.
+
+**Aucun déploiement, redémarrage ou mutation exécuté.** Rapport :
+`docs/cgpa/09-production/preflight-backup-v1.15.0-report.md`. **Autorisation explicite distincte
+requise pour la suite ; `PRODUCTION_DEPLOYED` non atteint.** L'activation des canaux externes
+reste interdite jusqu'à la clôture en GO du Sprint N+2 **complet** (Lot A et Lot B), conformément
+à K8/ADR-18.
