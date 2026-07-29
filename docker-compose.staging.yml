@@ -133,7 +133,14 @@ services:
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
       TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM:-}
+      TWILIO_SMS_FROM: ${TWILIO_SMS_FROM:-}
       TWILIO_STATUS_CALLBACK_BASE_URL: ${TWILIO_STATUS_CALLBACK_BASE_URL:-https://loyertracker.staging.loyerpro.org}
+      # Fallback SMS contrôlé (EP-16 Sprint N+2, US-124) : désactivé par défaut (K5, pas de
+      # fallback automatique au premier pilote). Plafond nul par défaut = bloquant tant qu'il
+      # n'est pas explicitement relevé pour un test réel.
+      NOTIFICATION_FALLBACK_ENABLED: ${NOTIFICATION_FALLBACK_ENABLED:-false}
+      NOTIFICATION_BUDGET_MENSUEL_MAX: ${NOTIFICATION_BUDGET_MENSUEL_MAX:-0}
+      NOTIFICATION_BUDGET_SEUIL_ALERTE: ${NOTIFICATION_BUDGET_SEUIL_ALERTE:-0.8}
     depends_on:
       postgres:
         condition: service_healthy
