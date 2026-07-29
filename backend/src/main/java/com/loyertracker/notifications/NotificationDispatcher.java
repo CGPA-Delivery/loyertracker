@@ -164,9 +164,9 @@ public class NotificationDispatcher {
             outboxService.marquerTraite(row.getId());
             metrics.dispatch(row.getChannel(), NotificationMetrics.Issue.ACCEPTE);
         } else if (resultat.estEchecPermanent()) {
-            // Échec définitif (US-124) : rejouer à l'identique ne peut pas aboutir. La ligne est
-            // close immédiatement, sans consommer le quota de tentatives, puis le fallback SMS est
-            // évalué — c'est le seul chemin qui peut en déclencher un.
+            // US-124. Échec définitif : rejouer à l'identique ne peut pas aboutir, donc la ligne
+            // est close immédiatement sans consommer le quota de tentatives, puis le fallback SMS
+            // est évalué. C'est le seul chemin qui peut en déclencher un.
             log.info("Envoi refusé définitivement ({}) pour l'outbox {} — aucune nouvelle tentative.",
                     resultat.errorCode(), row.getId());
             outboxService.marquerDead(row.getId(), resultat.errorCode());
