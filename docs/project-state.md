@@ -2355,3 +2355,33 @@ restent qualifiés et tracés — T+12 en rattrapage (contrainte d'exploitation,
 
 Aucun déploiement, aucune promotion, aucune mutation GHCR et aucune écriture en base de
 Production n'a été exécuté ni autorisé par cette fusion.
+
+### Clôture post-fusion — verrou d'état de release scindé `FLYWAY_EXPECTED_REPO`/`PROD` (PR #294, `RSV-STG-N2-01`)
+
+Le 2026-07-29, le validateur humain a déclaré dans la conversation de pilotage : « j'ai validé
+#294, fusionne-la ». Cette déclaration vaut **GO humain final** pour la fusion de la PR #294
+(`fix(release): scinder FLYWAY_EXPECTED en FLYWAY_EXPECTED_REPO/FLYWAY_EXPECTED_PROD`), limité à la
+fusion elle-même.
+
+La PR #294 a été fusionnée par le workflow GitHub protégé le **2026-07-29T11:43:19Z**, sans
+contournement administrateur. Le commit de fusion exact est
+`97d497db42aec07c0ade922a111cba823faa9b7f`, confirmé sur `origin/main` (tête de PR revue :
+`93501f3ab1b5719421d4f694eb3a67331b5dfc4c`). Les contrôles **post-fusion sur `main`** sont tous
+**PASS** : Backend, Frontend, Sécurité (gitleaks + SCA + Trivy), CodeQL `java-kotlin` et
+`javascript-typescript`, audit structurel CGPA et Registry Policy. Les images `loyertracker-api`
+et `loyertracker-web` ont été republiées avec le tag immuable `sha-97d497db` (digests
+`sha256:dd70f3a9…` et `sha256:10515cc2…`, `11:54:08Z`/`11:54:17Z`).
+
+Cette PR résout la réserve non bloquante `RSV-STG-N2-01` (Gate Staging Sprint N+2 EP-16,
+2026-07-28) : `FLYWAY_EXPECTED` est scindé en `FLYWAY_EXPECTED_REPO` (compte du dépôt, contrôlé par
+`--ci`/`SchemaMigrationTest`/smoke) et `FLYWAY_EXPECTED_PROD` (compte réel Production, contrôlé par
+`--host`, remis à `28` pour `1.14.0`/`sha-27dce09d`). `--host` ne signale donc plus de dérive
+inexistante avant la bascule effective du Sprint N+2 ; `FLYWAY_EXPECTED_PROD` devra être porté à
+`29` au moment de cette bascule réelle, pas avant. Détail des preuves :
+`docs/cgpa/07-devsecops/gate-staging-sprint-n2-ep16-decision.md`.
+
+Conformément à `CLAUDE.md`, cette fusion et la republication d'artefact ne constituent **ni une
+promotion ni un GO Staging/Production**. Le NO GO du Sprint N+2 du 2026-07-28 reste la décision en
+vigueur — le blocage SMS Twilio (bloqueur 2) est seul, entier et inchangé, sans rapport avec ce lot
+d'outillage. Aucun déploiement, aucune promotion et aucune écriture en base de Production n'a été
+exécuté ni autorisé par cette fusion.

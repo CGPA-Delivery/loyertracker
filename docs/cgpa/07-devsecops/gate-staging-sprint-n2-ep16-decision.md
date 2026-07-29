@@ -203,6 +203,38 @@ devra être **ré-instruit explicitement** (étape 5 du chemin de remédiation) 
 levé ou US-124 explicitement retirée du périmètre, sauvegarde vérifiée et `STG-ISOL-01`
 avant/après — avant tout déploiement sur `ai-test-server`.
 
+### Mise à jour — `RSV-STG-N2-01` résolue (PR #294 fusionnée, 2026-07-29)
+
+**Instruction explicite reçue dans la conversation de pilotage** : « j'ai validé #294,
+fusionne-la ». Cette déclaration vaut **GO humain final pour la fusion de la PR #294**, limité à la
+fusion elle-même — aucun déploiement ni promotion n'est demandé ou autorisé par cette instruction.
+
+PR #294 (`fix(release): scinder FLYWAY_EXPECTED en FLYWAY_EXPECTED_REPO/FLYWAY_EXPECTED_PROD`,
+branche `agent/fix-flyway-expected-repo-prod`) a été fusionnée par le workflow GitHub protégé, sans
+contournement administrateur.
+
+| Vérification | Méthode | Résultat |
+|---|---|---|
+| Fusion sur `main` | `gh pr view 294 --json state,mergedAt,mergeCommit` | **`MERGED`**, `2026-07-29T11:43:19Z`, commit de fusion `97d497db42aec07c0ade922a111cba823faa9b7f` (tête de PR revue : `93501f3ab1b5719421d4f694eb3a67331b5dfc4c`) |
+| Contrôles post-fusion sur `main` | `gh api .../commits/97d497db.../check-runs` | Tous **`success`** : Backend, Frontend, Sécurité (gitleaks + SCA + Trivy), CodeQL `java-kotlin`/`javascript-typescript`, audit structurel CGPA, Registry Policy (« Quarantaine GHCR latest »), Build/scan/SBOM Docker, Publication/signatures/attestations |
+| Artefact `loyertracker-api` | `GET /users/jptshilombo/packages/container/loyertracker-api/versions` | Tag **`sha-97d497db`** présent, digest `sha256:dd70f3a9127d2e13a1f130b53b53d8414f9793553cb226767be4209ce6c5fa48`, publié `2026-07-29T11:54:08Z` |
+| Artefact `loyertracker-web` | `GET /users/jptshilombo/packages/container/loyertracker-web/versions` | Tag **`sha-97d497db`** présent, digest `sha256:10515cc27ded96f3fcb812ac0fc11c8e4fe7db0c6561260210184d9bd5fe1d53`, publié `2026-07-29T11:54:17Z` |
+
+**Effet sur `RSV-STG-N2-01`.** La réserve est **résolue** : `FLYWAY_EXPECTED` est scindé en
+`FLYWAY_EXPECTED_REPO` (contrôlé par `--ci`, `SchemaMigrationTest` et le smoke — compte du dépôt,
+29 depuis V29) et `FLYWAY_EXPECTED_PROD` (contrôlé par `--host` — compte réel en Production, remis
+à `28`, valeur exacte de `1.14.0`/`sha-27dce09d`). `--host` ne signalera donc plus de dérive
+inexistante tant que le Sprint N+2 (V29) n'est pas effectivement basculé en Production ;
+`FLYWAY_EXPECTED_PROD` devra être porté à `29` au moment de cette bascule réelle, pas avant.
+
+**Portée de la fusion.** Comme pour la clôture de la PR #291 ci-dessus, la fusion et la publication
+des deux artefacts (tag immuable `sha-97d497db`) ne constituent **ni une promotion ni un GO
+Staging/Production**, conformément à `CLAUDE.md` (« aucun push ou merge ne vaut autorisation de
+promotion »). **Le NO GO du Sprint N+2 du 2026-07-28 reste la décision en vigueur** : le bloqueur 2
+(capacité SMS Twilio non provisionnée) est seul, entier et inchangé — cette fusion documentaire
+d'outillage n'a aucun rapport avec lui. Le Gate devra toujours être ré-instruit explicitement
+(étape 5 du chemin de remédiation) avant tout déploiement sur `ai-test-server`.
+
 ## Rappels de verrous
 
 - **K8 / ADR-18 inchangé** : aucune activation de canal externe en Production, aucun credential
