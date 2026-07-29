@@ -2496,3 +2496,58 @@ consigner la clôture de #298 nécessiterait une PR #299, et ainsi de suite. Auc
 technique ou de gouvernance n'est ajouté au-delà de la traçabilité de fusion déjà exposée par
 l'historique Git et les runs GitHub Actions eux-mêmes. Un arbitrage humain sur l'utilité de
 poursuivre cette chaîne au-delà de ce point est suggéré, sans qu'il s'agisse d'un blocage.
+
+### Ré-instruction du Gate Staging Sprint N+2 Lot A — GO SOUS RÉSERVE, `STAGING_DEPLOYED` (2026-07-29)
+
+**Instruction explicite reçue dans la conversation de pilotage** : « Ré-instruis le Gate Staging
+Sprint N+2 avec le numéro SMS provisionné ». Le PO a confirmé un numéro Sandbox Twilio expéditeur
+(`+19379825074`, propre au compte) et un numéro destinataire de test (`+18777804236`), levant la
+condition matérielle du bloqueur 2 du NO GO du 2026-07-28 (capacité SMS Twilio non provisionnée).
+
+**Prérequis techniques découverts et traités avant tout déploiement** : `docker-compose.staging.yml`
+ne transmettait pas `TWILIO_SMS_FROM`/`NOTIFICATION_FALLBACK_ENABLED`/`NOTIFICATION_BUDGET_MENSUEL_MAX`/
+`NOTIFICATION_BUDGET_SEUIL_ALERTE` au conteneur `api` — corrigé par la PR #300 (fusionnée, commit
+`51758c30`, CI verte, GO humain explicite). Deux dérives de fichiers d'exploitation propres à
+l'hôte `ai-test-server` ont aussi été découvertes et corrigées : `infra/smoke/smoke-stack.sh` et
+`infra/release/production-state.env` y étaient absents/obsolètes (compteur Flyway codé en dur à
+28, pré-R-V54-2) — synchronisés depuis `main`. Une troisième dérive (`docker-compose.staging.yml`
+de l'hôte encore sur `LOYERTRACKER_TAG` alors que `main` est passé à
+`API_IMAGE_REF`/`WEB_IMAGE_REF`, probablement issu du chantier supply-chain RSV-MIG-611-05) a été
+**identifiée mais non résolue**, hors périmètre de cette ré-instruction — nouvelle réserve à
+résorber avant le prochain cycle Production.
+
+**Exécution** (chaque étape confirmée explicitement avant écriture de secrets, déploiement ou
+envoi réel) : sauvegarde PostgreSQL vérifiée (`loyertracker-20260729-164100.dump`, 540 Kio) ;
+`STG-ISOL-01` PASS avant/après (9 conteneurs `loyertracker-staging-*` + `nginx-proxy-manager`
+intacts, réseaux/volumes/ports inchangés) ; secrets Twilio Sandbox écrits dans le `.env` de
+l'hôte (jamais commités, `.env` sauvegardé avant modification) ; déploiement ciblé du seul
+conteneur `api` sur l'image `sha-ac374193` (`nginx` reste `sha-27dce09d`, Lot A sans impact Web) ;
+Flyway 29/29, `RestartCount=0`, `healthy` ; smoke **63/0** (après synchronisation des fichiers
+d'exploitation).
+
+**Vérification réelle du fallback SMS (US-124), avec de vrais appels Twilio, aucun mock** :
+scénario de test synthétique (patron identique à `NotificationDispatchIntegrationTest`) — un échec
+WhatsApp **synchrone** (HTTP 400 Twilio) a été classé `PERMANENT` et a **réellement déclenché** le
+fallback SMS (`notification_fallback_total{issue="DECLENCHE"}=1`), qui a lui-même été réellement
+tenté auprès de Twilio. **Limite découverte, non un bug de ce lot** : un échec WhatsApp
+*asynchrone* (accepté puis rejeté par callback — cas du numéro destinataire réel `+18777804236`,
+code Twilio `63015`) ne déclenche jamais le fallback (`TwilioCallbackController` ne fait que
+mettre à jour le statut de livraison). Aucun SMS n'a donc atteint un téléphone réel ; le mécanisme
+n'a été prouvé de bout en bout qu'avec un numéro manifestement invalide (rejet synchrone garanti).
+**Décision du PO** : accepter cette preuve comme suffisante et documenter la limite plutôt que de
+multiplier les essais sur le compte Twilio réel. Données de test synthétiques conservées (pattern
+`bailleur2-smoke-*` déjà présent sur cet hôte) ; le template SMS ajouté pour le test a été
+redésapprouvé (`BROUILLON`/`enabled=false`) après usage, son approbation n'ayant valeur que de
+test technique, pas de revue de contenu métier/légal.
+
+**Décision : GO SOUS RÉSERVE, `STAGING_DEPLOYED`.** Les trois bloqueurs du NO GO du 2026-07-28
+sont levés. Réserves maintenues, aucune bloquante pour ce GO : `RSV-MIG-611-04` (Enterprise
+Architect, addendum DAT + décision OpenAPI) reste ouverte ; `RSV-MIG-611-06` reste ouverte et
+bloquante pour US-125 uniquement, sans rapport avec ce Lot A ; nouvelle réserve sur la dérive
+`docker-compose.staging.yml` de l'hôte ; nouvelle réserve `RSV-EP16-N2-02` sur la couverture des
+échecs de livraison asynchrones par le fallback SMS. Détail complet :
+`docs/cgpa/07-devsecops/gate-staging-sprint-n2-ep16-decision.md` (addendum 2026-07-29),
+`docs/staging-state.md` §8. Conformément à `CLAUDE.md`, ce GO Staging **n'autorise aucun
+déploiement, aucune promotion et aucune activation Production** ; K8/ADR-18 inchangé. Prochaine
+action autorisée : instruire le Gate Production du Sprint N+2 (distinct), sur instruction PO
+explicite.
