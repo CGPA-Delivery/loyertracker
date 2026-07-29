@@ -2402,3 +2402,22 @@ sauvegarde vérifiée, `STG-ISOL-01` avant/après, déploiement ciblé (`api` se
 vérification réelle du fallback SMS avec ce numéro — avant tout déploiement sur `ai-test-server`.
 Aucun credential Twilio n'a été déposé en configuration Production par cette déclaration (K8/
 ADR-18 inchangé).
+
+### Vérification DevSecOps — alertes Dependabot `main` (2026-07-29)
+
+**Constat, sans action de code.** GitHub signale 8 alertes Dependabot ouvertes sur `main` (2
+`high`, 6 `moderate`), toutes dans `frontend/package-lock.json` (npm) : `postcss` 8.5.13 (`high`,
+corrigé en `8.5.18`), `brace-expansion` (`high`, corrigé en `1.1.16`), `webpack-dev-server` 5.2.3
+(4 CVE `moderate`, corrigé en `5.2.6`), `@hono/node-server` 1.19.14 (`moderate`, corrigé en
+`2.0.5`) et `uuid` 8.3.2 (`moderate`, corrigé en `11.1.1`).
+
+Vérification effectuée sur `frontend/package.json` et `frontend/package-lock.json` : aucun des 5
+paquets ne figure dans `dependencies` (qui ne liste que le runtime Angular, Keycloak, RxJS,
+`tslib`, `zone.js`) ; tous sont marqués `"dev": true` dans le lockfile, transitifs via l'outillage
+`@angular-devkit/build-angular`/`@angular/cli`/`karma*`. **Confirmé : dépendances de développement
+uniquement, sans exposition runtime Production**, motif déjà consigné lors du Gate Production
+`1.9.0` (« quatre alertes npm transitives de développement… non bloquantes, sans exposition
+runtime »).
+
+Aucun bump de dépendance ni `npm audit fix` n'a été exécuté par cette vérification — un correctif
+relèverait d'un Plan d'Exécution distinct sous gouvernance DevSecOps.
