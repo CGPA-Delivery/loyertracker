@@ -277,6 +277,24 @@ GO, GO sous réserve ou NO GO. Les pré-requis encore ouverts de cette checklist
 Architect `RSV-MIG-611-04`, décision sur `RSV-STG-N2-01`, ajout du destinataire vérifié Twilio)
 restent à lever avant l'ouverture de cette ré-instruction.
 
+### Mise à jour — avis Enterprise Architect rendu sur RSV-MIG-611-04 (2026-07-29)
+
+**Avis produit** dans `docs/cgpa/05-architecture-conception/dossier-architecture.md` §11
+(addendum §3.6 sur le modèle de données, §4 sur la décision OpenAPI, §5.4 sur la continuité
+ADR-08/ADR-18, §7 sur l'ajout d'ADR-18 à la table récapitulative, §8 sur les risques externes).
+Constat central : le Lot A tel que livré (commit `6a56ef1`) n'introduit **aucun endpoint REST
+nouveau** — seuls une fonction SQL `SECURITY DEFINER` (V29) et de la logique de dispatch interne
+sont ajoutés — contrairement à l'hypothèse initiale du Plan d'Exécution. La décision OpenAPI
+requise par la réserve est rendue : dette pré-existante au projet, non aggravée par ce Lot, ne
+bloquant pas ce Gate.
+
+**Effet sur la décision.** Cet avis est une **opinion spécialisée EA**, pas une décision de Gate ni
+une clôture de réserve : conformément à l'Agent Operating Model CGPA, la clôture formelle de
+`RSV-MIG-611-04` dans `docs/project-state.md` reste subordonnée à la consolidation du CDO humain.
+Le pré-requis « Confirmation Enterprise Architect » de la checklist de ré-instruction passe de
+« à obtenir » à **« avis rendu, consolidation CDO requise »**. Aucun bloqueur architectural n'a été
+identifié pour ce Lot.
+
 ## Rappels de verrous
 
 - **K8 / ADR-18 inchangé** : aucune activation de canal externe en Production, aucun credential

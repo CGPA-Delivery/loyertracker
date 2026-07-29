@@ -171,6 +171,51 @@ malgré la RLS `bailleur_isolation` sur `affectation`) : fonction `SECURITY DEFI
 Détail complet des colonnes et décisions : `adr/ADR-16-gestion-personnes.md` (D1-D8),
 `docs/cgpa/04-cahier-des-charges/addendum-personnes.md` (§4).
 
+### 3.6 Extension EP-16 — Notifications multicanales (Sprints N/N+1/N+2 Lot A, additif)
+
+> Ajout additif post-Gate 4 (ADR-18/D-NOTIF-001, migrations V27/V28/V29, toutes additives) — les
+> sections 3.1→3.5 historiques sont conservées telles quelles. **Avis Enterprise Architect —
+> RSV-MIG-611-04**, produit le 2026-07-29 sur les faits vérifiés du commit `6a56ef1` (PR #291,
+> fusionnée `ac374193`).
+
+```
+Bailleur (1) ───< (N) NotificationPreference (RLS bailleur_id)
+    │
+    └───< (N) NotificationEvent ──> (N) NotificationOutbox (Voie A) ──> (0..1) NotificationDelivery
+                                          │
+                                          └──< uq_notification_outbox_idempotence (unicité fallback)
+
+NotificationTemplate (global, hors RLS — catalogue de messages approuvés)
+```
+
+| Table / fonction | Rôle | Points structurants |
+|---|---|---|
+| `notification_preference`, `notification_event`, `notification_outbox`, `notification_delivery` *(V27)* | Modèle Outbox du domaine notifications | RLS `bailleur_isolation` (pattern ADR-01) ; `notification_template` seule table globale hors RLS (catalogue) |
+| `generer_alertes()` *(V27, étendue)* | Fonction pré-existante étendue pour alimenter l'Outbox | `SECURITY DEFINER`, patron déjà en usage (cf. §3.4 quittances) |
+| `notification_bailleurs_en_attente()` *(V28)* | Découverte cross-tenant des bailleurs ayant des lignes Outbox échues | `SECURITY DEFINER STABLE`, retour = liste d'UUID uniquement (aucune donnée métier) |
+| `notification_delivery_appliquer_statut()` *(V28)* | Application idempotente et **forward-only** du callback de statut Twilio | `SECURITY DEFINER`, `SELECT … FOR UPDATE` puis `UPDATE` conditionnel — aucune régression de statut possible |
+| `notification_envois_du_mois()` *(V29, Lot A US-126)* | Lecture agrégée de la consommation budgétaire mensuelle, tous bailleurs confondus | `SECURITY DEFINER STABLE`, retour = `count(*)` strict, **aucune PII ni donnée métier exposée** ; owner `loyertracker_batch` (BYPASSRLS), `EXECUTE` accordé à `loyertracker_api` seul |
+
+**Continuité d'architecture (Architecture Continuity Check).** Le patron « fonction `SECURITY
+DEFINER` étroite, agrégat ou identifiants seuls, jamais de contournement RLS générique » est
+désormais utilisé **quatre fois** (V22 lecture publique de quittance, V24 vérification
+d'archivage Gestionnaire, V28, V29) sans jamais avoir été formalisé comme décision d'architecture
+transverse dédiée — chaque occurrence a été motivée localement dans sa propre migration/ADR. Ce
+n'est **pas une incohérence** (chaque usage respecte la même discipline), mais une **dette de
+gouvernance mineure** : recommandation non bloquante de consolider ce patron en un ADR transverse
+(« Fonctions `SECURITY DEFINER` comme unique échappatoire RLS contrôlée ») lors d'un prochain lot
+architecture, plutôt que de le laisser implicite.
+
+**Point de vigilance résolu — ADR-08 §5.4.** ADR-08 (Nginx reverse proxy) affirme *« aucune
+intégration externe au MVP (pas de SMTP, banque, paiement) »*. Cette affirmation est **superseded**
+dans le périmètre du module notifications par ADR-18 (Twilio WhatsApp/SMS), sans remettre en cause
+le reste de la décision ADR-08 (Nginx demeure le seul point d'entrée publié, `443` uniquement ; les
+appels Twilio sortent du backend, ils n'ouvrent aucun port entrant supplémentaire). Absence
+d'annulation implicite vérifiée : le §5.4 ci-dessous est mis à jour en conséquence.
+
+Détail complet : `adr/ADR-18-notifications-multicanales-twilio.md` (D-NOTIF-001, K3/K5/K8,
+budget et garde-fous).
+
 ---
 
 ## 4. Contrats d'API
@@ -191,8 +236,10 @@ Ressources REST métier, **toutes scopées `bailleurId`** au service layer, JWT 
 | `/api/invitations/{token}/acceptation` | POST | Accepter (crée compte EF-04) | **non authentifié** (token) |
 | `/api/audit-log` | GET | Journal d'audit | **BAILLEUR seul**, son `bailleurId` |
 | `/api/rgpd/export` · `/api/rgpd/locataires/{id}` | GET · DELETE | Export / effacement RGPD (ENF-04) | BAILLEUR seul |
+| `/api/batch/notifications` *(EP-16 Sprint N+1, US-123)* | POST | Déclenchement manuel du lot de dispatch notifications | BAILLEUR |
+| `/api/public/notifications/callback` *(EP-16 Sprint N+1, US-121/122)* | POST | Callback de statut Twilio (form-urlencoded) | **non authentifié** — validation par le fournisseur, hors JWT |
 
-> Les contrats détaillés (schémas req/resp, codes) seront figés en OpenAPI au début de la Phase 07, **après** Gate 4 Go.
+> Les contrats détaillés (schémas req/resp, codes) seront figés en OpenAPI au début de la Phase 07, **après** Gate 4 Go. **Constat RSV-MIG-611-04 (2026-07-29) :** cet engagement n'a jamais été exécuté — aucun fichier OpenAPI/Swagger n'existe dans le dépôt, pour aucun endpoint, notifications comprises. Le Lot A d'EP-16 Sprint N+2 (V29, US-124/US-126) **n'ajoute et ne modifie aucun endpoint** — la dette OpenAPI est donc **inchangée par ce lot précis**, mais reste **ouverte au niveau du projet** depuis la Phase 07. Décision EA : ne bloque pas le Gate Staging de ce Lot (aucune surface de contrat n'a évolué) ; recommandation non bloquante de statuer explicitement (formaliser maintenant, ou redéfinir un jalon daté) au plus tard avant l'instruction Frontend d'US-125, qui introduira le premier écran consommant ces contrats.
 
 ---
 
@@ -212,7 +259,15 @@ Ressources REST métier, **toutes scopées `bailleurId`** au service layer, JWT 
 Secrets **hors dépôt** (variables d'environnement / fichier `.env` non versionné, `.env.example` fourni). Aucun secret en clair (ENF-03, interdiction CLAUDE.md §6). Scan secrets en CI (Phase 07).
 
 ### 5.4 Surface d'attaque & reverse proxy (ADR-08)
-Volontairement minimale : **aucune intégration externe** au MVP (pas de SMTP, banque, paiement). **Nginx est le seul composant exposé** (port 443) ; Keycloak, le backend et PostgreSQL ne sont **pas** publiés (réseau Docker interne).
+Volontairement minimale au MVP : **aucune intégration externe** (pas de SMTP, banque, paiement). **Nginx est le seul composant exposé** (port 443) ; Keycloak, le backend et PostgreSQL ne sont **pas** publiés (réseau Docker interne).
+
+> **Mise à jour EP-16 (RSV-MIG-611-04, 2026-07-29) :** l'affirmation « aucune intégration externe »
+> est **superseded** dans le périmètre du module notifications par ADR-18 (Twilio WhatsApp/SMS,
+> appels HTTP sortants uniquement). Le reste de la décision ADR-08 est inchangé : Nginx demeure le
+> seul point d'entrée publié, aucun port entrant supplémentaire n'est ouvert. Le seul endpoint
+> public non authentifié introduit par ce module (`/api/public/notifications/callback`, Sprint
+> N+1) reçoit des callbacks Twilio entrants — surface à surveiller (cf. §8 Risques), déjà couverte
+> par le durcissement Nginx générique ci-dessous.
 - **Terminaison TLS** centralisée sur Nginx (certificat unique) ; trafic interne en clair sur le réseau privé Docker.
 - **Origine unique** (`/`→SPA, `/auth`→Keycloak, `/api`→backend) : simplifie le CORS (same-origin) et la politique de cookies.
 - **Durcissement Nginx :** en-têtes de sécurité (HSTS, CSP, `X-Content-Type-Options`, `X-Frame-Options`), masquage de version, limites de débit/taille de requête, timeouts.
@@ -250,8 +305,14 @@ Volontairement minimale : **aucune intégration externe** au MVP (pas de SMTP, b
 | ADR-06 | **Monolithe modulaire** Spring Boot (packages par domaine) | Microservices | Périmètre borné, dev solo, coût opérationnel nul |
 | ADR-07 | Intégrité métier par **index uniques partiels** PostgreSQL → 409 | Verrous applicatifs | Atomique, sûr en concurrence |
 | ADR-08 | **Nginx en reverse proxy** : point d'entrée unique (TLS), sert la SPA et proxy `/auth`→Keycloak (console + OIDC) et `/api`→backend | Exposer chaque service directement ; Traefik/Caddy | Surface d'attaque réduite (seul 443 publié), origine unique (CORS simplifié), TLS centralisé ; Nginx maîtrisé, léger, statique |
+| [ADR-18](adr/ADR-18-notifications-multicanales-twilio.md) | **Notifications multicanales (WhatsApp/SMS)** derrière une abstraction `NotificationProvider`, Twilio en implémentation unique, patron Outbox, fallback SMS fermé par défaut (K5), budget mensuel plafonné (défaut 0, US-126) | n8n / orchestrateur low-code ; fallback automatique dès le premier pilote ; SDK Twilio officiel | Découplage fournisseur, cohérence avec le cloisonnement RLS existant (fonctions `SECURITY DEFINER` étroites, cf. §3.6), coûts et risques externes bornés par construction |
 
-> ADR-01 à 03 sont détaillés en fiches dédiées (réserves Gate 2). ADR-04 à 08 sont consignés ci-dessus (décisions de moindre portée).
+> ADR-01 à 03 sont détaillés en fiches dédiées (réserves Gate 2). ADR-04 à 08 et ADR-18 sont
+> consignés ci-dessus (décisions de moindre portée ou additives post-Gate 4). **Constat
+> RSV-MIG-611-04 :** ADR-09 à ADR-17 (existants sous `adr/`, extensions patrimoine/personnes/
+> quittances/fin-de-bail) ne figurent pas non plus dans cette table récapitulative — dette de
+> documentation antérieure à ce lot, non traitée ici (hors périmètre de la présente réserve, qui
+> porte spécifiquement sur EP-16/V27/V28/V29) ; à consolider dans un futur toilettage du DAT.
 
 ### Mécaniques détaillées (Réserve 3)
 
@@ -279,6 +340,9 @@ Volontairement minimale : **aucune intégration externe** au MVP (pas de SMTP, b
 | Course sur création concurrente (bail/affectation) | Doublon métier | Index uniques partiels → 409 atomique (ADR-07) |
 | Batch raté un jour | Alerte/échéance retardée > J+1 | Idempotence : le run suivant rattrape sans doublon (ENF-08) |
 | Provisioning gestionnaire via Admin API | Couplage Keycloak | Encapsulé dans un adaptateur dédié (module `comptes`) |
+| Dépendance externe Twilio (coût, disponibilité, quotas) — EP-16 | Facture incontrôlée, ou canal externe déclenché hors politique | Kill switch `app.notifications.external.enabled` câblé en amont de tout appel réseau (US-126) ; plafond budgétaire mensuel (`notification_envois_du_mois()`, V29, défaut 0 = aucun envoi) ; fallback SMS fermé par défaut (K5) |
+| Prolifération de fonctions `SECURITY DEFINER` (échappatoire RLS) — EP-16 | Élargissement non maîtrisé de la surface de contournement RLS si le patron n'est pas discipliné | Chaque fonction bornée à un agrégat ou des identifiants, jamais de `SELECT *` métier ; revue systématique du grant `EXECUTE` ; recommandation de formaliser un ADR transverse (cf. §3.6) |
+| Callback public non authentifié (`/api/public/notifications/callback`) — EP-16 | Statut de notification falsifié si le endpoint est abusé | Application idempotente et forward-only (`notification_delivery_appliquer_statut`, V28) ; aucune donnée financière ni PII modifiable via ce chemin |
 
 ---
 
@@ -305,6 +369,49 @@ Volontairement minimale : **aucune intégration externe** au MVP (pas de SMTP, b
   1. ✅ *Résolu* — loyer à terme échu confirmé par le décideur (cf. §7, EF-33).
   2. Outiller la CI/CD + suite de tests d'autorisation dès le 1er lot de dev (Phases 06–07).
 - **Date & responsable :** 2026-06-04 — jptshilombo@gmail.com (décideur Gate 4).
+
+---
+
+## 11. Addendum — Avis Enterprise Architect, RSV-MIG-611-04 (2026-07-29)
+
+**Objet.** Réserve ouverte depuis la clôture de la migration CGPA v6.1.1, échéance « prochain
+changement architecture », preuve attendue « addendum DAT EP-16/V27/V28 et décision OpenAPI ».
+EP-16 Sprint N+2 Lot A (US-124, US-126 ; V29) constitue ce changement.
+
+**Périmètre vérifié.** Faits établis par lecture directe du commit `6a56ef1` (PR #291, fusionnée
+`ac374193` sur `main` le 2026-07-29) : migration V29 (§3.6), logique de dispatch/fallback/budget
+(`NotificationDispatcher`, `NotificationFallbackService`, `NotificationBudgetService`), absence de
+tout contrôleur ou endpoint nouveau, absence de tout fichier OpenAPI/Swagger dans le dépôt.
+
+**Constats.**
+1. Le « fonction SQL » et la « logique de dispatch nouvelles » anticipées par la réserve sont
+   confirmées et documentées ci-dessus (§3.6) — cohérentes avec le patron `SECURITY DEFINER` déjà
+   établi (V22/V24/V28), sans dérive.
+2. Contrairement à l'hypothèse initiale du Plan d'Exécution (« US-124 et US-125 introduisent de
+   nouveaux endpoints »), **le Lot A tel que livré n'introduit ni ne modifie aucun endpoint REST**
+   — seuls des composants internes (provider, dispatch, budget) et une fonction SQL sont ajoutés.
+   Les deux endpoints notifications existants datent du Sprint N+1 (US-121/122/123), non de ce Lot.
+3. **Décision OpenAPI (partie exigée par la réserve) :** aucune formalisation OpenAPI n'existe
+   pour quelque endpoint que ce soit dans ce projet — dette antérieure à ce lot (engagement de
+   Phase 07 jamais exécuté, §4). Ce lot ne l'aggrave pas. **Décision : ne bloque pas ce Gate**,
+   recommandation non bloquante de statuer avant le premier écran Frontend consommant ces contrats
+   (US-125).
+4. Écart mineur relevé entre les noms de métriques pré-esquissés par ADR-18 et ceux réellement
+   implémentés (§5 de ADR-18 vs `NotificationMetrics.java`) — sans impact fonctionnel ni sécurité,
+   documentation à réaligner lors d'une prochaine révision d'ADR-18.
+5. Continuité d'architecture vérifiée : aucune décision structurante antérieure n'est annulée
+   implicitement, à l'exception de la clause « aucune intégration externe » d'ADR-08 §5.4,
+   explicitement superseded et documentée comme telle (§5.4 ci-dessus).
+
+**Avis Enterprise Architect.** RSV-MIG-611-04 est **satisfaite pour le changement d'architecture
+porté par EP-16 Sprint N+2 Lot A**. Aucun bloqueur architectural n'est identifié pour ce Lot. Les
+points 3 et 4 ci-dessus sont des recommandations non bloquantes, non des réserves bloquantes.
+
+**Limite de cet avis.** Cet avis est une **opinion spécialisée**, au sens de l'Agent Operating
+Model CGPA (§9) : il ne constitue ni une décision de Gate, ni une autorisation de promotion. Seul
+le CGPA Chief Delivery Officer humain consolide cet avis avec les autres avis requis et prononce la
+décision de Gate. La clôture formelle de `RSV-MIG-611-04` dans le registre des réserves
+(`docs/project-state.md`) reste subordonnée à cette consolidation humaine.
 
 ---
 *Livrable CGPA v1.0 — Phase 05 (Architecture & conception). ⛔ Verrou de codage maintenu jusqu'à consignation du **Gate 4 Go**. Prochaine phase : 06 — Planification Agile (backlog).*

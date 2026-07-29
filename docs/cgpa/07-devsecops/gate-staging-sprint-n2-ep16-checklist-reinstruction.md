@@ -24,9 +24,12 @@ ce Sprint qui doivent être actées **avant** de commencer l'exécution de la ch
       du 2026-07-28 considérée superseded par cette confirmation. Cf. addendum du 2026-07-29 dans le
       dossier de décision. **Reste ouvert :** ajout effectif du/des destinataire(s) aux Verified
       Caller IDs Twilio, non encore constaté.
-- [ ] **Confirmation Enterprise Architect — `RSV-MIG-611-04`.** Le Lot A introduit une fonction SQL
-      et une logique de dispatch nouvelles ; l'EA confirme si un addendum DAT / décision OpenAPI
-      est requis avant promotion.
+- [x] **Avis Enterprise Architect — `RSV-MIG-611-04`.** Rendu le 2026-07-29 dans
+      `dossier-architecture.md` §11 : aucun endpoint nouveau (contrairement à l'hypothèse initiale
+      du Plan), fonction SQL V29 conforme au patron `SECURITY DEFINER` déjà établi, décision
+      OpenAPI rendue (dette pré-existante, non aggravée, non bloquante). **Reste ouvert :**
+      consolidation par le CDO humain avant clôture formelle de la réserve dans
+      `docs/project-state.md` (opinion spécialisée, pas une décision de Gate).
 - [ ] **Décision sur `RSV-STG-N2-01`.** `FLYWAY_EXPECTED` diverge entre `--ci` (29, dépôt) et
       `--host` (28, Production réelle tant que ce lot n'est pas déployé). Confirmer que
       l'opérateur exécutant `check-release-state.sh --host` sait interpréter cette dérive comme
