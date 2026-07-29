@@ -2385,3 +2385,39 @@ promotion ni un GO Staging/Production**. Le NO GO du Sprint N+2 du 2026-07-28 re
 vigueur — le blocage SMS Twilio (bloqueur 2) est seul, entier et inchangé, sans rapport avec ce lot
 d'outillage. Aucun déploiement, aucune promotion et aucune écriture en base de Production n'a été
 exécuté ni autorisé par cette fusion.
+
+### Confirmation PO — numéro Sandbox SMS Twilio provisionné (2026-07-29)
+
+Le PO a déclaré dans la conversation de pilotage, le 2026-07-29, qu'un numéro expéditeur Sandbox
+Twilio SMS est désormais provisionné (`+18777804236`) ainsi qu'un numéro destinataire de test
+(numéro personnel — non consigné en clair dans ce document versionné, PII hors périmètre de
+traçabilité CGPA ; disponible auprès du PO si nécessaire à l'exécution).
+
+**Effet sur le bloqueur 2 du NO GO Sprint N+2 (2026-07-28).** Cette déclaration lève la condition
+matérielle absente au Gate Staging (« aucun numéro SMS n'est provisionné ») : le critère
+d'acceptation central d'US-124 devient désormais **vérifiable en conditions réelles**. Ceci ne
+constitue toutefois ni un GO, ni une ré-instruction du Gate : conformément au chemin de
+remédiation (étape 5), le Gate Staging Sprint N+2 doit être **ré-instruit explicitement** —
+sauvegarde vérifiée, `STG-ISOL-01` avant/après, déploiement ciblé (`api` seul), smoke, puis
+vérification réelle du fallback SMS avec ce numéro — avant tout déploiement sur `ai-test-server`.
+Aucun credential Twilio n'a été déposé en configuration Production par cette déclaration (K8/
+ADR-18 inchangé).
+
+### Vérification DevSecOps — alertes Dependabot `main` (2026-07-29)
+
+**Constat, sans action de code.** GitHub signale 8 alertes Dependabot ouvertes sur `main` (2
+`high`, 6 `moderate`), toutes dans `frontend/package-lock.json` (npm) : `postcss` 8.5.13 (`high`,
+corrigé en `8.5.18`), `brace-expansion` (`high`, corrigé en `1.1.16`), `webpack-dev-server` 5.2.3
+(4 CVE `moderate`, corrigé en `5.2.6`), `@hono/node-server` 1.19.14 (`moderate`, corrigé en
+`2.0.5`) et `uuid` 8.3.2 (`moderate`, corrigé en `11.1.1`).
+
+Vérification effectuée sur `frontend/package.json` et `frontend/package-lock.json` : aucun des 5
+paquets ne figure dans `dependencies` (qui ne liste que le runtime Angular, Keycloak, RxJS,
+`tslib`, `zone.js`) ; tous sont marqués `"dev": true` dans le lockfile, transitifs via l'outillage
+`@angular-devkit/build-angular`/`@angular/cli`/`karma*`. **Confirmé : dépendances de développement
+uniquement, sans exposition runtime Production**, motif déjà consigné lors du Gate Production
+`1.9.0` (« quatre alertes npm transitives de développement… non bloquantes, sans exposition
+runtime »).
+
+Aucun bump de dépendance ni `npm audit fix` n'a été exécuté par cette vérification — un correctif
+relèverait d'un Plan d'Exécution distinct sous gouvernance DevSecOps.
