@@ -2445,3 +2445,25 @@ Sprint N+2 du 2026-07-28 reste la décision en vigueur — le bloqueur SMS Twili
 la ré-instruction explicite du Gate Staging (étape 5 du chemin de remédiation) avant tout
 déploiement sur `ai-test-server`. Aucun déploiement, aucune promotion et aucune écriture en base
 de Production n'a été exécuté ni autorisé par cette fusion.
+
+### Clôture post-fusion — traçabilité de la clôture de la PR #296 (PR #297)
+
+Le 2026-07-29, le validateur humain a déclaré dans la conversation de pilotage : « merge la PR
+297 ». Cette déclaration vaut **GO humain final** pour la fusion de la PR documentaire #297
+(`docs(cgpa): consigner la fusion de la PR 296 et les controles post-fusion`), limité à la fusion
+elle-même.
+
+La PR #297 a été fusionnée par le workflow GitHub protégé le **2026-07-29T14:50:38Z**, sans
+contournement administrateur. Le commit de fusion exact est
+`54cdded48b75263493347665e7a1ef4012288d07`, confirmé sur `origin/main`. Les contrôles
+**post-fusion sur `main`** à ce commit sont tous **PASS** : Backend, Frontend, Sécurité (gitleaks
++ SCA + Trivy), CodeQL `java-kotlin`/`javascript-typescript`, audit structurel CGPA et Registry
+Policy (« Quarantaine GHCR latest ») ; `Build/scan SBOM Docker` et `Publication, signatures et
+attestations` sont correctement **`skipped`**, le lot étant strictement documentaire, sans impact
+image. `CHECK-CICD-01` est **PASS au jalon post-fusion `main`**.
+
+Cette fusion consigne la clôture de la PR #296 elle-même — une chaîne documentaire de clôtures
+successives, chacune limitée à tracer la précédente. Conformément à `CLAUDE.md`, elle ne
+constitue **ni une promotion ni un GO Staging/Production**. Le NO GO du Sprint N+2 du 2026-07-28
+reste la décision en vigueur, inchangée par ce lot. Aucun déploiement, aucune promotion et aucune
+écriture en base de Production n'a été exécuté ni autorisé par cette fusion.
