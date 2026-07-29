@@ -2385,3 +2385,20 @@ promotion ni un GO Staging/Production**. Le NO GO du Sprint N+2 du 2026-07-28 re
 vigueur — le blocage SMS Twilio (bloqueur 2) est seul, entier et inchangé, sans rapport avec ce lot
 d'outillage. Aucun déploiement, aucune promotion et aucune écriture en base de Production n'a été
 exécuté ni autorisé par cette fusion.
+
+### Confirmation PO — numéro Sandbox SMS Twilio provisionné (2026-07-29)
+
+Le PO a déclaré dans la conversation de pilotage, le 2026-07-29, qu'un numéro expéditeur Sandbox
+Twilio SMS est désormais provisionné (`+18777804236`) ainsi qu'un numéro destinataire de test
+(numéro personnel — non consigné en clair dans ce document versionné, PII hors périmètre de
+traçabilité CGPA ; disponible auprès du PO si nécessaire à l'exécution).
+
+**Effet sur le bloqueur 2 du NO GO Sprint N+2 (2026-07-28).** Cette déclaration lève la condition
+matérielle absente au Gate Staging (« aucun numéro SMS n'est provisionné ») : le critère
+d'acceptation central d'US-124 devient désormais **vérifiable en conditions réelles**. Ceci ne
+constitue toutefois ni un GO, ni une ré-instruction du Gate : conformément au chemin de
+remédiation (étape 5), le Gate Staging Sprint N+2 doit être **ré-instruit explicitement** —
+sauvegarde vérifiée, `STG-ISOL-01` avant/après, déploiement ciblé (`api` seul), smoke, puis
+vérification réelle du fallback SMS avec ce numéro — avant tout déploiement sur `ai-test-server`.
+Aucun credential Twilio n'a été déposé en configuration Production par cette déclaration (K8/
+ADR-18 inchangé).
