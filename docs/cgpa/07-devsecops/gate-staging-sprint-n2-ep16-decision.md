@@ -56,8 +56,8 @@ de NO GO.
 | GO explicite Sprint N+2 | **PASS** | Instruction PO du 2026-07-28, distincte des GO Sprints N et N+1 |
 | Plan d'Exécution approuvé | **PASS** | `plan-execution-ep16-notifications.md` §Sprint N+2, mis à jour du séquencement |
 | Rapport d'exécution Sprint | **PASS** | PR #291 (description détaillée) + CHANGELOG `[Non publié]` |
-| **Incrément fusionné sur `main`** | **FAIL** | `origin/main` est à `43f9fbd` (PR #289). **PR #291 est en brouillon, non fusionnée** |
-| **Artefact candidat immuable identifié** | **FAIL** | **Aucune image GHCR n'existe** pour `6a56ef1b` — vérifié par lecture de l'API GHCR : 0 version portant un tag `sha-6a56ef1*`. Sans fusion, le job Packaging ne s'exécute pas |
+| **Incrément fusionné sur `main`** | **FAIL à l'instruction, résolu depuis — cf. Addendum** | `origin/main` est à `43f9fbd` (PR #289). **PR #291 est en brouillon, non fusionnée** |
+| **Artefact candidat immuable identifié** | **FAIL à l'instruction, résolu depuis — cf. Addendum** | **Aucune image GHCR n'existe** pour `6a56ef1b` — vérifié par lecture de l'API GHCR : 0 version portant un tag `sha-6a56ef1*`. Sans fusion, le job Packaging ne s'exécute pas |
 | **CI de la PR conclue** | **NON EXÉCUTÉ à l'instruction, FAIL constaté depuis — cf. Addendum** | À l'heure de l'instruction, `Backend (build + tests + couverture)` et `Analyse CodeQL (java-kotlin)` sont **encore en cours**. Contrôle applicable sans preuve ⇒ `non exécuté`, jamais `non applicable` |
 | **Capacité SMS Twilio provisionnée** | **FAIL** | Confirmation PO du 2026-07-28 : le compte couvre la Sandbox WhatsApp, **aucun numéro SMS n'est provisionné**. Or le critère d'acceptation central d'US-124 — « un unique SMS est tenté » — n'est **pas vérifiable en conditions réelles** sans lui |
 | Sauvegarde pré-déploiement | **NON EXÉCUTÉ** | Sans candidat, aucun déploiement n'est préparé |
@@ -178,6 +178,30 @@ provisionnée) **restent entiers et inchangés** — ni l'un ni l'autre ne dépe
 CI. **Le NO GO du 2026-07-28 reste donc la décision en vigueur.** Une CI au vert n'est qu'une
 condition parmi d'autres du chemin de remédiation (étape 1 désormais franchie) ; elle n'autorise
 ni fusion, ni promotion, ni ré-instruction du Gate à elle seule.
+
+### Mise à jour — PR #291 fusionnée, artefact publié (2026-07-29)
+
+**Actions effectuées**, chacune sur instruction explicite distincte : PR #291 marquée « ready for
+review », branche mise à jour contre `main` (`gh pr update-branch`), CI rejouée et conclue au vert
+sur le nouveau commit, puis **PR #291 fusionnée** par workflow protégé (`gh pr merge --merge`).
+
+| Vérification | Méthode | Résultat |
+|---|---|---|
+| Fusion sur `main` | `gh pr view 291 --json state,mergedAt,mergeCommit` | **`MERGED`**, `2026-07-29T09:08:17Z`, commit de fusion `ac374193e58a7f8733b29de47a407031b3c1fd12` |
+| CI sur `main` post-fusion | `gh run view` sur le run déclenché par le push de fusion | **`success`** sur tous les jobs, y compris `Publication, signatures et attestations` (`success` — pour la première fois de ce dossier, ce job n'est plus `skipping`) |
+| Artefact `loyertracker-api` | `GET /users/jptshilombo/packages/container/loyertracker-api/versions` | Tag **`sha-ac374193`** présent, digest `sha256:9603330ea530d2fe4e90b49a63e648c7a8b7679e8819f026f79e8108ca14557a`, publié `2026-07-29T09:16:00Z` |
+| Artefact `loyertracker-web` | `GET /users/jptshilombo/packages/container/loyertracker-web/versions` | Tag **`sha-ac374193`** présent, digest `sha256:3d7ddb5fff6346726492079414cbd0679ee3833dfe8721662cd00527024c4067`, publié `2026-07-29T09:16:08Z` |
+
+**Effet sur la décision.** Le bloqueur 1 (aucun artefact candidat immuable) est **levé** : un
+incrément fusionné existe sur `main`, et les deux images portent un tag `sha-<8>` immuable avec
+digest relevé. **Le bloqueur 2 (capacité SMS Twilio non provisionnée) reste seul, entier et
+inchangé** — il ne dépend ni de la CI ni de la fusion, mais d'une action hors périmètre CGPA
+(provisionnement PO/exploitant). **Le NO GO du 2026-07-28 reste donc la décision en vigueur** :
+conformément à `CLAUDE.md` (« aucun push ou merge ne vaut autorisation de promotion »), la fusion
+et la publication de l'artefact ne constituent **ni une promotion ni un GO Staging**. Le Gate
+devra être **ré-instruit explicitement** (étape 5 du chemin de remédiation) — avec le blocage SMS
+levé ou US-124 explicitement retirée du périmètre, sauvegarde vérifiée et `STG-ISOL-01`
+avant/après — avant tout déploiement sur `ai-test-server`.
 
 ## Rappels de verrous
 
