@@ -2551,3 +2551,44 @@ bloquante pour US-125 uniquement, sans rapport avec ce Lot A ; nouvelle réserve
 déploiement, aucune promotion et aucune activation Production** ; K8/ADR-18 inchangé. Prochaine
 action autorisée : instruire le Gate Production du Sprint N+2 (distinct), sur instruction PO
 explicite.
+
+### Gate Production Sprint N+2 Lot A — GO sous réserve, `PRODUCTION_READY` (2026-07-29)
+
+**Instruction explicite reçue dans la conversation de pilotage** : « instruis le Gate Production
+du Sprint N+2 ». Trois points ont été clarifiés avant instruction : (1) ce Gate porte **uniquement
+sur le Lot A** (US-124/126) — le Lot B (US-125) reste bloqué et hors périmètre ; (2)
+`RSV-MIG-611-04` est consignée en réserve ouverte, comme aux releases précédentes, sans exiger de
+confirmation Enterprise Architect préalable ; (3) des contrôles **en lecture seule** sur l'hôte de
+production (`loyertracker-prod-server`) ont été explicitement autorisés pour instruire ce Gate.
+
+**Constat live sur la Production, sans aucune mutation** : 8/8 conteneurs `healthy`,
+`RestartCount=0`, tag `sha-27dce09d` (`1.14.0`), Flyway **28/28**, digests API/Web (`sha256:089028b4…`
+/`sha256:7dbc551e…`) identiques octet pour octet à `infra/release/production-state.env` — **aucune
+dérive**. Le script `infra/release/check-release-state.sh --host` n'a pas pu être exécuté tel quel
+(le répertoire `infra/release/` est absent de l'hôte de production, même dérive que celle
+découverte et corrigée sur Staging la veille) ; la vérification a été effectuée **manuellement**
+par comparaison directe, avec un résultat strictement conforme. `.env` de production vérifié : 0
+occurrence Twilio/notification, K8/ADR-18 intact.
+
+**Décision : GO SOUS RÉSERVE, `PRODUCTION_READY`.** Candidat `sha-ac374193` (PR #291), version
+proposée `1.15.0`, migration V29 strictement additive (une fonction `SECURITY DEFINER`, aucune
+table/colonne modifiée), rollback trivial vers `sha-27dce09d`. Ce Gate **ne couvre pas
+l'activation Production des canaux externes** — conformément à K8 (ADR-18), l'« activation
+progressive post-P0 » exige la clôture en GO du **Sprint N+2 complet** (Lot A et Lot B), or Lot B
+reste bloqué. Le déploiement livrerait donc uniquement la **capacité** applicative (fallback SMS
+et garde-fous disponibles, conditionnels), tous les drapeaux externes restant à leurs valeurs
+sûres par défaut et **aucun credential Twilio n'étant ajouté au `.env` de production à ce stade**
+— exactement le même principe que le Gate Production du Sprint N+1 (`1.14.0`).
+
+**Réserves consignées, aucune bloquante pour ce GO** : `RSV-MIG-611-04` (Enterprise Architect)
+reportée à nouveau, sans échéance fixée ; `RSV-MIG-611-06` reste ouverte et bloquante pour
+US-125 uniquement ; nouvelle réserve `RSV-EP16-N2-02` (fallback SMS ne couvrant pas les échecs de
+livraison asynchrones, découverte au Gate Staging) ; nouvelle réserve sur la dérive
+`docker-compose.staging.yml`/`infra/release/` constatée sur **les deux hôtes** (Staging et
+Production), à résorber avant le prochain cycle. Détail complet :
+`docs/cgpa/09-production/gate-production-sprint-n2-ep16-decision.md`.
+
+**Portée.** Cette décision autorise uniquement un **Préflight Production**, action distincte à
+instruire explicitement. Conformément à `CLAUDE.md`, aucune mutation ni aucun déploiement
+Production n'a été exécuté ou autorisé par cette instruction ; `PRODUCTION_DEPLOYED` reste non
+atteint.
