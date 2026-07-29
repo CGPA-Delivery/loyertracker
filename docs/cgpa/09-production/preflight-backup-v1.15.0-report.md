@@ -88,17 +88,32 @@ Confirmé en double lecture :
   requis pour un retour arrière) ; V29 étant strictement additive, ce rollback reste viable
   **même après** application de la migration.
 
+## Écart de séquencement découvert — condition 4 du Gate Production reportée au déploiement technique
+
+Une première tentative de promotion de `CHANGELOG.md` en `[1.15.0]` dans ce même commit a été
+**rejetée par la CI** (`check-release-state.sh --ci` : « ÉCART RELEASE_VERSION=1.14.0 mais le
+CHANGELOG est en tête à 1.15.0 »). Ce contrôle, ajouté par le verrou R-V54-2 le 2026-07-27,
+n'existait pas encore lors des Préflights précédents (dont celui de `1.14.0`, qui avait promu le
+CHANGELOG à cette même étape sans que rien ne le détecte). `infra/release/production-state.env`
+déclare la version **réellement déployée en Production** (`RELEASE_VERSION`) ; la promouvoir avant
+tout déploiement effectif introduirait exactement l'écart de traçabilité que R-V54-2 a été conçu
+pour éliminer.
+
+**Correction** : `CHANGELOG.md` reste en `[Non publié]` à ce stade. Sa promotion en
+`[1.15.0] — <date>` sera effectuée **dans le même commit que `RELEASE_VERSION=1.15.0` dans
+`production-state.env`**, au moment du rapport de déploiement technique — même principe déjà
+appliqué à `FLYWAY_EXPECTED_PROD` (ne bouge qu'à la bascule effective, pas avant). La condition 4
+du Gate Production est donc **différée**, sans remettre en cause le verdict de ce Préflight.
+
 ## Verdict
 
-`CHANGELOG.md` `[Non publié]` couvrait déjà le Sprint N+2 Lot A ; promu en
-`[1.15.0] — 2026-07-29` dans le même commit que ce rapport (condition 4 du Gate Production).
-
 **Préflight Production `1.15.0` : PASS.** Toutes les conditions bloquantes du Gate Production
-(`gate-production-sprint-n2-ep16-decision.md`) sont satisfaites : (1) Production `1.14.0`
-vérifiée saine en lecture seule (aucune réserve de séquencement héritée), (2) backup base+globals
-produit et vérifié, (3) candidat `sha-ac374193` et rollback `sha-27dce09d` confirmés, (4)
-changelog promu, (5) **absence explicite de toute variable/credential Twilio confirmée**, flags
-externes à valeurs sûres, (6) smoke canonique ≥63 et contrôle 0 activité
+(`gate-production-sprint-n2-ep16-decision.md`) applicables à ce stade sont satisfaites : (1)
+Production `1.14.0` vérifiée saine en lecture seule (aucune réserve de séquencement héritée), (2)
+backup base+globals produit et vérifié, (3) candidat `sha-ac374193` et rollback `sha-27dce09d`
+confirmés, (4) **changelog à promouvoir au déploiement technique** (cf. écart ci-dessus,
+séquencement corrigé), (5) **absence explicite de toute variable/credential Twilio confirmée**,
+flags externes à valeurs sûres, (6) smoke canonique ≥63 et contrôle 0 activité
 `notification_outbox`/`notification_delivery` restent à exécuter **au déploiement technique**
 (prochaine étape), (7) déploiement/rollback devra cibler exclusivement `api` (aucun changement
 Web dans ce lot). **Aucun déploiement exécuté par ce Préflight.** Une instruction explicite

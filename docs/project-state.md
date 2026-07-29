@@ -2613,8 +2613,20 @@ occurrence, condition 5 du Gate Production).
 globals (1108 octets, SHA-256 `0abcbaa5…`), modes 600. Migration **V29 strictement additive**
 confirmée (une fonction `SECURITY DEFINER`, aucune table/colonne modifiée) : aucun second backup
 post-migration requis. Candidat `sha-ac374193` confirmé (digests Staging API `9603330e…`/Web
-`3d7ddb5f…`), rollback `sha-27dce09d` déjà présent localement sur l'hôte. `CHANGELOG.md` promu
-`[1.15.0] — 2026-07-29`.
+`3d7ddb5f…`), rollback `sha-27dce09d` déjà présent localement sur l'hôte.
+
+**Écart de séquencement découvert et corrigé** : une première tentative de promotion de
+`CHANGELOG.md` en `[1.15.0]` dans ce même commit a été **rejetée par la CI**
+(`check-release-state.sh --ci` : « ÉCART RELEASE_VERSION=1.14.0 mais le CHANGELOG est en tête à
+1.15.0 »). Ce contrôle, ajouté par le verrou R-V54-2 le 2026-07-27, n'existait pas encore lors des
+Préflights précédents (dont celui de `1.14.0`, qui avait promu le CHANGELOG à cette même étape
+sans être détecté). `RELEASE_VERSION` déclare la version **réellement déployée en Production** ;
+la promouvoir avant tout déploiement effectif aurait réintroduit l'écart que R-V54-2 doit
+justement éliminer. **Correction** : `CHANGELOG.md` reste `[Non publié]` ; sa promotion en
+`[1.15.0]` est différée au **même commit que `RELEASE_VERSION=1.15.0`** dans
+`production-state.env`, au moment du déploiement technique — même principe déjà appliqué à
+`FLYWAY_EXPECTED_PROD`. La condition 4 du Gate Production est reportée en conséquence, sans remise
+en cause du verdict PASS de ce Préflight.
 
 **Aucun déploiement, redémarrage ou mutation exécuté.** Rapport :
 `docs/cgpa/09-production/preflight-backup-v1.15.0-report.md`. **Autorisation explicite distincte
