@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+## [1.15.0] - 2026-07-30
+
 ### Ajouts — EP-16 Sprint N+2 Lot A : fallback SMS et garde-fous (US-124, US-126)
 
 - **US-124 — fallback SMS contrôlé.** Un échec WhatsApp classé `PERMANENT` peut déclencher un
