@@ -21,7 +21,7 @@ contrôle bloquant impose NO GO au Gate 04A. Conformément au Validation Framewo
 | Wireframes critiques | `phase-02-ui-mockups.md` (scope US-125 uniquement) | **Préparation en cours** | Oui |
 | Responsive | Stratégie documentée (`DSG-001.md` §Responsive Rules), aucun test exécuté | **Non exécuté** | Oui |
 | Accessibilité | Cible WCAG 2.2 AA documentée (`DSG-001.md` §Accessibilité), aucun audit exécuté | **Non exécuté** | Oui |
-| DSG-001 | Instancié en version 0.1.0 — **Proposé**, non validé par un Design Architect désigné | **Préparation en cours** | Oui |
+| DSG-001 | Instancié en version 0.1.0 — **Proposé**, avis rendu par le Design Architect désigné (Claude Code, 2026-07-30 — limite d'indépendance tracée, `agent-designations-loyertracker.md`) ; validation humaine indépendante et validation Product Owner non obtenues | **Préparation en cours** | Oui |
 | Cohérence multi-écrans | Mapping composants proposé (`DSG-001.md` §Composants), aucune implémentation | **Non exécuté** | Oui |
 | Performance UX/perçue | Non mesurée | **Non exécuté** | Non |
 | Tokens | Valeurs candidates reconstituées par comptage réel (`DSG-001.md` §Palette), non validées visuellement | **Préparation en cours** | Oui |

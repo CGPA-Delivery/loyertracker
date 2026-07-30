@@ -14,7 +14,7 @@
 | Statut | **Acceptée** (décision de socle) — mise en œuvre subordonnée au Plan d'Exécution `plan-execution-ux-ui-primeng-keycloak.md`, lui-même **PROPOSÉ — NON APPROUVÉ — CODE INTERDIT** |
 | Date de décision | 2026-07-30 |
 | Product Owner | jptshilombo@gmail.com |
-| Validateurs requis | Product Owner (décision de socle actée) ; UX/UI Design Lead — à désigner ; Design Architect — à désigner ; Frontend Architect — à désigner ; validation formelle de mise en œuvre au Gate 04A |
+| Validateurs requis | Product Owner (décision de socle actée) ; UX/UI Design Lead — **Claude Code, sous-agent CGPA désigné le 2026-07-30** (`agent-designations-loyertracker.md`) ; Design Architect — **Claude Code, sous-agent CGPA désigné le 2026-07-30** ; Frontend Architect — à désigner (rôle distinct, non couvert par cette désignation) ; validation formelle de mise en œuvre au Gate 04A |
 | Documents amont | `phase-02-user-journeys.md`, `phase-02-information-architecture.md`, `phase-02-design-system.md`, `phase-02-ui-mockups.md`, `UXR-001.md` (Gate 02A/US-125, 2026-07-30) |
 | Documents liés | `ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md`, `DSG-001.md` (instance projet), `design-decision-register.md`, `design-debt-register-loyertracker.md`, `addendum-backlog-ep17-ui-foundation-primeng-keycloak.md` |
 

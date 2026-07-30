@@ -49,8 +49,10 @@
 ### Lot 0 — Gouvernance et baseline
 
 * Finaliser/valider `DDS-LT-001`, `ADR-UI-001`, `UXR-001` (extension), `DSG-001` (v0.1.0 → version
-  validée) par les rôles CGPA requis (UX/UI Design Lead, Design Architect, Frontend Architect — à
-  désigner).
+  validée) par les rôles CGPA requis. **UX/UI Design Lead et Design Architect sont désignés**
+  depuis le 2026-07-30 (Claude Code, `agent-designations-loyertracker.md` — limite d'indépendance
+  tracée, une validation humaine indépendante reste recommandée) ; **Frontend Architect toujours à
+  désigner**.
 * Inventaire écrans/composants : `component-inventory-loyertracker.md`,
   `screen-inventory-loyertracker.md` (produits, à faire valider).
 * Baseline accessibilité : audit manuel des 11 composants existants contre WCAG 2.2 AA (non
@@ -242,5 +244,7 @@ sprint actif sans décision explicite du Product Owner.**
   Keycloak n'est autorisé tant que ce Plan n'est pas explicitement approuvé par le Product Owner
   et que les Gates 02A/04A applicables ne sont pas statués GO ou GO sous réserve.
 * Prochaine étape : soumission de ce Plan, de `DDS-LT-001`, `ADR-UI-001`, `DSG-001` et de
-  l'addendum backlog EP-17 au Product Owner et aux rôles CGPA requis (UX/UI Design Lead, Design
-  Architect, Frontend Architect, DevSecOps Lead).
+  l'addendum backlog EP-17 au Product Owner. UX/UI Design Lead et Design Architect sont désignés
+  (Claude Code) et ont rendu leur avis proposé (`UXR-001.md`, `DSG-001.md`) ; restent à désigner :
+  Frontend Architect, DevSecOps Lead. **La validation explicite du Product Owner reste, dans tous
+  les cas, non obtenue et non substituable.**
