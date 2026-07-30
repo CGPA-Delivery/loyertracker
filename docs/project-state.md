@@ -2633,3 +2633,56 @@ en cause du verdict PASS de ce Préflight.
 requise pour la suite ; `PRODUCTION_DEPLOYED` non atteint.** L'activation des canaux externes
 reste interdite jusqu'à la clôture en GO du Sprint N+2 **complet** (Lot A et Lot B), conformément
 à K8/ADR-18.
+
+### Déploiement technique Production `1.15.0` (EP-16 Sprint N+2 Lot A) — PASS (2026-07-30, ~12:27–12:33 UTC)
+
+**Instruction explicite reçue dans la conversation de pilotage** : « Instruis le déploiement
+technique de la Production 1.15.0 ». Conformément à la distinction déjà établie par ce projet
+(rapports `1.14.0`), ce périmètre couvre uniquement la bascule technique — pas la validation
+finale, distincte, à instruire séparément.
+
+**Re-contrôle avant bascule** : aucune dérive depuis le Préflight de la veille (8/8 `healthy`,
+`RestartCount=0`, Flyway 28/28, `bailleur-test` désactivé, 0 Twilio). Dépôt hôte synchronisé
+`git pull --ff-only` (`8908d1d` → `66c2f4a`), résorbant la réserve « `infra/release/` absent de
+l'hôte » notée au Gate. **Dérive supplémentaire découverte et corrigée** : le `.env` de production
+n'avait ni `API_IMAGE_REF` ni `WEB_IMAGE_REF` (encore sur l'ancien `LOYERTRACKER_TAG`), alors que
+`docker-compose.prod.yml` synchronisé les exige désormais — mêmes symptômes que la dérive
+Staging déjà documentée (chantier supply-chain RSV-MIG-611-05), non résorbée côté Production avant
+ce cycle. Corrigée en ajoutant les deux variables, `WEB_IMAGE_REF` reprenant le digest `1.14.0`
+inchangé (Nginx non touché par ce lot).
+
+**Backup frais** (`loyertracker-20260730-132952.dump`, 863686 octets, identique en taille au
+backup du Préflight — aucune écriture métier entretemps) puis bascule **ciblée `api` uniquement**
+(aucune commande Docker à portée globale) : pull + `up -d --no-deps api`, conteneur recréé à
+**2026-07-30T12:31:50Z**. Migration **V29** appliquée (Flyway 29/29, fonction
+`notification_envois_du_mois` confirmée en base). `nginx`/`postgres`/`keycloak` non recréés
+(`RestartCount=0`, `Created` inchangés).
+
+**Contrôles post-bascule** : `api` `healthy` ; `/healthz` et site public 200 ; Prometheus 5/5 ;
+Alertmanager 0 alerte active ; 0 5xx Nginx / 0 `ERROR` API ; `notification_outbox`/
+`notification_delivery` toujours à 0/0 (lecture seule, sans réactiver `bailleur-test`) ; `.env`
+toujours à 0 occurrence Twilio/notification ; rollback `sha-27dce09d` toujours présent localement.
+
+**`check-release-state.sh --host` résiduel, non bloquant** : après resynchronisation du dépôt hôte
+avec ce commit, seul subsistera un écart attendu — `nginx` continue d'exécuter la référence *tag*
+`loyertracker-web:sha-27dce09d` (contenu identique au digest déclaré) car non recréé dans ce lot ;
+se résorbera à la prochaine release touchant le Web.
+
+**`infra/release/production-state.env`** mis à jour dans ce même commit : `RELEASE_VERSION=1.15.0`,
+`PRODUCTION_TAG=sha-ac374193`, `PRODUCTION_API_IMAGE_REF` → nouveau digest, `FLYWAY_EXPECTED_PROD=29`.
+`PRODUCTION_WEB_IMAGE_REF` inchangé. `PRODUCTION_DEPLOYED_AT` **laissé à sa valeur `1.14.0`** —
+documente la confirmation `PRODUCTION_DEPLOYED`, qui n'intervient qu'à la validation finale, non
+encore instruite. `CHANGELOG.md` promu en `[1.15.0] - 2026-07-30`, comme prévu par l'écart de
+séquencement déjà documenté au Préflight. `check-release-state.sh --ci` PASS avant commit.
+
+**Écart de gouvernance R-V54-2 — non récidivé.** Contrairement à `1.11.0` et `1.14.0`, ce rapport
+est rédigé dans la même session que la bascule réelle, avec horodatages vérifiés sur l'hôte au
+moment de l'exécution.
+
+**`PRODUCTION_DEPLOYED` non prononcé par ce déploiement.** Rapport :
+`docs/cgpa/09-production/deploiement-technique-v1.15.0-report.md`. Conformément à CLAUDE.md et à
+tous les précédents de ce projet, ce travail est documenté sur une branche dédiée puis proposé en
+PR — **aucun merge sans instruction PO explicite et distincte**. **Prochaine action autorisée** :
+validation finale (smoke Production canonique + réactivation temporaire de `bailleur-test`),
+distincte, à instruire explicitement. L'activation des canaux externes reste interdite jusqu'à la
+clôture en GO du Sprint N+2 **complet** (Lot A et Lot B), conformément à K8/ADR-18.
