@@ -6,6 +6,39 @@
 
 
 
+## 0P. Déploiement Production `1.15.0` — 2026-07-30 (EP-16 Sprint N+2 Lot A) — **`PRODUCTION_DEPLOYED` le 2026-07-30 ~13:20 UTC**
+
+> **Déploiement technique réel le 2026-07-30 ~12:27–12:33 UTC** (bascule ciblée `api` uniquement,
+> migration V29 strictement additive appliquée, `nginx`/`postgres`/`keycloak` non recréés — cf.
+> `deploiement-technique-v1.15.0-report.md`), rédigé **dans la même session** que la bascule
+> (`R-V54-2` non récidivé, contrairement à `1.11.0`/`1.14.0`). Dérive corrigée au passage : `.env`
+> hôte encore sur l'ancien schéma `LOYERTRACKER_TAG`, `API_IMAGE_REF`/`WEB_IMAGE_REF` ajoutés.
+>
+> **Validation finale PASS le 2026-07-30 ~13:20 UTC** (`validation-finale-v1.15.0-report.md`),
+> sur autorisation PO explicite distincte du déploiement technique. Contrôle d'entrée conforme,
+> aucune anomalie. **Deux passages du smoke** : premier passage 64 PASS/1 FAIL (échec = dérive de
+> synchronisation du dépôt hôte avec les PR #304/#305 fusionnées entretemps, **pas une régression
+> applicative**, corrigée par `git pull --ff-only`) ; second passage **65 PASS / 0 FAIL au premier
+> passage propre**, code de sortie 0. `notification_outbox`/`notification_delivery` restés à **0**
+> tout au long des deux passages (17 `notification_event` cumulés). Nettoyage transactionnel
+> unique de **96 lignes** couvrant les deux RUN_ID (`1785417450`, `1785417509`), 4 comptes
+> Keycloak supprimés, `bailleur-test` redésactivé. Baseline métier et tables `notification_*`
+> restaurées à l'identique (3 bailleurs/2 patrimoines/8 biens/8 baux/8 garanties/13
+> mouvements/1 gestionnaire/8 locataires/7 quittances ; 34/0/0/3/0). **`PRODUCTION_DEPLOYED`
+> confirmé le 2026-07-30 ~13:20 UTC**, migration V29 stable en conditions réelles,
+> `NoopNotificationProvider` seul actif, aucun canal externe activé (K8/ADR-18 respecté et prouvé
+> sous smoke réel). Note non bloquante : 3 lignes `ERROR` API (pattern
+> `bailleur_keycloak_id_key` déjà documenté `1.10.0`/`1.14.0`, aucun impact fonctionnel).
+>
+> Réserves inchangées, aucune bloquante : `RSV-MIG-611-04` (Enterprise Architect, sans échéance),
+> `RSV-MIG-611-06` (bloquante US-125 uniquement, Lot B toujours hors périmètre),
+> `RSV-EP16-N2-02` (fallback SMS, couverture asynchrone). **Restent à instruire : hypercare
+> T0/T+12/T+24, puis clôture de release CDO**, distinctes. Rapports :
+> `docs/cgpa/09-production/gate-production-sprint-n2-ep16-decision.md`,
+> `docs/cgpa/09-production/preflight-backup-v1.15.0-report.md`,
+> `docs/cgpa/09-production/deploiement-technique-v1.15.0-report.md`,
+> `docs/cgpa/09-production/validation-finale-v1.15.0-report.md`.
+
 ## 0O. Déploiement Production `1.14.0` — 2026-07-24 (EP-16 Sprint N+1) — régularisé le 2026-07-27, **`PRODUCTION_DEPLOYED` le 2026-07-27 ~16:46 UTC, RELEASE CLÔTURÉE le 2026-07-28** ✅
 
 > **RELEASE `1.14.0` CLÔTURÉE — CDO GO (2026-07-28 ~15:49 UTC).** Hypercare complète et sans
