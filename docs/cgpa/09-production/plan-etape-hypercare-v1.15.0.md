@@ -61,7 +61,47 @@ générée entre la validation finale et ce T0. Aucun impact fonctionnel, aucune
 
 ## Checkpoint T+12 — cible 2026-07-31 ~01:20 UTC ± 30 min
 
-**À instruire.**
+**Statut : PASS — anticipé de ~12 h sur instruction PO explicite, valeur probante réduite**
+
+### Écart de fenêtre — anticipation majeure, qualifiée et non comparable aux précédentes
+
+Exécuté le **2026-07-30 à 13:38–13:39 UTC** (`date -u` vérifié), soit **T+0h18**, alors que la
+cible réelle T+12 est le 2026-07-31 ~01:20 UTC. Contrairement aux anticipations déjà tracées sur
+`1.7.0`/`1.8.0`/`1.14.0` (~1 h d'écart), **cet écart est de l'ordre de ~12 h** : quasiment aucun
+temps réel supplémentaire ne s'est écoulé depuis le T0 (13:27–13:28 UTC) au moment de ce contrôle.
+Ce checkpoint **ne peut donc pas apporter la même garantie qu'un T+12 réel** — il confirme
+seulement l'absence de régression dans les ~10 minutes suivant le T0, pas la stabilité sur 12 h de
+service. Exécuté sur **instruction PO explicite** (« Instruis le checkpoint T+12 »), après
+clarification du décalage de fenêtre et confirmation explicite de vouloir procéder malgré tout.
+
+**La cible T+24 n'est pas avancée en conséquence** : elle reste 2026-07-31 ~13:20 UTC (24 h réelles
+après `PRODUCTION_DEPLOYED`), afin de préserver au moins une observation à distance temporelle
+réelle significative sur ce cycle.
+
+| Contrôle | Résultat | vs T0 |
+|---|---|---|
+| Stack | 8/8 actifs, 4/4 `healthy`, `RestartCount=0` (`api` `StartedAt=2026-07-30T12:31:51Z` inchangé) | identique |
+| Tag / digests | `API_IMAGE_REF` `sha256:9603330e…`, `WEB_IMAGE_REF` `sha256:7dbc551e…` | identiques — aucune dérive |
+| Flyway | **29/29** | identique |
+| Tables `notification_*` | **34 `event`, 0 `outbox`, 0 `delivery`, 3 `template`, 0 `preference`** | identique |
+| Résidu du RUN_ID de validation | **0 ligne** sur `bailleur_id=c7296c69-…` | identique |
+| **Activité métier depuis le T0** | **0** ligne `audit_log` postérieure à `2026-07-30 13:28:00` | cohérent avec ~10 min écoulées |
+| Baseline métier | 3 bailleurs, 2 patrimoines, 8 biens, 8 baux, 8 garanties, 13 mouvements, 1 gestionnaire, 8 locataires, 7 quittances | inchangée |
+| Invariant financier | **0 écart** | identique |
+| `OBS-S10-01` | **0 ligne ambiguë** | identique |
+| Keycloak | `bailleur-test` `enabled=false` ; `directAccessGrantsEnabled=false` | identique |
+| Flags externes | `NOTIFICATIONS_EXTERNAL_ENABLED=false`, `TWILIO_WHATSAPP_ENABLED=false`, `TWILIO_SMS_ENABLED=false`, `NOTIFICATION_DRY_RUN=true` | identique |
+| Credentials Twilio (`.env`) | **0 occurrence** | identique |
+| Santé | `/healthz` 200 ; site public 200 | identique |
+| Observabilité | Prometheus **5/5** `up` ; Alertmanager **0 alerte** | identique |
+| Pool Hikari | `hikaricp_connections_pending` = **0** | identique |
+| Logs Nginx (70 min) | **0** ligne 5xx | — |
+| Logs API (20 min, hors fenêtre de la validation finale) | **0** entrée `ERROR` | amélioration vs T0 (2 résiduelles) |
+| Capacité | 30 Gio disque libres (23 %), ~1,7 Gio mémoire disponible, charge 0,47/0,17/0,12 | stable |
+
+**Aucun critère de suspension atteint.** Ce PASS ne dispense pas d'une observation à une échéance
+réellement éloignée dans le temps ; le T+24 réel (2026-07-31 ~13:20 UTC) reste la seule occasion de
+ce cycle d'observer un intervalle de service significatif.
 
 ## Checkpoint T+24 — cible 2026-07-31 ~13:20 UTC ± 30 min
 
