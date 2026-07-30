@@ -2802,6 +2802,29 @@ T0 a été exécuté quelques minutes après — **aucune nouvelle occurrence**,
 instruction PO explicite. Clôture de release CDO interdite avant que T+12 et T+24 ne soient
 statués.
 
+### Hypercare `1.15.0` — Checkpoint T+12 PASS, anticipé de ~12 h sur instruction PO explicite (2026-07-30 ~13:38–13:39 UTC)
+
+**Instruction explicite reçue dans la conversation de pilotage** : « Instruis le checkpoint T+12 ».
+Écart de fenêtre signalé avant exécution (cible réelle 2026-07-31 ~01:20 UTC, soit dans ~12 h ;
+exécution demandée à T+0h18) ; le PO a **confirmé explicitement vouloir procéder malgré tout**
+après clarification.
+
+**Cette anticipation est d'un ordre de grandeur différent des précédentes** (~12 h contre ~1 h pour
+`1.7.0`/`1.8.0`/`1.14.0`) : quasiment aucun temps réel ne s'est écoulé depuis le T0. Le résultat
+confirme l'absence de régression dans les ~10 minutes suivant le T0, **pas la stabilité sur 12 h de
+service réelles** — sa valeur probante est donc qualifiée en conséquence. **La cible T+24 n'est pas
+avancée** et reste 2026-07-31 ~13:20 UTC, seule occasion de ce cycle d'observer un intervalle de
+service réellement significatif.
+
+Tous les contrôles restent au vert et identiques au T0 : 8/8 actifs/4/4 healthy `RestartCount=0`,
+tag/digests conformes, Flyway 29/29, baseline et `notification_*` inchangées, 0 activité métier
+depuis le T0, invariant financier 0 écart, `OBS-S10-01` 0 ligne ambiguë, `bailleur-test` désactivé,
+flags externes sûrs, 0 credential Twilio, Prometheus 5/5, Alertmanager 0 alerte, Hikari pending 0,
+0 5xx, **0 `ERROR`** (les 2 résiduelles du T0 ont disparu de la fenêtre glissante). **Aucun critère
+de suspension atteint.** Détail : `docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md`.
+**Prochaine action autorisée** : checkpoint T+24 (cible réelle 2026-07-31 ~13:20 UTC), sur
+instruction PO explicite. Clôture de release CDO interdite avant que T+24 ne soit statué.
+
 ### Cadrage documentaire Gate 02A — quatre livrables Phase 02 produits + UXR-001 renseigné (2026-07-30) — aucune décision de Gate rendue
 
 **Chantier distinct du suivi hypercare `1.15.0` ci-dessus** : instruction reçue dans la conversation
@@ -2850,5 +2873,5 @@ instancier formellement par un Design Architect désigné.
 **Prochaine étape** : (1) désigner un UX/UI Design Lead et un Design Architect ; (2) validation
 explicite du PO et du UX/UI Design Lead sur les cinq documents ci-dessus ; (3) alors seulement,
 instruction formelle du Gate 02A. Aucun code Frontend n'est autorisé avant GO du Gate 02A puis du
-Gate 04A. Sans rapport avec le suivi hypercare `1.15.0` en cours ci-dessus, dont le prochain
-jalon (checkpoint T+12) reste inchangé.
+Gate 04A. Sans rapport avec le suivi hypercare `1.15.0` ci-dessus, dont le prochain jalon
+(checkpoint T+24) reste inchangé.
