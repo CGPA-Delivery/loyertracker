@@ -2686,3 +2686,31 @@ PR — **aucun merge sans instruction PO explicite et distincte**. **Prochaine a
 validation finale (smoke Production canonique + réactivation temporaire de `bailleur-test`),
 distincte, à instruire explicitement. L'activation des canaux externes reste interdite jusqu'à la
 clôture en GO du Sprint N+2 **complet** (Lot A et Lot B), conformément à K8/ADR-18.
+
+### Fusion et contrôles post-fusion — PR #304 (déploiement technique Production 1.15.0)
+
+Le 2026-07-30, le validateur humain a déclaré dans la conversation de pilotage : « merge la PR
+304 ». Cette déclaration vaut **GO humain final** pour la fusion de la PR #304
+(`docs(cgpa): instruire le deploiement technique Production 1.15.0`), limité à la fusion
+elle-même.
+
+La PR #304 a été fusionnée par le workflow GitHub protégé le **2026-07-30T12:51:23Z**, sans
+contournement administrateur. Le commit de fusion exact est
+`1dd3c7713073d839bb2086a6634858959cb87f4f`, confirmé sur `origin/main`. Les contrôles CI de la PR
+étaient tous **PASS** avant fusion (`MERGEABLE`/`CLEAN`) ; `Build/scan SBOM Docker` et
+`Publication, signatures et attestations` correctement `skipped` (lot strictement documentaire,
+sans impact image).
+
+Les contrôles **post-fusion sur `main`** à ce commit sont tous **PASS** : Backend, Frontend,
+Sécurité (gitleaks + SCA + Trivy), CodeQL `java-kotlin`/`javascript-typescript`, audit structurel
+CGPA et Registry Policy (« Quarantaine GHCR latest ») ; `Build/scan SBOM Docker` et `Publication,
+signatures et attestations` restent correctement `skipped`. `CHECK-CICD-01` est **PASS au jalon
+post-fusion `main`**.
+
+Cette fusion consigne le passage en `main` du rapport de déploiement technique Production
+`1.15.0` (Lot A). Conformément à `CLAUDE.md`, elle ne constitue **ni une promotion ni un GO
+Staging/Production supplémentaire** : le déploiement technique réel avait déjà eu lieu sur l'hôte
+de production le 2026-07-30 avant l'ouverture de cette PR ; cette fusion n'en documente que la
+traçabilité Git. `PRODUCTION_DEPLOYED` reste non prononcé. **Prochaine action autorisée** :
+validation finale Production (smoke canonique + réactivation temporaire de `bailleur-test`),
+distincte, à instruire explicitement.
