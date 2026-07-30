@@ -802,7 +802,9 @@ framework:
 * Version actuelle : 1.15.0 (SemVer) — **EN PRODUCTION** depuis le 2026-07-30 (`PRODUCTION_DEPLOYED` ~13:20 UTC, `sha-ac374193`, `https://loyertracker.loyerpro.org`) — cf. `docs/prod-state.md` §0P pour l'historique complet des releases jusqu'ici.
 * Depot : `/home/ubuntu/loyertracker`
 * Branche stable de référence : `main` alignée sur `origin/main` (`162154e`, merge PR #305). Production courante : **`sha-ac374193`** (Release `1.15.0`, `PRODUCTION_DEPLOYED` le 2026-07-30 ~13:20 UTC, migration V29 additive). La dernière release clôturée `1.14.0` (`sha-27dce09d`) reste le rollback applicatif documenté.
-* Derniere mise a jour : 2026-07-30 (**Cadrage documentaire Gate 02A pour US-125 — quatre livrables Phase 02 produits + `UXR-001` renseigné, aucune décision de Gate rendue.** Chantier distinct du suivi hypercare `1.15.0` ci-dessous : `phase-02-user-journeys.md`, `phase-02-information-architecture.md`, `phase-02-design-system.md`, `phase-02-ui-mockups.md` (tous rédigés par lecture directe du code existant, aucune donnée inventée) et `docs/cgpa/design/UXR-001.md` rempli à partir de ces quatre documents. Quatre DDS candidates identifiées (emplacement des préférences côté Gestionnaire, filtre/pagination de l'historique, mapping des statuts de notification, premier composant modal du produit) — aucune encore créée formellement. **Aucune décision GO/GO sous réserve/NO GO n'est prononcée** : conformément à l'autorité CGPA, elle reste au Chief Delivery Officer après avis d'un UX/UI Design Lead humain désigné et validation explicite du PO, ni l'un ni l'autre n'ayant encore eu lieu. Détail complet en §12. Prochaine étape : désigner UX/UI Design Lead et Design Architect, puis validation PO/Design Lead des cinq documents, avant toute instruction formelle du Gate 02A.)
+* Derniere mise a jour : 2026-07-30 (**Désignation de Claude Code comme sous-agent UX/UI Design Lead et Design Architect (EP-16/US-125, EP-17) — deux avis proposés rendus, aucune décision de Gate prononcée.** Sur instruction explicite du Product Owner (« désigne-toi UX/UI Design Lead et Design Architect »), désignation tracée dans `docs/cgpa/agents/agent-designations-loyertracker.md` (nouvelle instance projet, `agent-registry.md` générique non modifié) — conforme à `agent-operating-model.md` §2 (« agents IA et humains ») ; **Frontend Architect et DevSecOps Lead restent à désigner**, hors périmètre de cette instruction. **Avis UX/UI Design Lead rendu** (`UXR-001.md`, nouvelle section) : les points de contrôle Gate 02A sont majoritairement couverts (personas, journeys, IA, design system minimal, maquettes, accessibilité minimale) ; **proposition GO sous réserve**, la réserve bloquante étant l'absence de validation Product Owner elle-même (critère non substituable par un avis de sous-agent). **Avis Design Architect rendu** (`DSG-001.md`, nouvelle section) : fondations documentaires jugées suffisantes pour autoriser le Lot 0/1 du Plan d'Exécution, mais **proposition NO GO en l'état pour le Gate 04A** faute de toute preuve d'implémentation (cohérent avec `CHECK-UX-01-ep17-ui-foundation.md`, résultat agrégé inchangé NON EXÉCUTÉ). **Limite d'indépendance tracée explicitement dans les deux avis** : Claude Code est l'auteur des artefacts qu'il revoit ici, une revue humaine indépendante reste recommandée avant toute décision réelle de Gate. **Aucune décision GO/GO sous réserve/NO GO n'est prononcée par ce travail** : ces deux avis sont des propositions de sous-agent, la décision reste au Chief Delivery Officer (Product Owner) conformément à `chief-delivery-officer.md` (« il ne délègue jamais la décision finale à un sous-agent ») et à `CLAUDE.md` (autorité). Aucun code, aucune dépendance, aucun déploiement produits. Prochaine étape inchangée : validation explicite du Product Owner sur le dossier EP-17/US-125.)
+* Mise a jour precedente : 2026-07-30 (**Décision de socle UX/UI PrimeNG + Design Tokens LoyerTracker + thème Keycloak — `DDS-LT-001` Acceptée ; mise en œuvre non autorisée.** Le Product Owner a validé le socle Frontend : PrimeNG comme moteur de composants Angular, Design System propre à LoyerTracker comme source de vérité visuelle (tokens sémantiques `--lt-*`), continuité visuelle avec un futur thème Keycloak (sans dépendance technique). Angular Material et Tailwind global explicitement écartés. Documents produits : `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md`, `docs/cgpa/05-architecture-conception/adr/ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md`, `DSG-001.md` (instancié v0.1.0 Proposé), extension de `UXR-001.md` (recherche produit globale), `component-inventory-loyertracker.md`, `screen-inventory-loyertracker.md`, `traceability-ui-loyertracker.md`, mise à jour de `design-decision-register.md`/`design-debt-register-loyertracker.md` (DD-611-01→03 passées à Préparé/En traitement, jamais Clos ; 7 nouvelles dettes DD-EP17-01→07 ajoutées), `plan-execution-ux-ui-primeng-keycloak.md` (**PROPOSÉ — NON APPROUVÉ — CODE INTERDIT**), nouvel Epic **EP-17** (`addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`, US-127→142, 68 pts), instance `CHECK-UX-01-ep17-ui-foundation.md` (résultat agrégé **NON EXÉCUTÉ**, 0 PASS/6 Préparation en cours/7 Non exécuté), rapport final `docs/cgpa/reports/preparation-chantier-ui-primeng-keycloak-report.md`. **Aucune installation de PrimeNG, aucune modification Angular applicative, aucun thème Keycloak, aucune dépendance ajoutée** (`package.json`/`package-lock.json` non modifiés) — strictement documentaire. Dette UX concernée : `DD-611-01→04` (héritées) et `DD-EP17-01→07` (nouvelles, dont absence de thème Keycloak, aucun état accès-refusé/404, aucune source de tokens partagée tranchée, premier modal du produit sans précédent d'accessibilité). Gates requis avant tout code : Gate 02A (US-125, en cours), Phase 04A puis Gate 04A (Design Readiness) pour EP-17, Gate DevSecOps pour la future dépendance PrimeNG, Gate Staging (`STG-ISOL-01`) pour tout pilote Keycloak. **Action autorisée suivante : soumettre ce dossier et le Plan d'Exécution au Product Owner et aux rôles CGPA requis (UX/UI Design Lead, Design Architect, Frontend Architect, DevSecOps Lead — tous à désigner).** **Aucune installation PrimeNG, aucune modification Angular et aucun thème Keycloak ne sont autorisés tant que le Plan d'Exécution et le Gate Design Readiness ne sont pas approuvés.** Détail complet en §12.)
+* Mise a jour precedente : 2026-07-30 (**Cadrage documentaire Gate 02A pour US-125 — quatre livrables Phase 02 produits + `UXR-001` renseigné, aucune décision de Gate rendue.** Chantier distinct du suivi hypercare `1.15.0` ci-dessous : `phase-02-user-journeys.md`, `phase-02-information-architecture.md`, `phase-02-design-system.md`, `phase-02-ui-mockups.md` (tous rédigés par lecture directe du code existant, aucune donnée inventée) et `docs/cgpa/design/UXR-001.md` rempli à partir de ces quatre documents. Quatre DDS candidates identifiées (emplacement des préférences côté Gestionnaire, filtre/pagination de l'historique, mapping des statuts de notification, premier composant modal du produit) — aucune encore créée formellement. **Aucune décision GO/GO sous réserve/NO GO n'est prononcée** : conformément à l'autorité CGPA, elle reste au Chief Delivery Officer après avis d'un UX/UI Design Lead humain désigné et validation explicite du PO, ni l'un ni l'autre n'ayant encore eu lieu. Détail complet en §12. Prochaine étape : désigner UX/UI Design Lead et Design Architect, puis validation PO/Design Lead des cinq documents, avant toute instruction formelle du Gate 02A.)
 * Mise a jour precedente : 2026-07-30 (**Hypercare `1.15.0` — Checkpoint T0 PASS ~13:27–13:28 UTC**, ~7 min après `PRODUCTION_DEPLOYED`. 8/8 actifs, 4/4 healthy, `RestartCount=0`, tag/digests conformes, Flyway 29/29, baseline et `notification_*` (34/0/0/3/0) inchangées, invariant financier 0 écart, `OBS-S10-01` 0 ligne ambiguë, `bailleur-test` désactivé, flags externes sûrs, 0 occurrence Twilio, Prometheus 5/5, Alertmanager 0 alerte, 0 5xx. 2 `ERROR` relevées mais confirmées résiduelles de la validation finale elle-même (fenêtre glissante), aucune nouvelle occurrence. Aucun critère de suspension atteint. Détail : `docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md`. Prochaine action autorisée : checkpoint T+12 (cible 2026-07-31 ~01:20 UTC), sur instruction PO explicite.)
 * Mise a jour precedente : 2026-07-30 (**Validation finale Production `1.15.0` PASS — `PRODUCTION_DEPLOYED` confirmé ~13:20 UTC.** Deux passages du smoke canonique (64 PASS/1 FAIL puis 65 PASS/0 FAIL après resynchronisation `git pull` du dépôt hôte avec les PR #304/#305), nettoyage transactionnel unique de 96 lignes couvrant les deux runs, baseline et tables `notification_*` restaurées à l'identique, `bailleur-test` redésactivé. Migration V29 stable en conditions réelles, `NoopNotificationProvider` seul actif, aucun canal externe activé (K8/ADR-18). Réserves inchangées : `RSV-MIG-611-04/06`, `RSV-EP16-N2-02`. Restent à instruire : hypercare T0/T+12/T+24 puis clôture CDO. Détail : `docs/cgpa/09-production/validation-finale-v1.15.0-report.md`, `docs/prod-state.md` §0P.)
 * Mise a jour precedente : 2026-07-28 (**RELEASE `1.14.0` CLÔTURÉE — CDO GO (~15:49 UTC).** Hypercare complète et sans incident : T0 PASS, T+12 et T+24 **PASS sous surveillance**, aucun critère de suspension atteint sur les trois checkpoints. État relevé live à la clôture : tag `sha-27dce09d` et digests (`sha256:089028b4…` / `sha256:7dbc551e…`) inchangés depuis le Gate, Flyway **28/28**, 8/8 actifs et 4/4 `(healthy)` avec `RestartCount=0`, **invariant financier 0 écart**, contrôle `OBS-S10-01` **0 ligne ambiguë**, `notification_outbox`/`notification_delivery` **à 0**, credentials Twilio vides et absents du `.env`, `bailleur-test` désactivé, Prometheus 5/5, Hikari pending 0, **0 5xx et 0 `ERROR` depuis le boot**, baseline métier inchangée, site public 200. **K8/ADR-18 respecté et prouvé sous trafic réel non simulé.** **`R-V54-2` FERMÉ** — premier cycle où l'écart de traçabilité est non seulement consigné mais **structurellement neutralisé** par le verrou d'état de release. Réserves à la clôture : `RSV-PROD-EP16-N1-01` **satisfaite et permanente** jusqu'au GO du Sprint N+2 ; `RSV-PROD-EP16-N1-02` (observabilité notifications, US-126), `RSV-STG-01`, `RSV-GHCR-EXT-01`, `RSV-MIG-611-04/06` **maintenues**, toutes sans rapport avec `1.14.0` ; alerte `BackupHeartbeatMissing` active mais **non bloquante** (cron 02:15 UTC non joué hôte éteint). Deux écarts de fenêtre assumés et tracés : T+12 en rattrapage (contrainte d'exploitation) et **T+24 anticipé hors fenêtre sur instruction PO** (choix de pilotage) — d'où la qualification « sous surveillance » plutôt que `PASS` plein. **L'hypothèse « aucun trafic réel » est invalidée** et cesse d'être opposable ; cette clôture **ne vaut pas validation rétroactive** des qualifications antérieures qui s'en réclamaient. `1.14.0` devient la **base de rollback**. **Prochaine action autorisée = instruction PO explicite et distincte pour le GO du Sprint N+2 (US-124/125/126)**, dont l'achèvement conditionne toute activation de canal externe. Décision : `docs/cgpa/09-production/cloture-release-v1.14.0.md`.)
@@ -817,7 +819,7 @@ framework:
 * Mise a jour anterieure : 2026-07-27 (**Maintenance CI/dépendances — lot Dependabot, terminé, aucun impact Gate/Sprint/Staging/Production.** Onze PR fusionnées via merge commit sur `main` après CI GitHub intégralement verte (Backend, Frontend, CodeQL Java/Kotlin + JS/TS, Sécurité Gitleaks/SCA/Trivy, Packaging Docker), dans la nuit du 2026-07-26 au 2026-07-27 (22:34–23:39 UTC) : **#239** (`actions/setup-java` 5.4.0→5.6.0, merge `765bba6b`), **#242** (`actions/setup-node` 6.4.0→7.0.0, `d5df6463`), **#260** (correctif CodeQL, `e36259e0` — voir ci-dessous), **#248** (`fast-uri` 3.1.3→3.1.4, `441cd119`), **#264** (`typescript-eslint` 8.62.1→8.65.0, `886affb6`), **#210** (groupe `angular` 22.0.5→22.0.7, 11 paquets, `e340c15e`), **#187** (`@types/jasmine` 5.1.15→6.0.0, `68777e56`), **#263** (`eslint` 9.39.4→**10.8.0**, `abc8d9a0`), **#213** (`@eslint/js` 9.39.4→**10.0.1**, `373185c9`), **#261** (`actions/checkout` 7.0.0→7.0.1, `26d869a9`), **#262** (`docker/login-action` 4.4.0→4.5.1, `59c1e1d9`). **Incident CodeQL identifié et corrigé à la racine** : Dependabot avait scindé le bump `github/codeql-action` 4.36.3→4.37.3 en deux PR (**#241** `init`, **#243** `analyze`), toutes deux rouges en *configuration error* — « Not all workflow steps that use `github/codeql-action` actions use the same version » ; fusionner l'une **ou** l'autre aurait cassé CodeQL sur `main`. PR **#260** bumpe les deux étapes dans le même commit vers `e4fba868` (v4.37.3) et ajoute un groupe `codeql-action` dans `.github/dependabot.yml` (même motif préventif que le groupe `angular` de la PR #135) ; #241/#243 fermées sans merge. Vérification post-merge : le run CodeQL de `main` sur `e36259e0` est **success** et n'émet plus le warning de désynchronisation (0 occurrence dans le log complet). Deux majeures ESLint (`eslint` 10, `@eslint/js` 10) passées sans régression, ordre de merge imposé (`typescript-eslint` d'abord, qui ouvre le peer `eslint ^10`) et gate `npm run lint` du job Frontend vert à chaque étape ; compatibilité pré-vérifiée (`angular-eslint@22` et `typescript-eslint@8.65` déclarent `eslint: ^9.0.0 || ^10.0.0`). PR fermées sans merge par Dependabot lui-même en cours de lot : **#211**/**#212**, remplacées par **#263**/**#264** (versions plus récentes) lors de la réévaluation déclenchée par la modification de `dependabot.yml`. **PR volontairement reportée : #240** (`SonarSource/sonarqube-scan-action` 6.0.0→8.2.1) — non validable depuis une PR Dependabot (l'étape *Analyse SonarQube* y est sautée faute de secrets, la CI verte n'exerce pas le bump), double bump majeur dont v8.0.0 inverse le défaut de `skipSignatureVerification` et v7.0.0 embarque SonarScanner CLI 8.0.1.6346, et fenêtre inopportune au lendemain immédiat de la clôture de l'incident CI Sonar ; report motivé en commentaire sur la PR, pin conservé `fd88b7d7` (v6), à reprendre comme chantier dédié avec pré-validation contre l'instance réelle. Correctif de configuration au passage : les cinq labels déclarés dans `dependabot.yml` (`dependencies`, `backend`, `frontend`, `devsecops`, `docker`) n'existaient pas dans le dépôt — Dependabot les signalait comme introuvables depuis le 2026-07-13 — ils ont été créés et appliqués rétroactivement aux PR ouvertes. **Incident transitoire post-merge, résolu** : le run CI de `main` sur le dernier merge (`59c1e1d9`, run `30225720230`) a échoué au job *Packaging Docker*, étape *Push des images vers GHCR* — `unknown blob` après que plusieurs couches aient été poussées (l'authentification GHCR avait donc réussi, le bump `docker/login-action` n'est pas en cause). Cause retenue : les merges rapprochés de la chaîne déclenchent chacun un run `push` sur `main`, et le groupe de concurrence `ci-${{ github.ref }}` (`cancel-in-progress: true`) a **annulé** le run du merge précédent (`26d869a9`) en plein push, laissant un upload de couche incomplet côté registre. Relance du job seul : **success**, run `30225720230` intégralement vert (Backend, Frontend, Sécurité, Packaging Docker) — aucune modification de code nécessaire. Point de vigilance pour un prochain lot : espacer les merges consécutifs sur `main`, ou exclure le job de packaging de l'annulation par concurrence, le push GHCR n'étant pas idempotent lorsqu'il est interrompu. **Validation post-merge du lot : CI et CodeQL verts sur `59c1e1d9`, les deux Quality Gates SonarQube (backend et frontend) franchis** — le lot est prouvé en conditions réelles. Aucun changement fonctionnel, aucune migration SQL, aucun déploiement Staging ni Production autorisé par ce lot ; état release inchangé, prochaine étape inchangée = déploiement technique `1.14.0` sur instruction PO distincte.)
 * Mise a jour anterieure : 2026-07-26 (**Correctif CI — résolution du plugin SonarQube par coordonnées explicites (PR #257, merge `ffb789d4`).** Le run CI post-merge de la PR #256 sur `main` (run `30206844603`, 2026-07-26) avait échoué à l'étape *Analyse SonarQube* du job Backend — `mvn -B sonar:sonar` → `No plugin found for prefix 'sonar'` : résolution de préfixe non déterministe, dépendante d'un cache Maven chaud (le groupe `org.sonarsource.scanner.maven` n'est ni dans les `pluginGroups` ni déclaré dans `backend/pom.xml`). Aucun échec de test ni Quality Gate rouge ; contenu de la PR #256 documentaire pur, **aucun impact produit, Production `1.13.0` intacte**. Correctif : `.github/workflows/ci.yml` invoque désormais `org.sonarsource.scanner.maven:sonar-maven-plugin:sonar` (GAV explicite, version RELEASE inchangée). Checks pré-merge PR #257 7/7 verts. **Validation post-merge CONFIRMÉE le 2026-07-26** : le run CI de `main` sur le merge `ffb789d4` (run `30207562971`) est **success**, étape *Analyse SonarQube* franchie — le correctif est prouvé en conditions réelles, hors cache Maven chaud ; l'incident CI est **clos**. Confirmation redondante sur le merge suivant : trace documentaire mergée par la PR #258 (merge `3c06d98`, 2026-07-26 21:53 UTC), dont le job *Backend (build + tests + couverture)* du run `30222013475` est également **success**. Sans effet sur l'état release : prochaine étape inchangée = déploiement technique `1.14.0` (`api`+`nginx`, migration V28) sur instruction PO distincte, sans activer les canaux externes avant le GO du Sprint N+2.).
 * Mise a jour anterieure : 2026-07-24 (Préflight Production `1.14.0` (EP-16 Sprint N+1) — PASS. Backup vérifié, absence explicite de credential Twilio confirmée sur l'hôte de production, `CHANGELOG.md` promu `[1.14.0]`. Aucun déploiement exécuté ; prochaine étape : déploiement technique distinct (`api`+`nginx`, migration V28), sans jamais activer les canaux externes avant le GO du Sprint N+2.).
-* Agent ayant mis a jour le fichier : Claude Code — Cadrage documentaire Gate 02A / US-125, quatre livrables Phase 02 + UXR-001 (2026-07-30) ; précédemment Livraison verrou R-V54-2 (2026-07-27) ; précédemment Arbitrage R-V54-2 option (a) (2026-07-27) ; précédemment Hypercare 1.14.0 T0 (2026-07-27) ; précédemment Validation finale 1.14.0 (2026-07-27) ; précédemment Régularisation du déploiement technique 1.14.0 (2026-07-27) ; précédemment Resynchronisation documentaire des §14/§3 (2026-07-27) ; précédemment `sonarqube-scan-action` v8.2.1 (2026-07-27) ; précédemment Lot de maintenance Dependabot (2026-07-27), précédemment Correctif CI Sonar (2026-07-26), Hypercare `1.13.0` T0 (2026-07-23), Validation finale `1.13.0` PASS (2026-07-23) ; historiques antérieurs conservés dans les entrées chronologiques ci-dessus.
+* Agent ayant mis a jour le fichier : Claude Code — Désignation UX/UI Design Lead + Design Architect, avis proposés Gate 02A/04A (2026-07-30) ; précédemment Décision de socle UX/UI PrimeNG/Design Tokens/Keycloak (DDS-LT-001), EP-17 (2026-07-30) ; précédemment Cadrage documentaire Gate 02A / US-125, quatre livrables Phase 02 + UXR-001 (2026-07-30) ; précédemment Livraison verrou R-V54-2 (2026-07-27) ; précédemment Arbitrage R-V54-2 option (a) (2026-07-27) ; précédemment Hypercare 1.14.0 T0 (2026-07-27) ; précédemment Validation finale 1.14.0 (2026-07-27) ; précédemment Régularisation du déploiement technique 1.14.0 (2026-07-27) ; précédemment Resynchronisation documentaire des §14/§3 (2026-07-27) ; précédemment `sonarqube-scan-action` v8.2.1 (2026-07-27) ; précédemment Lot de maintenance Dependabot (2026-07-27), précédemment Correctif CI Sonar (2026-07-26), Hypercare `1.13.0` T0 (2026-07-23), Validation finale `1.13.0` PASS (2026-07-23) ; historiques antérieurs conservés dans les entrées chronologiques ci-dessus.
 
 ## 2. Resume executif
 
@@ -1728,6 +1730,13 @@ tenu à jour en §12)** : le Sprint N+2 est désormais scindé (Lot A US-124/126
 désignation d'un UX/UI Design Lead et d'un Design Architect, puis validation explicite du PO et du
 UX/UI Design Lead sur ces cinq documents. Aucun code Frontend US-125 n'est autorisé avant GO
 explicite du Gate 02A puis du Gate 04A.
+
+**Mise à jour du 2026-07-30 (suite)** : UX/UI Design Lead et Design Architect sont désormais
+désignés (Claude Code, `agent-designations-loyertracker.md`) et ont rendu un avis proposé — GO
+sous réserve pour Gate 02A (réserve = validation Product Owner non obtenue), NO GO en l'état pour
+Gate 04A (aucune preuve d'implémentation). **Aucune décision de Gate n'est prononcée par ces
+avis** ; la validation Product Owner reste l'unique étape manquante pour Gate 02A. Détail complet
+en §12.
 
 ## 15. Migration CGPA v5.3 — Release Management et UX/UI Governance
 
@@ -2875,3 +2884,165 @@ explicite du PO et du UX/UI Design Lead sur les cinq documents ci-dessus ; (3) a
 instruction formelle du Gate 02A. Aucun code Frontend n'est autorisé avant GO du Gate 02A puis du
 Gate 04A. Sans rapport avec le suivi hypercare `1.15.0` ci-dessus, dont le prochain jalon
 (checkpoint T+24) reste inchangé.
+
+### Décision de socle UX/UI PrimeNG, Design Tokens LoyerTracker et thème Keycloak — DDS-LT-001 Acceptée ; nouvel Epic EP-17 préparé (2026-07-30) — aucune installation, aucun code, aucun déploiement
+
+**Mission distincte du cadrage Gate 02A/US-125 ci-dessus**, bien que dépendante de ses livrables
+(`phase-02-*.md`, `UXR-001.md`) comme matière de départ. Instruction reçue : formaliser une décision
+de socle UX/UI déjà validée par le Product Owner — **PrimeNG + Design Tokens LoyerTracker + thème
+Keycloak personnalisé, sans Angular Material et sans Tailwind comme framework global** — et
+préparer, sans l'exécuter, le chantier correspondant.
+
+**Audit factuel préalable (aucune modification de code)** : Angular **22.0.8** exactement,
+architecture standalone (aucun `NgModule`), builder `@angular-devkit/build-angular:application`,
+`keycloak-angular` **22.0.0** (API fonctionnelle), `keycloak-js` **^26.2.4**, Keycloak **24.0**
+(image figée par digest, `docker-compose.yml`). **Aucune bibliothèque UI** n'existe à ce jour
+(`package.json` : uniquement `@angular/*`/`keycloak-*`/`rxjs`/`zone.js`) ; onze composants Angular
+réels seulement (`component-inventory-loyertracker.md`) ; aucun token nommé, chaque composant
+duplique ses propres couleurs en dur (24× `#334155`, 15× `#0f172a`, etc.) ; **aucun thème Keycloak
+personnalisé** (`grep` sur les deux fichiers de realm : 0 occurrence de `theme`) ; **aucune page
+« Mon profil » côté Gestionnaire** ; **aucun état « accès refusé »/404 uniforme** côté client (le
+fallback `**` redirige silencieusement, un 403 serveur n'est traduit par aucun composant dédié) ;
+mono-thème sombre de fait, aucune bascule claire/sombre réelle malgré `color-scheme: light dark`.
+
+**Livrables produits, tous documentaires** :
+
+* `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md` — décision **Acceptée**
+  (comparaison Material/PrimeNG/Tailwind/combinaison, conséquences, risques RSV-UI-01→06, dette,
+  réversibilité) ; `DDS-001.md` (gabarit générique) **non modifié**.
+* `docs/cgpa/05-architecture-conception/adr/ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md`
+  — architecture technique : compatibilité Angular 22 **non confirmée, aucune version PrimeNG
+  figée** (tâche de vérification inscrite au Lot 0, jamais une version inventée) ; deux options de
+  source de tokens partagée Angular/Keycloak comparées (JSON généré vs CSS commun), Option B
+  recommandée mais non tranchée définitivement ; interdictions de sécurité Keycloak reprises
+  intégralement.
+* `docs/cgpa/design/DSG-001.md` — **instancié en version 0.1.0 « Proposé »** à partir de
+  `phase-02-design-system.md` : tokens candidats marqués **non vérifiés visuellement**, mapping
+  composants PrimeNG envisagés, 16 composants `lt-*` candidats documentés sans être codés, point de
+  vigilance sur le premier modal du produit (aucun précédent de focus-trap).
+* `docs/cgpa/design/UXR-001.md` — **étendu** (additif, la revue US-125 existante n'est pas
+  modifiée) : profils Bailleur/Gestionnaire/Locataire (ce dernier explicitement sans interface),
+  irritants réellement observés dans le code, contraintes, parcours critiques transverses,
+  hypothèses explicitement non prouvées, recherche utilisateur manquante reconnue comme telle.
+* `docs/cgpa/design/component-inventory-loyertracker.md` et
+  `docs/cgpa/design/screen-inventory-loyertracker.md` — inventaire exhaustif des 11 composants et
+  des écrans réels, avec mention explicite des écrans **inexistants** (Locataires, Gestionnaires,
+  erreur/accès refusé, 404) pour ne pas laisser croire à une couverture UI qui n'existe pas.
+* `docs/cgpa/design/traceability-ui-loyertracker.md` — matrice Epic/Story/écran/DDS/DSG/composant/
+  tests, cases majoritairement **« À définir »**, prépare la levée de `DD-611-03`.
+* `docs/cgpa/design/design-decision-register.md` et
+  `docs/cgpa/design/design-debt-register-loyertracker.md` mis à jour : `DD-611-01` → **Préparé**,
+  `DD-611-02`/`DD-611-03` → **En traitement** (jamais Clos, aucune implémentation), `DD-611-04`
+  inchangée ; **7 nouvelles dettes DD-EP17-01→07** ajoutées (absence de thème Keycloak, aucun état
+  accès-refusé/404, source de tokens non tranchée, hétérogénéité de composants, premier modal sans
+  précédent d'accessibilité, spacing non normalisé, absence de sélecteurs de test).
+* `docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` — **statut PROPOSÉ —
+  NON APPROUVÉ — CODE INTERDIT**, découpage Lot 0 (gouvernance/baseline) à Lot 6 (extension
+  progressive), hors périmètre explicite (refonte globale, Material, Tailwind global, dark+light
+  simultanés, migration de données, remplacement de Keycloak).
+* `docs/cgpa/06-planification-agile/addendum-backlog-ep17-ui-foundation-primeng-keycloak.md` —
+  nouvel **Epic EP-17** (numérotation vérifiée libre après EP-16), **US-127 à US-142** (68 pts),
+  statut **Proposé — À arbitrer**, aucune story insérée dans un sprint actif.
+  `product-backlog.md` **non modifié** (convention déjà observée pour EP-09→EP-16 : le backlog
+  Gate 5 reste figé, chaque epic ultérieur vit dans son propre addendum).
+* `docs/cgpa/checklists/CHECK-UX-01-ep17-ui-foundation.md` — instance du gabarit `check-ux-01.md`
+  (non modifié) : **résultat agrégé NON EXÉCUTÉ** (0 PASS, 6 Préparation en cours, 7 Non exécuté),
+  jamais PASS sur la seule base de documents préparatoires.
+* `docs/cgpa/reports/preparation-chantier-ui-primeng-keycloak-report.md` — rapport final de
+  préparation (objet, périmètre, état réel, décision, fichiers créés/modifiés/non modifiés,
+  risques, dettes, Gates, preuves produites/non exécutées, écarts, recommandations, actions
+  autorisées/interdites, résumé exécutif).
+
+**Fichiers explicitement non modifiés** : `frontend/package.json`, `frontend/package-lock.json`,
+`frontend/angular.json`, tout fichier `frontend/src/**/*.ts|html|scss`, `backend/**`,
+`infra/keycloak/realm-*.json`, `docker-compose*.yml`, `.github/workflows/**` — vérifié par
+contrôle avant commit (`git diff --stat` limité aux fichiers documentaires).
+
+**Ce que cette décision ne fait PAS** : elle n'installe rien, ne code rien, ne déploie rien.
+`DDS-LT-001` est **Acceptée comme décision de socle** (le Product Owner a tranché le choix
+PrimeNG/Design Tokens/Keycloak), mais **la mise en œuvre reste entièrement subordonnée** à
+l'approbation explicite du Plan d'Exécution puis aux Gates 02A/04A applicables — aucune installation
+de PrimeNG, aucune modification de code Angular et aucun thème Keycloak ne sont autorisés tant que
+ce Plan et le Gate Design Readiness ne sont pas approuvés.
+
+**Prochaine action autorisée** : soumettre ce dossier complet (DDS-LT-001, ADR-UI-001, DSG-001,
+UXR-001 étendu, inventaires, matrice de traçabilité, registres mis à jour, Plan d'Exécution,
+addendum backlog EP-17, instance CHECK-UX-01) au Product Owner et aux rôles CGPA requis (UX/UI
+Design Lead, Design Architect, Frontend Architect, DevSecOps Lead — tous à désigner). **Actions
+interdites tant que cette validation n'est pas obtenue** : installation de PrimeNG, modification de
+`package.json`/`package-lock.json`, création ou modification de composants Angular applicatifs,
+modification des écrans existants, modification du comportement de Keycloak, déploiement d'un
+thème Keycloak, modification des fichiers de realm, toute action sur les environnements Dev,
+Staging ou Production. Sans rapport avec le suivi hypercare `1.15.0` (§ci-dessus), dont le
+prochain jalon (checkpoint T+12) reste inchangé et indépendant.
+
+### Désignation de Claude Code — UX/UI Design Lead et Design Architect (2026-07-30) — deux avis proposés, aucune décision de Gate
+
+**Instruction explicite reçue** : « désigne-toi UX/UI Design Lead et Design Architect ». Cette
+instruction s'appuie sur `agent-operating-model.md` §2, qui organise explicitement « l'usage
+coordonné des agents IA **et humains** » pour les sous-agents CGPA, et sur le fait que le mandat de
+la mission précédente combinait déjà ces responsabilités pour la rédaction. La désignation formelle
+elle-même — et non plus seulement la rédaction — était jusqu'ici restée ouverte (« à désigner »)
+dans tous les documents produits.
+
+**Désignation tracée** dans `docs/cgpa/agents/agent-designations-loyertracker.md` (nouvelle
+instance projet ; le gabarit générique `agent-registry.md` n'est pas modifié) : Claude Code occupe,
+pour le périmètre EP-16/US-125 (Gate 02A) et EP-17 (Gate 04A), les rôles **UX/UI Design Lead** et
+**Design Architect**. **Frontend Architect et DevSecOps Lead restent explicitement à désigner** —
+hors périmètre de l'instruction reçue, aucune extension non demandée.
+
+**Limites explicitement tracées dans le document de désignation** (reprises de
+`agent-operating-model.md`/`agent-routing-rules.md`/`chief-delivery-officer.md`) :
+
+* aucune décision de Gate (GO/GO sous réserve/NO GO) n'est autorisée par ces rôles — seule une
+  proposition d'avis, la décision restant au Chief Delivery Officer (Product Owner) ;
+* la validation Product Owner explicite, exigée par le Gate 02A même pour un GO sous réserve, ne
+  peut jamais être remplie par l'avis d'un sous-agent, quel qu'il soit ;
+* aucune dette de Design n'est close par cette seule désignation (preuve documentaire réelle
+  requise, Validation Framework CGPA v6.1.1 §5) ;
+* **limite d'indépendance** : Claude Code est l'auteur des artefacts (`DDS-LT-001`, `ADR-UI-001`,
+  `DSG-001`, `phase-02-*.md`, `UXR-001`) qu'il est ici appelé à revoir — ce n'est pas une revue
+  indépendante au sens habituel, et cette limite est tracée dans chaque avis produit plutôt que
+  passée sous silence.
+
+**Avis UX/UI Design Lead rendu** (`UXR-001.md`, nouvelle section « Avis UX/UI Design Lead — Gate
+02A ») : les onze points de contrôle du mandat `ux-ui-design-lead.md` sont vérifiés un par un ;
+dix sont couverts par les livrables déjà produits (personas, journeys, information architecture,
+design system minimal, maquettes, accessibilité minimale, etc.), seule la « validation Product
+Owner tracée » reste non satisfaite. **Proposition : GO sous réserve**, réserve unique et
+bloquante = validation Product Owner non obtenue (critère explicitement non substituable, cf.
+`gate-02A-ux-design-readiness.md`). Réserves non bloquantes reprises des DDS candidates déjà
+identifiées (emplacement Gestionnaire, mapping des statuts), échéances inchangées (avant Gate 04A).
+
+**Avis Design Architect rendu** (`DSG-001.md`, nouvelle section « Avis Design Architect — Gate
+04A / Revue Design ») : conformité au mandat `design-architect.md` vérifiée point par point (DSG
+maintenu, cohérence documentée mais non éprouvée, inventaire/mapping produits, UI Specifications
+**non produites** — dette non identifiée précédemment, ajoutée à titre de réserve non bloquante —
+dette de Design tracée sans clôture prématurée). **Proposition : NO GO en l'état pour le Gate
+04A** — non un jugement défavorable sur le socle documentaire (jugé suffisant pour autoriser le
+démarrage du Lot 0/1), mais l'application stricte de la règle d'agrégation du Validation
+Framework CGPA v6.1.1 (§8, règle 2 : « tout contrôle bloquant non exécuté impose NO GO ») : aucune
+preuve d'implémentation n'existe encore. Cohérent avec `CHECK-UX-01-ep17-ui-foundation.md`
+(résultat agrégé **inchangé, toujours NON EXÉCUTÉ** — cette désignation ne fait progresser aucune
+preuve technique, seulement la gouvernance documentaire).
+
+**Ce que cette désignation et ces avis ne font PAS** : aucune décision GO/GO sous réserve/NO GO
+n'est prononcée par ce travail sur le Gate 02A ni sur le Gate 04A — ce sont des propositions de
+sous-agent, tracées comme telles. La validation Product Owner explicite reste, dans tous les cas,
+à obtenir séparément. Aucun code, aucune dépendance, aucun déploiement n'ont été produits.
+
+**Documents modifiés** : `docs/cgpa/agents/agent-designations-loyertracker.md` (créé),
+`docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md`,
+`docs/cgpa/05-architecture-conception/adr/ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md`,
+`docs/cgpa/design/DSG-001.md` (avis ajouté), `docs/cgpa/design/UXR-001.md` (avis ajouté),
+`docs/cgpa/design/design-decision-register.md`,
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md`,
+`docs/cgpa/checklists/CHECK-UX-01-ep17-ui-foundation.md` — toutes les mentions « UX/UI Design Lead
+— à désigner » et « Design Architect — à désigner » de ces documents mises à jour de façon
+cohérente, celles concernant Frontend Architect/DevSecOps Lead/Security Architect Keycloak
+inchangées.
+
+**Prochaine action autorisée** : soumettre les deux avis proposés (Gate 02A GO sous réserve, Gate
+04A NO GO en l'état) et la désignation elle-même à la validation explicite du Product Owner ;
+désigner un Frontend Architect (et un DevSecOps Lead avant le Lot 1) ; envisager une revue humaine
+indépendante avant toute décision réelle de Gate, compte tenu de la limite d'indépendance tracée.
