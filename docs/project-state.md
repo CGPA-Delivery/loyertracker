@@ -3695,3 +3695,53 @@ matérielles) ; en parallèle, l'approbation explicite du Plan d'Exécution lui-
 distincte (`plan-execution-ux-ui-primeng-keycloak.md` §12), et l'obtention de la clé de licence
 PrimeNG Community reste une action externe au Product Owner, hors périmètre CLI
 (`rapport-licence-securite-primeng-lot0.md`).
+
+### Nouvelle instruction Gate 04A — préparation (2026-07-31) — décision Product Owner attendue
+
+**Instruction explicite reçue** : « fais la nouvelle instruction Gate 04A ». Nouvelle instance
+produite : `gate-04A-decision-ep17-lot0-v2.md`, requise par la clause d'invalidation cumulée sur
+trois évolutions matérielles (`DD-EP17-08` close, sous-bloqueurs `DD-611-02`/`DD-611-03` levés).
+`gate-04A-decision-ep17-lot0.md` (NO GO, 2026-07-31) n'est pas réécrite — préservation des
+décisions historiques.
+
+**Mises à jour de cohérence apportées** : `CHECK-UX-01-ep17-ui-foundation.md` (note : validation
+Product Owner de `DSG-001` désormais obtenue, agrégat inchangé) ; `CHECK-FRONTEND-01-ep17-ui-foundation.md`
+(note : contrôle « Stratégie d'état » reclassé Préparation en cours, agrégat révisé de 5/3 à 6/2
+Préparation en cours/Non exécuté) — avis d'origine non réécrits.
+
+**Ce que la nouvelle instance documente** : les deux checklists (`CHECK-UX-01`, `CHECK-FRONTEND-01`)
+restent agrégées **NO GO en l'état** — non plus à cause des trois bloqueurs désormais traités, mais
+parce que 8 contrôles bloquants de `CHECK-UX-01` et 2 de `CHECK-FRONTEND-01` (Budgets/performance,
+tests composant/a11y/responsive) restent structurellement « Non exécuté » : aucune preuve
+documentaire ne peut les satisfaire, seule une implémentation réelle le peut. La section 6 (décision
+GO/GO sous réserve/NO GO) est **volontairement laissée vide** — seul le Product Owner peut la
+compléter, conformément à `CLAUDE.md`.
+
+**Prochaine action autorisée** : le Product Owner complète `gate-04A-decision-ep17-lot0-v2.md` §6.
+Si la décision est GO sous réserve, elle devra définir explicitement le périmètre autorisé (ex.
+Lot 1 sous réserve continue de `DD-611-02`/`DD-611-03`, avec preuves de test/implémentation à
+produire au fil du Lot) ; dans tous les cas, l'approbation explicite du Plan d'Exécution
+(`plan-execution-ux-ui-primeng-keycloak.md` §12) et l'obtention de la clé de licence PrimeNG
+restent des actions distinctes, non couvertes par cette seule décision de Gate.
+
+### Décision Gate 04A rendue — GO sous réserve, périmètre Lot 1 (2026-07-31)
+
+**Décision Product Owner explicite** : « GO sous réserve, périmètre Lot 1 ». Section 6 de
+`gate-04A-decision-ep17-lot0-v2.md` complétée en conséquence. `gate-04A-decision-ep17-lot0.md`
+(NO GO, 2026-07-30/31) reste non réécrite — préservation des décisions historiques (`CLAUDE.md`).
+
+**Portée** : autorisation limitée à EP-17 Lot 1. Ne couvre pas Lot 2 et suivants — nouvelle
+instruction de Gate requise pour toute extension de périmètre. Réserves continues : les 8 contrôles
+bloquants restés « Non exécuté » (Budgets/performance et tests composant/a11y/responsive côté
+`CHECK-FRONTEND-01` ; 7 contrôles côté `CHECK-UX-01`) doivent produire leurs preuves d'implémentation
+au fil du Lot 1 — non substituables par de la documentation.
+
+**Ce que ce GO ne couvre pas** : ni l'approbation du Plan d'Exécution
+(`plan-execution-ux-ui-primeng-keycloak.md`, toujours « PROPOSÉ — NON APPROUVÉ — CODE INTERDIT »),
+ni l'obtention de la clé de licence PrimeNG Community — deux actions Product Owner distinctes,
+préalables à tout développement effectif du Lot 1 (verrou `CLAUDE.md` : « Aucun code applicatif
+sans Plan d'Exécution approuvé »).
+
+**Prochaine action autorisée** : le Product Owner statue sur l'approbation du Plan d'Exécution
+(§12) et sur l'obtention de la clé de licence PrimeNG. Le développement Lot 1 ne peut démarrer
+qu'après ces deux actions, sous réserve continue des preuves de test/implémentation ci-dessus.
