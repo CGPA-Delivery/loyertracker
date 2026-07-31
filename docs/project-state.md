@@ -3426,3 +3426,36 @@ avant ce choix.
 options de licence PrimeNG (§7 du rapport) ; en parallèle, poursuivre la levée des bloqueurs
 Gate 04A/EP-17 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`) ; envisager une revue explicite (pas
 automatique) de `DDS-LT-001` à la lumière de ce constat.
+
+### Confirmation Product Owner — éligibilité Community License PrimeUI (2026-07-31)
+
+**Instruction explicite reçue** : « confirme l'éligibilité Community License ». Avant
+d'enregistrer une auto-déclaration à portée de conformité (renouvelée annuellement selon les
+termes mêmes de PrimeUI), Claude Code a demandé une confirmation explicite plutôt que de la
+déduire de l'instruction seule.
+
+**Confirmation obtenue** : le Product Owner (jptshilombo@gmail.com) a confirmé explicitement que
+LoyerTracker remplit les quatre critères de la Community License PrimeUI (moins de 1 000 000 USD
+de revenu annuel brut, moins de 5 développeurs, moins de 10 employés, jamais reçu plus de
+3 000 000 USD de financement externe). **Cette confirmation est tracée comme une auto-déclaration
+du Product Owner** — Claude Code ne l'a pas et ne pouvait pas la vérifier indépendamment (données
+financières internes hors de sa portée), conformément à la nature déclarative de cette licence.
+
+**Effet** : l'écart 1 de `CHECK-DEVSECOPS-01-ep17-lot1-readiness.md` (réserve bloquante pour
+l'entrée en Lot 1) est **requalifié une seconde fois** — le choix de licence est fait (Community),
+l'éligibilité est confirmée, mais la réserve reste **ouverte** : il manque encore l'obtention
+effective de la clé de licence (création d'un compte `primeui.dev` et acceptation d'un accord de
+licence engageant l'organisation — **action externe que Claude Code ne peut pas accomplir**, au
+même titre que les comptes SonarQube ou l'accès GHCR déjà gérés hors CLI dans ce projet) et sa
+gestion comme secret hors code (DSO-03) une fois obtenue.
+
+**Documents modifiés** : `rapport-licence-securite-primeng-lot0.md` (§3, §7, §8 mis à jour),
+`CHECK-DEVSECOPS-01-ep17-lot1-readiness.md` (écart 1 et avis requalifiés — corrige au passage un
+défaut de mise en forme Markdown introduit dans la révision précédente, cellule de tableau
+contenant des sauts de ligne littéraux), `gate-06A-decision-ep17-lot1.md` §4,
+`plan-execution-ux-ui-primeng-keycloak.md` (§Lot 0 et récapitulatif mis à jour).
+
+**Prochaine action autorisée** : le Product Owner (ou une personne mandatée) crée le compte
+`primeui.dev` et obtient la clé de licence Community ; DevSecOps Lead définit la gestion de la clé
+comme secret hors code et un rappel de renouvellement annuel ; en parallèle, poursuivre la levée
+des bloqueurs Gate 04A/EP-17 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`).

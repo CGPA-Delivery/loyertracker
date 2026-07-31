@@ -39,16 +39,7 @@ l'ajout de PrimeNG sans modification de pipeline.
 
 | # | Écart | Bloquant pour Lot 1 ? | Responsable | Échéance |
 |---|---|---|---|---|
-| 1 | Rapport de compatibilité/licence/sécurité PrimeNG **produit le 2026-07-31**
-  (`rapport-licence-securite-primeng-lot0.md`) — révèle un fait nouveau et non anticipé par
-  `DDS-LT-001`/`ADR-UI-001` : PrimeTek a fermé le dépôt PrimeNG le 2026-06-28 et restructuré le
-  produit sous licence **PrimeUI** (Communautaire/Commercial) ; **seule `primeng@22.0.0`
-  (2026-07-15) supporte Angular 22, et elle n'est plus MIT**. Écart requalifié : le rapport existe,
-  mais la décision de licence à prendre par le Product Owner ne l'est pas encore | **Oui, pour
-  l'entrée en Lot 1** (pas pour la capacité Gate 06A elle-même — ce n'est pas un critère du Gate,
-  c'est un prérequis du Plan d'Exécution) | Product Owner (choix de licence), DevSecOps Lead
-  (gestion opérationnelle de la clé) | Avant toute installation effective de PrimeNG (avant
-  exécution du Lot 1) |
+| 1 | Rapport produit le 2026-07-31 (`rapport-licence-securite-primeng-lot0.md`) : PrimeNG a changé de licence (PrimeUI Community/Commercial, dépôt archivé 2026-06-28) ; Product Owner a choisi Community License le 2026-07-31 et confirmé son éligibilité (auto-déclaration) ; **reste à obtenir la clé de licence** (compte `primeui.dev`, action externe hors CLI) et à la gérer comme secret hors code | **Oui, pour l'entrée en Lot 1** (pas pour la capacité Gate 06A elle-même) | Product Owner (obtention de la clé), DevSecOps Lead (gestion secret + rappel renouvellement annuel) | Avant toute installation effective de PrimeNG (avant exécution du Lot 1) |
 | 2 | `DEVSECOPS-07` non exécuté | Non — aucun artefact EP-17 n'existe encore ; classé **non exécuté**, jamais `non applicable`, conformément à `CLAUDE.md` et au Validation Framework CGPA v6.1.1 §4-5 | DevSecOps Lead | Avant la première promotion d'un artefact EP-17 (fin de Lot 1 ou plus tard) |
 | 3 | `CHECK-CICD-01` non exécuté | Non — sections relatives à des jalons futurs explicitement exclues du résultat courant (`CHECK-CICD-01.md` §Résultat) | DevSecOps Lead | Avant Gate Staging du pilote (Lot 5) |
 | 4 | `STG-ISOL-01` non réexécuté pour EP-17 | Non — pertinent seulement au moment d'un déploiement Staging du thème Keycloak (Lot 4), sur `ai-test-server` mutualisé | DevSecOps Lead | Avant toute promotion Staging du Lot 4 (`plan-execution-ux-ui-primeng-keycloak.md` §Lot 4 : prérequis déjà tracé) |
@@ -58,12 +49,11 @@ l'ajout de PrimeNG sans modification de pipeline.
 **Proposition : GO sous réserve**, pour le périmètre Gate 06A / EP-17 avant Lot 1.
 
 * Réserve unique et non bloquante pour le Gate 06A lui-même, mais **bloquante pour l'entrée
-  effective en Lot 1** : écart #1. Le rapport lui-même est désormais produit
-  (`rapport-licence-securite-primeng-lot0.md`, 2026-07-31), mais il révèle que PrimeNG a changé de
-  licence (PrimeUI, Communautaire/Commercial) depuis la décision `DDS-LT-001` — la réserve reste
-  ouverte, requalifiée : ce n'est plus « produire le rapport » mais « choisir explicitement entre
-  Community License (sous réserve d'éligibilité à confirmer), Commercial License, ou reconsidérer
-  `DDS-LT-001` ».
+  effective en Lot 1** : écart #1. Le rapport est produit (`rapport-licence-securite-primeng-lot0.md`,
+  2026-07-31) et le Product Owner a tranché le même jour : **Community License PrimeUI, éligibilité
+  confirmée** (auto-déclaration). La réserve reste ouverte, mais requalifiée une seconde fois :
+  ce n'est plus un choix de licence à faire, mais l'obtention effective de la clé (action externe,
+  compte `primeui.dev`) et sa gestion comme secret hors code (DSO-03).
 * Réserves non bloquantes reportées à leurs jalons naturels (écarts #2, #3, #4), déjà tracées dans
   le Plan d'Exécution — aucune nouvelle échéance créée ici au-delà de ce qui y figure déjà.
 * Aucune exposition de secret connue ; aucune dépendance critique inconnue ; artefact et promotion
