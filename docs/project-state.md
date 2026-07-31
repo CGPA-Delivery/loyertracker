@@ -3046,3 +3046,53 @@ inchangées.
 04A NO GO en l'état) et la désignation elle-même à la validation explicite du Product Owner ;
 désigner un Frontend Architect (et un DevSecOps Lead avant le Lot 1) ; envisager une revue humaine
 indépendante avant toute décision réelle de Gate, compte tenu de la limite d'indépendance tracée.
+
+### Désignation de Claude Code — Frontend Architect et DevSecOps Lead (2026-07-31) — désignation seule, aucun avis rendu
+
+**Instruction explicite reçue** : « désigne un Frontend Architect et un DevSecOps Lead ». Cette
+instruction correspond exactement à la « Prochaine action autorisée » consignée ci-dessus le
+2026-07-30. Avant d'agir, deux points restaient ambigus (titulaire ; périmètre EP/Gate) : le
+Product Owner a confirmé explicitement (1) **Claude Code** comme titulaire des deux rôles, selon le
+même schéma que la désignation UX/UI Design Lead/Design Architect, et (2) le périmètre **EP-17
+(Gate 04A)** pour le Frontend Architect et **avant le Lot 1** (Gate 06A, DEVSECOPS-07) pour le
+DevSecOps Lead.
+
+**Désignation tracée** dans `docs/cgpa/agents/agent-designations-loyertracker.md` (deux nouvelles
+lignes, désignation additive — les entrées UX/UI Design Lead et Design Architect du 2026-07-30 ne
+sont pas modifiées) : Claude Code occupe désormais, pour le périmètre confirmé, les rôles
+**Frontend Architect** (`docs/cgpa/agents/frontend-architect.md`) et **DevSecOps Lead**
+(`docs/cgpa/agents/devsecops-lead.md`).
+
+**Limites explicitement tracées**, reprises et complétées dans le document de désignation :
+
+* aucune décision de Gate (GO/GO sous réserve/NO GO) n'est autorisée par ces rôles — Gate 04A et
+  Gate 06A compris — la décision reste au Chief Delivery Officer (Product Owner) ;
+* aucune levée du contrôle DEVSECOPS-07 ni du résultat agrégé **NON EXÉCUTÉ** de
+  `CHECK-UX-01-ep17-ui-foundation.md` par la seule désignation — un contrôle bloquant sans preuve
+  technique reste `non exécuté`, jamais `non applicable` (`CLAUDE.md`) ;
+* limite d'indépendance inchangée : Claude Code reste l'auteur des artefacts (`ADR-UI-001`,
+  `DDS-LT-001`, `DSG-001`, `plan-execution-ux-ui-primeng-keycloak.md`) qu'il serait ici appelé à
+  revoir en tant que Frontend Architect ou DevSecOps Lead ;
+* **aucun avis Frontend Architect ou DevSecOps Lead n'est produit par cette action** — l'instruction
+  reçue portait exclusivement sur la désignation, pas sur la production d'un avis pour Gate 04A ou
+  Gate 06A ; ce périmètre n'a donc pas été étendu au-delà de ce qui a été demandé.
+
+**Documents modifiés** : `docs/cgpa/agents/agent-designations-loyertracker.md` (deux lignes
+ajoutées, sections « autorise »/« n'autorise pas » complétées),
+`docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md`,
+`docs/cgpa/design/DSG-001.md` (deux mentions), `docs/cgpa/design/design-decision-register.md`,
+`docs/cgpa/05-architecture-conception/adr/ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md`,
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` — chaque mention
+« Frontend Architect — à désigner » et « DevSecOps Lead — à désigner » propre à ces deux rôles mise
+à jour de façon cohérente ; la mention « Security Architect Keycloak — à désigner » (ADR-UI-001)
+reste inchangée, hors périmètre de cette instruction.
+
+**Ce que cette désignation ne fait PAS** : aucune décision de Gate n'est prononcée ; aucun avis
+Frontend Architect ou DevSecOps Lead n'est rendu ; aucun code, aucune dépendance, aucun déploiement
+n'est produit. La validation Product Owner explicite du Gate 02A/04A reste, dans tous les cas, à
+obtenir séparément.
+
+**Prochaine action autorisée** : soumettre cette désignation à la validation explicite du Product
+Owner ; le cas échéant, demander la production d'un avis Frontend Architect (Gate 04A) et/ou d'un
+avis DevSecOps Lead (Gate 06A/DEVSECOPS-07) comme action distincte ; envisager une revue humaine
+indépendante avant toute décision réelle de Gate, compte tenu de la limite d'indépendance tracée.
