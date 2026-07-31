@@ -3459,3 +3459,40 @@ contenant des sauts de ligne littéraux), `gate-06A-decision-ep17-lot1.md` §4,
 `primeui.dev` et obtient la clé de licence Community ; DevSecOps Lead définit la gestion de la clé
 comme secret hors code et un rappel de renouvellement annuel ; en parallèle, poursuivre la levée
 des bloqueurs Gate 04A/EP-17 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`).
+
+### Avis de validation Design Architect — DD-611-02 (2026-07-31) — validation partielle, non close
+
+**Instruction explicite reçue** : « produis l'avis DD-611-02 avec le Design Architect ». Distinct
+de l'avis Gate 04A déjà rendu le 2026-07-30 (readiness du Gate) : celui-ci valide le **contenu**
+de `DSG-001.md`, `component-inventory-loyertracker.md` et `screen-inventory-loyertracker.md` —
+l'exigence précise du registre de dette (« validation Design Architect non obtenue »).
+
+**Méthode** : recoupement direct de chaque affirmation factuelle avec le code réel
+(`frontend/src/app/**/*.ts`), pas une relecture éditoriale. Six affirmations vérifiées exactes sur
+six recoupées : nombre de composants (11), lignes des deux dashboards (1177/336), occurrences de
+couleurs (`#334155` × 24, `#0f172a` × 15), couleurs `NavbarComponent`, absence de `data-testid`,
+nombre de routes (4).
+
+**Une inexactitude trouvée et corrigée** : `DSG-001.md` §Fondations généralisait à tort un rayon de
+bordure « constant » (`6px`) et un breakpoint « unique » (`640px`) à **tous** les composants —
+`VerifyReceiptComponent` (surface publique de vérification de quittance, priorité Élevée
+sécurité), vérifié par lecture directe de son code, utilise en réalité des radius `2/8/10/16/50%/999px`
+et un breakpoint `560px`, sans lien avec les valeurs généralisées. `component-inventory-loyertracker.md`
+indiquait pour ce même composant « aucune dette identifiée » — également inexact. **Nouvelle
+dette `DD-EP17-09`** tracée (Mineur, Design Architect, avant adaptation visuelle de
+`VerifyReceiptComponent`, déjà planifiée « en dernier »).
+
+**Verdict** : **Validation partielle**. Le contenu est globalement fiable et correctement sourcé ;
+l'inexactitude trouvée est corrigée dans les documents eux-mêmes plutôt que simplement signalée.
+`DD-611-02` reste **non close** : la preuve documentaire est désormais complète et vérifiée, mais
+la clôture d'une dette Majeur exige une preuve d'implémentation (aucun composant `lt-*` codé) —
+cohérent avec la décision Gate 04A déjà NO GO en l'état pour EP-17.
+
+**Documents modifiés** : `DSG-001.md` (§Fondations corrigé, nouvelle section « Avis de validation
+Design Architect — DD-611-02 »), `component-inventory-loyertracker.md` (ligne `VerifyReceiptComponent`
+corrigée), `design-debt-register-loyertracker.md` (`DD-EP17-09` ajoutée, `DD-611-02` mise à jour).
+
+**Prochaine action autorisée** : lever `DD-EP17-09` (harmonisation ou exception documentée pour
+`VerifyReceiptComponent`) au moment de son adaptation visuelle ; poursuivre la levée des bloqueurs
+Gate 04A/EP-17 restants (`DD-611-03`, `DD-EP17-08`) ; envisager la revue humaine indépendante déjà
+recommandée avant tout GO Gate 04A réel.
