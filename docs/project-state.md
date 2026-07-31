@@ -3190,3 +3190,38 @@ Product Owner ; produire le rapport de compatibilité/licence/sécurité PrimeNG
 stratégie d'état documentée (`DD-EP17-08`) pour progresser vers un GO du Gate 04A/06A ; envisager
 une revue humaine indépendante avant toute décision réelle de Gate, compte tenu de la limite
 d'indépendance tracée pour les quatre rôles.
+
+### Soumission des quatre avis au Product Owner — Gate 04A et Gate 06A, EP-17 (2026-07-31) — en attente de décision explicite
+
+**Instruction explicite reçue** : « soumets les quatre avis au Product Owner pour validation ».
+Claude Code consolide, sans les modifier, les quatre avis déjà rendus (UX/UI Design Lead,
+Design Architect, DevSecOps Lead, Frontend Architect) dans deux instances du gabarit CGPA
+`docs/cgpa/templates/go-no-go.md` — première utilisation de ce gabarit dans ce dépôt — l'un des
+avis (UX/UI Design Lead) ayant été rendu spécifiquement pour Gate 02A, non ré-instruit pour
+Gate 04A à ce jour.
+
+* **Gate 04A** : `docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md` — sections 1 à 5
+  renseignées (avis UX/UI Design Lead, Design Architect, Frontend Architect ; bloqueurs `DD-611-02`,
+  `DD-611-03`, `DD-EP17-08`, UI Specifications, validation PO Gate 02A). **Section 6 (Décision
+  finale) explicitement laissée vide.**
+* **Gate 06A** : `docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md` — sections 1 à 5
+  renseignées (avis DevSecOps Lead ; Delivery Architect et Enterprise Architect notés « non
+  consultés dans ce cycle, hors périmètre de l'instruction reçue » plutôt qu'un avis inventé). Ne
+  remplace ni ne rouvre `gate-06A-decision.md` (GO ratifié le 2026-06-16, périmètre projet
+  général) — confirme/étend cette capacité au périmètre EP-17. **Section 6 explicitement laissée
+  vide.**
+
+**Ce que cette soumission ne fait PAS** : elle ne prononce **aucune** décision de Gate — les deux
+documents attendent explicitement la décision du CGPA Chief Delivery Officer (Product Owner,
+jptshilombo@gmail.com), conformément à `chief-delivery-officer.md` (« Il ne délègue jamais la
+décision finale à un sous-agent ») et `CLAUDE.md`. Aucune des quatre désignations n'est validée par
+cette seule soumission — la validation Product Owner de la désignation elle-même
+(`agent-designations-loyertracker.md`) reste distincte et également en attente.
+
+**Documents modifiés** : `docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md` (créé),
+`docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md` (créé).
+
+**Prochaine action autorisée** : obtenir la décision explicite du Product Owner sur les deux
+instances (GO / GO sous réserve / NO GO), qui complètera lui-même la section 6 de chacune (ou
+mandatera Claude Code pour la transcrire mot pour mot après réception) ; à défaut de décision,
+aucune progression vers le Lot 1 n'est autorisée.
