@@ -3606,3 +3606,46 @@ postérieure à l'avis Frontend Architect, avis non réécrit).
 `DD-611-02`/`DD-611-03` sont ouverts) ; poursuivre en parallèle la levée de `DD-611-02` (validation
 Product Owner de l'avis Design Architect déjà rendu) et `DD-611-03` (hors portée tant que CODE
 INTERDIT reste en vigueur, cf. entrée du jour ci-dessus).
+
+### Acceptation Product Owner — DD-611-02 (2026-07-31) — validation humaine obtenue, dette non close
+
+**Décision explicite reçue** : le Product Owner (jptshilombo@gmail.com) a examiné le résumé de
+l'avis de validation Design Architect (`DSG-001.md` §Avis de validation, PR #318) — six affirmations
+factuelles recoupées avec le code réel, toutes exactes, une inexactitude trouvée et corrigée
+(généralisation du radius/breakpoint excluant à tort `VerifyReceiptComponent`, nouvelle dette
+`DD-EP17-09`) — et a répondu **« Acceptée sans réserve »**. Décision humaine directe, non déléguée,
+conformément à `CLAUDE.md`.
+
+**Différence explicite avec `DD-EP17-08`** : contrairement à `DD-EP17-08` (preuve purement
+documentaire, close intégralement par cette seule acceptation), l'avis Design Architect de
+`DD-611-02` conclut lui-même que la clôture d'une dette **Majeur** exige, conformément au
+Validation Framework CGPA v6.1.1 §5, une **preuve d'implémentation** — pas seulement une validation
+de contenu. Aucun composant `lt-*` n'est codé, `plan-execution-ux-ui-primeng-keycloak.md` reste
+PROPOSÉ — NON APPROUVÉ — CODE INTERDIT. L'acceptation du Product Owner ne peut donc **pas**
+manufacturer cette preuve manquante : elle lève uniquement le sous-bloqueur Gate 04A « DSG-001/
+inventaire non validés humainement » (`gate-04A-decision-ep17-lot0.md` §4, preuve attendue :
+« Validation Design Architect obtenue ») en fournissant la validation humaine requise par
+`CLAUDE.md` (aucun agent spécialisé ne remplace la validation humaine). La dette `DD-611-02` du
+registre reste **non close**.
+
+**Vérification préalable** : recontrôle qu'aucun fait matériel n'a changé depuis l'avis Design
+Architect du 2026-07-31 — aucun composant `lt-*` codé, dernier commit touchant `frontend/src/app`
+antérieur (`a483fe9`, 2026-07-17, EP-15), CODE INTERDIT toujours en vigueur.
+
+**Effet** : le sous-bloqueur Gate 04A « non validé humainement » de `DD-611-02` est **levé**
+(`gate-04A-decision-ep17-lot0.md` §4). Conformément à la clause d'invalidation §6, cette évolution
+matérielle invalide la décision Gate 04A existante (NO GO, 2026-07-31) et impose une nouvelle
+instruction du Gate 04A par le Product Owner — cette clôture partielle ne prononce pas elle-même un
+nouveau GO/NO GO. `DD-611-03` reste ouvert (hors portée tant que CODE INTERDIT en vigueur), et
+`DD-611-02` reste ouvert au sens de la dette registre (preuve d'implémentation manquante) : les deux
+rendraient vraisemblable un NO GO reconduit si l'instruction était redemandée aujourd'hui.
+
+**Documents modifiés** : `design-debt-register-loyertracker.md` (`DD-611-02` mise à jour, acceptation
+Product Owner tracée, statut « non close » maintenu) ; `gate-04A-decision-ep17-lot0.md` §4 (statut
+« Levé » pour le sous-bloqueur, dette registre distinguée explicitement).
+
+**Prochaine action autorisée** : obtenir une nouvelle instruction du Gate 04A par le Product Owner
+(requise par la clause d'invalidation, résultat attendu NO GO tant que `DD-611-02`/`DD-611-03`
+restent ouverts au sens de leurs registres respectifs) ; aucune voie de clôture de `DD-611-02` ou
+`DD-611-03` n'existe hors implémentation de composants sous un Plan d'Exécution approuvé — CODE
+INTERDIT reste la seule contrainte structurante restante.
