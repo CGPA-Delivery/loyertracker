@@ -10,7 +10,7 @@
 |---|---|
 | Identifiant | DDS-LT-005 |
 | Titre | Composant modal de confirmation (`lt-confirm-dialog`) — premier modal du produit |
-| Statut | **Proposée** — recommandation du Design Architect, en attente de validation Product Owner |
+| Statut | **Acceptée** — validation Product Owner explicite obtenue le 2026-07-31 |
 | Date | 2026-07-31 |
 | Responsable | Design Architect — Claude Code, sous-agent CGPA désigné le 2026-07-30 |
 | Version DSG | `DSG-001.md` v0.1.0 |
@@ -106,7 +106,12 @@ les exigences non négociables suivantes, applicables à toute instance présent
 
 ## Décision
 
-* **Statut : Proposée** (2026-07-31, Design Architect). Validation Product Owner requise pour
-  passer au statut **Acceptée**.
+* **Statut : Acceptée** — décision explicite du Product Owner (jptshilombo@gmail.com), 2026-07-31
+  (« valide DDS-LT-002→005 »), incluant les six exigences d'accessibilité non négociables §Décision
+  retenue.
+* Cette acceptation ne vaut ni GO, ni GO sous réserve, ni NO GO du Gate 04A applicable à US-125 —
+  elle clôt la réserve non bloquante DDS-cand-4 du Gate 02A
+  (`gate-02A-decision-ep16-us125.md` §4). `CHECK-ACCESSIBILITY-01` reste à exécuter contre ces six
+  exigences avant tout GO Gate 04A.
 * Aucune implémentation n'est autorisée par ce document, et ne pourrait de toute façon débuter
   avant la levée du préalable de compatibilité PrimeNG × Angular 22 (Lot 0).

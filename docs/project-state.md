@@ -3352,3 +3352,32 @@ chaque DDS ; elle ne prononce aucune décision de Gate 04A ; elle n'autorise auc
 **Prochaine action autorisée** : soumettre `DDS-LT-002→005` à la validation explicite du Product
 Owner (passage Proposée → Acceptée) ; poursuivre en parallèle la levée des bloqueurs Gate 04A/EP-17
 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`) et Gate 06A (rapport licence/sécurité PrimeNG).
+
+### Validation Product Owner — DDS-LT-002→005 Acceptées (2026-07-31)
+
+**Instruction explicite reçue** : « valide DDS-LT-002→005 ». Décision explicite du Product Owner
+(jptshilombo@gmail.com), transcrite mot pour mot dans la section Décision de chacune des quatre
+DDS : passage du statut **Proposée** à **Acceptée**, sur la base des recommandations du Design
+Architect déjà motivées dans chaque document (Option B pour DDS-LT-002, aucun filtre pour
+DDS-LT-003, mapping tel que proposé pour DDS-LT-004, six exigences a11y non négociables pour
+DDS-LT-005).
+
+**Effet sur le Gate 02A (US-125)** : les quatre réserves non bloquantes tracées en §4 de
+`gate-02A-decision-ep16-us125.md` (DDS-cand-1→4) sont **levées** — la décision Gate 02A elle-même
+(GO sous réserve, 2026-07-31) n'est pas rouverte, cette levée referme seulement les réserves déjà
+identifiées comme non bloquantes pour ce Gate.
+
+**Ce que cette validation ne fait PAS** : elle ne prononce aucune décision de Gate 04A applicable
+à US-125 (toujours non instruit) ; elle ne lève pas le préalable de compatibilité PrimeNG ×
+Angular 22 (Lot 0), qui continue de bloquer toute implémentation, `DDS-LT-005` comprise ;
+`CHECK-ACCESSIBILITY-01` reste à exécuter contre les six exigences de `DDS-LT-005` avant tout GO
+Gate 04A ; le critère de réévaluation de `DDS-LT-003` (volume réel de notifications post-activation
+des canaux) reste applicable — cette DDS n'est pas figée sans limite.
+
+**Documents modifiés** : les quatre DDS (`DDS-LT-002→005`, statut et section Décision mis à jour),
+`design-decision-register.md`, `UXR-001.md`, `gate-02A-decision-ep16-us125.md` §4.
+
+**Prochaine action autorisée** : poursuivre la levée des bloqueurs restants — Gate 04A/EP-17
+(`DD-611-02`, `DD-611-03`, `DD-EP17-08`), Gate 06A (rapport licence/sécurité PrimeNG), et le
+préalable de compatibilité PrimeNG × Angular 22 (Lot 0), avant toute instruction du Gate 04A
+applicable à US-125 ou EP-17.
