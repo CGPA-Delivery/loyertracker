@@ -84,3 +84,25 @@ nouvellement identifié (stratégie d'état).
   reste explicitement non close.
 * **N'autorise aucun développement Frontend** — `plan-execution-ux-ui-primeng-keycloak.md` reste
   « PROPOSÉ — NON APPROUVÉ — CODE INTERDIT ».
+
+## Note de mise à jour (2026-07-31, postérieure à cet avis)
+
+Deux évolutions matérielles depuis cet avis, toutes deux tracées dans
+`design-debt-register-loyertracker.md` et `gate-04A-decision-ep17-lot0.md` §4 :
+
+* **« Stratégie d'état justifiée »** (ligne ci-dessus, « Non exécuté ») : une stratégie a depuis
+  été documentée (`ADR-UI-001` §Stratégie d'état) et acceptée par le Product Owner sans réserve
+  (`DD-EP17-08`, close). Reclassée **Préparation en cours** — documentée et acceptée, mais non
+  testée/implémentée, donc pas `PASS`.
+* **Revue de `traceability-ui-loyertracker.md` (`DD-611-03`)** : un avis de validation de contenu
+  distinct, séparé de cette revue de readiness, a depuis été rendu (`traceability-ui-loyertracker.md`
+  §Avis de validation — neuf affirmations exactes sur neuf) et accepté par le Product Owner sans
+  réserve comme validation humaine du contenu. `DD-611-03` reste toutefois **non close** : les
+  preuves de test par Story restent structurellement inexistantes.
+
+**Décompte agrégé mis à jour** : sur 8 contrôles, **0 PASS**, **6 « Préparation en cours »**,
+**2 « Non exécuté »** (Budgets et performance ; Component/accessibility/responsive tests — tous
+deux nécessitant une implémentation réelle, non substituables par de la documentation). Conformément
+à la règle d'agrégation 2, le résultat agrégé reste **NO GO (en l'état)** — inchangé dans sa
+conclusion, mais pour un motif réduit à ces deux seuls contrôles restants. Contenu de l'avis
+d'origine non réécrit, conformément à la préservation des décisions historiques (`CLAUDE.md`).

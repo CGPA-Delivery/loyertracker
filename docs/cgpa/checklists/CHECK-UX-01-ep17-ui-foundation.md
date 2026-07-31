@@ -43,3 +43,15 @@ Cette checklist n'est **pas** soumise au Gate 04A par ce document : elle documen
 préparation avant soumission, conformément à la mission (« Ne pas marquer PASS sur la seule base
 de documents préparatoires »). La soumission effective au Gate 04A reste une action distincte,
 postérieure à l'approbation du Plan d'Exécution et à la réalisation des Lots 0 à 5.
+
+## Note de mise à jour (2026-07-31, postérieure à cette instance)
+
+La ligne « DSG-001 » notait « validation humaine indépendante et validation Product Owner non
+obtenues ». La **validation Product Owner** a depuis été obtenue (`DD-611-02`, acceptation
+Product Owner du 2026-07-31 de l'avis de validation Design Architect, `DSG-001.md` §Avis de
+validation) — la validation humaine **indépendante** (un Design Architect humain distinct de
+Claude Code) reste, elle, non obtenue. Le contrôle reste classé **Préparation en cours** (statut
+inchangé, la validation Product Owner n'était qu'une partie de la preuve attendue de cette ligne) ;
+l'agrégat de cette instance (0 PASS, 6 Préparation en cours, 7 Non exécuté) n'est pas modifié par
+cette précision. Contenu de la ligne d'origine non réécrit, conformément à la préservation des
+décisions historiques (`CLAUDE.md`).
