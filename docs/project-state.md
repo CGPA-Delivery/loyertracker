@@ -3745,3 +3745,27 @@ sans Plan d'Exécution approuvé »).
 **Prochaine action autorisée** : le Product Owner statue sur l'approbation du Plan d'Exécution
 (§12) et sur l'obtention de la clé de licence PrimeNG. Le développement Lot 1 ne peut démarrer
 qu'après ces deux actions, sous réserve continue des preuves de test/implémentation ci-dessus.
+
+### Plan d'Exécution approuvé — périmètre Lot 1 uniquement (2026-07-31)
+
+**Instruction explicite reçue** : « approuve le Plan d'Exécution ». `plan-execution-ux-ui-primeng-keycloak.md`
+§12 mis à jour : statut **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 UNIQUEMENT** (en-tête et §12),
+appuyé sur `gate-04A-decision-ep17-lot0-v2.md` (GO sous réserve, Lot 1). Le verrou `CLAUDE.md`
+« Aucun code applicatif sans Plan d'Exécution approuvé » est donc levé **pour le seul Lot 1** —
+inchangé pour les Lots 2 à 6, chacun restant un point de contrôle GO/NO GO distinct.
+
+**Ce que cette approbation ne lève pas** :
+
+* la clé de licence PrimeNG Community reste à obtenir avant toute installation effective
+  (`rapport-licence-securite-primeng-lot0.md`) — aucune installation ne peut démarrer avant cette
+  action Product Owner distincte ;
+* les réserves continues du Gate 04A v2 (contrôles `CHECK-UX-01`/`CHECK-FRONTEND-01` encore
+  « Non exécuté ») restent ouvertes, preuves à produire au fil du Lot 1 ;
+* l'applicabilité du Gate 02A au socle EP-17 (au-delà de US-125/EP-16) n'a pas été tranchée par
+  cette approbation — point non résolu, non neutralisé, à clarifier avant ou pendant le Lot 1
+  (« un contrôle applicable sans preuve est non exécuté, jamais non applicable », `CLAUDE.md`).
+
+**Prochaine action autorisée** : le Product Owner statue sur l'obtention de la clé de licence
+PrimeNG et, le cas échéant, clarifie l'applicabilité du Gate 02A au socle EP-17. Le développement
+technique du Lot 1 (installation PrimeNG, tokens, thème) peut ensuite démarrer sous réserve
+continue des preuves de test/implémentation attendues par le Gate 04A v2.

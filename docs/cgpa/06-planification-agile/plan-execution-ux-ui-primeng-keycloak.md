@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |---|---|
-| Statut | **PROPOSÉ — NON APPROUVÉ — CODE INTERDIT** |
+| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 UNIQUEMENT** (voir §12, 2026-07-31) |
 | Date | 2026-07-30 |
 | Product Owner | jptshilombo@gmail.com |
 | Décision de socle liée | `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md` (Acceptée) |
@@ -267,3 +267,26 @@ sprint actif sans décision explicite du Product Owner.**
   (`gate-06A-decision-ep17-lot1.md`, réserve bloquante = rapport licence/sécurité PrimeNG). Le
   Gate 04A étant NO GO, **le statut du Plan reste inchangé : PROPOSÉ — NON APPROUVÉ — CODE
   INTERDIT** — le Gate 06A PASS sous réserve ne suffit pas seul à lever cette interdiction.
+
+### Approbation Product Owner du Plan (2026-07-31)
+
+* **Instruction explicite reçue** : « approuve le Plan d'Exécution ».
+* Re-instruction du Gate 04A entre-temps rendue : `gate-04A-decision-ep17-lot0-v2.md`,
+  **GO sous réserve, périmètre limité à EP-17 Lot 1** (2026-07-31) — invalide et remplace le NO GO
+  du 2026-07-30/31 ci-dessus sans le réécrire (préservation des décisions historiques, `CLAUDE.md`).
+* **Décision Product Owner** : Plan d'Exécution **approuvé, strictement pour le périmètre Lot 1**
+  (§3 « Lot 1 — Fondation technique »). Cette approbation ne s'étend pas aux Lots 2 à 6 — chacun
+  reste un point de contrôle GO/NO GO distinct (cf. note liminaire du Plan), nécessitant sa propre
+  instruction de Gate le moment venu.
+* **Ce que cette approbation ne couvre pas** — verrous inchangés :
+  * la clé de licence PrimeNG Community (`primeui.dev`) reste à obtenir avant toute installation
+    effective de PrimeNG (§3 Lot 1, `rapport-licence-securite-primeng-lot0.md`) ;
+  * les réserves continues du Gate 04A v2 (contrôles `CHECK-UX-01`/`CHECK-FRONTEND-01` encore
+    « Non exécuté », preuves de test/implémentation à produire au fil du Lot 1) restent ouvertes ;
+  * l'applicabilité du Gate 02A au socle EP-17 (au-delà de US-125/EP-16, `gate-02A-decision-ep16-us125.md`)
+    n'a pas été tranchée par cette approbation — point non résolu, à clarifier avant, ou tenu comme
+    réserve pendant, l'exécution du Lot 1, conformément à la règle « un contrôle applicable sans
+    preuve est non exécuté, jamais non applicable » (`CLAUDE.md`).
+* **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 UNIQUEMENT » (§ en-tête). Le
+  développement Lot 1 (installation PrimeNG, thème, tokens) reste conditionné à l'obtention de la
+  clé de licence — aucune installation ne peut démarrer avant cette action distincte.
