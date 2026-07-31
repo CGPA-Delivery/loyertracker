@@ -3496,3 +3496,37 @@ corrigée), `design-debt-register-loyertracker.md` (`DD-EP17-09` ajoutée, `DD-6
 `VerifyReceiptComponent`) au moment de son adaptation visuelle ; poursuivre la levée des bloqueurs
 Gate 04A/EP-17 restants (`DD-611-03`, `DD-EP17-08`) ; envisager la revue humaine indépendante déjà
 recommandée avant tout GO Gate 04A réel.
+
+### Avis de validation Frontend Architect — DD-611-03 (2026-07-31) — validation partielle, non close
+
+**Instruction explicite reçue** : « produis l'avis DD-611-03 avec le Frontend Architect ». Distinct
+de la revue déjà rendue dans `CHECK-FRONTEND-01-ep17-ui-foundation.md` (readiness du Gate 04A) :
+celui-ci valide le **contenu** de `traceability-ui-loyertracker.md` — l'exigence précise du
+registre de dette (« approbation Frontend Architect non obtenue »), sur le même principe que
+l'avis `DD-611-02` déjà rendu par le Design Architect.
+
+**Méthode** : recoupement direct de neuf affirmations factuelles de la matrice (existence de
+`BailleurDashboardComponent`/`GestionnaireDashboardComponent`, sections biens/patrimoines, route
+`/bailleur/profil`, services `profil.service.ts`/`s02`/`s03`/`s04-api.service.ts`, absence de
+`tokens.css`, absence des sept composants `lt-*` candidats, absence des composants
+`Notifications*`, absence du répertoire de thème Keycloak, présence de `styles.scss`) avec le code
+réel (`frontend/src/app/**`, `infra/keycloak/**`) — **neuf exactes sur neuf**, aucune inexactitude
+trouvée (à la différence de la validation `DD-611-02`, qui en avait trouvé une).
+
+**Verdict** : **Validation partielle**. La matrice est structurellement correcte et factuellement
+exacte, et applique sans exception sa propre règle (« À définir », jamais une valeur inventée) — le
+Frontend Architect valide donc la structure et l'exactitude de la matrice en l'état. `DD-611-03`
+reste toutefois **non close** : la dette porte sur la complétude des preuves de test par Story
+(unitaire/a11y/responsive/Visual Review), structurellement inexistantes tant qu'aucun composant
+`lt-*`/`Notifications*` n'est codé — cohérent avec le verrou CODE INTERDIT et la décision Gate 04A
+déjà NO GO en l'état (non rouverte par cet avis).
+
+**Documents modifiés** : `traceability-ui-loyertracker.md` (nouvelle section « Avis de validation
+Frontend Architect — DD-611-03 »), `design-debt-register-loyertracker.md` (`DD-611-03` mise à
+jour).
+
+**Prochaine action autorisée** : poursuivre la levée des bloqueurs Gate 04A/EP-17 restants
+(`DD-EP17-08`, stratégie d'état) ; lever `DD-EP17-09` au moment de l'adaptation visuelle de
+`VerifyReceiptComponent` ; envisager la revue humaine indépendante déjà recommandée avant tout GO
+Gate 04A réel — aucune preuve de test ne pourra faire progresser `DD-611-03` davantage tant que le
+verrou CODE INTERDIT reste en vigueur.

@@ -46,3 +46,62 @@ points, dépendances).
 * `design-debt-register-loyertracker.md` : `DD-611-01`→`04` (statuts mis à jour), nouvelles dettes
   UI ajoutées.
 * `check-ux-01` (instance EP-17) : tous contrôles `Non exécuté`/`Préparation en cours`.
+
+## Avis de validation Frontend Architect — DD-611-03 (2026-07-31)
+
+> Produit par Claude Code en tant que **Frontend Architect désigné**, à l'instruction explicite du
+> Product Owner (« produis l'avis DD-611-03 avec le Frontend Architect »). Distinct de la revue
+> déjà rendue dans `CHECK-FRONTEND-01-ep17-ui-foundation.md` §« Revue de `traceability-ui-loyertracker.md`
+> (DD-611-03) » (2026-07-31, readiness du Gate 04A) : celui-ci porte sur la **validation du
+> contenu** de cette matrice elle-même, sur le même principe que l'avis Design Architect rendu pour
+> `DD-611-02` (`DSG-001.md` §Avis de validation). Même limite d'indépendance qu'ailleurs dans ce
+> chantier : Claude Code est co-auteur de l'artefact revu ici.
+
+### Méthode
+
+Recoupement direct de chaque affirmation factuelle de la matrice (colonne « Composant
+technique ») avec le code réel (`frontend/src/app/**`), pas une relecture éditoriale de la
+structure — une validation qui ne vérifie pas les preuves qu'elle valide n'en est pas une.
+
+### Constats vérifiés exacts
+
+| Affirmation (ligne de la matrice) | Vérification | Résultat |
+|---|---|---|
+| `BailleurDashboardComponent` existe (US-133/US-134) | `grep "^export class" bailleur/dashboard/dashboard.component.ts` | **Exact** |
+| `GestionnaireDashboardComponent` existe (référence transverse) | `grep "^export class" gestionnaire/dashboard/dashboard.component.ts` | **Exact** |
+| Sections biens/patrimoines dans `BailleurDashboardComponent` (US-134) | `Bien`, `BienPayload`, `Patrimoine`, `PatrimoinePayload` importés et utilisés | **Exact** |
+| `/bailleur/profil` déjà route existante, « étendu » (US-125, US-132) | `app.routes.ts` : route `bailleur/profil` → `ProfilComponent` | **Exact** |
+| `profil.service.ts`, `s02/s03/s04-api.service.ts` exposent les `Observable` cités (référence `DD-EP17-08`) | Fichiers présents à `bailleur/profil/`, `core/s02/`, `core/s03/`, `core/s04/` | **Exact** |
+| `tokens.css` non créé, « candidat » (US-129) | `find -iname tokens.css` | **Exact** — 0 résultat |
+| `lt-page-header`, `lt-stat-card`, `lt-status-tag`, `lt-empty-state`, `lt-data-table`, `lt-confirm-dialog`, `lt-form-field` non codés, « candidats » (US-132) | `find -iname "lt-*"` ; recoupement avec `DSG-001.md` §Composants LoyerTracker candidats | **Exact** — 0 résultat, sept noms cohérents avec `DSG-001.md` |
+| `NotificationsPreferencesComponent`, `NotificationsHistoriqueComponent` non codés, « candidats » (US-125) | `find -iname "*notification*"` sous `frontend/src/app` | **Exact** — 0 résultat |
+| `infra/keycloak/themes/loyertracker/` non créé (US-135) | `find` sous `infra/keycloak` | **Exact** — seuls les fichiers de realm existent, aucun répertoire de thème |
+| `frontend/src/styles.scss` existant, « à étendre » (US-131) | Fichier présent à la racine `frontend/src` | **Exact** |
+
+Neuf affirmations recoupées, **neuf exactes** — aucune inexactitude trouvée dans cette matrice
+(à la différence de la validation `DD-611-02`, qui en avait trouvé une dans `DSG-001.md`).
+
+### Verdict de validation
+
+**Validation partielle** — la matrice est **structurellement correcte et factuellement exacte**
+sur les neuf affirmations vérifiables recoupées avec le code réel ; la règle propre du document
+(« toute case non définie porte la mention À définir, jamais une valeur inventée ») est
+**respectée sans exception constatée**. Le Frontend Architect **valide donc la structure et
+l'exactitude factuelle de la matrice en l'état**.
+
+Cette validation ne suffit toutefois pas à clore `DD-611-03`. La dette porte précisément sur la
+**complétude de la traçabilité Story-écran-composant-test** — c'est-à-dire l'existence de preuves
+de test (unitaire, a11y, responsive, Visual Review) par Story, pas seulement l'exactitude des
+colonnes déjà renseignables sans code. Or ces preuves sont **structurellement inexistantes** :
+aucun composant `lt-*` ni `Notifications*` n'est codé, et
+`plan-execution-ux-ui-primeng-keycloak.md` reste « PROPOSÉ — NON APPROUVÉ — CODE INTERDIT ». Une
+mention « À définir » sur une preuve de test qui ne peut pas encore exister n'est pas un défaut de
+la matrice — c'est l'application correcte de sa propre règle. `DD-611-03` reste donc **non close** :
+non par défaut de qualité de l'artefact, mais parce que sa preuve attendue (colonnes de test
+renseignées) ne peut matériellement apparaître qu'au fur et à mesure de l'implémentation de chaque
+Lot, dans le respect du verrou CODE INTERDIT déjà en vigueur.
+
+**Ce que cet avis ne fait PAS** : il ne clôt pas `DD-611-03` (le statut reste « En traitement,
+matrice validée structurellement ») ; il ne prononce aucune décision de Gate (déjà NO GO en
+l'état, `gate-04A-decision-ep17-lot0.md`, non rouvert) ; il n'autorise aucun développement
+Frontend ; il ne remplace pas une revue par un Frontend Architect humain indépendant.
