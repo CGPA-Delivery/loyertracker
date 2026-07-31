@@ -204,6 +204,120 @@ devra suivre la gouvernance DevSecOps existante (scan de dépendance, licence, C
 Non définie à ce stade (aucune dépendance installée). À documenter au Lot 1 : cadence de mise à
 jour PrimeNG, politique de version majeure, tests de non-régression visuelle avant upgrade.
 
+## Stratégie d'état (`DD-EP17-08`)
+
+> Ajouté le 2026-07-31 par Claude Code en tant que **Frontend Architect désigné**, à l'instruction
+> explicite du Product Owner (« lever `DD-EP17-08` avec le Frontend Architect »), en réponse à la
+> preuve attendue du registre de dette (« Stratégie d'état documentée (local/partagé/serveur,
+> cache, invalidation, erreurs, concurrence) dans `ADR-UI-001` ou une DDS dédiée »).
+>
+> **Constat de départ corrigé** : `DD-EP17-08` affirmait « sans signal ni store ». Vérification
+> directe (`grep -rl "signal("` sous `frontend/src/app`) : **huit des onze composants existants
+> utilisent déjà `signal()`** (`bailleur/dashboard`, `gestionnaire/dashboard`, `bailleur/profil`,
+> `alertes`, `audit`, `garanties`, `honoraires`, `paiements`) — seuls `AppComponent`,
+> `NavbarComponent` et `VerifyReceiptComponent` n'en ont pas besoin (shell, navigation statique,
+> page publique sans état mutable). L'affirmation exacte de la dette n'est pas l'absence de
+> signaux, mais l'absence de **formalisation et de justification** de la stratégie qu'ils
+> matérialisent déjà de fait — corrigé ci-dessous et dans le registre de dette.
+>
+> **Principe directeur** : cette section **formalise le pattern déjà en usage réel**, elle
+> n'introduit aucune nouvelle dépendance ni architecture (cohérent avec `frontend-architecture.md`
+> §State Management — « Éviter un store global par défaut » — et la contrainte « dev solo »
+> répétée dans `DDS-LT-001`/cette ADR). Aucun composant `lt-*` n'existe encore ; cette
+> formalisation sert de référence à leur conception au Lot 2, elle ne rejoue aucun code existant.
+
+### État local (UI)
+
+Convention déjà en usage, à conserver comme référence du produit : chaque composant standalone
+expose ses champs d'état mutable en `signal()` natif Angular (`readonly nom = signal(valeur)`),
+modifiés uniquement par ses propres méthodes via `.set()`/`.update()`, jamais depuis un template ou
+un composant tiers. Couvre formulaires réactifs, sélections courantes, indicateurs `chargement`/
+`message`. Aucun signal n'est exposé en écriture à l'extérieur du composant qui le déclare.
+
+### État serveur
+
+Couche d'accès aux données **sans état** : chaque service (`ProfilService`, `S02ApiService`,
+`S03ApiService`, `S04ApiService`, `providedIn: 'root'`) expose une méthode par appel API
+retournant un `Observable<T>` construit directement depuis `HttpClient`, sans transformation ni
+mémorisation. Le composant appelant `.subscribe({ next, error, complete })` et copie le résultat
+dans son propre `signal()` local (ex. `this.api.listerBiens().subscribe({ next: (biens) =>
+this.biens.set(biens) })`, `bailleur/dashboard/dashboard.component.ts`). Ni `toSignal()`
+(`@angular/core/rxjs-interop`) ni `| async` ne sont utilisés actuellement — **acceptés comme
+alternative future** pour un flux en lecture seule sans effet de bord (ex. un futur composant
+purement consultatif), mais non requis : le pattern `subscribe` + `signal.set()` reste la
+convention par défaut, car il permet la coexistence naturelle avec la gestion d'erreur et de
+chargement ci-dessous.
+
+### État partagé
+
+**Aucun** actuellement — pas de store global (NgRx, Akita ou équivalent maison à base de
+`BehaviorSubject`), conformément à la règle du gabarit. Chaque composant recharge indépendamment
+les données dont il a besoin, y compris lorsque deux composants consomment la même ressource (ex.
+patrimoines/types de biens rechargés séparément par chaque dashboard qui en a besoin) — duplication
+de requêtes acceptée pour le périmètre actuel (deux dashboards, faible recouvrement). **Critère de
+réévaluation explicite** : si un troisième consommateur des mêmes données apparaît (typiquement un
+composant transverse `lt-data-table`/`lt-form-field` du Lot 2 partagé entre plusieurs écrans), la
+duplication doit être réexaminée — introduction d'un état partagé minimal (service détenteur d'un
+`signal()`, pas un store générique) plutôt qu'un framework de state management.
+
+### Cache
+
+**Aucun cache HTTP ni mémoire** actuellement (chaque appel déclenche une requête réseau ; aucun
+`shareReplay`, aucun intercepteur de cache — le seul intercepteur enregistré dans `app.config.ts`
+est `includeBearerTokenInterceptor`, pour l'authentification, pas la donnée). **Décision** : ne pas
+introduire de cache générique par défaut — les données manipulées sont majoritairement financières
+(loyers, paiements, garanties, honoraires) où la fraîcheur prime sur la performance perçue. Un
+cache ciblé sur un référentiel quasi-statique (ex. `TypeBien`) resterait possible mais doit faire
+l'objet d'une décision explicite au cas par cas, jamais d'un ajout silencieux (cohérent avec
+mission §20 déjà citée §Budgets bundle).
+
+### Invalidation
+
+Pattern déjà observé, à formaliser comme convention : après une mutation réussie, le composant soit
+(a) met à jour son `signal()` directement à partir de la réponse de l'API lorsque celle-ci suffit
+(ex. `creerLocataireRapide` : `this.locataires.set([...this.locataires(), locataire])`), soit (b)
+déclenche un rechargement explicite de la méthode de listing (ex. `archiverBien` : met à jour
+`bienSelectionne` **et** rappelle `chargerBiens()`), les deux pouvant se combiner. Aucune
+invalidation croisée automatique entre composants n'existe (cohérent avec l'absence d'état
+partagé) — à documenter explicitement dans chaque nouveau composant tant qu'aucun état partagé
+n'est introduit.
+
+### Erreurs
+
+Convention déjà en usage dans les huit composants à signal : une méthode privée
+`signalerErreur(err: unknown)` par composant, qui reconnaît `HttpErrorResponse` et mappe les codes
+connus vers le signal `message` (`409` → « conflit métier », `403` → « accès refusé », autre →
+« erreur API », non-`HttpErrorResponse` → « erreur inconnue »), et réinitialise systématiquement
+`chargement.set(false)`. **Dupliquée à l'identique** dans plusieurs composants — déjà tracée comme
+`DD-EP17-04` (hétérogénéité de composants) ; ce document ne duplique pas cette dette, il en confirme
+le lien : une factorisation (service d'erreur partagé ou composant `lt-*` dédié) reste un candidat
+naturel du Lot 2, non requis pour clore `DD-EP17-08`.
+
+### Concurrence
+
+Aucun opérateur RxJS d'annulation (`switchMap`, `exhaustMap`) n'est utilisé — cohérent avec la
+nature des appels existants (actions déclenchées par un clic explicite, jamais par une saisie
+clavier : `grep -rl "debounceTime|distinctUntilChanged|valueChanges"` ne retourne aucun résultat,
+aucun scénario de recherche « au fil de la frappe » n'existe à ce jour). La garde effective contre
+la double soumission est un **verrou UI**, pas un opérateur RxJS : chaque bouton de mutation est
+`[disabled]="chargement()"` (vérifié sur sept boutons de `bailleur/dashboard/dashboard.component.ts`,
+ex. ligne 94, 177, 260) — suffisant pour une interaction mono-utilisateur au clic, mais reposant sur
+la discipline du développeur (pas de garde-fou automatique au niveau du service). **Règle pour le
+Lot 2** : tout composant transverse introduisant une recherche réactive (`lt-data-table` avec filtre
+texte, si un tel besoin apparaît) doit utiliser `debounceTime` + `switchMap` (jamais `mergeMap`),
+faute de quoi une réponse tardive pourrait écraser une réponse plus récente — règle posée par
+anticipation, aucune occurrence actuelle ne le requiert.
+
+### Ce que cette section ne fait PAS
+
+Elle ne propose aucun store global, aucune nouvelle dépendance (`@ngrx/*`, `@ngneat/elf`, etc.),
+aucune réécriture des composants existants — elle formalise un pattern déjà réel et suffisant pour
+le périmètre actuel. Elle n'autorise aucun développement Frontend au titre de cette ADR (verrou
+`plan-execution-ux-ui-primeng-keycloak.md` « CODE INTERDIT » inchangé). Elle ne prononce aucune
+décision de Gate — la clôture de `DD-EP17-08` comme bloqueur du Gate 04A reste soumise à
+l'acceptation explicite du Product Owner (`gate-04A-decision-ep17-lot0.md` §4, « Autorité
+d'acceptation : Product Owner »), distincte de la production de cette preuve documentaire.
+
 ## Budgets bundle
 
 Contrainte de référence : `angular.json` configuration `production`, budget initial `1mb`
