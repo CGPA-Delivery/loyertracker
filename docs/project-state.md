@@ -3571,3 +3571,38 @@ d'état documentée (clôture effective de `DD-EP17-08` comme bloqueur Gate 04A)
 levée du dernier bloqueur Gate 04A/EP-17 (`DD-611-03`, complétude des preuves de test, hors
 portée tant que CODE INTERDIT reste en vigueur) ; envisager la revue humaine indépendante déjà
 recommandée avant tout GO Gate 04A réel.
+
+### Acceptation Product Owner — DD-EP17-08 (2026-07-31) — bloqueur levé
+
+**Décision explicite reçue** : le Product Owner (jptshilombo@gmail.com) a examiné le résumé des
+sept dimensions de la stratégie d'état (`ADR-UI-001` §Stratégie d'état) présenté par Claude Code et
+a répondu **« Acceptée sans réserve »**, sans réserve additionnelle ni modification demandée.
+Décision humaine directe, non déléguée à un sous-agent ni déduite automatiquement, conformément à
+`CLAUDE.md` (« Aucun pipeline, score, audit automatique ou agent spécialisé ne remplace la
+validation humaine requise »).
+
+**Vérification préalable** (avant présentation au Product Owner) : recontrôle qu'aucun fait
+matériel n'a changé depuis la production documentaire du 2026-07-31 — aucun composant `lt-*`/
+`Notifications*` codé, dernier commit touchant `frontend/src/app` antérieur (`a483fe9`,
+2026-07-17, EP-15), `plan-execution-ux-ui-primeng-keycloak.md` toujours PROPOSÉ — NON APPROUVÉ —
+CODE INTERDIT.
+
+**Effet** : `DD-EP17-08` est **close** comme bloqueur Gate 04A (`design-debt-register-loyertracker.md`,
+`gate-04A-decision-ep17-lot0.md` §4). Conformément à la clause d'invalidation de `gate-04A-decision-ep17-lot0.md`
+§6 (« toute évolution matérielle des preuves … invalide cette décision et impose une nouvelle
+instruction du Gate 04A … jamais une simple reconduction tacite »), la décision Gate 04A existante
+(NO GO en l'état, 2026-07-31) est **invalidée par cette clôture** et nécessite une nouvelle
+instruction du Gate 04A par le Product Owner — cette clôture ne prononce pas elle-même un nouveau
+GO/NO GO. En l'état des preuves connues, `DD-611-02` et `DD-611-03` restent ouverts et rendraient
+vraisemblable un NO GO reconduit si l'instruction était redemandée aujourd'hui, mais cette
+appréciation n'est pas une décision de Gate.
+
+**Documents modifiés** : `design-debt-register-loyertracker.md` (`DD-EP17-08` → Close, acceptée
+Product Owner) ; `gate-04A-decision-ep17-lot0.md` §4 (statut « Levé ») et §5 (note de mise à jour
+postérieure à l'avis Frontend Architect, avis non réécrit).
+
+**Prochaine action autorisée** : obtenir une nouvelle instruction du Gate 04A par le Product Owner
+(requise par la clause d'invalidation ci-dessus, même si le résultat attendu reste NO GO tant que
+`DD-611-02`/`DD-611-03` sont ouverts) ; poursuivre en parallèle la levée de `DD-611-02` (validation
+Product Owner de l'avis Design Architect déjà rendu) et `DD-611-03` (hors portée tant que CODE
+INTERDIT reste en vigueur, cf. entrée du jour ci-dessus).
