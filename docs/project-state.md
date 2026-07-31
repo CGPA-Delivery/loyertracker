@@ -3530,3 +3530,44 @@ jour).
 `VerifyReceiptComponent` ; envisager la revue humaine indépendante déjà recommandée avant tout GO
 Gate 04A réel — aucune preuve de test ne pourra faire progresser `DD-611-03` davantage tant que le
 verrou CODE INTERDIT reste en vigueur.
+
+### Stratégie d'état Frontend Architect — DD-EP17-08 (2026-07-31) — documentée, clôture proposée
+
+**Instruction explicite reçue** : « lever `DD-EP17-08` avec le Frontend Architect ». À la différence
+de `DD-611-02`/`DD-611-03` (validation de contenu déjà produit), `DD-EP17-08` demandait une
+**production documentaire** : la preuve attendue par le registre de dette (« Stratégie d'état
+documentée (local/partagé/serveur, cache, invalidation, erreurs, concurrence) dans `ADR-UI-001` ou
+une DDS dédiée ») n'existait pas encore.
+
+**Constat initial corrigé** : la dette affirmait « sans signal ni store ». Vérification directe
+(`grep -rl "signal(" frontend/src/app`) : **huit des onze composants existants utilisent déjà
+`signal()`** (les deux dashboards, `profil`, `alertes`, `audit`, `garanties`, `honoraires`,
+`paiements`) — seuls le shell, la navigation et la page publique de vérification n'en ont pas
+besoin. Le manque réel n'était pas l'absence de signaux, mais l'absence de formalisation du
+pattern déjà en usage — corrigé dans le registre de dette et dans `ADR-UI-001`.
+
+**Contenu produit** : nouvelle section `ADR-UI-001` §Stratégie d'état, couvrant les sept dimensions
+requises, chacune fondée sur une lecture directe du code réel (pas une architecture inventée) :
+état local (`signal()` par composant), état serveur (services `Observable` sans état, `subscribe`
++ `signal.set()`), état partagé (aucun actuellement, critère de réévaluation posé pour le Lot 2),
+cache (aucun, décision explicite de ne pas en introduire par défaut vu la nature financière des
+données), invalidation (patch local et/ou rechargement explicite après mutation, pattern déjà
+observé), erreurs (`signalerErreur(err)` par composant, lien confirmé avec `DD-EP17-04`),
+concurrence (garde UI `[disabled]="chargement()"`, règle `debounceTime`+`switchMap` posée par
+anticipation pour le Lot 2). Aucune nouvelle dépendance introduite (pas de store global), cohérent
+avec `frontend-architecture.md` §State Management et la contrainte « dev solo ».
+
+**Statut** : **Documentée — clôture proposée par le Frontend Architect**, non close au sens Gate
+04A : `gate-04A-decision-ep17-lot0.md` §4 réserve explicitement l'acceptation de ce bloqueur au
+Product Owner. La décision de Gate 04A elle-même (NO GO en l'état, 2026-07-31) n'est pas rouverte
+par cette seule production documentaire.
+
+**Documents modifiés** : `ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md` (nouvelle
+section « Stratégie d'état »), `design-debt-register-loyertracker.md` (`DD-EP17-08` mise à jour,
+constat corrigé), `gate-04A-decision-ep17-lot0.md` §4 (statut mis à jour).
+
+**Prochaine action autorisée** : obtenir l'acceptation explicite du Product Owner sur la stratégie
+d'état documentée (clôture effective de `DD-EP17-08` comme bloqueur Gate 04A) ; poursuivre la
+levée du dernier bloqueur Gate 04A/EP-17 (`DD-611-03`, complétude des preuves de test, hors
+portée tant que CODE INTERDIT reste en vigueur) ; envisager la revue humaine indépendante déjà
+recommandée avant tout GO Gate 04A réel.
