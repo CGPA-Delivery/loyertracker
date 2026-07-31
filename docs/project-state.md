@@ -3381,3 +3381,48 @@ des canaux) reste applicable — cette DDS n'est pas figée sans limite.
 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`), Gate 06A (rapport licence/sécurité PrimeNG), et le
 préalable de compatibilité PrimeNG × Angular 22 (Lot 0), avant toute instruction du Gate 04A
 applicable à US-125 ou EP-17.
+
+### Rapport licence/sécurité PrimeNG — PrimeNG a changé de licence, choix Product Owner requis (2026-07-31)
+
+**Instruction explicite reçue** : « produis le rapport licence/sécurité PrimeNG ». Produit par
+Claude Code en tant que **DevSecOps Lead** désigné, satisfaisant le livrable Lot 0 du Plan
+d'Exécution et la réserve bloquante de `CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`.
+
+**Constat majeur, non anticipé par `DDS-LT-001`/`ADR-UI-001` (2026-07-30)** : PrimeTek Informatics
+a **fermé le dépôt GitHub `primefaces/primeng` (archivé le 2026-06-28)** et restructuré le produit
+sous la marque **PrimeUI**, avec un modèle Community/Commercial payant. Vérification directe par
+téléchargement et inspection des tarballs npm officiels (source première, pas une page web
+pouvant être obsolète) : **`primeng@22.0.0`** (publié le **2026-07-15**, 16 jours avant ce
+rapport) est la **seule version compatible Angular 22** (`peerDependencies` confirmées) et **n'est
+plus MIT** — licence PrimeUI avec vérification par clé (hors ligne, sans télémétrie) et **bannière
+visible en production si la clé est absente/invalide/expirée**. La dernière version MIT
+(`21.1.9`, confirmée par inspection directe du tarball) ne supporte qu'Angular 21, incompatible
+avec Angular 22.0.8 du projet.
+
+**Options de licence identifiées** :
+1. **Community License PrimeUI (gratuite)** — sous conditions strictes (< 1 M USD CA annuel,
+   < 5 développeurs, < 10 employés, < 3 M USD de financement externe cumulé), renouvellement
+   annuel obligatoire. Techniquement plausible pour LoyerTracker (dev solo) mais **éligibilité
+   réelle non vérifiable par Claude Code** (données financières internes) — confirmation Product
+   Owner requise.
+2. **Commercial License** (~599 USD/développeur, perpétuelle, 1 an de mises à jour).
+3. **Reconsidérer `DDS-LT-001`** : fork communautaire MIT `open-prime` (OpenNG) existe mais **sans
+   version stable** pour Angular 22 à ce jour, support communautaire uniquement, non recommandé
+   pour l'instant.
+
+**Avis DevSecOps Lead** : le livrable Lot 0 est produit, mais **ne clôt pas** la réserve
+`CHECK-DEVSECOPS-01` §2 écart 1 par un simple « conforme » — celle-ci est **requalifiée**, pas
+levée : elle attend désormais un choix explicite du Product Owner parmi les trois options, pas
+seulement la production du rapport. Aucune décision de Gate 06A n'est reprononcée (celle rendue le
+2026-07-31, PASS sous réserve, reste en vigueur) ; aucune installation de PrimeNG n'est autorisée
+avant ce choix.
+
+**Documents modifiés** : `docs/cgpa/07-devsecops/rapport-licence-securite-primeng-lot0.md` (créé),
+`CHECK-DEVSECOPS-01-ep17-lot1-readiness.md` (écart 1 requalifié),
+`gate-06A-decision-ep17-lot1.md` §4 (réserve requalifiée, §6 décision déjà rendue non rouverte),
+`plan-execution-ux-ui-primeng-keycloak.md` (§Lot 0 et récapitulatif des avis mis à jour).
+
+**Prochaine action autorisée** : obtenir la décision explicite du Product Owner sur les trois
+options de licence PrimeNG (§7 du rapport) ; en parallèle, poursuivre la levée des bloqueurs
+Gate 04A/EP-17 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`) ; envisager une revue explicite (pas
+automatique) de `DDS-LT-001` à la lumière de ce constat.
