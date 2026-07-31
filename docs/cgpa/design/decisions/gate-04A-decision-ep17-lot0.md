@@ -55,14 +55,14 @@
 
 ## 6. Décision finale
 
-* Décision du CGPA Chief Delivery Officer : **— à renseigner explicitement par le Product Owner (jptshilombo@gmail.com) —**
-* Justification : —
-* Validité : —
-* Conditions d'invalidation : —
-* Prochaine action autorisée : —
+* Décision du CGPA Chief Delivery Officer : **NO GO en l'état** — décision explicite du Product Owner (jptshilombo@gmail.com), 2026-07-31, alignée sur les trois avis spécialisés.
+* Justification : les trois avis spécialisés (UX/UI Design Lead, Design Architect, Frontend Architect) concordent — aucune preuve d'implémentation n'existe pour les contrôles bloquants de `CHECK-UX-01-ep17-ui-foundation.md` et `CHECK-FRONTEND-01-ep17-ui-foundation.md` ; `DD-611-02`, `DD-611-03` et `DD-EP17-08` restent ouverts ; la validation Product Owner du Gate 02A lui-même reste non obtenue.
+* Validité : jusqu'à nouvelle instruction du Gate 04A par le Product Owner, après levée des bloqueurs listés §4.
+* Conditions d'invalidation : toute évolution matérielle des preuves (implémentation, validation Gate 02A, clôture `DD-611-02`/`DD-611-03`/`DD-EP17-08`) invalide cette décision et impose une nouvelle instruction du Gate 04A — jamais une simple reconduction tacite.
+* Prochaine action autorisée : lever les bloqueurs §4 (validation Product Owner Gate 02A, validation Design Architect de `DSG-001`/inventaire, approbation Frontend Architect de `traceability-ui-loyertracker.md`, stratégie d'état documentée) ; **aucun développement Frontend ni installation de dépendance n'est autorisé tant que ces bloqueurs sont ouverts**, conformément à `plan-execution-ux-ui-primeng-keycloak.md` §12 (« CODE INTERDIT »).
 
 ## 7. Traçabilité
 
-* Mise à jour `/docs/project-state.md` : entrée de soumission ajoutée le 2026-07-31 ; mise à jour de la décision finale à faire après réponse explicite du Product Owner.
+* Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-07-31.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
-* Date de validation humaine, si requise : —
+* Date de validation humaine : 2026-07-31.

@@ -53,14 +53,14 @@
 
 ## 6. Décision finale
 
-* Décision du CGPA Chief Delivery Officer : **— à renseigner explicitement par le Product Owner (jptshilombo@gmail.com) —**
-* Justification : —
-* Validité : —
-* Conditions d'invalidation : —
-* Prochaine action autorisée : —
+* Décision du CGPA Chief Delivery Officer : **PASS sous réserve** (équivalent GO sous réserve) — décision explicite du Product Owner (jptshilombo@gmail.com), 2026-07-31, alignée sur l'avis DevSecOps Lead.
+* Justification : le dispositif CI/CD existant (Gate 06A GO ratifié le 2026-06-16, DSO-01→05 automatisés) couvre déjà génériquement l'ajout de PrimeNG via les jobs `frontend`/`security` de `.github/workflows/ci.yml` ; le thème Keycloak prévu ne construit aucune image custom (fichiers statiques montés sur l'image upstream) et n'introduit donc aucun écart de pipeline.
+* Validité : jusqu'à la levée de la réserve bloquante (rapport licence/sécurité PrimeNG) ou jusqu'à toute évolution du périmètre EP-17 non couverte par le dispositif actuel (ex. nouvelle image conteneur, nouveau composant nécessitant un contrôle de sécurité non prévu).
+* Conditions d'invalidation : découverte d'un écart de pipeline non identifié ici, exposition de secret, ou dépendance critique non surveillée.
+* Prochaine action autorisée : produire le rapport de compatibilité/licence/sécurité PrimeNG avant toute installation effective de la dépendance. **Cette décision ne suffit pas, à elle seule, à autoriser le Lot 1** : celui-ci reste également subordonné à la décision Gate 04A (NO GO en l'état, `gate-04A-decision-ep17-lot0.md`, 2026-07-31) et à l'approbation explicite du Plan d'Exécution.
 
 ## 7. Traçabilité
 
-* Mise à jour `/docs/project-state.md` : entrée de soumission ajoutée le 2026-07-31 ; mise à jour de la décision finale à faire après réponse explicite du Product Owner.
+* Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-07-31.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
-* Date de validation humaine, si requise : —
+* Date de validation humaine : 2026-07-31.

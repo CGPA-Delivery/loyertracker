@@ -252,7 +252,8 @@ sprint actif sans décision explicite du Product Owner.**
   en Lot 1 = rapport de compatibilité/licence/sécurité PrimeNG non produit), Frontend Architect
   (`CHECK-FRONTEND-01-ep17-ui-foundation.md`, NO GO en l'état — architecture par domaines et lazy
   loading déjà réels et sains, mais stratégie d'état absente, nouvelle dette `DD-EP17-08`).
-  **La validation explicite du Product Owner reste, dans tous les cas, non obtenue et non
-  substituable.** Les quatre avis sont **soumis** au Product Owner depuis le 2026-07-31
-  (`gate-04A-decision-ep17-lot0.md`, `gate-06A-decision-ep17-lot1.md`, §6 Décision finale non
-  renseignée) — décision explicite toujours attendue.
+  **Décision Product Owner rendue le 2026-07-31** : Gate 04A **NO GO en l'état**
+  (`gate-04A-decision-ep17-lot0.md`) ; Gate 06A **PASS sous réserve**
+  (`gate-06A-decision-ep17-lot1.md`, réserve bloquante = rapport licence/sécurité PrimeNG). Le
+  Gate 04A étant NO GO, **le statut du Plan reste inchangé : PROPOSÉ — NON APPROUVÉ — CODE
+  INTERDIT** — le Gate 06A PASS sous réserve ne suffit pas seul à lever cette interdiction.

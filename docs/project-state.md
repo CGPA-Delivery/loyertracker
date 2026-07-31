@@ -3225,3 +3225,34 @@ cette seule soumission — la validation Product Owner de la désignation elle-m
 instances (GO / GO sous réserve / NO GO), qui complètera lui-même la section 6 de chacune (ou
 mandatera Claude Code pour la transcrire mot pour mot après réception) ; à défaut de décision,
 aucune progression vers le Lot 1 n'est autorisée.
+
+### Décision Product Owner — Gate 04A NO GO en l'état, Gate 06A PASS sous réserve (2026-07-31)
+
+**Décision explicite reçue du Product Owner** (jptshilombo@gmail.com), en réponse directe à la
+soumission ci-dessus, transcrite mot pour mot dans la §6 de chaque instance :
+
+* **Gate 04A** (`docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md`) : **NO GO en l'état**
+  — alignée sur les trois avis spécialisés. Prochaine action autorisée : lever les bloqueurs
+  §4 du document (validation Product Owner Gate 02A, `DD-611-02`, `DD-611-03`, `DD-EP17-08`) avant
+  toute nouvelle instruction du Gate 04A. Aucun développement Frontend ni installation de
+  dépendance n'est autorisé.
+* **Gate 06A** (`docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md`) : **PASS sous réserve**
+  — alignée sur l'avis DevSecOps Lead. Réserve bloquante unique pour l'entrée en Lot 1 : rapport
+  de compatibilité/licence/sécurité PrimeNG (Lot 0), non encore produit.
+
+**Conséquence pour le Plan d'Exécution** (`plan-execution-ux-ui-primeng-keycloak.md` §12) : le
+Gate 04A étant NO GO, **le statut du Plan reste inchangé : PROPOSÉ — NON APPROUVÉ — CODE
+INTERDIT**, quel que soit le résultat du Gate 06A pris isolément — les deux Gates applicables
+doivent être statués GO ou GO sous réserve pour lever l'interdiction de code
+(`plan-execution-ux-ui-primeng-keycloak.md` §12 : « les Gates 02A/04A applicables ne sont pas
+statués GO ou GO sous réserve »).
+
+**Documents modifiés** : `docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md` (§6
+complétée), `docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md` (§6 complétée),
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` (statut confirmé
+inchangé).
+
+**Prochaine action autorisée** : lever les bloqueurs du Gate 04A (validation Product Owner Gate
+02A en premier lieu, puis `DD-611-02`, `DD-611-03`, `DD-EP17-08`) et produire le rapport
+licence/sécurité PrimeNG pour le Gate 06A ; seule la levée cumulée des deux permettra une nouvelle
+instruction des Gates concernés et, potentiellement, l'entrée en Lot 1.
