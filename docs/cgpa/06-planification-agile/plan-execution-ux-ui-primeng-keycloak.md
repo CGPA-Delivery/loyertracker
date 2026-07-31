@@ -244,11 +244,13 @@ sprint actif sans décision explicite du Product Owner.**
   Keycloak n'est autorisé tant que ce Plan n'est pas explicitement approuvé par le Product Owner
   et que les Gates 02A/04A applicables ne sont pas statués GO ou GO sous réserve.
 * Prochaine étape : soumission de ce Plan, de `DDS-LT-001`, `ADR-UI-001`, `DSG-001` et de
-  l'addendum backlog EP-17 au Product Owner. UX/UI Design Lead et Design Architect sont désignés
-  (Claude Code) et ont rendu leur avis proposé (`UXR-001.md`, `DSG-001.md`) ; Frontend Architect et
-  DevSecOps Lead sont désignés (Claude Code, 2026-07-31,
-  `agent-designations-loyertracker.md`). Le DevSecOps Lead a rendu son avis pour Gate 06A
-  (`CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`) : **PASS sous réserve** — réserve bloquante pour
-  l'entrée en Lot 1 = rapport de compatibilité/licence/sécurité PrimeNG (§Lot 0) non produit ;
-  Frontend Architect n'a pas encore rendu d'avis. **La validation explicite du Product Owner
-  reste, dans tous les cas, non obtenue et non substituable.**
+  l'addendum backlog EP-17 au Product Owner. UX/UI Design Lead, Design Architect, Frontend
+  Architect et DevSecOps Lead sont désignés (Claude Code, `agent-designations-loyertracker.md`) et
+  ont tous rendu leur avis proposé : UX/UI Design Lead (`UXR-001.md`, GO sous réserve), Design
+  Architect (`DSG-001.md`, NO GO en l'état), DevSecOps Lead
+  (`CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`, PASS sous réserve — réserve bloquante pour l'entrée
+  en Lot 1 = rapport de compatibilité/licence/sécurité PrimeNG non produit), Frontend Architect
+  (`CHECK-FRONTEND-01-ep17-ui-foundation.md`, NO GO en l'état — architecture par domaines et lazy
+  loading déjà réels et sains, mais stratégie d'état absente, nouvelle dette `DD-EP17-08`).
+  **La validation explicite du Product Owner reste, dans tous les cas, non obtenue et non
+  substituable.**

@@ -3142,3 +3142,51 @@ ajoutée).
 produire le rapport de compatibilité/licence/sécurité PrimeNG (Lot 0) pour lever la réserve
 bloquante avant Lot 1 ; le cas échéant, demander la production de l'avis Frontend Architect pour
 Gate 04A comme action distincte.
+
+### Avis Frontend Architect — Gate 04A, instance EP-17 (2026-07-31) — NO GO en l'état proposé, aucune décision de Gate
+
+**Instruction explicite reçue** : « produis l'avis Frontend Architect pour Gate 04A ». Produit par
+Claude Code en tant que Frontend Architect, désigné le 2026-07-31
+(`docs/cgpa/agents/agent-designations-loyertracker.md`).
+
+**Avis rendu** (`docs/cgpa/checklists/CHECK-FRONTEND-01-ep17-ui-foundation.md`, nouveau document,
+même principe que `CHECK-UX-01-ep17-ui-foundation.md`) : contrairement au système de composants
+(inexistant), une partie du périmètre Frontend Architect est **déjà réelle dans le code**, vérifiée
+par lecture directe — `frontend/src/app/` déjà structuré par domaine (`bailleur/`, `gestionnaire/`,
+`alertes/`, `audit/`, `garanties/`, `honoraires/`, `paiements/`, `public/`, `shared/`, `core/`) et
+`app.routes.ts` utilise déjà le lazy loading (`loadComponent`) avec guard d'authentification. Sur
+les 8 contrôles de `CHECK-FRONTEND-01` : 0 PASS, 5 « Préparation en cours », **3 « Non exécuté »**
+— dont un gap nouvellement identifié : **aucune stratégie d'état documentée** (services exposant
+des `Observable` consommés directement par des champs de composant, jamais formalisé,
+`ADR-UI-001` ne couvre pas le sujet). Nouvelle dette tracée : **`DD-EP17-08`**
+(`design-debt-register-loyertracker.md`, Majeur, Frontend Architect, échéance avant Lot 2).
+
+**Revue de `traceability-ui-loyertracker.md`** (`DD-611-03`, dette déjà assignée au Frontend
+Architect) : structure correcte mais cases majoritairement « À définir » — **aucune approbation
+donnée**, `DD-611-03` reste non close.
+
+**Proposition : NO GO en l'état pour le Gate 04A** — conforme à la règle d'agrégation du
+Validation Framework CGPA v6.1.1 (§8, règle 2), et **cohérent avec le NO GO déjà établi** par
+`CHECK-UX-01-ep17-ui-foundation.md` et l'avis Design Architect (`DSG-001.md`) : ce n'est pas un
+troisième signal négatif indépendant, mais la confirmation du même état sous l'angle Architecture
+Frontend. Non un jugement défavorable sur la base existante (domaines/lazy loading jugés sains,
+aucune réécriture recommandée) — seule une clarification documentaire (confirmer explicitement
+dans `ADR-UI-001` que cette structure reste la cible) est suggérée, non bloquante.
+
+**Ce que cet avis ne fait PAS** : aucune décision de Gate 04A ; aucune clôture de dette au-delà de
+la preuve réelle produite (`DD-611-03` reste non close) ; n'autorise aucun développement Frontend
+(`plan-execution-ux-ui-primeng-keycloak.md` reste « PROPOSÉ — NON APPROUVÉ — CODE INTERDIT »).
+Limite d'indépendance identique aux trois autres rôles désignés : Claude Code est co-auteur des
+artefacts qu'il revoit ici (`ADR-UI-001`, `DSG-001`, `traceability-ui-loyertracker.md`).
+
+**Documents modifiés** : `docs/cgpa/checklists/CHECK-FRONTEND-01-ep17-ui-foundation.md` (créé),
+`docs/cgpa/design/design-debt-register-loyertracker.md` (`DD-EP17-08` ajoutée),
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` (récapitulatif des
+quatre avis désormais rendus mis à jour).
+
+**Prochaine action autorisée** : soumettre les quatre avis (UX/UI Design Lead, Design Architect,
+DevSecOps Lead, Frontend Architect) et les quatre désignations à la validation explicite du
+Product Owner ; produire le rapport de compatibilité/licence/sécurité PrimeNG (Lot 0) et une
+stratégie d'état documentée (`DD-EP17-08`) pour progresser vers un GO du Gate 04A/06A ; envisager
+une revue humaine indépendante avant toute décision réelle de Gate, compte tenu de la limite
+d'indépendance tracée pour les quatre rôles.
