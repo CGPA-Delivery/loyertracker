@@ -247,5 +247,8 @@ sprint actif sans décision explicite du Product Owner.**
   l'addendum backlog EP-17 au Product Owner. UX/UI Design Lead et Design Architect sont désignés
   (Claude Code) et ont rendu leur avis proposé (`UXR-001.md`, `DSG-001.md`) ; Frontend Architect et
   DevSecOps Lead sont désignés (Claude Code, 2026-07-31,
-  `agent-designations-loyertracker.md`) mais n'ont pas encore rendu d'avis. **La validation
-  explicite du Product Owner reste, dans tous les cas, non obtenue et non substituable.**
+  `agent-designations-loyertracker.md`). Le DevSecOps Lead a rendu son avis pour Gate 06A
+  (`CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`) : **PASS sous réserve** — réserve bloquante pour
+  l'entrée en Lot 1 = rapport de compatibilité/licence/sécurité PrimeNG (§Lot 0) non produit ;
+  Frontend Architect n'a pas encore rendu d'avis. **La validation explicite du Product Owner
+  reste, dans tous les cas, non obtenue et non substituable.**

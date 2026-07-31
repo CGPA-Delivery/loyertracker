@@ -3096,3 +3096,49 @@ obtenir séparément.
 Owner ; le cas échéant, demander la production d'un avis Frontend Architect (Gate 04A) et/ou d'un
 avis DevSecOps Lead (Gate 06A/DEVSECOPS-07) comme action distincte ; envisager une revue humaine
 indépendante avant toute décision réelle de Gate, compte tenu de la limite d'indépendance tracée.
+
+### Avis DevSecOps Lead — Gate 06A, périmètre EP-17 avant Lot 1 (2026-07-31) — PASS sous réserve proposé, aucune décision de Gate
+
+**Instruction explicite reçue** : « produis l'avis DevSecOps Lead pour Gate 06A ». Produit par
+Claude Code en tant que DevSecOps Lead, désigné le 2026-07-31
+(`docs/cgpa/agents/agent-designations-loyertracker.md`), pour le périmètre confirmé de cette
+désignation : EP-17, avant Lot 1.
+
+**Avis rendu** (`docs/cgpa/checklists/CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`, nouveau
+document) : Gate 06A valide la **capacité du dispositif**, pas l'exécution effective sur un
+artefact EP-17 (rôle de `DEVSECOPS-07`, distinct et non exécuté faute d'artefact). Constat : le
+dispositif CI/CD existant (`gate-06A-decision.md`, **GO ratifié le 2026-06-16**, DSO-01→05
+automatisés) couvre déjà, de façon générique, tout ajout de dépendance npm comme PrimeNG — jobs
+`frontend`/`security` de `.github/workflows/ci.yml` (build, tests, ESLint, CodeQL, SonarQube,
+OWASP Dependency-Check, Trivy, Gitleaks) s'exécutent automatiquement sur toute PR touchant
+`frontend/`. Le thème Keycloak prévu (Lot 4) est constaté comme fichiers statiques montés en volume
+sur l'image upstream `quay.io/keycloak/keycloak:24.0` (même mécanisme que le realm JSON déjà
+monté) — **aucune image Keycloak custom** n'est construite en CI ni prévue par le Plan, donc aucun
+écart de pipeline sur ce point.
+
+**Proposition : PASS sous réserve** (équivalent GO sous réserve). Réserve unique, **bloquante pour
+l'entrée en Lot 1** (non pour le Gate 06A lui-même, qui n'exige pas cette preuve dans ses propres
+critères) : le rapport de compatibilité/licence/sécurité PrimeNG attendu en sortie du Lot 0
+(`plan-execution-ux-ui-primeng-keycloak.md` §Lot 0) n'est pas produit — un contrôle de licence
+n'est pas couvert par Trivy/OWASP DC, qui ne scannent que les CVE. Responsable : DevSecOps Lead +
+Frontend Architect (Claude Code) ; échéance : avant toute installation effective de PrimeNG.
+Réserves non bloquantes reportées à leurs jalons déjà tracés dans le Plan : `DEVSECOPS-07` (avant
+première promotion d'un artefact EP-17), `CHECK-CICD-01` (avant Gate Staging du pilote, Lot 5),
+`STG-ISOL-01` (avant promotion Staging du Lot 4 Keycloak sur `ai-test-server` mutualisé).
+
+**Ce que cet avis ne fait PAS** : aucune décision de Gate 06A (GO/GO sous réserve/NO GO) — la
+décision reste au Chief Delivery Officer (Product Owner) ; n'autorise pas le démarrage du Lot 1,
+toujours subordonné à l'approbation du Plan d'Exécution (« PROPOSÉ — NON APPROUVÉ — CODE INTERDIT »)
+et à la levée de la réserve ci-dessus ; n'exécute ni `DEVSECOPS-07` ni `CHECK-CICD-01`, qui restent
+`non exécuté`, jamais requalifiés. Limite d'indépendance identique à celle déjà tracée pour les
+autres rôles : Claude Code est co-auteur des artefacts qu'il revoit ici (`ADR-UI-001`,
+`plan-execution-ux-ui-primeng-keycloak.md`).
+
+**Documents modifiés** : `docs/cgpa/checklists/CHECK-DEVSECOPS-01-ep17-lot1-readiness.md` (créé),
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` (référence à l'avis
+ajoutée).
+
+**Prochaine action autorisée** : soumettre cet avis à la validation explicite du Product Owner ;
+produire le rapport de compatibilité/licence/sécurité PrimeNG (Lot 0) pour lever la réserve
+bloquante avant Lot 1 ; le cas échéant, demander la production de l'avis Frontend Architect pour
+Gate 04A comme action distincte.
