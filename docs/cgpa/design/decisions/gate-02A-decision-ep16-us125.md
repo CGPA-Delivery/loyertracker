@@ -41,10 +41,10 @@
 | ID | Type | Impact | Autorité d'acceptation | Responsable | Échéance | Preuve attendue | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | — (validation PO) | Bloqueur | Seul critère non satisfait des 11 ; non substituable par aucun avis de sous-agent | Product Owner | Product Owner | Avant instruction du Gate 02A | Décision Product Owner tracée | **Objet de cette soumission** |
-| DDS-cand-1 | Réserve non bloquante | Emplacement préférences côté Gestionnaire non tranché | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée dans `design-decision-register.md` | Ouvert |
-| DDS-cand-2 | Réserve non bloquante | Filtre/pagination historique non tranché | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée | Ouvert |
-| DDS-cand-3 | Réserve non bloquante | Mapping statuts Outbox/Delivery non tranché formellement | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée | Ouvert |
-| DDS-cand-4 | Réserve non bloquante | Premier modal du produit, sans précédent focus-trap/restitution focus | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée + `CHECK-ACCESSIBILITY-01` dédié | Ouvert |
+| DDS-cand-1 | Réserve non bloquante | Emplacement préférences côté Gestionnaire non tranché | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée dans `design-decision-register.md` | **Formalisée le 2026-07-31** — `DDS-LT-002`, statut Proposée, validation Product Owner requise pour Acceptée |
+| DDS-cand-2 | Réserve non bloquante | Filtre/pagination historique non tranché | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée | **Formalisée le 2026-07-31** — `DDS-LT-003`, statut Proposée, validation Product Owner requise pour Acceptée |
+| DDS-cand-3 | Réserve non bloquante | Mapping statuts Outbox/Delivery non tranché formellement | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée | **Formalisée le 2026-07-31** — `DDS-LT-004`, statut Proposée, validation Product Owner requise pour Acceptée |
+| DDS-cand-4 | Réserve non bloquante | Premier modal du produit, sans précédent focus-trap/restitution focus | Product Owner | Design Architect | Avant Gate 04A | DDS formalisée + `CHECK-ACCESSIBILITY-01` dédié | **Formalisée le 2026-07-31** — `DDS-LT-005`, statut Proposée ; `CHECK-ACCESSIBILITY-01` reste à exécuter |
 
 ## 5. Avis spécialisés
 

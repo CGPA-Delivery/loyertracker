@@ -3296,3 +3296,59 @@ complétée), `docs/cgpa/design/UXR-001.md` (validation Product Owner tracée),
 (Design Architect) avant instruction du Gate 04A applicable à US-125 ; poursuivre en parallèle la
 levée des bloqueurs propres au Gate 04A/EP-17 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`) et au
 Gate 06A (rapport licence/sécurité PrimeNG).
+
+### Formalisation des DDS-cand-1→4 en DDS-LT-002→005 (2026-07-31) — Proposées, validation Product Owner requise
+
+**Instruction explicite reçue** : « formalise les DDS-cand-1→4 ». Produit par Claude Code en tant
+que **Design Architect** désigné (`agent-designations-loyertracker.md`), conformément à l'action
+déjà tracée ci-dessus et à `design-architect.md` (« maintenir DSG-001 et le registre DDS »).
+
+**Quatre nouvelles DDS créées**, chacune fondée sur les livrables Phase 02 déjà produits, jamais
+sur une hypothèse nouvelle :
+
+* **`DDS-LT-002`** (ex-DDS-cand-1, emplacement préférences Gestionnaire) : Option B retenue
+  (section embarquée dans `GestionnaireDashboardComponent`, patron déjà éprouvé pour Alertes) —
+  Option A (nouvelle route `/gestionnaire/profil`) écartée pour ce lot, périmètre disproportionné
+  par rapport à la priorité *Should*/8 points d'US-125, réversible sans dette si un besoin futur
+  élargit le périmètre.
+* **`DDS-LT-003`** (ex-DDS-cand-2, filtre/pagination historique) : aucun filtre pour ce lot,
+  alignement sur le précédent minimal (Alertes, Audit). Fondé sur un constat factuel vérifié dans
+  `docs/project-state.md` : `notification_outbox`/`notification_delivery` sont **à 0 en
+  Production** (K8/ADR-18, canaux externes inactifs) — aucune donnée de volume réel ne justifie un
+  filtre, conformément à la règle explicite de `phase-02-design-system.md` §5 (« pas par défaut »).
+  Critère de réévaluation posé : après activation réelle des canaux externes (post-GO Sprint N+2).
+* **`DDS-LT-004`** (ex-DDS-cand-3, mapping statuts Outbox/Delivery) : formalise tel quel le mapping
+  à 7 lignes déjà proposé par `phase-02-ui-mockups.md` §0 (aucune option concurrente réellement
+  instruite), avec règle de priorité de niveau explicitée (Delivery prévaut sur Outbox terminal).
+* **`DDS-LT-005`** (ex-DDS-cand-4, `lt-confirm-dialog`) : encapsulation du `ConfirmDialog` PrimeNG
+  (déjà candidaté par `DSG-001.md`), assortie de **six exigences d'accessibilité non négociables**
+  (focus-trap complet, restitution du focus à l'élément déclencheur, fermeture `Échap`, rôle ARIA
+  `alertdialog`/`dialog` + `aria-modal`, libellés d'action explicites, confirmation
+  `role="status" aria-live="polite"`) — consolide en une spécification opposable des points jusque
+  là dispersés entre trois documents (`phase-02-ui-mockups.md`, `DSG-001.md`, `UXR-001.md`).
+
+**Statut de chacune** : **Proposée** — recommandation du Design Architect, jamais auto-déclarée
+**Acceptée** par Claude Code lui-même, conformément à `chief-delivery-officer.md` (« Il ne délègue
+jamais la décision finale à un sous-agent ») : la validation Product Owner reste requise pour
+chacune avant tout passage à **Acceptée**, distinctement de la décision GO sous réserve déjà rendue
+sur le Gate 02A lui-même (qui portait sur les 11 points de contrôle, pas sur le contenu de ces
+quatre DDS).
+
+**Mises à jour de traçabilité** : `design-decision-register.md` (quatre lignes ajoutées) ;
+`UXR-001.md` (tableau DDS candidates mis à jour, action « Formaliser les DDS » marquée Fait) ;
+`gate-02A-decision-ep16-us125.md` §4 (les quatre réserves marquées Formalisée, non closes).
+
+**Ce que cette formalisation ne fait PAS** : elle ne clôt aucune des quatre réserves non
+bloquantes du Gate 02A — celles-ci restent ouvertes jusqu'à validation Product Owner explicite de
+chaque DDS ; elle ne prononce aucune décision de Gate 04A ; elle n'autorise aucune implémentation
+(`lt-confirm-dialog` reste en outre bloqué par la vérification de compatibilité PrimeNG × Angular
+22, préalable du Lot 0 non levé).
+
+**Documents modifiés** : `docs/cgpa/design/decisions/DDS-LT-002-emplacement-preferences-gestionnaire.md`,
+`DDS-LT-003-filtre-pagination-historique-notifications.md`, `DDS-LT-004-mapping-statuts-notification.md`,
+`DDS-LT-005-composant-modal-confirmation.md` (créés) ; `design-decision-register.md`,
+`UXR-001.md`, `gate-02A-decision-ep16-us125.md` (mis à jour).
+
+**Prochaine action autorisée** : soumettre `DDS-LT-002→005` à la validation explicite du Product
+Owner (passage Proposée → Acceptée) ; poursuivre en parallèle la levée des bloqueurs Gate 04A/EP-17
+(`DD-611-02`, `DD-611-03`, `DD-EP17-08`) et Gate 06A (rapport licence/sécurité PrimeNG).
