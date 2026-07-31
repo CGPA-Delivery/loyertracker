@@ -10,7 +10,7 @@
 |---|---|
 | Identifiant | DDS-LT-003 |
 | Titre | Filtre et pagination de l'historique des notifications |
-| Statut | **Proposée** — recommandation du Design Architect, en attente de validation Product Owner |
+| Statut | **Acceptée** — validation Product Owner explicite obtenue le 2026-07-31 |
 | Date | 2026-07-31 |
 | Responsable | Design Architect — Claude Code, sous-agent CGPA désigné le 2026-07-30 |
 | Version DSG | `DSG-001.md` v0.1.0 |
@@ -112,6 +112,11 @@ volume réel de notifications est observé en Production après activation des c
 
 ## Décision
 
-* **Statut : Proposée** (2026-07-31, Design Architect). Validation Product Owner requise pour
-  passer au statut **Acceptée**.
+* **Statut : Acceptée** — décision explicite du Product Owner (jptshilombo@gmail.com), 2026-07-31
+  (« valide DDS-LT-002→005 »), sur la recommandation du Design Architect (aucun filtre pour ce lot).
+* Cette acceptation ne vaut ni GO, ni GO sous réserve, ni NO GO du Gate 04A applicable à US-125 —
+  elle clôt la réserve non bloquante DDS-cand-2 du Gate 02A
+  (`gate-02A-decision-ep16-us125.md` §4). Le critère de réévaluation §Critère de réévaluation
+  reste applicable : cette décision n'est pas figée sans limite, elle est due pour révision dès
+  qu'un volume réel de notifications est observé en Production.
 * Aucune implémentation n'est autorisée par ce document.
