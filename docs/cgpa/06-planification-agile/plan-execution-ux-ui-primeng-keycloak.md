@@ -61,9 +61,15 @@
 * Baseline performance : mesure du bundle actuel (`angular.json`, budgets `1mb`/`2.5mb`) avant
   toute dépendance ajoutée.
 * Captures de référence (Visual Review baseline) : à produire avant tout changement visuel.
-* **Choix de version PrimeNG compatible avec Angular 22.0.8** — vérification officielle
-  obligatoire (documentation éditeur, matrice de compatibilité), aucune version supposée.
-* Analyse licences et sécurité de la dépendance PrimeNG (gouvernance DevSecOps existante).
+* **Choix de version PrimeNG compatible avec Angular 22.0.8** — vérification officielle effectuée
+  le 2026-07-31 : seule `primeng@22.0.0` (publiée le 2026-07-15) supporte Angular 22
+  (`peerDependencies` confirmées), aucune version supposée.
+* Analyse licences et sécurité de la dépendance PrimeNG — **effectuée le 2026-07-31**
+  (`docs/cgpa/07-devsecops/rapport-licence-securite-primeng-lot0.md`) : révèle que PrimeNG a
+  fermé son dépôt et changé de licence (PrimeUI Community/Commercial) le 2026-06-28, **plus MIT**
+  pour la version compatible Angular 22 — choix de licence à trancher explicitement par le Product
+  Owner avant toute installation (Community sous réserve d'éligibilité, Commercial payante, ou
+  reconsidération de `DDS-LT-001`).
 * Gate 02A : **statué pour US-125 le 2026-07-31 — GO sous réserve**
   (`gate-02A-decision-ep16-us125.md`, réserves non bloquantes DDS-cand-1→4 avant Gate 04A). Ne
   couvre que US-125 (EP-16), pas le socle EP-17 traité par ce Plan.
@@ -251,7 +257,8 @@ sprint actif sans décision explicite du Product Owner.**
   ont tous rendu leur avis proposé : UX/UI Design Lead (`UXR-001.md`, GO sous réserve), Design
   Architect (`DSG-001.md`, NO GO en l'état), DevSecOps Lead
   (`CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`, PASS sous réserve — réserve bloquante pour l'entrée
-  en Lot 1 = rapport de compatibilité/licence/sécurité PrimeNG non produit), Frontend Architect
+  en Lot 1 **requalifiée le 2026-07-31** : rapport produit mais révèle un changement de licence
+  PrimeNG, choix explicite du Product Owner désormais attendu), Frontend Architect
   (`CHECK-FRONTEND-01-ep17-ui-foundation.md`, NO GO en l'état — architecture par domaines et lazy
   loading déjà réels et sains, mais stratégie d'état absente, nouvelle dette `DD-EP17-08`).
   **Décision Product Owner rendue le 2026-07-31** : Gate 04A **NO GO en l'état**
