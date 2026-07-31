@@ -11,7 +11,7 @@
 | Date | 2026-07-30 |
 | Décision produit liée | `DDS-LT-001-socle-ui-primeng-keycloak.md` |
 | Auteur | Claude Code (rédaction assistée), validation Product Owner sur la décision de socle |
-| Validateurs requis pour la mise en œuvre | Design Architect — **Claude Code, sous-agent CGPA désigné le 2026-07-30** (`docs/cgpa/agents/agent-designations-loyertracker.md`) ; Frontend Architect, DevSecOps Lead (nouvelle dépendance), Security Architect Keycloak — à désigner |
+| Validateurs requis pour la mise en œuvre | Design Architect — **Claude Code, sous-agent CGPA désigné le 2026-07-30** (`docs/cgpa/agents/agent-designations-loyertracker.md`) ; Frontend Architect — **Claude Code, sous-agent CGPA désigné le 2026-07-31** ; DevSecOps Lead — **Claude Code, sous-agent CGPA désigné le 2026-07-31** ; Security Architect Keycloak — à désigner |
 
 ## Contexte technique
 

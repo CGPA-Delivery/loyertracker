@@ -3046,3 +3046,213 @@ inchangées.
 04A NO GO en l'état) et la désignation elle-même à la validation explicite du Product Owner ;
 désigner un Frontend Architect (et un DevSecOps Lead avant le Lot 1) ; envisager une revue humaine
 indépendante avant toute décision réelle de Gate, compte tenu de la limite d'indépendance tracée.
+
+### Désignation de Claude Code — Frontend Architect et DevSecOps Lead (2026-07-31) — désignation seule, aucun avis rendu
+
+**Instruction explicite reçue** : « désigne un Frontend Architect et un DevSecOps Lead ». Cette
+instruction correspond exactement à la « Prochaine action autorisée » consignée ci-dessus le
+2026-07-30. Avant d'agir, deux points restaient ambigus (titulaire ; périmètre EP/Gate) : le
+Product Owner a confirmé explicitement (1) **Claude Code** comme titulaire des deux rôles, selon le
+même schéma que la désignation UX/UI Design Lead/Design Architect, et (2) le périmètre **EP-17
+(Gate 04A)** pour le Frontend Architect et **avant le Lot 1** (Gate 06A, DEVSECOPS-07) pour le
+DevSecOps Lead.
+
+**Désignation tracée** dans `docs/cgpa/agents/agent-designations-loyertracker.md` (deux nouvelles
+lignes, désignation additive — les entrées UX/UI Design Lead et Design Architect du 2026-07-30 ne
+sont pas modifiées) : Claude Code occupe désormais, pour le périmètre confirmé, les rôles
+**Frontend Architect** (`docs/cgpa/agents/frontend-architect.md`) et **DevSecOps Lead**
+(`docs/cgpa/agents/devsecops-lead.md`).
+
+**Limites explicitement tracées**, reprises et complétées dans le document de désignation :
+
+* aucune décision de Gate (GO/GO sous réserve/NO GO) n'est autorisée par ces rôles — Gate 04A et
+  Gate 06A compris — la décision reste au Chief Delivery Officer (Product Owner) ;
+* aucune levée du contrôle DEVSECOPS-07 ni du résultat agrégé **NON EXÉCUTÉ** de
+  `CHECK-UX-01-ep17-ui-foundation.md` par la seule désignation — un contrôle bloquant sans preuve
+  technique reste `non exécuté`, jamais `non applicable` (`CLAUDE.md`) ;
+* limite d'indépendance inchangée : Claude Code reste l'auteur des artefacts (`ADR-UI-001`,
+  `DDS-LT-001`, `DSG-001`, `plan-execution-ux-ui-primeng-keycloak.md`) qu'il serait ici appelé à
+  revoir en tant que Frontend Architect ou DevSecOps Lead ;
+* **aucun avis Frontend Architect ou DevSecOps Lead n'est produit par cette action** — l'instruction
+  reçue portait exclusivement sur la désignation, pas sur la production d'un avis pour Gate 04A ou
+  Gate 06A ; ce périmètre n'a donc pas été étendu au-delà de ce qui a été demandé.
+
+**Documents modifiés** : `docs/cgpa/agents/agent-designations-loyertracker.md` (deux lignes
+ajoutées, sections « autorise »/« n'autorise pas » complétées),
+`docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md`,
+`docs/cgpa/design/DSG-001.md` (deux mentions), `docs/cgpa/design/design-decision-register.md`,
+`docs/cgpa/05-architecture-conception/adr/ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md`,
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` — chaque mention
+« Frontend Architect — à désigner » et « DevSecOps Lead — à désigner » propre à ces deux rôles mise
+à jour de façon cohérente ; la mention « Security Architect Keycloak — à désigner » (ADR-UI-001)
+reste inchangée, hors périmètre de cette instruction.
+
+**Ce que cette désignation ne fait PAS** : aucune décision de Gate n'est prononcée ; aucun avis
+Frontend Architect ou DevSecOps Lead n'est rendu ; aucun code, aucune dépendance, aucun déploiement
+n'est produit. La validation Product Owner explicite du Gate 02A/04A reste, dans tous les cas, à
+obtenir séparément.
+
+**Prochaine action autorisée** : soumettre cette désignation à la validation explicite du Product
+Owner ; le cas échéant, demander la production d'un avis Frontend Architect (Gate 04A) et/ou d'un
+avis DevSecOps Lead (Gate 06A/DEVSECOPS-07) comme action distincte ; envisager une revue humaine
+indépendante avant toute décision réelle de Gate, compte tenu de la limite d'indépendance tracée.
+
+### Avis DevSecOps Lead — Gate 06A, périmètre EP-17 avant Lot 1 (2026-07-31) — PASS sous réserve proposé, aucune décision de Gate
+
+**Instruction explicite reçue** : « produis l'avis DevSecOps Lead pour Gate 06A ». Produit par
+Claude Code en tant que DevSecOps Lead, désigné le 2026-07-31
+(`docs/cgpa/agents/agent-designations-loyertracker.md`), pour le périmètre confirmé de cette
+désignation : EP-17, avant Lot 1.
+
+**Avis rendu** (`docs/cgpa/checklists/CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`, nouveau
+document) : Gate 06A valide la **capacité du dispositif**, pas l'exécution effective sur un
+artefact EP-17 (rôle de `DEVSECOPS-07`, distinct et non exécuté faute d'artefact). Constat : le
+dispositif CI/CD existant (`gate-06A-decision.md`, **GO ratifié le 2026-06-16**, DSO-01→05
+automatisés) couvre déjà, de façon générique, tout ajout de dépendance npm comme PrimeNG — jobs
+`frontend`/`security` de `.github/workflows/ci.yml` (build, tests, ESLint, CodeQL, SonarQube,
+OWASP Dependency-Check, Trivy, Gitleaks) s'exécutent automatiquement sur toute PR touchant
+`frontend/`. Le thème Keycloak prévu (Lot 4) est constaté comme fichiers statiques montés en volume
+sur l'image upstream `quay.io/keycloak/keycloak:24.0` (même mécanisme que le realm JSON déjà
+monté) — **aucune image Keycloak custom** n'est construite en CI ni prévue par le Plan, donc aucun
+écart de pipeline sur ce point.
+
+**Proposition : PASS sous réserve** (équivalent GO sous réserve). Réserve unique, **bloquante pour
+l'entrée en Lot 1** (non pour le Gate 06A lui-même, qui n'exige pas cette preuve dans ses propres
+critères) : le rapport de compatibilité/licence/sécurité PrimeNG attendu en sortie du Lot 0
+(`plan-execution-ux-ui-primeng-keycloak.md` §Lot 0) n'est pas produit — un contrôle de licence
+n'est pas couvert par Trivy/OWASP DC, qui ne scannent que les CVE. Responsable : DevSecOps Lead +
+Frontend Architect (Claude Code) ; échéance : avant toute installation effective de PrimeNG.
+Réserves non bloquantes reportées à leurs jalons déjà tracés dans le Plan : `DEVSECOPS-07` (avant
+première promotion d'un artefact EP-17), `CHECK-CICD-01` (avant Gate Staging du pilote, Lot 5),
+`STG-ISOL-01` (avant promotion Staging du Lot 4 Keycloak sur `ai-test-server` mutualisé).
+
+**Ce que cet avis ne fait PAS** : aucune décision de Gate 06A (GO/GO sous réserve/NO GO) — la
+décision reste au Chief Delivery Officer (Product Owner) ; n'autorise pas le démarrage du Lot 1,
+toujours subordonné à l'approbation du Plan d'Exécution (« PROPOSÉ — NON APPROUVÉ — CODE INTERDIT »)
+et à la levée de la réserve ci-dessus ; n'exécute ni `DEVSECOPS-07` ni `CHECK-CICD-01`, qui restent
+`non exécuté`, jamais requalifiés. Limite d'indépendance identique à celle déjà tracée pour les
+autres rôles : Claude Code est co-auteur des artefacts qu'il revoit ici (`ADR-UI-001`,
+`plan-execution-ux-ui-primeng-keycloak.md`).
+
+**Documents modifiés** : `docs/cgpa/checklists/CHECK-DEVSECOPS-01-ep17-lot1-readiness.md` (créé),
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` (référence à l'avis
+ajoutée).
+
+**Prochaine action autorisée** : soumettre cet avis à la validation explicite du Product Owner ;
+produire le rapport de compatibilité/licence/sécurité PrimeNG (Lot 0) pour lever la réserve
+bloquante avant Lot 1 ; le cas échéant, demander la production de l'avis Frontend Architect pour
+Gate 04A comme action distincte.
+
+### Avis Frontend Architect — Gate 04A, instance EP-17 (2026-07-31) — NO GO en l'état proposé, aucune décision de Gate
+
+**Instruction explicite reçue** : « produis l'avis Frontend Architect pour Gate 04A ». Produit par
+Claude Code en tant que Frontend Architect, désigné le 2026-07-31
+(`docs/cgpa/agents/agent-designations-loyertracker.md`).
+
+**Avis rendu** (`docs/cgpa/checklists/CHECK-FRONTEND-01-ep17-ui-foundation.md`, nouveau document,
+même principe que `CHECK-UX-01-ep17-ui-foundation.md`) : contrairement au système de composants
+(inexistant), une partie du périmètre Frontend Architect est **déjà réelle dans le code**, vérifiée
+par lecture directe — `frontend/src/app/` déjà structuré par domaine (`bailleur/`, `gestionnaire/`,
+`alertes/`, `audit/`, `garanties/`, `honoraires/`, `paiements/`, `public/`, `shared/`, `core/`) et
+`app.routes.ts` utilise déjà le lazy loading (`loadComponent`) avec guard d'authentification. Sur
+les 8 contrôles de `CHECK-FRONTEND-01` : 0 PASS, 5 « Préparation en cours », **3 « Non exécuté »**
+— dont un gap nouvellement identifié : **aucune stratégie d'état documentée** (services exposant
+des `Observable` consommés directement par des champs de composant, jamais formalisé,
+`ADR-UI-001` ne couvre pas le sujet). Nouvelle dette tracée : **`DD-EP17-08`**
+(`design-debt-register-loyertracker.md`, Majeur, Frontend Architect, échéance avant Lot 2).
+
+**Revue de `traceability-ui-loyertracker.md`** (`DD-611-03`, dette déjà assignée au Frontend
+Architect) : structure correcte mais cases majoritairement « À définir » — **aucune approbation
+donnée**, `DD-611-03` reste non close.
+
+**Proposition : NO GO en l'état pour le Gate 04A** — conforme à la règle d'agrégation du
+Validation Framework CGPA v6.1.1 (§8, règle 2), et **cohérent avec le NO GO déjà établi** par
+`CHECK-UX-01-ep17-ui-foundation.md` et l'avis Design Architect (`DSG-001.md`) : ce n'est pas un
+troisième signal négatif indépendant, mais la confirmation du même état sous l'angle Architecture
+Frontend. Non un jugement défavorable sur la base existante (domaines/lazy loading jugés sains,
+aucune réécriture recommandée) — seule une clarification documentaire (confirmer explicitement
+dans `ADR-UI-001` que cette structure reste la cible) est suggérée, non bloquante.
+
+**Ce que cet avis ne fait PAS** : aucune décision de Gate 04A ; aucune clôture de dette au-delà de
+la preuve réelle produite (`DD-611-03` reste non close) ; n'autorise aucun développement Frontend
+(`plan-execution-ux-ui-primeng-keycloak.md` reste « PROPOSÉ — NON APPROUVÉ — CODE INTERDIT »).
+Limite d'indépendance identique aux trois autres rôles désignés : Claude Code est co-auteur des
+artefacts qu'il revoit ici (`ADR-UI-001`, `DSG-001`, `traceability-ui-loyertracker.md`).
+
+**Documents modifiés** : `docs/cgpa/checklists/CHECK-FRONTEND-01-ep17-ui-foundation.md` (créé),
+`docs/cgpa/design/design-debt-register-loyertracker.md` (`DD-EP17-08` ajoutée),
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` (récapitulatif des
+quatre avis désormais rendus mis à jour).
+
+**Prochaine action autorisée** : soumettre les quatre avis (UX/UI Design Lead, Design Architect,
+DevSecOps Lead, Frontend Architect) et les quatre désignations à la validation explicite du
+Product Owner ; produire le rapport de compatibilité/licence/sécurité PrimeNG (Lot 0) et une
+stratégie d'état documentée (`DD-EP17-08`) pour progresser vers un GO du Gate 04A/06A ; envisager
+une revue humaine indépendante avant toute décision réelle de Gate, compte tenu de la limite
+d'indépendance tracée pour les quatre rôles.
+
+### Soumission des quatre avis au Product Owner — Gate 04A et Gate 06A, EP-17 (2026-07-31) — en attente de décision explicite
+
+**Instruction explicite reçue** : « soumets les quatre avis au Product Owner pour validation ».
+Claude Code consolide, sans les modifier, les quatre avis déjà rendus (UX/UI Design Lead,
+Design Architect, DevSecOps Lead, Frontend Architect) dans deux instances du gabarit CGPA
+`docs/cgpa/templates/go-no-go.md` — première utilisation de ce gabarit dans ce dépôt — l'un des
+avis (UX/UI Design Lead) ayant été rendu spécifiquement pour Gate 02A, non ré-instruit pour
+Gate 04A à ce jour.
+
+* **Gate 04A** : `docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md` — sections 1 à 5
+  renseignées (avis UX/UI Design Lead, Design Architect, Frontend Architect ; bloqueurs `DD-611-02`,
+  `DD-611-03`, `DD-EP17-08`, UI Specifications, validation PO Gate 02A). **Section 6 (Décision
+  finale) explicitement laissée vide.**
+* **Gate 06A** : `docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md` — sections 1 à 5
+  renseignées (avis DevSecOps Lead ; Delivery Architect et Enterprise Architect notés « non
+  consultés dans ce cycle, hors périmètre de l'instruction reçue » plutôt qu'un avis inventé). Ne
+  remplace ni ne rouvre `gate-06A-decision.md` (GO ratifié le 2026-06-16, périmètre projet
+  général) — confirme/étend cette capacité au périmètre EP-17. **Section 6 explicitement laissée
+  vide.**
+
+**Ce que cette soumission ne fait PAS** : elle ne prononce **aucune** décision de Gate — les deux
+documents attendent explicitement la décision du CGPA Chief Delivery Officer (Product Owner,
+jptshilombo@gmail.com), conformément à `chief-delivery-officer.md` (« Il ne délègue jamais la
+décision finale à un sous-agent ») et `CLAUDE.md`. Aucune des quatre désignations n'est validée par
+cette seule soumission — la validation Product Owner de la désignation elle-même
+(`agent-designations-loyertracker.md`) reste distincte et également en attente.
+
+**Documents modifiés** : `docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md` (créé),
+`docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md` (créé).
+
+**Prochaine action autorisée** : obtenir la décision explicite du Product Owner sur les deux
+instances (GO / GO sous réserve / NO GO), qui complètera lui-même la section 6 de chacune (ou
+mandatera Claude Code pour la transcrire mot pour mot après réception) ; à défaut de décision,
+aucune progression vers le Lot 1 n'est autorisée.
+
+### Décision Product Owner — Gate 04A NO GO en l'état, Gate 06A PASS sous réserve (2026-07-31)
+
+**Décision explicite reçue du Product Owner** (jptshilombo@gmail.com), en réponse directe à la
+soumission ci-dessus, transcrite mot pour mot dans la §6 de chaque instance :
+
+* **Gate 04A** (`docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md`) : **NO GO en l'état**
+  — alignée sur les trois avis spécialisés. Prochaine action autorisée : lever les bloqueurs
+  §4 du document (validation Product Owner Gate 02A, `DD-611-02`, `DD-611-03`, `DD-EP17-08`) avant
+  toute nouvelle instruction du Gate 04A. Aucun développement Frontend ni installation de
+  dépendance n'est autorisé.
+* **Gate 06A** (`docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md`) : **PASS sous réserve**
+  — alignée sur l'avis DevSecOps Lead. Réserve bloquante unique pour l'entrée en Lot 1 : rapport
+  de compatibilité/licence/sécurité PrimeNG (Lot 0), non encore produit.
+
+**Conséquence pour le Plan d'Exécution** (`plan-execution-ux-ui-primeng-keycloak.md` §12) : le
+Gate 04A étant NO GO, **le statut du Plan reste inchangé : PROPOSÉ — NON APPROUVÉ — CODE
+INTERDIT**, quel que soit le résultat du Gate 06A pris isolément — les deux Gates applicables
+doivent être statués GO ou GO sous réserve pour lever l'interdiction de code
+(`plan-execution-ux-ui-primeng-keycloak.md` §12 : « les Gates 02A/04A applicables ne sont pas
+statués GO ou GO sous réserve »).
+
+**Documents modifiés** : `docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md` (§6
+complétée), `docs/cgpa/07-devsecops/gate-06A-decision-ep17-lot1.md` (§6 complétée),
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` (statut confirmé
+inchangé).
+
+**Prochaine action autorisée** : lever les bloqueurs du Gate 04A (validation Product Owner Gate
+02A en premier lieu, puis `DD-611-02`, `DD-611-03`, `DD-EP17-08`) et produire le rapport
+licence/sécurité PrimeNG pour le Gate 06A ; seule la levée cumulée des deux permettra une nouvelle
+instruction des Gates concernés et, potentiellement, l'entrée en Lot 1.

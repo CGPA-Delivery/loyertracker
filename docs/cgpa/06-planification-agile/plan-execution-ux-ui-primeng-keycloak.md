@@ -244,7 +244,16 @@ sprint actif sans décision explicite du Product Owner.**
   Keycloak n'est autorisé tant que ce Plan n'est pas explicitement approuvé par le Product Owner
   et que les Gates 02A/04A applicables ne sont pas statués GO ou GO sous réserve.
 * Prochaine étape : soumission de ce Plan, de `DDS-LT-001`, `ADR-UI-001`, `DSG-001` et de
-  l'addendum backlog EP-17 au Product Owner. UX/UI Design Lead et Design Architect sont désignés
-  (Claude Code) et ont rendu leur avis proposé (`UXR-001.md`, `DSG-001.md`) ; restent à désigner :
-  Frontend Architect, DevSecOps Lead. **La validation explicite du Product Owner reste, dans tous
-  les cas, non obtenue et non substituable.**
+  l'addendum backlog EP-17 au Product Owner. UX/UI Design Lead, Design Architect, Frontend
+  Architect et DevSecOps Lead sont désignés (Claude Code, `agent-designations-loyertracker.md`) et
+  ont tous rendu leur avis proposé : UX/UI Design Lead (`UXR-001.md`, GO sous réserve), Design
+  Architect (`DSG-001.md`, NO GO en l'état), DevSecOps Lead
+  (`CHECK-DEVSECOPS-01-ep17-lot1-readiness.md`, PASS sous réserve — réserve bloquante pour l'entrée
+  en Lot 1 = rapport de compatibilité/licence/sécurité PrimeNG non produit), Frontend Architect
+  (`CHECK-FRONTEND-01-ep17-ui-foundation.md`, NO GO en l'état — architecture par domaines et lazy
+  loading déjà réels et sains, mais stratégie d'état absente, nouvelle dette `DD-EP17-08`).
+  **Décision Product Owner rendue le 2026-07-31** : Gate 04A **NO GO en l'état**
+  (`gate-04A-decision-ep17-lot0.md`) ; Gate 06A **PASS sous réserve**
+  (`gate-06A-decision-ep17-lot1.md`, réserve bloquante = rapport licence/sécurité PrimeNG). Le
+  Gate 04A étant NO GO, **le statut du Plan reste inchangé : PROPOSÉ — NON APPROUVÉ — CODE
+  INTERDIT** — le Gate 06A PASS sous réserve ne suffit pas seul à lever cette interdiction.
