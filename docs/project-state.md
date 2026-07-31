@@ -3649,3 +3649,49 @@ Product Owner tracée, statut « non close » maintenu) ; `gate-04A-decision-ep1
 restent ouverts au sens de leurs registres respectifs) ; aucune voie de clôture de `DD-611-02` ou
 `DD-611-03` n'existe hors implémentation de composants sous un Plan d'Exécution approuvé — CODE
 INTERDIT reste la seule contrainte structurante restante.
+
+### Acceptation Product Owner — DD-611-03 (2026-07-31) — validation humaine obtenue, dette non close
+
+**Décision explicite reçue** : le Product Owner (jptshilombo@gmail.com) a examiné le résumé de
+l'avis de validation Frontend Architect (`traceability-ui-loyertracker.md` §Avis de validation,
+PR #319) — neuf affirmations factuelles recoupées avec le code réel, **toutes exactes**, règle
+« À définir » respectée sans exception — et a répondu **« Acceptée sans réserve »**. Décision
+humaine directe, non déléguée, conformément à `CLAUDE.md`.
+
+**Même traitement que `DD-611-02`** : l'acceptation Product Owner fournit la validation humaine
+requise pour le sous-bloqueur Gate 04A « matrice approuvée » (`gate-04A-decision-ep17-lot0.md` §4)
+— elle ne clôt pas `DD-611-03` du registre de dette, qui reste **non close** : les preuves de test
+attendues (unitaire/a11y/responsive/Visual Review) restent structurellement inexistantes tant
+qu'aucun composant `lt-*`/`Notifications*` n'est codé, conformément au Validation Framework CGPA
+v6.1.1 §5 et au verrou CODE INTERDIT (`plan-execution-ux-ui-primeng-keycloak.md` toujours PROPOSÉ
+— NON APPROUVÉ).
+
+**Vérification préalable** : recontrôle qu'aucun fait matériel n'a changé depuis l'avis Frontend
+Architect du 2026-07-31 — aucun composant `lt-*`/`Notifications*` codé, dernier commit touchant
+`frontend/src/app` antérieur (`a483fe9`, 2026-07-17, EP-15), CODE INTERDIT toujours en vigueur.
+
+**Effet** : le sous-bloqueur Gate 04A « matrice approuvée » de `DD-611-03` est **levé**
+(`gate-04A-decision-ep17-lot0.md` §4). Conformément à la clause d'invalidation §6, cette évolution
+matérielle invalide de nouveau la décision Gate 04A existante (NO GO, 2026-07-31) et impose une
+nouvelle instruction du Gate 04A par le Product Owner — cette clôture partielle ne prononce pas
+elle-même un nouveau GO/NO GO.
+
+**Bilan à ce stade** : les trois bloqueurs initiaux du Gate 04A (`DD-611-02`, `DD-611-03`,
+`DD-EP17-08`) ont chacun reçu soit une clôture complète (`DD-EP17-08`), soit l'acceptation Product
+Owner de leur validation humaine (`DD-611-02`, `DD-611-03`) — mais `DD-611-02` et `DD-611-03`
+restent ouverts **en tant que dettes du registre**, l'un pour preuve d'implémentation manquante,
+l'autre pour preuves de test manquantes, toutes deux nécessitant du code sous un Plan d'Exécution
+approuvé, actuellement CODE INTERDIT.
+
+**Documents modifiés** : `design-debt-register-loyertracker.md` (`DD-611-03` mise à jour,
+acceptation Product Owner tracée, statut « non close » maintenu) ; `gate-04A-decision-ep17-lot0.md`
+§4 (statut « Levé » pour le sous-bloqueur, dette registre distinguée explicitement).
+
+**Prochaine action autorisée** : les trois sous-bloqueurs Gate 04A d'origine (validation
+Design Architect, validation Frontend Architect, stratégie d'état) ont désormais tous reçu une
+réponse Product Owner. La prochaine étape structurante est une **nouvelle instruction Gate 04A**
+par le Product Owner (requise par la clause d'invalidation, cumulée sur trois évolutions
+matérielles) ; en parallèle, l'approbation explicite du Plan d'Exécution lui-même reste une action
+distincte (`plan-execution-ux-ui-primeng-keycloak.md` §12), et l'obtention de la clé de licence
+PrimeNG Community reste une action externe au Product Owner, hors périmètre CLI
+(`rapport-licence-securite-primeng-lot0.md`).
