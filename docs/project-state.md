@@ -3256,3 +3256,43 @@ inchangé).
 02A en premier lieu, puis `DD-611-02`, `DD-611-03`, `DD-EP17-08`) et produire le rapport
 licence/sécurité PrimeNG pour le Gate 06A ; seule la levée cumulée des deux permettra une nouvelle
 instruction des Gates concernés et, potentiellement, l'entrée en Lot 1.
+
+### Décision Product Owner — Gate 02A (US-125) GO sous réserve, bloqueur levé (2026-07-31)
+
+**Instruction explicite reçue** : « lève le bloqueur Gate 02A avec le Product Owner ». Ce bloqueur
+est le seul point de contrôle non satisfait sur les 11 de `gate-02A-ux-design-readiness.md` selon
+l'avis UX/UI Design Lead (`UXR-001.md`, 2026-07-30) : la validation Product Owner elle-même.
+
+**Soumission** : nouvelle instance `docs/cgpa/design/decisions/gate-02A-decision-ep16-us125.md`
+(gabarit `go-no-go.md`), consolidant les 11 points de contrôle déjà documentés et l'avis UX/UI
+Design Lead (GO sous réserve). Présentée au Product Owner avec une reformulation simple (hors
+jargon CGPA) des 11 points, à sa demande.
+
+**Décision explicite reçue du Product Owner** (jptshilombo@gmail.com), transcrite mot pour mot en
+§6 : **GO sous réserve**, alignée sur l'avis UX/UI Design Lead. Réserves non bloquantes
+conservées : DDS-cand-1→4 (emplacement préférences Gestionnaire, filtre/pagination historique,
+mapping statuts, premier modal du produit), à formaliser en DDS par le Design Architect avant le
+Gate 04A applicable à US-125.
+
+**Mises à jour de traçabilité** : `UXR-001.md` (validation Product Owner tracée **Oui**, décision
+Gate 02A rendue documentée dans l'avis) ; `gate-04A-decision-ep17-lot0.md` §4 (bloqueur
+« validation PO Gate 02A » marqué **Levé le 2026-07-31** — ne modifie pas à lui seul la décision
+Gate 04A NO GO en l'état du 2026-07-31, les bloqueurs `DD-611-02`/`DD-611-03`/`DD-EP17-08` et la
+validation Product Owner **propre au Gate 04A**, distincte de celle du Gate 02A, restant ouverts) ;
+`plan-execution-ux-ui-primeng-keycloak.md` §Lot 0 (Gate 02A noté statué, ne couvre que US-125/EP-16,
+pas le socle EP-17).
+
+**Ce que cette décision ne fait PAS** : elle ne prononce aucune décision sur le Gate 04A (ni pour
+US-125 ni pour EP-17) ; elle ne clôt aucune des quatre DDS candidates, qui restent à formaliser ;
+elle ne lève pas la limite d'indépendance déjà tracée (Claude Code, auteur de l'avis UX/UI Design
+Lead, est aussi l'auteur des documents Phase 02 revus).
+
+**Documents modifiés** : `docs/cgpa/design/decisions/gate-02A-decision-ep16-us125.md` (créé, §6
+complétée), `docs/cgpa/design/UXR-001.md` (validation Product Owner tracée),
+`docs/cgpa/design/decisions/gate-04A-decision-ep17-lot0.md` (§4 mise à jour),
+`docs/cgpa/06-planification-agile/plan-execution-ux-ui-primeng-keycloak.md` (§Lot 0 mise à jour).
+
+**Prochaine action autorisée** : formaliser DDS-cand-1→4 dans `design-decision-register.md`
+(Design Architect) avant instruction du Gate 04A applicable à US-125 ; poursuivre en parallèle la
+levée des bloqueurs propres au Gate 04A/EP-17 (`DD-611-02`, `DD-611-03`, `DD-EP17-08`) et au
+Gate 06A (rapport licence/sécurité PrimeNG).
