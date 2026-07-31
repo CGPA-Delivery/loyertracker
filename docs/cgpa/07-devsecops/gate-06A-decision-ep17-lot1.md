@@ -37,7 +37,7 @@
 
 | ID | Type | Impact | Autorité d'acceptation | Responsable | Échéance | Preuve attendue | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| CHECK-DEVSECOPS-01 §2 écart 1 | Bloqueur (entrée Lot 1 uniquement) | Rapport produit le 2026-07-31 (`rapport-licence-securite-primeng-lot0.md`) — révèle que PrimeNG a changé de licence (PrimeUI Community/Commercial, dépôt archivé 2026-06-28) depuis `DDS-LT-001` ; seule `primeng@22.0.0` supporte Angular 22, plus MIT | Product Owner | Product Owner (choix de licence) | Avant installation effective de PrimeNG | Choix explicite Product Owner parmi Community/Commercial/reconsidération `DDS-LT-001` | **Requalifié le 2026-07-31** — rapport produit, mais réserve toujours ouverte (décision de licence à prendre) |
+| CHECK-DEVSECOPS-01 §2 écart 1 | Bloqueur (entrée Lot 1 uniquement) | Rapport produit et licence choisie le 2026-07-31 : Community License PrimeUI, éligibilité confirmée par le Product Owner (auto-déclaration) | Product Owner | Product Owner (obtention clé), DevSecOps Lead (secret + rappel annuel) | Avant installation effective de PrimeNG | Clé de licence obtenue et gérée comme secret hors code | **Requalifié le 2026-07-31** — licence choisie et éligibilité confirmée ; reste ouvert : obtention effective de la clé (action externe hors CLI) |
 | CHECK-DEVSECOPS-01 §2 écart 2 | Réserve non bloquante | `DEVSECOPS-07` non exécuté | Product Owner | DevSecOps Lead | Avant première promotion d'un artefact EP-17 | `DEVSECOPS-07` renseigné | Ouvert, jalon futur déjà tracé |
 | CHECK-DEVSECOPS-01 §2 écart 4 | Réserve non bloquante | `STG-ISOL-01` non réexécuté pour EP-17 | Product Owner | DevSecOps Lead | Avant promotion Staging du Lot 4 | `STG-ISOL-01` complétée | Ouvert, jalon futur déjà tracé |
 

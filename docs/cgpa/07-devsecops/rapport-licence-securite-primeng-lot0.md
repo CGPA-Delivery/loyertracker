@@ -81,7 +81,7 @@ expirée, le paquet injecte une bannière visible en bas à droite de la page**,
 fermé délibérément conçu pour résister à un masquage trivial par CSS. **C'est un risque
 opérationnel de production**, détaillé §4.
 
-## 3. Éligibilité LoyerTracker — à confirmer explicitement par le Product Owner
+## 3. Éligibilité LoyerTracker — confirmée par le Product Owner le 2026-07-31
 
 Les critères techniques disponibles dans ce dépôt sont compatibles avec une éligibilité
 **Community License** :
@@ -90,11 +90,19 @@ Les critères techniques disponibles dans ce dépôt sont compatibles avec une �
 * projet qualifié « MVP en cap vers la production (PME) » (`gate-06A-decision.md`, 2026-06-16) —
   cohérent avec une petite structure.
 
-**Ce que ce rapport ne peut PAS vérifier** : le chiffre d'affaires annuel réel, le nombre
-d'employés total (au-delà des développeurs) et le financement externe cumulé de l'organisation
-opérant LoyerTracker sont des données financières internes auxquelles Claude Code n'a pas accès et
-qu'il ne doit pas présumer. **Confirmation explicite du Product Owner requise** avant de retenir la
-voie Community License comme acquise.
+**Ce que ce rapport ne pouvait PAS vérifier par lui-même** : le chiffre d'affaires annuel réel, le
+nombre d'employés total (au-delà des développeurs) et le financement externe cumulé de
+l'organisation opérant LoyerTracker sont des données financières internes auxquelles Claude Code
+n'a pas accès.
+
+**Confirmation explicite obtenue** : le Product Owner (jptshilombo@gmail.com) a confirmé
+explicitement le 2026-07-31 que les quatre critères sont remplis (moins de 1 000 000 USD de
+revenu annuel brut, moins de 5 développeurs, moins de 10 employés, jamais reçu plus de
+3 000 000 USD de financement externe). **Cette confirmation est tracée comme une
+auto-déclaration du Product Owner** — Claude Code n'a pas vérifié ces montants de façon
+indépendante (il n'en a pas les moyens), conformément à la nature même de la Community License
+(déclarative, sur l'honneur, renouvelée annuellement par confirmation de l'éligibilité continue,
+pas par un audit financier de PrimeTek).
 
 ## 4. Sécurité (CVE) et maturité
 
@@ -144,35 +152,40 @@ effective (Lot 1), sans que ce rapport ne préjuge de l'issue.
 produit.** Il ne clôt cependant pas cette réserve par un simple « conforme » : il révèle un fait
 nouveau et significatif, non un problème de conformité résolu.
 
-**Recommandation** : avant toute installation de PrimeNG (Lot 1), le Product Owner doit trancher
-explicitement entre :
+**Décision Product Owner obtenue le 2026-07-31** : **Option 1 retenue — PrimeNG 22 sous Community
+License**, éligibilité confirmée explicitement par le Product Owner (§3). Les deux autres options
+(Commercial License payante ; reconsidération de `DDS-LT-001`) ne sont plus retenues, sauf
+changement futur de situation (ex. dépassement d'un des quatre seuils).
 
-1. **Poursuivre avec PrimeNG 22 sous Community License**, sous réserve de confirmer l'éligibilité
-   réelle de l'organisation (§3) — voie la moins coûteuse et la plus mature techniquement, mais
-   introduit une **nouvelle obligation de gouvernance récurrente** (renouvellement annuel
-   d'éligibilité, gestion de la clé de licence comme secret hors code — cohérent avec DSO-03,
-   surveillance du risque de bannière de licence invalide en Production si la clé expire).
-2. **Payer une Commercial License** (~599 USD/développeur) si l'éligibilité Community n'est pas
-   confirmée ou pour éviter la contrainte de renouvellement annuel.
-3. **Reconsidérer `DDS-LT-001`** : attendre une version stable d'`open-prime` (MIT), ou rouvrir
-   l'évaluation d'une autre bibliothèque (Angular Material, déjà écartée par `DDS-LT-001` pour des
-   raisons distinctes de la licence).
+**Ce que cette décision autorise** : le choix de licence est tranché. **Ce qu'elle n'autorise pas
+encore** :
 
-**Ce que cet avis ne fait PAS** : il ne choisit pas entre ces trois options — c'est une décision de
-gouvernance (coût, risque de marque, dépendance à une bibliothèque non-open-source) qui revient au
-Product Owner, pas au DevSecOps Lead ; il ne prononce aucune décision de Gate 06A (celle-ci reste
-`gate-06A-decision-ep17-lot1.md` §6, déjà rendue PASS sous réserve) ; il ne lève pas la réserve de
-`CHECK-DEVSECOPS-01` unilatéralement — la levée reste conditionnée au choix explicite du Product
-Owner parmi les trois options ci-dessus.
+* **L'obtention effective de la clé de licence Community reste une action externe distincte**, non
+  réalisable par Claude Code : elle suppose la création d'un compte sur `primeui.dev` et
+  l'acceptation d'un accord de licence engageant l'organisation — un acte que seul le Product
+  Owner (ou une personne mandatée) peut accomplir, au même titre qu'un compte SonarQube ou un
+  accès GHCR déjà gérés hors CLI dans ce projet.
+* Une fois la clé obtenue, elle doit être **gérée comme un secret hors code** (cohérent avec DSO-03
+  déjà en place : `.env` non versionné, Gitleaks en CI) — jamais committée, jamais affichée dans
+  une session de diagnostic.
+* Un **rappel de renouvellement annuel** doit être créé (la Community License expire 12 mois après
+  émission, période de grâce de 30 jours) pour éviter l'apparition de la bannière de licence
+  invalide en Production (§2).
+* Ce choix ne préjuge pas des bloqueurs distincts du Gate 04A/EP-17 (`DD-611-02`, `DD-611-03`,
+  `DD-EP17-08`), ni de l'approbation du Plan d'Exécution — le Lot 1 reste subordonné à leur levée
+  cumulée.
+
+Aucune décision de Gate 06A n'est reprononcée par cet avis (celle-ci reste
+`gate-06A-decision-ep17-lot1.md` §6, déjà rendue PASS sous réserve, 2026-07-31).
 
 ## 8. Actions et échéances
 
-| Action | Responsable | Échéance |
-|---|---|---|
-| Confirmer l'éligibilité réelle Community License (CA, effectifs, financement) | Product Owner | Avant Lot 1 |
-| Choisir explicitement parmi les trois options §7 | Product Owner | Avant Lot 1 |
-| Si Community/Commercial retenue : définir la gestion de la clé de licence comme secret hors code (cohérent DSO-03, Gitleaks) et un rappel de renouvellement annuel | DevSecOps Lead | Avant installation effective |
-| Revoir `DDS-LT-001` à la lumière de ce constat (confirmation ou amendement) | Design Architect + Product Owner | Avant Lot 1 |
+| Action | Responsable | Échéance | Statut |
+|---|---|---|---|
+| Confirmer l'éligibilité réelle Community License (CA, effectifs, financement) | Product Owner | Avant Lot 1 | **Fait** (2026-07-31) — auto-déclaration explicite, quatre critères remplis |
+| Choisir explicitement parmi les trois options §7 | Product Owner | Avant Lot 1 | **Fait** (2026-07-31) — Option 1, Community License |
+| Créer le compte `primeui.dev` et obtenir la clé de licence Community (accord de licence à accepter) | Product Owner (ou personne mandatée) | Avant installation effective de PrimeNG | Non fait — action externe hors périmètre CLI |
+| Définir la gestion de la clé de licence comme secret hors code (cohérent DSO-03, Gitleaks) et un rappel de renouvellement annuel | DevSecOps Lead | Avant installation effective, une fois la clé obtenue | Non fait |
 
 ## Sources
 
