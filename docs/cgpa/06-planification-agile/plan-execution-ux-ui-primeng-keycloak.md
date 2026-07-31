@@ -64,9 +64,11 @@
 * **Choix de version PrimeNG compatible avec Angular 22.0.8** — vérification officielle
   obligatoire (documentation éditeur, matrice de compatibilité), aucune version supposée.
 * Analyse licences et sécurité de la dépendance PrimeNG (gouvernance DevSecOps existante).
-* Gate 02A : à instruire pour US-125 (déjà en cours, cf. `UXR-001.md`) — ce Plan n'en anticipe
-  pas la décision.
-* Gate 04A : préparé (livrables ci-dessus), non instruit.
+* Gate 02A : **statué pour US-125 le 2026-07-31 — GO sous réserve**
+  (`gate-02A-decision-ep16-us125.md`, réserves non bloquantes DDS-cand-1→4 avant Gate 04A). Ne
+  couvre que US-125 (EP-16), pas le socle EP-17 traité par ce Plan.
+* Gate 04A : préparé (livrables ci-dessus), statué NO GO en l'état le 2026-07-31 pour le périmètre
+  EP-17 (`gate-04A-decision-ep17-lot0.md`).
 
 **Sortie du Lot 0** : rapport de compatibilité PrimeNG, version candidate proposée (non installée),
 choix Option A/B pour la source de tokens partagée Angular/Keycloak documenté dans `ADR-UI-001`.

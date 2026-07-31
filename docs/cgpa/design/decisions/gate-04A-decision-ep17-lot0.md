@@ -41,7 +41,7 @@
 | DD-611-03 | Bloqueur | Traçabilité Story-écran-composant-test incomplète (cases majoritairement « À définir ») | Product Owner | Frontend Architect | Avant développement Lot 1 | Matrice approuvée | Ouvert — non close par l'avis Frontend Architect du 2026-07-31 |
 | DD-EP17-08 | Bloqueur (nouveau) | Aucune stratégie d'état documentée | Product Owner | Frontend Architect | Avant Lot 2 | Stratégie d'état tracée dans `ADR-UI-001` ou une DDS dédiée | Ouvert — identifié 2026-07-31 |
 | — (UI Specifications) | Réserve | `ui-specifications.md` non instancié | Product Owner | Design Architect | Avant démarrage Lot 2 si non produit | `ui-specifications.md` instancié | Ouvert, note dans `DSG-001.md` |
-| — (validation PO Gate 02A) | Bloqueur | Critère Gate 02A non substituable par aucun avis de sous-agent | Product Owner | Product Owner | Avant Gate 02A puis Gate 04A | Décision Product Owner tracée | Ouvert |
+| — (validation PO Gate 02A) | Bloqueur | Critère Gate 02A non substituable par aucun avis de sous-agent | Product Owner | Product Owner | Avant Gate 02A puis Gate 04A | Décision Product Owner tracée | **Levé le 2026-07-31** — Gate 02A/US-125 décidé GO sous réserve (`gate-02A-decision-ep16-us125.md`). Ne change pas à lui seul la décision Gate 04A §6 (NO GO en l'état) : `DD-611-02`, `DD-611-03`, `DD-EP17-08` et la validation Product Owner **propre au Gate 04A** (ligne §3, distincte de celle du Gate 02A) restent ouverts. |
 
 ## 5. Avis spécialisés
 
