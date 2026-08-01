@@ -98,5 +98,15 @@ describe('VerifyReceiptComponent', () => {
 
     expect(cmp.montant('750.00', 'EUR')).toContain('750');
     expect(cmp.montant('abc', 'EUR')).toBe('abc EUR');
+    expect(cmp.montant('750.00', 'INVALIDE')).toBe('750.00 INVALIDE');
+  });
+
+  it('retourne la date brute si elle est invalide', () => {
+    configurer();
+    api.verifier.and.returnValue(of({ resultat: 'VALIDE', quittance }));
+    const cmp = creer();
+
+    expect(cmp.dateFr('2026-06-01')).not.toBe('2026-06-01');
+    expect(cmp.dateFr('pas-une-date')).toBe('pas-une-date');
   });
 });

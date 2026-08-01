@@ -100,11 +100,16 @@ class BailClotureIntegrationTest {
                 Integer.class, bailId, moisCloture);
         assertThat(aVenirFuturs).isZero();
 
-        // Les faits historiques (EN_RETARD, mois passés) restent intacts.
+        // Les faits historiques (EN_RETARD, mois passés) restent intacts. L'échéance du mois
+        // précédent (exigibilité = 1er du mois courant, cf. V18) ne devient EN_RETARD (V7 :
+        // date_exigibilite < CURRENT_DATE, strict) que si le mois courant est déjà entamé —
+        // le nombre attendu dépend donc du jour du mois d'exécution, pas d'une constante fixe.
+        boolean moisPrecedentDejaEnRetard = aujourdHui.withDayOfMonth(1).isBefore(aujourdHui);
+        int enRetardAttendus = moisPrecedentDejaEnRetard ? 6 : 5;
         Integer enRetardConserves = jdbc.queryForObject(
                 "SELECT count(*) FROM paiement WHERE bail_id = ?::uuid AND statut = 'EN_RETARD'",
                 Integer.class, bailId);
-        assertThat(enRetardConserves).isEqualTo(6);
+        assertThat(enRetardConserves).isEqualTo(enRetardAttendus);
     }
 
     @Test
