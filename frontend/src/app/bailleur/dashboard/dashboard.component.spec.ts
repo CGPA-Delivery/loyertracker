@@ -83,6 +83,45 @@ describe('BailleurDashboardComponent', () => {
     http.expectOne('/api/biens').flush([]); // rechargement de la liste après création
   });
 
+  it('ne crée pas de locataire si le formulaire rapide est invalide', () => {
+    const cmp = fixture.componentInstance;
+    expect(cmp.locataireRapideForm.invalid).toBe(true); // nom vide par défaut → requis
+
+    cmp.creerLocataireRapide();
+
+    http.expectNone('/api/locataires');
+  });
+
+  it('crée un locataire rapide et pré-remplit le bail avec le nouveau locataire', () => {
+    const cmp = fixture.componentInstance;
+    cmp.locataireRapideOuvert.set(true);
+    cmp.locataireRapideForm.setValue({ nom: 'Dupont', email: '' });
+
+    cmp.creerLocataireRapide();
+
+    const req = http.expectOne('/api/locataires');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ nom: 'Dupont', email: null });
+    req.flush({ id: 'locataire-2', nom: 'Dupont', prenom: null, email: null, statut: 'ACTIVE' });
+
+    expect(cmp.locataires().map((l) => l.id)).toContain('locataire-2');
+    expect(cmp.bailForm.controls.locataireId.value).toBe('locataire-2');
+    expect(cmp.locataireRapideForm.value).toEqual({ nom: '', email: '' });
+    expect(cmp.locataireRapideOuvert()).toBe(false);
+    expect(cmp.message()).toBe('Locataire créé');
+  });
+
+  it('signale une erreur si la création du locataire rapide échoue', () => {
+    const cmp = fixture.componentInstance;
+    cmp.locataireRapideForm.setValue({ nom: 'Dupont', email: '' });
+
+    cmp.creerLocataireRapide();
+
+    http.expectOne('/api/locataires').flush('conflit', { status: 409, statusText: 'Conflict' });
+
+    expect(cmp.message()).toContain('409');
+  });
+
   it('pré-remplit patrimoine et type à la sélection d’un bien existant', () => {
     const cmp = fixture.componentInstance;
     cmp.selectionnerBien({
