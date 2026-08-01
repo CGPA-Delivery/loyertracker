@@ -3975,3 +3975,32 @@ touché.
 **Prochaine action autorisée** : le Product Owner statue sur `DDS-LT-006` (Acceptée / réserves /
 rejetée), en particulier sur les deux corrections de couleur. Une fois obtenue, `US-129` peut être
 close et `US-130` (Thème PrimeNG, qui en dépend) peut démarrer.
+
+### DDS-LT-006 acceptée — US-129 close (2026-08-01)
+
+**Décision Product Owner explicite** : « Accepted, both corrections approved ». Les deux
+corrections de couleur (`--lt-border-default`→`#64748b`, `--lt-state-danger-strong`→`#dc2626`)
+sont approuvées sans réserve, ainsi que les 6 catégories de tokens candidatées (`spacing`,
+`typography`, `size`, `z-index`, `breakpoint`, `focus`).
+
+**Documents mis à jour en conséquence** : `DDS-LT-006` (statut Acceptée) ;
+`design-decision-register.md` (ligne DDS-LT-006) ; `DSG-001.md` (§Palette et couleurs — valeurs
+définitives, §Typographie/§Spacing/§Z-index et Focus — « validées » au lieu de « candidatées » ;
+**version incrémentée 0.1.0 → 0.2.0**, premier incrément de version du DSG, conforme à sa propre
+procédure de modification — « toute évolution passe par une DDS … avant incrément de version ») ;
+`frontend/src/styles/tokens/_lt-tokens.scss` (commentaire d'en-tête mis à jour, valeurs déjà
+correctes inchangées).
+
+**Effet** : le critère GWT de `US-129` (« revues et validées visuellement par le Design Architect »)
+est satisfait avec, au-delà de l'avis du sous-agent, la validation humaine désormais obtenue —
+requise par la limite d'indépendance déjà tracée pour ce rôle. **`US-129` est close.**
+
+**Ce que cette acceptation n'autorise pas** : le remplacement des 24 occurrences en dur des
+anciennes valeurs (`#334155`, `#7f1d1d`) déjà présentes dans le code applicatif reste hors
+périmètre — relève de la migration écran par écran des Lots 2 et suivants, chacun restant un point
+de contrôle distinct. L'intégration du fichier de tokens dans `styles.scss` relève de `US-131`, non
+déclenchée par cette acceptation.
+
+**Prochaine action autorisée** : `US-130` (Thème PrimeNG) peut démarrer — dépendances `US-128`
+(fait) et `US-129` (close) toutes deux satisfaites. `US-131` (Architecture SCSS) reste bloquée sur
+`US-129` seule, désormais également débloquée.
