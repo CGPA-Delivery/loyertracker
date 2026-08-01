@@ -3806,3 +3806,58 @@ Owner du Plan »).
 travail technique du Lot 1 (installation PrimeNG, tokens, thème), sous réserve continue des points
 ci-dessus ; ou clarifier au préalable l'applicabilité du Gate 02A. Ces deux choix restent des
 décisions Product Owner distinctes, non tranchées par ce seul constat.
+
+### Nouvelle instruction Gate 02A — applicabilité EP-17 Lot 1 (2026-08-01) — décision Product Owner attendue
+
+**Instruction explicite reçue** : « clarifier Gate 02A d'abord » (choix du Product Owner face au
+point ouvert ci-dessus, avant tout démarrage du Lot 1).
+
+**Incohérence identifiée** : `gate-04A-decision-ep17-lot0-v2.md` §4 avait traité le sous-bloqueur
+« validation PO Gate 02A » comme **Levé**, en s'appuyant sur `gate-02A-decision-ep16-us125.md`
+(GO sous réserve, périmètre **US-125**). Or `plan-execution-ux-ui-primeng-keycloak.md` §3 précise
+explicitement que cette décision « ne couvre que US-125 (EP-16), pas le socle EP-17 ». Une note de
+mise à jour a été ajoutée à `gate-04A-decision-ep17-lot0-v2.md` (sans réécrire la décision
+d'origine, `CLAUDE.md`) pour signaler cette contradiction.
+
+**Nouvelle instance produite** : `gate-02A-decision-ep17-lot1.md`, évaluant les 11 critères du
+Gate 02A spécifiquement contre le périmètre du Lot 1 (« ne migrer aucun écran métier complet à ce
+stade », `plan-execution-ux-ui-primeng-keycloak.md` §3). Constat : 5 critères sans matière
+nouvelle (personas, journeys, parcours critiques, cas d'erreur, maquettes — Lot 1 ne livre aucun
+écran) ; 2 inchangés et déjà couverts par les décisions US-125 (navigation, information
+architecture) ; 3 avec matière réelle (design system, responsive, accessibilité) dont le
+**contenu** est déjà validé (`DSG-001.md`, PO via `DD-611-02`) mais dont l'**implémentation**
+relève du Gate 04A, pas de ce Gate 02A. Avis UX/UI Design Lead proposé : **GO sous réserve**. La
+section 6 de la nouvelle instance est **volontairement laissée vide** — seul le Product Owner peut
+la compléter, conformément à `CLAUDE.md`.
+
+**Prochaine action autorisée** : le Product Owner complète `gate-02A-decision-ep17-lot1.md` §6.
+Le démarrage effectif du travail technique du Lot 1 reste subordonné à cette décision, en plus des
+réserves déjà tracées (Gate 04A v2 §4, rappel de renouvellement de la clé PrimeNG).
+
+### Décision Gate 02A rendue — GO sous réserve, périmètre Lot 1 (2026-08-01)
+
+**Décision Product Owner explicite** : « GO sous réserve, périmètre Lot 1 ». Section 6 de
+`gate-02A-decision-ep17-lot1.md` complétée en conséquence. Cette décision tranche explicitement
+l'incohérence documentaire signalée ci-dessus : `gate-02A-decision-ep16-us125.md` (US-125) n'est
+plus la base retenue pour EP-17 — `gate-02A-decision-ep17-lot1.md` fait désormais seule autorité
+pour ce périmètre. Aucun document historique n'est réécrit (`CLAUDE.md`).
+
+**Portée** : autorisation limitée à EP-17 Lot 1 tel que défini par
+`plan-execution-ux-ui-primeng-keycloak.md` §3 (aucun écran métier migré à ce stade). Ne couvre pas
+Lot 2 et suivants — ceux-ci introduiront des écrans métier réels et devront réévaluer sur leur
+propre matière les 5 critères ici jugés « sans objet » (personas, journeys, parcours, cas d'erreur,
+maquettes), via une nouvelle instruction du Gate 02A.
+
+**Effet cumulé** : les trois conditions posées le 2026-07-31 pour démarrer le travail technique du
+Lot 1 (approbation du Plan d'Exécution, clé de licence PrimeNG, clarification Gate 02A) sont
+désormais toutes réunies. Réserves continues restant en vigueur, non neutralisées par ces
+décisions : les 8 contrôles Gate 04A v2 « Non exécuté »
+(`CHECK-UX-01`/`CHECK-FRONTEND-01`, preuves à produire au fil du Lot 1) et le rappel de
+renouvellement annuel de la clé de licence PrimeNG (avant 2027-08-01,
+`rapport-licence-securite-primeng-lot0.md` §9).
+
+**Documents modifiés** : `gate-02A-decision-ep17-lot1.md` §6-§7 (décision complétée).
+
+**Prochaine action autorisée** : le développement technique du Lot 1 (installation PrimeNG,
+tokens, thème) peut démarrer, sous réserve continue des preuves de test/implémentation attendues
+par le Gate 04A v2.
