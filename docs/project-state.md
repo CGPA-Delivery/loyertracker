@@ -3933,3 +3933,45 @@ l'entrée historique n'est pas réécrite (`CLAUDE.md`), cette précision la com
 **Prochaine action autorisée** : aucune côté PrimeNG jusqu'au déclenchement du rappel en 2027-07 ;
 le développement technique du Lot 1 reste la seule action ouverte, sous réserve continue des
 preuves de test/implémentation attendues par le Gate 04A v2.
+
+### US-129 démarrée — revue visuelle des Design Tokens (2026-08-01)
+
+**Instruction explicite reçue** : « Start US-129, the Design Tokens visual review ». Première
+User Story du Lot 1 (`addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`).
+
+**Travail produit par Claude Code, en tant que Design Architect désigné** (limite d'indépendance
+inchangée, rappelée dans chaque document) :
+
+* **Revue de contraste WCAG 2.2** des 13 tokens de `DSG-001.md` §Palette et couleurs (calcul de
+  luminance relative/ratio, formule W3C, contre les deux surfaces existantes) : **11/13
+  conformes tels quels** ; 2 non conformes au seuil non-texte 3:1 (SC 1.4.11) —
+  `--lt-border-default` (1.72:1) et `--lt-state-danger-strong` (1.78:1), tous deux utilisés comme
+  couleur de bordure de composants réels (champs, boutons, zone « à risque » garantie).
+* **Corrections proposées** (même famille chromatique, cohérence de palette) :
+  `--lt-border-default` `#334155`→`#64748b` (3.75:1), `--lt-state-danger-strong` `#7f1d1d`→`#dc2626`
+  (3.70:1).
+* **6 nouvelles catégories de tokens candidatées** (`spacing`, `typography`, `size`, `z-index`,
+  `breakpoint`, `focus`), dérivées des valeurs déjà observées dans le code quand elles existent.
+  `shadow` et `motion` restent **explicitement différés** (aucun besoin réel constaté), déjà
+  justifié ainsi dans `DSG-001.md` avant cette revue.
+* **Nouvelle instance** : `DDS-LT-006-validation-visuelle-design-tokens.md`, statut **Proposée** —
+  la limite d'indépendance (même rôle auteur des valeurs candidates et de leur revue) rend une
+  validation Product Owner explicite nécessaire avant toute clôture, en particulier pour les deux
+  corrections de couleur (impact visuel sur 24 occurrences en dur déjà présentes dans le code).
+* **Fichier de tokens versionné produit** : `frontend/src/styles/tokens/_lt-tokens.scss` — livrable
+  attendu par le critère GWT de `US-129`. Compile proprement (`sass`, vérifié localement) ; **non
+  importé dans `styles.scss`** (intégration = `US-131`, hors périmètre de cette story) ; bundle de
+  production inchangé (vérifié, `ng build`).
+* `DSG-001.md` mis à jour en conséquence (§Palette et couleurs, §Typographie, §Spacing, §Elevation,
+  nouvelle §Z-index et Focus, §Tokens) ; `design-decision-register.md` mis à jour (ligne
+  `DDS-LT-006`).
+
+**Ce que ce travail ne clôt pas** : `US-129` n'est pas marquée terminée — le critère GWT exige une
+validation du Design Architect, produite ici, mais la limite d'indépendance appelle une
+confirmation Product Owner avant tout usage des tokens (et en particulier avant que `US-130`
+n'installe PrimeNG dessus). Aucun code Angular applicatif n'est modifié ; `styles.scss` n'est pas
+touché.
+
+**Prochaine action autorisée** : le Product Owner statue sur `DDS-LT-006` (Acceptée / réserves /
+rejetée), en particulier sur les deux corrections de couleur. Une fois obtenue, `US-129` peut être
+close et `US-130` (Thème PrimeNG, qui en dépend) peut démarrer.
