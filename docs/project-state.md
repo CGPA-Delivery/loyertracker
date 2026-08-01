@@ -3909,3 +3909,27 @@ jours de grâce), toujours non mis en place.
 **Prochaine action autorisée** : le développement technique du Lot 1 (installation PrimeNG,
 tokens, thème) peut démarrer sur `main` à jour, sous réserve continue des preuves de test/
 implémentation attendues par le Gate 04A v2.
+
+### Rappel de renouvellement de la clé PrimeNG créé (2026-08-01)
+
+**Instruction explicite reçue** : « Set up a renewal reminder for the PrimeNG key ». Un événement
+Google Calendar a été créé pour le Product Owner (jptshilombo@gmail.com) le **2027-07-01 09:00
+(Africa/Kinshasa)** — un mois avant l'expiration du 2027-08-01 —, avec un second rappel une semaine
+avant (24 juin 2027). La description reprend la marche à suivre complète : reconfirmer les quatre
+critères d'éligibilité Community, renouveler sur `primeui.dev`, mettre à jour
+`/home/ubuntu/INFRASTRUCTURE/primeui/key`, documenter le renouvellement.
+
+**Choix du mécanisme** : un événement Calendar a été préféré à une routine cloud programmée
+(alternative proposée et écartée par le Product Owner) — plus fiable pour un rappel simple basé
+sur une date, sans dépendance à l'exécution future d'un agent cloud ni à l'état du dépôt dans un an.
+
+**Effet** : la dernière action ouverte de la table §8 de `rapport-licence-securite-primeng-lot0.md`
+(« rappel de renouvellement annuel ») est **satisfaite** ; §9 mis à jour en conséquence. Ce qui
+restait « ouvert » dans l'entrée de bilan ci-dessus concernant ce point spécifique est donc clos —
+l'entrée historique n'est pas réécrite (`CLAUDE.md`), cette précision la complète.
+
+**Documents modifiés** : `rapport-licence-securite-primeng-lot0.md` (§8, §9).
+
+**Prochaine action autorisée** : aucune côté PrimeNG jusqu'au déclenchement du rappel en 2027-07 ;
+le développement technique du Lot 1 reste la seule action ouverte, sous réserve continue des
+preuves de test/implémentation attendues par le Gate 04A v2.

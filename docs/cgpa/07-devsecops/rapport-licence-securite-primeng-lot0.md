@@ -185,7 +185,7 @@ Aucune décision de Gate 06A n'est reprononcée par cet avis (celle-ci reste
 | Confirmer l'éligibilité réelle Community License (CA, effectifs, financement) | Product Owner | Avant Lot 1 | **Fait** (2026-07-31) — auto-déclaration explicite, quatre critères remplis |
 | Choisir explicitement parmi les trois options §7 | Product Owner | Avant Lot 1 | **Fait** (2026-07-31) — Option 1, Community License |
 | Créer le compte `primeui.dev` et obtenir la clé de licence Community (accord de licence à accepter) | Product Owner (ou personne mandatée) | Avant installation effective de PrimeNG | **Fait** (2026-08-01) — clé obtenue, cf. §9 |
-| Définir la gestion de la clé de licence comme secret hors code (cohérent DSO-03, Gitleaks) et un rappel de renouvellement annuel | DevSecOps Lead | Avant installation effective, une fois la clé obtenue | Emplacement conforme fait ; rappel de renouvellement **non fait** (cf. §9) |
+| Définir la gestion de la clé de licence comme secret hors code (cohérent DSO-03, Gitleaks) et un rappel de renouvellement annuel | DevSecOps Lead | Avant installation effective, une fois la clé obtenue | **Fait** (2026-08-01) — emplacement conforme ; rappel créé, cf. §9 |
 
 ## 9. Clé de licence Community obtenue (2026-08-01)
 
@@ -217,10 +217,17 @@ Owner qui a créé le compte.
 **Effet** : la réserve bloquante « clé de licence non obtenue » identifiée en §7-§8 et reprise dans
 `plan-execution-ux-ui-primeng-keycloak.md` (« aucune installation ne peut démarrer avant cette
 action distincte ») est **levée**. Le mécanisme de gestion du secret hors code est déjà satisfait
-par l'emplacement (cohérent avec le pattern DSO-03 existant du projet) ; **reste non fait** : un
-rappel explicite de renouvellement avant le 2027-08-01 (+ 30 jours de grâce), à mettre en place
-séparément (ex. tâche planifiée), pour éviter l'apparition de la bannière de licence invalide en
-Production (§2).
+par l'emplacement (cohérent avec le pattern DSO-03 existant du projet).
+
+**Rappel de renouvellement créé (2026-08-01)** : un événement Google Calendar a été créé pour le
+Product Owner (jptshilombo@gmail.com) le **2027-07-01 09:00 (Africa/Kinshasa)** — un mois avant
+l'expiration du 2027-08-01, avec un second rappel une semaine avant (24 juin 2027). La description
+de l'événement reprend la marche à suivre complète : reconfirmer les quatre critères d'éligibilité
+Community (§3), renouveler sur `primeui.dev`, mettre à jour `/home/ubuntu/INFRASTRUCTURE/primeui/key`,
+et documenter le renouvellement dans ce rapport et `project-state.md`. La dernière action attendue
+de la table §8 (« rappel de renouvellement annuel ») est donc **satisfaite** ; reste, au moment du
+renouvellement effectif en 2027, à exécuter la marche à suivre elle-même — hors périmètre de ce
+rapport.
 
 ## Sources
 
