@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { BailPayload, S02ApiService } from './s02-api.service';
+import { BailPayload, LocataireQuickAddPayload, S02ApiService } from './s02-api.service';
 
 describe('S02ApiService', () => {
   let service: S02ApiService;
@@ -102,6 +102,21 @@ describe('S02ApiService', () => {
 
     service.listerBaux('bien-1').subscribe();
     req = http.expectOne('/api/biens/bien-1/baux');
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
+  it('cree un locataire et liste les locataires actifs d’un bien', () => {
+    const payload: LocataireQuickAddPayload = { nom: 'Dupont', prenom: 'Marie', email: null };
+
+    service.creerLocataire(payload).subscribe();
+    let req = http.expectOne('/api/locataires');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(payload);
+    req.flush({ id: 'locataire-1', nom: 'Dupont', prenom: 'Marie', email: null, statut: 'ACTIVE' });
+
+    service.listerLocatairesDuBien('bien-1').subscribe();
+    req = http.expectOne('/api/biens/bien-1/locataires');
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
