@@ -3769,3 +3769,67 @@ inchangé pour les Lots 2 à 6, chacun restant un point de contrôle GO/NO GO di
 PrimeNG et, le cas échéant, clarifie l'applicabilité du Gate 02A au socle EP-17. Le développement
 technique du Lot 1 (installation PrimeNG, tokens, thème) peut ensuite démarrer sous réserve
 continue des preuves de test/implémentation attendues par le Gate 04A v2.
+
+### Clé de licence PrimeNG Community obtenue (2026-08-01) — dernier verrou explicite d'installation levé
+
+**Fait rapporté** : le Product Owner a indiqué que la clé de licence PrimeUI Community a été
+obtenue et déposée hors dépôt, dans `/home/ubuntu/INFRASTRUCTURE/primeui/key` — même emplacement
+que les autres secrets d'infrastructure du projet (SonarQube, GitHub, Twilio), conforme à DSO-03
+(secret hors code, non commité).
+
+**Vérification effectuée par Claude Code (DevSecOps Lead)** : lecture et décodage du jeton (JWT,
+vérification hors ligne, sans télémétrie — cf. `rapport-licence-securite-primeng-lot0.md` §2).
+Contenu conforme à l'attendu : `product=primeui`, `tier=community`, `type=dev`, émis 2026-08-01,
+expire 2027-08-01 (1 an, renouvellement annuel obligatoire). Aucune valeur secrète reproduite dans
+la documentation ni dans cet échange. Limite de la vérification : la validité cryptographique du
+jeton auprès de PrimeTek et la régularité de l'acceptation de l'accord de licence sur `primeui.dev`
+ne sont pas vérifiables par Claude Code — relèvent de la responsabilité du Product Owner qui a créé
+le compte. Détail complet : `rapport-licence-securite-primeng-lot0.md` §9.
+
+**Effet** : la condition explicite posée le 2026-07-31 (« aucune installation ne peut démarrer
+avant cette action distincte ») est **remplie**. Ce n'est pas une nouvelle décision de Gate, mais
+la levée d'une condition déjà posée par une décision Product Owner antérieure
+(`plan-execution-ux-ui-primeng-keycloak.md`).
+
+**Ce qui reste ouvert, non neutralisé par ce fait** : les réserves continues du Gate 04A v2 (8
+contrôles `CHECK-UX-01`/`CHECK-FRONTEND-01` « Non exécuté », preuves à produire au fil du Lot 1) ;
+l'applicabilité du Gate 02A au socle EP-17 au-delà de US-125/EP-16, toujours non tranchée — à
+clarifier avant, ou tenue comme réserve pendant, l'exécution du Lot 1 (`CLAUDE.md` : « un contrôle
+applicable sans preuve est non exécuté, jamais non applicable ») ; le rappel de renouvellement
+annuel de la clé (avant 2027-08-01 + 30 jours de grâce), non encore mis en place.
+
+**Documents modifiés** : `rapport-licence-securite-primeng-lot0.md` (§8 table d'actions, nouveau
+§9) ; `plan-execution-ux-ui-primeng-keycloak.md` (nouvelle entrée datée sous « Approbation Product
+Owner du Plan »).
+
+**Prochaine action autorisée** : le Product Owner peut désormais instruire le démarrage effectif du
+travail technique du Lot 1 (installation PrimeNG, tokens, thème), sous réserve continue des points
+ci-dessus ; ou clarifier au préalable l'applicabilité du Gate 02A. Ces deux choix restent des
+décisions Product Owner distinctes, non tranchées par ce seul constat.
+
+### Nouvelle instruction Gate 02A — applicabilité EP-17 Lot 1 (2026-08-01) — décision Product Owner attendue
+
+**Instruction explicite reçue** : « clarifier Gate 02A d'abord » (choix du Product Owner face au
+point ouvert ci-dessus, avant tout démarrage du Lot 1).
+
+**Incohérence identifiée** : `gate-04A-decision-ep17-lot0-v2.md` §4 avait traité le sous-bloqueur
+« validation PO Gate 02A » comme **Levé**, en s'appuyant sur `gate-02A-decision-ep16-us125.md`
+(GO sous réserve, périmètre **US-125**). Or `plan-execution-ux-ui-primeng-keycloak.md` §3 précise
+explicitement que cette décision « ne couvre que US-125 (EP-16), pas le socle EP-17 ». Une note de
+mise à jour a été ajoutée à `gate-04A-decision-ep17-lot0-v2.md` (sans réécrire la décision
+d'origine, `CLAUDE.md`) pour signaler cette contradiction.
+
+**Nouvelle instance produite** : `gate-02A-decision-ep17-lot1.md`, évaluant les 11 critères du
+Gate 02A spécifiquement contre le périmètre du Lot 1 (« ne migrer aucun écran métier complet à ce
+stade », `plan-execution-ux-ui-primeng-keycloak.md` §3). Constat : 5 critères sans matière
+nouvelle (personas, journeys, parcours critiques, cas d'erreur, maquettes — Lot 1 ne livre aucun
+écran) ; 2 inchangés et déjà couverts par les décisions US-125 (navigation, information
+architecture) ; 3 avec matière réelle (design system, responsive, accessibilité) dont le
+**contenu** est déjà validé (`DSG-001.md`, PO via `DD-611-02`) mais dont l'**implémentation**
+relève du Gate 04A, pas de ce Gate 02A. Avis UX/UI Design Lead proposé : **GO sous réserve**. La
+section 6 de la nouvelle instance est **volontairement laissée vide** — seul le Product Owner peut
+la compléter, conformément à `CLAUDE.md`.
+
+**Prochaine action autorisée** : le Product Owner complète `gate-02A-decision-ep17-lot1.md` §6.
+Le démarrage effectif du travail technique du Lot 1 reste subordonné à cette décision, en plus des
+réserves déjà tracées (Gate 04A v2 §4, rappel de renouvellement de la clé PrimeNG).

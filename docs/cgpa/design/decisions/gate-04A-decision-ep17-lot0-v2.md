@@ -76,3 +76,15 @@
 * Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-07-31.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
 * Date de validation humaine : 2026-07-31.
+
+## Note de mise à jour (2026-08-01, postérieure à cette instance)
+
+La ligne §4 « — (validation PO Gate 02A) » indiquait ce sous-bloqueur **« Levé »** par extension
+de `gate-02A-decision-ep16-us125.md` (GO sous réserve, périmètre **US-125**) au périmètre EP-17.
+`plan-execution-ux-ui-primeng-keycloak.md` §3 Lot 0 précise pourtant explicitement que cette
+décision « ne couvre que US-125 (EP-16), pas le socle EP-17 » — une contradiction non résolue à
+l'époque, signalée dans `project-state.md` (entrée du 2026-07-31, « applicabilité du Gate 02A …
+non résolu, non neutralisé »). Une instance dédiée au périmètre EP-17 Lot 1 a depuis été produite,
+`gate-02A-decision-ep17-lot1.md`, pour trancher cette applicabilité sans se fonder sur une
+extension tacite de la décision US-125. Contenu de la ligne §4 d'origine non réécrit, conformément
+à la préservation des décisions historiques (`CLAUDE.md`).
