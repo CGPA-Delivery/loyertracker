@@ -15,7 +15,7 @@
 |---|---|
 | Identifiant | DDS-LT-006 |
 | Titre | Validation visuelle et vérification de contraste WCAG 2.2 AA des Design Tokens LoyerTracker |
-| Statut | **Proposée** — validation Product Owner non encore obtenue |
+| Statut | **Acceptée** — validation Product Owner explicite obtenue le 2026-08-01 (« Accepted, both corrections approved ») |
 | Date | 2026-08-01 |
 | Responsable | Design Architect — Claude Code, sous-agent CGPA désigné le 2026-07-30 |
 | Version DSG | `DSG-001.md` v0.1.0 |
@@ -142,11 +142,20 @@ pas de rupture de langage visuel.
 
 ## Décision
 
-* **Statut : Proposée.** Nécessite une décision explicite du Product Owner (jptshilombo@gmail.com)
-  avant de devenir Acceptée — en particulier sur les deux corrections de couleur (impact visuel).
-* Cette proposition ne vaut ni GO, ni GO sous réserve, ni NO GO d'un Gate — elle documente l'avis
-  du Design Architect requis par le critère GWT de `US-129`.
-* Le fichier de tokens versionné (`frontend/src/styles/tokens/_lt-tokens.scss`) est produit en
-  parallèle avec les valeurs de cette proposition, explicitement annoté comme non encore validé
-  Product Owner — cela satisfait le livrable attendu par `US-129` (« un fichier de tokens versionné
-  est produit ») sans préjuger de sa validation finale.
+* **Statut : Acceptée** — décision explicite du Product Owner (jptshilombo@gmail.com), 2026-08-01
+  (« Accepted, both corrections approved »). Les deux corrections de couleur
+  (`--lt-border-default` → `#64748b`, `--lt-state-danger-strong` → `#dc2626`) sont approuvées telles
+  que proposées, sans réserve ni valeur alternative demandée. Les 6 catégories de tokens candidatées
+  (`spacing`, `typography`, `size`, `z-index`, `breakpoint`, `focus`) sont acceptées avec la même
+  décision, aucune n'ayant été distinguée explicitement par le Product Owner.
+* Cette acceptation ne vaut ni GO, ni GO sous réserve, ni NO GO d'un Gate — elle satisfait le
+  critère GWT de `US-129` (« revues et validées visuellement par le Design Architect ») avec,
+  au-delà de l'avis du sous-agent, la validation humaine désormais obtenue.
+* Le fichier de tokens versionné (`frontend/src/styles/tokens/_lt-tokens.scss`) portait déjà les
+  valeurs proposées ; son statut est mis à jour pour refléter cette acceptation (plus « en attente
+  de validation »). `US-129` est **close**.
+* **Ce que cette acceptation n'autorise pas** : le remplacement des 24 occurrences en dur déjà
+  présentes dans le code applicatif reste hors périmètre de `US-129`/`DDS-LT-006` — il relève de la
+  migration écran par écran des Lots 2 et suivants, chacun restant un point de contrôle distinct.
+  L'intégration du fichier de tokens dans `styles.scss` relève de `US-131`, non déclenchée par
+  cette acceptation.
