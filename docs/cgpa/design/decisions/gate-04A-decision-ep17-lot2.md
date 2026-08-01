@@ -77,14 +77,36 @@
 
 ## 6. Décision finale
 
-* Décision du CGPA Chief Delivery Officer :
-* Justification :
-* Validité :
-* Conditions d'invalidation :
-* Prochaine action autorisée :
+* Décision du CGPA Chief Delivery Officer : **GO sous réserve, périmètre limité à EP-17 Lot 2** —
+  décision explicite du Product Owner (jptshilombo@gmail.com), 2026-08-01, alignée sur l'avis
+  UX/UI Design Lead (§5 de `gate-02A-decision-ep17-lot2.md`).
+* Justification : le motif de blocage restant (6 contrôles `CHECK-UX-01`, 1 `CHECK-FRONTEND-01`
+  « Non exécuté ») exige l'implémentation réelle de composants `lt-*` — précisément l'objet du
+  Lot 2. Il n'est donc pas traité comme un blocage à l'entrée en Lot 2, mais comme des réserves
+  continues devant produire leurs preuves au fil du Lot 2, conformément à la piste déjà envisagée
+  pour le Lot 1 (`gate-04A-decision-ep17-lot0-v2.md` §6) et reconduite ici sur le même principe.
+* Validité : limitée au périmètre EP-17 Lot 2 tel que défini par
+  `plan-execution-ux-ui-primeng-keycloak.md` §3 (8 composants transverses développés et testés
+  isolément, « sans intégration dans un écran métier existant »). Ne vaut pas autorisation pour
+  Lot 3 et suivants — une nouvelle instruction du Gate 04A reste requise avant tout périmètre
+  au-delà du Lot 2.
+* Conditions d'invalidation : toute évolution matérielle des preuves invalide cette décision et
+  impose une nouvelle instruction du Gate 04A — jamais une simple reconduction tacite (clause
+  reprise de `gate-04A-decision-ep17-lot0-v2.md` §6). S'ajoutent explicitement : toute intégration
+  d'un composant `lt-*` dans un écran métier avant le Lot 3 (contredirait le périmètre isolé du
+  Lot 2 lui-même) ; toute livraison de `lt-confirm-dialog` sans exécution effective de
+  `CHECK-ACCESSIBILITY-01` contre les 6 exigences `DDS-LT-005` ; réouverture de `DD-611-02`,
+  `DD-611-03`, `DD-EP17-04`, `DD-EP17-05` ou `DD-EP17-06`.
+* Prochaine action autorisée : ce GO sous réserve **ne vaut pas, à lui seul, autorisation de
+  code** — `plan-execution-ux-ui-primeng-keycloak.md` reste « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE
+  LOT 1 UNIQUEMENT » (§12). L'approbation explicite de l'extension du Plan d'Exécution au Lot 2
+  reste une action Product Owner distincte, préalable à tout développement effectif du Lot 2 —
+  cohérente avec le traitement déjà appliqué au passage Lot 0 → Lot 1. Une fois cette approbation
+  obtenue, le développement du Lot 2 peut démarrer sous réserve continue des preuves de test/
+  implémentation §4 ci-dessus.
 
 ## 7. Traçabilité
 
-* Mise à jour `/docs/project-state.md` : à ajouter après décision §6.
+* Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-08-01.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
-* Date de validation humaine : —
+* Date de validation humaine : 2026-08-01.
