@@ -1,5 +1,9 @@
 :root {
-  color-scheme: light dark;
+  // US-130 (Lot 1) : mode sombre unique et figé (DSG-001.md §Dark Mode) — corrige l'incohérence
+  // déjà signalée dans le DSG (« color-scheme: light dark du navigateur n'est pas un mécanisme de
+  // bascule piloté »). `light dark` laissait le navigateur suivre la préférence système ; l'app
+  // n'a jamais eu de mode clair réel.
+  color-scheme: dark;
 }
 
 * {

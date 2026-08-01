@@ -13,6 +13,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "22.0.8",
+    "@angular/cdk": "^22.0.7",
     "@angular/common": "22.0.8",
     "@angular/compiler": "22.0.8",
     "@angular/core": "22.0.8",
@@ -20,8 +21,10 @@
     "@angular/platform-browser": "22.0.8",
     "@angular/platform-browser-dynamic": "22.0.8",
     "@angular/router": "22.0.8",
+    "@primeuix/themes": "^3.0.0",
     "keycloak-angular": "22.0.0",
     "keycloak-js": "^26.2.4",
+    "primeng": "^22.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.16.2"
