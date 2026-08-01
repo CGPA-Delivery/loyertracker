@@ -1,0 +1,77 @@
+// Design Tokens LoyerTracker (--lt-*) — livrable US-129 (Lot 1, EP-17).
+//
+// Source de vérité : docs/cgpa/design/DSG-001.md §Fondations.
+// Revue visuelle/contraste WCAG 2.2 AA : docs/cgpa/design/decisions/DDS-LT-006-validation-visuelle-design-tokens.md
+//
+// Statut : DDS-LT-006 = Proposée — validation Product Owner non obtenue à ce jour (2026-08-01).
+// Ce fichier n'est pas encore importé dans styles.scss (réorganisation en couches = US-131,
+// hors périmètre de US-129). Aucun composant applicatif ne doit s'appuyer sur ces valeurs avant
+// validation Product Owner et intégration effective.
+
+:root {
+  // color / surface — 11 des 13 tokens conformes WCAG tels quels ; 2 corrections proposées
+  // (voir DDS-LT-006) appliquées ici directement, en attente de validation.
+  --lt-color-background: #0f172a;
+  --lt-surface-page: #0f172a;
+  --lt-surface-card: #111827;
+  --lt-border-default: #64748b; // proposé (DDS-LT-006) — remplace #334155, non conforme SC 1.4.11
+  --lt-state-danger-strong: #dc2626; // proposé (DDS-LT-006) — remplace #7f1d1d, non conforme SC 1.4.11
+
+  // text
+  --lt-text-primary: #e2e8f0;
+  --lt-text-muted: #94a3b8;
+  --lt-text-subtle: #cbd5e1;
+
+  // focus
+  --lt-focus-ring: #38bdf8;
+  --lt-focus-ring-width: 3px;
+  --lt-focus-ring-style: solid;
+
+  // state (texte — usage réel constaté dans le code, jamais fond de badge)
+  --lt-state-info: #bae6fd;
+  --lt-state-danger: #fecaca;
+  --lt-state-warning: #fde68a;
+  --lt-state-success: #bbf7d0;
+
+  // radius
+  --lt-radius-default: 6px;
+
+  // spacing
+  --lt-space-3xs: 0.25rem;
+  --lt-space-2xs: 0.35rem;
+  --lt-space-xs: 0.5rem;
+  --lt-space-sm: 0.75rem;
+  --lt-space-md: 1rem;
+  --lt-space-lg: 1.5rem;
+  --lt-space-xl: 2rem;
+
+  // typography
+  --lt-font-size-xs: 0.75rem;
+  --lt-font-size-sm: 0.85rem;
+  --lt-font-size-base: 0.9rem;
+  --lt-font-size-md: 1rem;
+  --lt-font-size-lg: 1.125rem;
+  --lt-font-size-xl: 1.5rem;
+  --lt-font-weight-regular: 400;
+  --lt-font-weight-medium: 500;
+  --lt-font-weight-semibold: 600;
+  --lt-line-height-tight: 1.25;
+  --lt-line-height-normal: 1.5;
+
+  // size (contrôles interactifs)
+  --lt-control-height-sm: 32px;
+  --lt-control-height-md: 40px;
+  --lt-control-height-lg: 44px; // seuil touch target minimum
+
+  // z-index
+  --lt-z-dropdown: 1000;
+  --lt-z-sticky: 1100;
+  --lt-z-modal-backdrop: 1200;
+  --lt-z-modal: 1300;
+  --lt-z-toast: 1400;
+
+  // breakpoint (référence uniquement — non exploitable comme valeur SCSS dans un media query)
+  --lt-breakpoint-mobile: 640px;
+
+  // shadow, motion — explicitement différés (DDS-LT-006) : aucun besoin réel constaté à ce jour.
+}
