@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |---|---|
-| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 UNIQUEMENT** (voir §12, 2026-07-31) |
+| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 ET LOT 2** (voir §12, 2026-07-31 puis 2026-08-01) |
 | Date | 2026-07-30 |
 | Product Owner | jptshilombo@gmail.com |
 | Décision de socle liée | `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md` (Acceptée) |
@@ -96,9 +96,9 @@ choix Option A/B pour la source de tokens partagée Angular/Keycloak documenté 
 * `lt-page-header`, `lt-stat-card`, `lt-status-tag`, `lt-empty-state`, `lt-data-table`,
   `lt-confirm-dialog`, `lt-form-field`, service Toast — développés et testés isolément (Storybook
   ou équivalent à documenter si retenu), sans intégration dans un écran métier existant.
-* Gate 02A/Gate 04A : **instruction produite le 2026-08-01**
-  (`gate-02A-decision-ep17-lot2.md`, `gate-04A-decision-ep17-lot2.md`), décision Product Owner
-  attendue avant tout développement de ce Lot.
+* Gate 02A/Gate 04A : **statués le 2026-08-01 — GO sous réserve**
+  (`gate-02A-decision-ep17-lot2.md`, `gate-04A-decision-ep17-lot2.md`), réserves continues listées
+  au §12. Plan d'Exécution étendu à ce Lot le 2026-08-01 (§12).
 
 ### Lot 3 — Pilote Angular
 
@@ -312,3 +312,31 @@ sprint actif sans décision explicite du Product Owner.**
   du travail technique du Lot 1 (installation PrimeNG, tokens, thème), sous réserve continue des
   points ci-dessus ; ou clarifier au préalable l'applicabilité du Gate 02A. Ces deux choix restent
   des décisions Product Owner distinctes, non tranchées par ce seul constat.
+
+### Extension de l'approbation au Lot 2 (2026-08-01)
+
+* **Instruction explicite reçue** : « Approuve l'extension du Plan d'Exécution au Lot 2 ».
+* Le Lot 1 (`US-129`/`US-130`/`US-131`) est livré et mergé sur `main` (PR #331-334, CI verte sur
+  les quatre workflows). Les deux Gates applicables au Lot 2 ont été instruits et statués :
+  `gate-04A-decision-ep17-lot2.md` et `gate-02A-decision-ep17-lot2.md`, tous deux **GO sous
+  réserve, périmètre limité à EP-17 Lot 2** (décision Product Owner du 2026-08-01).
+* **Décision Product Owner** : Plan d'Exécution **approuvé, strictement pour le périmètre Lot 2**
+  (§3 « Lot 2 — Composants transverses »), en plus du Lot 1 déjà approuvé. Cette approbation ne
+  s'étend pas aux Lots 3 à 6 — chacun reste un point de contrôle GO/NO GO distinct, nécessitant sa
+  propre instruction de Gate le moment venu (en particulier le Lot 3, qui introduira un pilote
+  Angular réel — premiers écrans métier touchés).
+* **Ce que cette approbation ne couvre pas** — verrous inchangés :
+  * les réserves continues du Gate 04A Lot 2 (6 contrôles `CHECK-UX-01` et 1 `CHECK-FRONTEND-01`
+    encore « Non exécuté », preuves de test/implémentation à produire au fil du Lot 2) restent
+    ouvertes ;
+  * `DD-611-02`, `DD-611-03` (dettes registre, preuve d'implémentation requise), `DD-EP17-04`
+    (hétérogénéité composants, échéance de ce Lot), `DD-EP17-05` (focus-trap `lt-confirm-dialog` à
+    exécuter contre les 6 exigences déjà fixées par `DDS-LT-005`) et `DD-EP17-06` (spacing,
+    partiellement traité) restent ouverts ;
+  * le périmètre du Lot 2 lui-même reste strictement celui défini au §3 — développement isolé,
+    « sans intégration dans un écran métier existant » ; toute intégration anticipée dans un écran
+    réel avant le Lot 3 sortirait de cette approbation et invaliderait les deux Gates (clause
+    d'invalidation explicite de chacun).
+* **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 ET LOT 2 » (§ en-tête). Le
+  développement technique du Lot 2 (8 composants transverses) peut démarrer, sous réserve continue
+  des points ci-dessus.
