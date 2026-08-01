@@ -184,8 +184,43 @@ Aucune décision de Gate 06A n'est reprononcée par cet avis (celle-ci reste
 |---|---|---|---|
 | Confirmer l'éligibilité réelle Community License (CA, effectifs, financement) | Product Owner | Avant Lot 1 | **Fait** (2026-07-31) — auto-déclaration explicite, quatre critères remplis |
 | Choisir explicitement parmi les trois options §7 | Product Owner | Avant Lot 1 | **Fait** (2026-07-31) — Option 1, Community License |
-| Créer le compte `primeui.dev` et obtenir la clé de licence Community (accord de licence à accepter) | Product Owner (ou personne mandatée) | Avant installation effective de PrimeNG | Non fait — action externe hors périmètre CLI |
-| Définir la gestion de la clé de licence comme secret hors code (cohérent DSO-03, Gitleaks) et un rappel de renouvellement annuel | DevSecOps Lead | Avant installation effective, une fois la clé obtenue | Non fait |
+| Créer le compte `primeui.dev` et obtenir la clé de licence Community (accord de licence à accepter) | Product Owner (ou personne mandatée) | Avant installation effective de PrimeNG | **Fait** (2026-08-01) — clé obtenue, cf. §9 |
+| Définir la gestion de la clé de licence comme secret hors code (cohérent DSO-03, Gitleaks) et un rappel de renouvellement annuel | DevSecOps Lead | Avant installation effective, une fois la clé obtenue | Emplacement conforme fait ; rappel de renouvellement **non fait** (cf. §9) |
+
+## 9. Clé de licence Community obtenue (2026-08-01)
+
+**Fait rapporté** : le Product Owner (jptshilombo@gmail.com) a indiqué que la clé de licence
+PrimeUI Community a été obtenue et déposée hors dépôt Git, dans
+`/home/ubuntu/INFRASTRUCTURE/primeui/key` — même emplacement/convention que les autres secrets
+d'infrastructure du projet (SonarQube, GitHub, Twilio), conforme à DSO-03 (secret hors code, non
+commité).
+
+**Vérification effectuée par Claude Code, en tant que DevSecOps Lead** : lecture du fichier et
+décodage du jeton (format JWT, payload non chiffré — vérification de licence hors ligne, cf. §2).
+Le contenu confirme la nature attendue de la clé, sans qu'aucune valeur secrète ne soit reproduite
+dans ce rapport ni dans un échange de session :
+
+| Champ du jeton | Valeur observée | Conforme à l'attendu |
+|---|---|---|
+| `product` | `primeui` | Oui |
+| `tier` | `community` | Oui — correspond à l'option retenue §7 |
+| `type` | `dev` | Oui |
+| Émission (`iat`) | 2026-08-01 | Cohérent avec la date de ce constat |
+| Expiration (`exp`) | 2027-08-01 | 1 an — cohérent avec le renouvellement annuel obligatoire §2 |
+
+**Ce que cette vérification ne couvre pas** : Claude Code n'a pas de moyen de vérifier auprès de
+PrimeTek que ce jeton est cryptographiquement valide (signature) ni qu'il a été émis suite à une
+acceptation en bonne et due forme de l'accord de licence sur `primeui.dev` — seule la structure et
+le contenu déclaratif du jeton ont été inspectés. Ce point relève de la responsabilité du Product
+Owner qui a créé le compte.
+
+**Effet** : la réserve bloquante « clé de licence non obtenue » identifiée en §7-§8 et reprise dans
+`plan-execution-ux-ui-primeng-keycloak.md` (« aucune installation ne peut démarrer avant cette
+action distincte ») est **levée**. Le mécanisme de gestion du secret hors code est déjà satisfait
+par l'emplacement (cohérent avec le pattern DSO-03 existant du projet) ; **reste non fait** : un
+rappel explicite de renouvellement avant le 2027-08-01 (+ 30 jours de grâce), à mettre en place
+séparément (ex. tâche planifiée), pour éviter l'apparition de la bannière de licence invalide en
+Production (§2).
 
 ## Sources
 
