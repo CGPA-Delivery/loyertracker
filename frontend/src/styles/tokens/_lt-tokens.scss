@@ -1,12 +1,11 @@
 // Design Tokens LoyerTracker (--lt-*) — livrable US-129 (Lot 1, EP-17).
 //
-// Source de vérité : docs/cgpa/design/DSG-001.md §Fondations.
+// Source de vérité : docs/cgpa/design/DSG-001.md v0.2.0 §Fondations.
 // Revue visuelle/contraste WCAG 2.2 AA : docs/cgpa/design/decisions/DDS-LT-006-validation-visuelle-design-tokens.md
 //
-// Statut : DDS-LT-006 = Proposée — validation Product Owner non obtenue à ce jour (2026-08-01).
+// Statut : DDS-LT-006 = Acceptée (Product Owner, 2026-08-01) — valeurs validées, US-129 close.
 // Ce fichier n'est pas encore importé dans styles.scss (réorganisation en couches = US-131,
-// hors périmètre de US-129). Aucun composant applicatif ne doit s'appuyer sur ces valeurs avant
-// validation Product Owner et intégration effective.
+// hors périmètre de US-129) : aucun composant applicatif n'y est encore raccordé.
 
 :root {
   // color / surface — 11 des 13 tokens conformes WCAG tels quels ; 2 corrections proposées
