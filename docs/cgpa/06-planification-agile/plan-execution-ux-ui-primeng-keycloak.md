@@ -96,6 +96,9 @@ choix Option A/B pour la source de tokens partagée Angular/Keycloak documenté 
 * `lt-page-header`, `lt-stat-card`, `lt-status-tag`, `lt-empty-state`, `lt-data-table`,
   `lt-confirm-dialog`, `lt-form-field`, service Toast — développés et testés isolément (Storybook
   ou équivalent à documenter si retenu), sans intégration dans un écran métier existant.
+* Gate 02A/Gate 04A : **instruction produite le 2026-08-01**
+  (`gate-02A-decision-ep17-lot2.md`, `gate-04A-decision-ep17-lot2.md`), décision Product Owner
+  attendue avant tout développement de ce Lot.
 
 ### Lot 3 — Pilote Angular
 
