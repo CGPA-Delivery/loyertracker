@@ -3833,3 +3833,31 @@ la compléter, conformément à `CLAUDE.md`.
 **Prochaine action autorisée** : le Product Owner complète `gate-02A-decision-ep17-lot1.md` §6.
 Le démarrage effectif du travail technique du Lot 1 reste subordonné à cette décision, en plus des
 réserves déjà tracées (Gate 04A v2 §4, rappel de renouvellement de la clé PrimeNG).
+
+### Décision Gate 02A rendue — GO sous réserve, périmètre Lot 1 (2026-08-01)
+
+**Décision Product Owner explicite** : « GO sous réserve, périmètre Lot 1 ». Section 6 de
+`gate-02A-decision-ep17-lot1.md` complétée en conséquence. Cette décision tranche explicitement
+l'incohérence documentaire signalée ci-dessus : `gate-02A-decision-ep16-us125.md` (US-125) n'est
+plus la base retenue pour EP-17 — `gate-02A-decision-ep17-lot1.md` fait désormais seule autorité
+pour ce périmètre. Aucun document historique n'est réécrit (`CLAUDE.md`).
+
+**Portée** : autorisation limitée à EP-17 Lot 1 tel que défini par
+`plan-execution-ux-ui-primeng-keycloak.md` §3 (aucun écran métier migré à ce stade). Ne couvre pas
+Lot 2 et suivants — ceux-ci introduiront des écrans métier réels et devront réévaluer sur leur
+propre matière les 5 critères ici jugés « sans objet » (personas, journeys, parcours, cas d'erreur,
+maquettes), via une nouvelle instruction du Gate 02A.
+
+**Effet cumulé** : les trois conditions posées le 2026-07-31 pour démarrer le travail technique du
+Lot 1 (approbation du Plan d'Exécution, clé de licence PrimeNG, clarification Gate 02A) sont
+désormais toutes réunies. Réserves continues restant en vigueur, non neutralisées par ces
+décisions : les 8 contrôles Gate 04A v2 « Non exécuté »
+(`CHECK-UX-01`/`CHECK-FRONTEND-01`, preuves à produire au fil du Lot 1) et le rappel de
+renouvellement annuel de la clé de licence PrimeNG (avant 2027-08-01,
+`rapport-licence-securite-primeng-lot0.md` §9).
+
+**Documents modifiés** : `gate-02A-decision-ep17-lot1.md` §6-§7 (décision complétée).
+
+**Prochaine action autorisée** : le développement technique du Lot 1 (installation PrimeNG,
+tokens, thème) peut démarrer, sous réserve continue des preuves de test/implémentation attendues
+par le Gate 04A v2.

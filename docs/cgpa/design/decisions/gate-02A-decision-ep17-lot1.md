@@ -104,14 +104,38 @@ cette soumission.
 
 ## 6. Décision finale
 
-* Décision du CGPA Chief Delivery Officer :
-* Justification :
-* Validité :
-* Conditions d'invalidation :
-* Prochaine action autorisée :
+* Décision du CGPA Chief Delivery Officer : **GO sous réserve, périmètre limité à EP-17 Lot 1** —
+  décision explicite du Product Owner (jptshilombo@gmail.com), 2026-08-01, alignée sur l'avis
+  UX/UI Design Lead (§5).
+* Justification : sur les 11 critères du Gate 02A, 5 sont sans matière nouvelle pour ce périmètre
+  (aucun écran/persona/parcours livré en Lot 1), 2 restent inchangés et déjà couverts par les
+  décisions US-125 (navigation, information architecture), 3 ont une matière réelle dont le
+  contenu est déjà validé (`DSG-001.md`, `DD-611-02`) mais dont l'implémentation est renvoyée au
+  Gate 04A. Le seul critère non satisfait — validation Product Owner de cette lecture
+  d'applicabilité — est levé par cette décision elle-même, qui tranche explicitement
+  l'incohérence documentaire signalée en §0 (l'extension tacite de `gate-02A-decision-ep16-us125.md`,
+  périmètre US-125, au périmètre EP-17 n'est plus la base retenue : cette instance fait désormais
+  autorité pour EP-17 Lot 1).
+* Validité : limitée au périmètre EP-17 Lot 1 tel que défini par
+  `plan-execution-ux-ui-primeng-keycloak.md` §3. Ne vaut pas autorisation pour Lot 2 et suivants —
+  ceux-ci introduiront des écrans métier réels et devront réévaluer les 5 critères ici jugés
+  « sans objet » (personas, journeys, parcours, cas d'erreur, maquettes) sur leur propre matière,
+  via une nouvelle instruction du Gate 02A ou une instance dédiée.
+* Conditions d'invalidation : toute évolution matérielle du périmètre Lot 1 tel que défini au
+  moment de cette décision (notamment toute migration d'écran métier avant Lot 3, contrairement à
+  « ne migrer aucun écran métier complet à ce stade ») invalide cette décision et impose une
+  nouvelle instruction — jamais une simple reconduction tacite.
+* Prochaine action autorisée : ce GO sous réserve **ne vaut pas, à lui seul, autorisation de
+  code** — il lève spécifiquement le point Gate 02A resté ouvert depuis l'approbation du Plan
+  d'Exécution. Les réserves déjà tracées ailleurs restent intégralement en vigueur : les réserves
+  continues du Gate 04A v2 (`gate-04A-decision-ep17-lot0-v2.md` §4, 8 contrôles
+  `CHECK-UX-01`/`CHECK-FRONTEND-01` « Non exécuté », preuves à produire au fil du Lot 1) et le
+  rappel de renouvellement annuel de la clé de licence PrimeNG (avant 2027-08-01,
+  `rapport-licence-securite-primeng-lot0.md` §9). Sous réserve de ces points, le développement
+  technique du Lot 1 (installation PrimeNG, tokens, thème) peut démarrer.
 
 ## 7. Traçabilité
 
-* Mise à jour `/docs/project-state.md` : à ajouter après décision §6.
+* Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-08-01.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
-* Date de validation humaine : —
+* Date de validation humaine : 2026-08-01.
