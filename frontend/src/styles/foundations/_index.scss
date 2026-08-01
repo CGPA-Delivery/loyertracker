@@ -1,0 +1,5 @@
+// Couche Fondations (DSG-001.md §Naming Convention : fondations, thème, composants,
+// utilitaires limités). Réunit les tokens `--lt-*` (DSG-001.md, US-129/DDS-LT-006) et le reset
+// minimal, dans cet ordre — les couches suivantes (thème, composants) consomment ces tokens.
+@forward '../tokens/lt-tokens';
+@forward 'reset';

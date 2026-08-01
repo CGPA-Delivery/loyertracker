@@ -1,0 +1,6 @@
+// Couche Utilitaires — « limitée » par construction (DSG-001.md §Naming Convention, §Principes
+// « Sobriété ») : aucune classe `lt-u-*` n'existe encore dans le produit, `.container` est la
+// seule règle globale de mise en page (voir sa propre justification). Toute nouvelle classe
+// utilitaire doit être ajoutée ici, préfixée `lt-u-`, jamais un système complet façon Tailwind.
+@forward 'container';
+@forward 'reduced-motion';

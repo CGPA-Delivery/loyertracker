@@ -1,0 +1,21 @@
+// `.skip-link` : patron d'accessibilité (premier élément focusable, saute la navigation). Ses deux
+// couleurs (`#f8fafc`/`#0f172a`) sont volontairement **inversées** par rapport au thème sombre
+// (fond clair, texte foncé) pour rester très visibles au premier plan — DSG-001.md ne définit
+// aucun token « mode clair » (hors périmètre, §Light Mode) : conservées en dur, pas de token
+// approprié à ce jour.
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1000;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--lt-radius-default);
+  background: #f8fafc;
+  color: #0f172a;
+  transform: translateY(-150%);
+  transition: transform 150ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}

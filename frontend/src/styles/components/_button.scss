@@ -1,0 +1,26 @@
+// Composant global `button` (natif, pas un `lt-*` — aucun composant transverse n'existe encore,
+// cf. DSG-001.md §Composants). US-131 : reprise à l'identique de styles.scss, valeurs déjà
+// migrées vers un token conservées telles quelles ; `#334155`/`#1e293b` restent en dur
+// volontairement — DDS-LT-006 a corrigé `--lt-border-default` en `#64748b` (contraste WCAG), mais
+// appliquer cette nouvelle valeur ici changerait la bordure visible de tous les boutons du produit
+// sans revue visuelle (Plan d'Exécution : « ne migrer aucun écran métier complet à ce stade » ;
+// project-state.md, 2026-08-01 : remplacement des 24 occurrences en dur différé aux Lots 2+).
+// `#1e293b` n'a pas de token équivalent défini à ce jour.
+button {
+  cursor: pointer;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: var(--lt-text-primary);
+  border-radius: var(--lt-radius-default);
+  padding: 0.4rem 0.8rem;
+  font-size: var(--lt-font-size-base);
+}
+
+button:hover {
+  background: #334155;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
