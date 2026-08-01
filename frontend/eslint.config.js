@@ -22,7 +22,9 @@ module.exports = tseslint.config(
       ],
       "@angular-eslint/component-selector": [
         "error",
-        { type: "element", prefix: "app", style: "kebab-case" },
+        // "lt" : composants du Design System LoyerTracker (DSG-001.md §Naming Convention,
+        // introduits par US-132) ; "app" : composants applicatifs pré-existants, conservés.
+        { type: "element", prefix: ["app", "lt"], style: "kebab-case" },
       ],
     },
   },

@@ -4206,3 +4206,45 @@ nouvelle entrée datée).
 **Prochaine action autorisée** : le développement du Lot 2 peut être instruit, composant par
 composant, sous réserve continue des preuves de test/implémentation attendues par le Gate 04A
 Lot 2.
+
+### US-132 démarrée — Composants transverses (2026-08-01)
+
+**Instruction explicite reçue** : « Start US-132 ». Unique User Story du Lot 2
+(`addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`, 8 points).
+
+**8 composants + 1 service implémentés, isolément** (`frontend/src/app/shared/{page-header,
+stat-card,status-tag,empty-state,form-field,data-table,confirm-dialog,toast}/`) : `lt-page-header`,
+`lt-stat-card`, `lt-status-tag` (+ `severityForStatut()`, vocabulaire paiements/alertes déjà
+vérifié dans le code), `lt-empty-state`, `lt-form-field` (association label/erreur/aide via
+`exportAs`), `lt-data-table` (états vide/erreur, sans tri/filtre/pagination — aucun besoin ≥ 2
+écrans confirmé), `lt-confirm-dialog` + `LtConfirmDialogService`, `lt-toast` +
+`LtToastService`. Aucun composant intégré à un écran métier (« sans intégration dans un écran
+métier existant », Plan d'Exécution §3 Lot 2).
+
+**Constat de test notable — `lt-confirm-dialog` (`DDS-LT-005`)** : `DDS-LT-005` supposait que
+`p-confirmdialog` (PrimeNG) gérait nativement le focus-trap **et** la restitution du focus au
+déclencheur. Un test réel en navigateur (Chrome Headless, pas une simulation) a confirmé le
+focus-trap natif mais montré que **la restitution du focus n'est pas native** — sans intervention,
+le focus retombe sur `<body>` à la fermeture. Corrigé explicitement dans `ConfirmDialogComponent`
+(capture du déclencheur dans `LtConfirmDialogService.confirm()`, restitution sur `(onHide)`),
+revérifié par test. C'est exactement le type d'écart qu'un test réel (plutôt qu'une confiance dans
+la documentation de la librairie) est censé détecter — la revue mérite d'être signalée telle
+quelle plutôt que silencieusement corrigée sans trace.
+
+**Vérification** : 133/133 tests (100 existants + 33 nouveaux), `ng lint` propre (règle
+`@angular-eslint/component-selector` étendue pour accepter le préfixe `lt-` en plus de `app-`,
+conforme à `DSG-001.md` §Naming Convention), `ng build` réussi (`514,30 kB`, stable — les
+composants non intégrés sont exclus du bundle par tree-shaking, aucune régression de budget).
+
+**Documents modifiés** : `frontend/src/app/shared/{page-header,stat-card,status-tag,empty-state,
+form-field,data-table,confirm-dialog,toast}/*.ts` (nouveaux) ; `frontend/eslint.config.js`
+(préfixe `lt-` autorisé) ; `DSG-001.md` (§Composants LoyerTracker candidats, §Component Mapping
+(Angular), statut Gouvernance).
+
+**Ce que cette implémentation n'autorise pas** : aucun écran métier n'est migré, aucun composant
+n'est adopté dans le code applicatif existant (relève des Lots 3+, écran par écran).
+
+**Prochaine action autorisée** : le Product Owner peut valider `US-132` ; avec elle, le Lot 2 est
+fonctionnellement terminé (8/8 points). La prochaine étape structurante est une nouvelle
+instruction de Gate pour le Lot 3 (Pilote Angular — premiers écrans métier réels), conformément à
+« chaque lot reste un point de contrôle GO/NO GO distinct ».
