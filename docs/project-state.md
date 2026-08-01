@@ -4152,3 +4152,30 @@ et `gate-02A-decision-ep17-lot2.md` §6 (GO / GO sous réserve / NO GO). Le dév
 du Lot 2 (composants `lt-*`) ne peut démarrer qu'après ces deux décisions, conformément au verrou
 `CLAUDE.md` (« Aucun code applicatif sans Plan d'Exécution approuvé ») — l'approbation du Plan
 reste limitée au Lot 1 tant qu'aucune extension n'est explicitement décidée.
+
+### Décisions Gate 04A/Gate 02A rendues — GO sous réserve, périmètre Lot 2 (2026-08-01)
+
+**Décision Product Owner explicite** : « GO sous réserve, périmètre Lot 2 ». Section 6 complétée
+en conséquence dans `gate-04A-decision-ep17-lot2.md` et `gate-02A-decision-ep17-lot2.md`.
+`gate-04A-decision-ep17-lot0-v2.md` et `gate-02A-decision-ep17-lot1.md` (GO sous réserve, Lot 1)
+restent non réécrites — préservation des décisions historiques (`CLAUDE.md`).
+
+**Portée** : autorisation limitée à EP-17 Lot 2 (8 composants transverses développés et testés
+isolément, sans intégration dans un écran métier existant). Ne couvre pas Lot 3 et suivants —
+nouvelle instruction de Gate requise pour toute extension de périmètre, notamment dès qu'un
+composant serait intégré à un écran métier réel (pilote Angular, Lot 3).
+
+**Réserves continues** (non neutralisées par ces décisions) : les 6 contrôles `CHECK-UX-01` et 1
+`CHECK-FRONTEND-01` restés « Non exécuté » doivent produire leurs preuves d'implémentation au fil
+du Lot 2 — non substituables par de la documentation. `DD-611-02`, `DD-611-03`, `DD-EP17-04`,
+`DD-EP17-05` (focus-trap `lt-confirm-dialog`, exigences déjà fixées par `DDS-LT-005`) et
+`DD-EP17-06` restent ouverts.
+
+**Ce que ce GO ne couvre pas** : l'approbation de l'extension du Plan d'Exécution au Lot 2
+(`plan-execution-ux-ui-primeng-keycloak.md`, §12 toujours limité au seul Lot 1) — action Product
+Owner distincte, préalable à tout développement effectif du Lot 2 (verrou `CLAUDE.md`, « Aucun
+code applicatif sans Plan d'Exécution approuvé »).
+
+**Prochaine action autorisée** : le Product Owner statue sur l'extension du Plan d'Exécution au
+Lot 2. Le développement technique du Lot 2 (composants `lt-*`) ne peut démarrer qu'après cette
+approbation, sous réserve continue des preuves de test/implémentation ci-dessus.

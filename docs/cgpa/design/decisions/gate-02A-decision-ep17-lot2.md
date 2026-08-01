@@ -77,14 +77,33 @@ cette soumission.
 
 ## 6. Décision finale
 
-* Décision du CGPA Chief Delivery Officer :
-* Justification :
-* Validité :
-* Conditions d'invalidation :
-* Prochaine action autorisée :
+* Décision du CGPA Chief Delivery Officer : **GO sous réserve, périmètre limité à EP-17 Lot 2** —
+  décision explicite du Product Owner (jptshilombo@gmail.com), 2026-08-01, alignée sur l'avis
+  UX/UI Design Lead (§5).
+* Justification : sur les 11 critères du Gate 02A, 5 sont sans matière nouvelle pour ce périmètre
+  (aucun écran/persona/parcours livré en Lot 2), 2 restent inchangés (navigation, information
+  architecture), 2 ont une matière réelle dont le contenu est déjà accepté (`DSG-001.md` §Composants,
+  `DDS-LT-005` pour l'accessibilité de `lt-confirm-dialog`) mais dont l'implémentation est renvoyée
+  au Gate 04A. Le seul critère non satisfait — validation Product Owner de cette lecture
+  d'applicabilité — est levé par cette décision elle-même.
+* Validité : limitée au périmètre EP-17 Lot 2 tel que défini par
+  `plan-execution-ux-ui-primeng-keycloak.md` §3. Ne vaut pas autorisation pour Lot 3 et suivants —
+  ceux-ci introduiront potentiellement des écrans métier réels (pilote Angular) et devront
+  réévaluer sur leur propre matière les 5 critères ici jugés « sans objet », via une nouvelle
+  instruction du Gate 02A.
+* Conditions d'invalidation : toute évolution matérielle du périmètre Lot 2 tel que défini au
+  moment de cette décision (notamment toute intégration d'un composant dans un écran métier avant
+  le Lot 3, contrairement à « sans intégration dans un écran métier existant ») invalide cette
+  décision et impose une nouvelle instruction — jamais une simple reconduction tacite.
+* Prochaine action autorisée : ce GO sous réserve, combiné à celui de `gate-04A-decision-ep17-lot2.md`
+  (également rendu le 2026-08-01), lève les deux points Gate resté ouverts pour le Lot 2. Le
+  développement technique du Lot 2 reste toutefois subordonné à l'approbation explicite de
+  l'extension du Plan d'Exécution au Lot 2 (`plan-execution-ux-ui-primeng-keycloak.md` §12, action
+  Product Owner distincte, non couverte par cette seule décision de Gate), sous réserve continue
+  des preuves de test/implémentation attendues par le Gate 04A.
 
 ## 7. Traçabilité
 
-* Mise à jour `/docs/project-state.md` : à ajouter après décision §6.
+* Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-08-01.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
-* Date de validation humaine : —
+* Date de validation humaine : 2026-08-01.
