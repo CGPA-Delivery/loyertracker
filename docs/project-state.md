@@ -4004,3 +4004,62 @@ déclenchée par cette acceptation.
 **Prochaine action autorisée** : `US-130` (Thème PrimeNG) peut démarrer — dépendances `US-128`
 (fait) et `US-129` (close) toutes deux satisfaites. `US-131` (Architecture SCSS) reste bloquée sur
 `US-129` seule, désormais également débloquée.
+
+### US-130 démarrée — installation et theming PrimeNG (2026-08-01)
+
+**Instruction explicite reçue** : « Yes, start US-130 ». Première installation effective de
+PrimeNG du projet (verrou `CLAUDE.md` « Aucun code applicatif sans Plan d'Exécution approuvé » levé
+pour le Lot 1 depuis le 2026-07-31 ; clé de licence obtenue, Gates 02A/04A v2 GO sous réserve).
+
+**Dépendances installées** : `primeng@22.0.0` (version confirmée US-128), `@angular/cdk@^22.0.7`
+(peer dep requise, absente jusqu'ici), `@primeuix/themes@^3.0.0` (API `definePreset`). 0
+vulnérabilité de production (`npm audit --omit=dev`).
+
+**Thème configuré** (`frontend/src/styles/tokens/lt-preset.ts`) : étend le preset Aura de
+PrimeNG, ancre `semantic.primary` sur la famille `sky` (au lieu de `emerald` par défaut — aligné
+sur `--lt-focus-ring`/`--lt-state-info`) et `semantic.surface` sur la famille `slate` (au lieu de
+`zinc` par défaut en mode sombre — aligné sur `--lt-surface-page`). Tous les autres tokens
+sémantiques (formField, list, overlay, navigation…) héritent de ces deux surcharges par
+composition de tokens, sans réécriture individuelle.
+
+**Mode sombre figé** : `index.html` (`<html class="p-dark">`) et `styles.scss`
+(`color-scheme: dark`, était `light dark`) — corrige l'incohérence déjà signalée dans
+`DSG-001.md` §Dark Mode (« bascule non pilotée »), condition nécessaire pour que le thème PrimeNG
+(fonctions CSS `light-dark()`) résolve nos valeurs plutôt que la préférence système du testeur.
+`providePrimeNG` câblé dans `app.config.ts` (`theme.preset`, `darkModeSelector: '.p-dark'`,
+`ripple: false` — cohérent §Principes « Sobriété »).
+
+**Clé de licence non câblée dans ce commit** : `providePrimeNG({ license: … })` accepte la clé,
+mais elle reste un secret hors code (DSO-03) — son injection dans un build déployé (variable
+d'environnement CI, fichier non versionné) est un mécanisme distinct, hors périmètre de US-130.
+Sans elle, PrimeNG affiche une bannière « Invalid PrimeUI License » (cosmétique, ne bloque aucune
+fonctionnalité) — attendu et sans impact sur le critère GWT.
+
+**Vérification** :
+* 2 nouveaux tests unitaires (`lt-preset.spec.ts`, Karma/ChromeHeadless réel) : la valeur calculée
+  de `--p-primary-color` ne contient pas le rgb emerald par défaut d'Aura, celle de
+  `--p-surface-900` ne contient pas le rgb zinc par défaut — preuve directe, par valeurs CSS
+  calculées dans un navigateur réel, plutôt qu'une inspection visuelle.
+* Suite complète : 102/102 tests passent (100 existants + 2 nouveaux), `ng lint` propre.
+* **Preuve attendue par le Plan d'Exécution** (mesure de bundle avant/après) : `333.32 kB` →
+  `512.76 kB` (transfert estimé `91.23 kB` → `123.13 kB`), soit **50 % du budget** `angular.json`
+  (`1 Mo` avertissement, `2,5 Mo` erreur) — aucun avertissement de budget à la compilation.
+* **Limite rencontrée** : une vérification visuelle en navigateur réel (`ng serve` + Playwright
+  headless) a été tentée mais n'a pas abouti dans cet environnement — le serveur de dev
+  (Vite/HMR) est resté instable, et le build de production servi statiquement échoue au
+  bootstrap faute de backend Keycloak réel (redirection `check-sso` vers un `/auth` inexistant).
+  Limite d'environnement (absence de Keycloak/backend accessibles ici), sans lien avec le code du
+  thème — non contournée pour éviter de fabriquer une preuve non probante ; les tests Karma
+  (valeurs CSS calculées dans Chrome réel) restent la preuve retenue pour le critère GWT.
+
+**Documents modifiés** : `frontend/package.json`/`package-lock.json` ; `app.config.ts`,
+`index.html`, `styles.scss`, nouveaux `styles/tokens/lt-preset.ts` et
+`styles/tokens/lt-preset.spec.ts` ; `DSG-001.md` (§Composants, statut Gouvernance).
+
+**Ce que cette installation n'autorise pas** : aucun composant `lt-*` n'est codé, aucun écran
+métier n'est migré (« ne migrer aucun écran métier complet à ce stade », Plan d'Exécution §3 Lot 1)
+— hors périmètre, relève des Lots 2/3.
+
+**Prochaine action autorisée** : le Product Owner peut valider `US-130` et instruire `US-131`
+(Architecture SCSS — import de `_lt-tokens.scss` dans `styles.scss`, élimination du hardcodé), ou
+demander la mise en place du mécanisme d'injection de la clé de licence avant toute autre étape.
