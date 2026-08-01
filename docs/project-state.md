@@ -4179,3 +4179,30 @@ code applicatif sans Plan d'Exécution approuvé »).
 **Prochaine action autorisée** : le Product Owner statue sur l'extension du Plan d'Exécution au
 Lot 2. Le développement technique du Lot 2 (composants `lt-*`) ne peut démarrer qu'après cette
 approbation, sous réserve continue des preuves de test/implémentation ci-dessus.
+
+### Plan d'Exécution étendu au Lot 2 (2026-08-01)
+
+**Instruction explicite reçue** : « Approuve l'extension du Plan d'Exécution au Lot 2 ».
+`plan-execution-ux-ui-primeng-keycloak.md` mis à jour : statut **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE
+LOT 1 ET LOT 2** (en-tête et §12), appuyé sur `gate-04A-decision-ep17-lot2.md` et
+`gate-02A-decision-ep17-lot2.md` (GO sous réserve, Lot 2, tous deux 2026-08-01). Le verrou
+`CLAUDE.md` « Aucun code applicatif sans Plan d'Exécution approuvé » est donc levé **pour le Lot 2
+également** — inchangé pour les Lots 3 à 6.
+
+**Ce que cette extension ne lève pas** : les réserves continues du Gate 04A Lot 2 (6 contrôles
+`CHECK-UX-01`/1 `CHECK-FRONTEND-01` encore « Non exécuté », preuves à produire au fil du Lot 2) ;
+`DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-05` (focus-trap `lt-confirm-dialog`) et
+`DD-EP17-06`, tous ouverts ; le périmètre strict du Lot 2 lui-même (composants développés et
+testés isolément, aucune intégration à un écran métier — toute anticipation sur ce point
+invaliderait les deux Gates).
+
+**Effet** : le développement technique du Lot 2 (`lt-page-header`, `lt-stat-card`,
+`lt-status-tag`, `lt-empty-state`, `lt-data-table`, `lt-confirm-dialog`, `lt-form-field`, service
+Toast) peut démarrer.
+
+**Documents modifiés** : `plan-execution-ux-ui-primeng-keycloak.md` (en-tête, §3 Lot 2, §12 —
+nouvelle entrée datée).
+
+**Prochaine action autorisée** : le développement du Lot 2 peut être instruit, composant par
+composant, sous réserve continue des preuves de test/implémentation attendues par le Gate 04A
+Lot 2.
