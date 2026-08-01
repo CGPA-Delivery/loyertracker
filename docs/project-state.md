@@ -3861,3 +3861,51 @@ renouvellement annuel de la clé de licence PrimeNG (avant 2027-08-01,
 **Prochaine action autorisée** : le développement technique du Lot 1 (installation PrimeNG,
 tokens, thème) peut démarrer, sous réserve continue des preuves de test/implémentation attendues
 par le Gate 04A v2.
+
+### Bilan de session — déblocage Lot 1 et assainissement CI (2026-08-01)
+
+**Résumé** : trois PR produites et mergées dans `main` aujourd'hui, closant la séquence ouverte le
+2026-07-31 (« Product Owner statue sur la clé de licence PrimeNG et, le cas échéant, clarifie
+l'applicabilité du Gate 02A »).
+
+* **PR #326** — clé de licence PrimeUI Community obtenue et vérifiée (JWT décodé sans reproduire
+  le secret : `product=primeui`, `tier=community`, `type=dev`, validité 2026-08-01→2027-08-01),
+  stockée hors dépôt (`/home/ubuntu/INFRASTRUCTURE/primeui/key`, cohérent DSO-03). Détail :
+  `rapport-licence-securite-primeng-lot0.md` §9.
+* **PR #327** — instruction Gate 02A pour EP-17 Lot 1 (`gate-02A-decision-ep17-lot1.md`),
+  clarifiant une incohérence documentaire non résolue (extension tacite erronée de
+  `gate-02A-decision-ep16-us125.md`, périmètre US-125, à EP-17 dans `gate-04A-decision-ep17-lot0-v2.md`
+  §4). Décision Product Owner rendue : **GO sous réserve, périmètre Lot 1**.
+* **PR #328** — en tentant de merger #326/#327, deux checks CI requis (bloquants pour toute
+  fusion sur `main`, `enforce_admins` actif) se sont révélés en échec, sans rapport avec le
+  contenu documentaire :
+  * `Backend (build + tests + couverture)` : `BailClotureIntegrationTest` contenait un bug de test
+    daté-dépendant (comptage `EN_RETARD` faux le 1er de chaque mois, la logique de production
+    `date_exigibilite < CURRENT_DATE` étant en réalité correcte) — corrigé côté test uniquement,
+    vérifié localement (Testcontainers, 6/6 puis 220/220 sur la suite complète).
+  * `Frontend (build + tests)` : Quality Gate SonarQube en échec sur `new_coverage` (68 % < 80 %
+    requis, période de 30 jours) — comblé par des tests ciblés sur du code EP-15/US-103 déjà
+    fusionné mais jamais testé (route paresseuse `/verify/receipt`, deux méthodes
+    `S02ApiService`, deux branches `VerifyReceiptComponent`, le flux `creerLocataireRapide()` de
+    `BailleurDashboardComponent`), sans toucher au code de production.
+  * En cours de route, le check `Build, scan et SBOM Docker` (masqué jusque-là car en aval d'un
+    échec backend/frontend) a révélé **4 CVE HIGH préexistantes** dans les dépendances Spring de
+    l'image API (`spring-data-commons` 3.5.11, `spring-framework` 6.2.18 — CVE-2026-41695,
+    -41850, -41842, -41845). Corrigé par un bump `spring-boot-starter-parent` 3.5.14 → 3.5.16
+    (patch mineur, pas de saut majeur), suite complète revérifiée (220/220).
+  * Ce travail est un correctif CI/DevSecOps de maintenance (bugs de test et vulnérabilités
+    préexistants, sans rapport avec EP-17), pas du développement Frontend Lot 1 — il ne relève
+    donc pas du verrou CODE INTERDIT du Plan d'Exécution.
+
+**État final vérifié** : les trois PR sont mergées (`main` HEAD `daf9c33`) ; les 4 workflows
+GitHub Actions (`CI`, `CodeQL`, `CGPA Framework Audit`, `Registry Policy`) sont tous `success` sur
+ce commit — `main` est confirmé entièrement vert.
+
+**Ce qui reste ouvert** (inchangé par ce bilan, aucune réserve neutralisée) : les 8 contrôles
+Gate 04A v2 « Non exécuté » (`CHECK-UX-01`/`CHECK-FRONTEND-01`, preuves à produire au fil du
+Lot 1) ; le rappel de renouvellement annuel de la clé de licence PrimeNG avant 2027-08-01 (+ 30
+jours de grâce), toujours non mis en place.
+
+**Prochaine action autorisée** : le développement technique du Lot 1 (installation PrimeNG,
+tokens, thème) peut démarrer sur `main` à jour, sous réserve continue des preuves de test/
+implémentation attendues par le Gate 04A v2.
