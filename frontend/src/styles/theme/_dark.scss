@@ -1,0 +1,14 @@
+// Couche Thème — mode sombre unique et figé (DSG-001.md §Dark Mode). US-130 avait déjà corrigé
+// `color-scheme: light dark` → `color-scheme: dark` (l'app n'a jamais eu de mode clair réel,
+// incohérence déjà signalée dans le DSG) ; ce fichier reprend cette règle telle quelle dans la
+// couche Thème plutôt qu'au niveau global, US-131 se limitant à réorganiser l'existant.
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--lt-surface-page);
+  color: var(--lt-text-primary);
+}

@@ -1,0 +1,17 @@
+// `.container` : mise en page globale (utilisée par `app.component.ts`, seul appelant à ce jour).
+// Antérieure à la convention `lt-u-*` (DSG-001.md §Naming Convention, introduite par US-129) — un
+// renommage toucherait le template qui l'utilise, hors périmètre de US-131 (réorganisation
+// structurelle uniquement, aucune régression visuelle). Conservée telle quelle.
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+// `640px` reste en dur : une media query ne peut pas lire une custom property CSS
+// (`--lt-breakpoint-mobile`) — limitation du langage, pas un oubli.
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem;
+  }
+}

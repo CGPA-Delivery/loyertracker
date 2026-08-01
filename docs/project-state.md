@@ -4063,3 +4063,50 @@ métier n'est migré (« ne migrer aucun écran métier complet à ce stade », 
 **Prochaine action autorisée** : le Product Owner peut valider `US-130` et instruire `US-131`
 (Architecture SCSS — import de `_lt-tokens.scss` dans `styles.scss`, élimination du hardcodé), ou
 demander la mise en place du mécanisme d'injection de la clé de licence avant toute autre étape.
+
+### US-131 démarrée — Architecture SCSS (2026-08-01)
+
+**Instruction explicite reçue** : « Yes, start US-131 ». Dernière User Story du Lot 1
+(`addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`).
+
+**Réorganisation** : `frontend/src/styles.scss` (86 lignes, plat) devient un point d'entrée de 5
+lignes qui assemble 4 couches (`frontend/src/styles/{foundations,theme,components,utilities}/`,
+`@use`/`@forward` Sass), conforme à `DSG-001.md` §Naming Convention. Fondations réunit les tokens
+`--lt-*` (US-129) et le reset minimal ; Thème porte le mode sombre et le look de base du `body` ;
+Composants porte `button`/`.skip-link`/`pre`/le patron `:focus-visible` ; Utilitaires porte
+`.container` et `prefers-reduced-motion`.
+
+**Tokenisation partielle, délibérée** : les valeurs déjà identiques à un token existant sont
+substituées par `var(--lt-*)` (`#0f172a`→`--lt-surface-page`, `#e2e8f0`→`--lt-text-primary`,
+`#38bdf8`/`3px`/`solid`→`--lt-focus-ring*`, `6px`→`--lt-radius-default`,
+`0.9rem`→`--lt-font-size-base`) — aucun changement de valeur numérique. **`#334155` et `#1e293b`
+restent en dur, volontairement** : `--lt-border-default` a été corrigé en `#64748b` par
+`DDS-LT-006` — l'appliquer ici changerait la bordure visible de `<button>` sur tout le produit sans
+revue visuelle, contredisant le critère GWT de cette story elle-même et la décision déjà tracée
+(« remplacement des 24 occurrences en dur différé aux Lots 2+ »). `#1e293b` n'a aucun token
+équivalent défini à ce jour (dette signalée, non comblée ici).
+
+**Preuve « aucune régression visuelle »** : compilation de l'ancien `styles.scss` (git `main`) et
+du nouveau via `sass`, puis diff sémantique automatisé (script Python : résolution de tous les
+`var(--lt-*)` du nouveau CSS contre son propre `:root`, comparaison sélecteur par sélecteur avec
+l'ancien) — **résultat : aucune différence**, tous les sélecteurs résolvent aux mêmes déclarations.
+Une revue Visual Review par capture d'écran (comme prévu au Lot 0) n'a pas pu être rejouée dans cet
+environnement (même limite Keycloak/dev-server que `US-130`) ; le diff CSS sémantique est retenu
+comme preuve, plus rigoureux qu'une inspection visuelle mais de nature différente — à signaler si
+une revue humaine complémentaire est souhaitée.
+
+**Vérification** : `ng lint` propre, 102/102 tests (suite inchangée, aucune nouvelle assertion
+requise — pas de nouveau comportement, seulement une réorganisation), `ng build` réussi
+(`514.07 kB`, stable, toujours ~50 % du budget `angular.json`).
+
+**Documents modifiés** : `frontend/src/styles.scss` (réécrit, point d'entrée) ; nouveaux
+`frontend/src/styles/{foundations,theme,components,utilities}/*.scss`.
+
+**Effet** : les trois User Stories du Lot 1 (`US-129`, `US-130`, `US-131`) sont désormais toutes
+**fonctionnellement terminées** (13/13 points). Aucune n'a de validation Product Owner formelle
+distincte de leur PR respective à ce jour, hormis `US-129`/`DDS-LT-006` déjà acceptée.
+
+**Prochaine action autorisée** : le Product Owner valide `US-130`/`US-131` (ou demande des
+ajustements) ; au-delà, le Lot 1 étant complet, la prochaine étape structurante est une nouvelle
+instruction de Gate (04A/02A) pour statuer sur le Lot 2 (Composants transverses), conformément à
+« chaque lot reste un point de contrôle GO/NO GO distinct » (`plan-execution-ux-ui-primeng-keycloak.md`).

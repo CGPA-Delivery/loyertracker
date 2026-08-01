@@ -1,0 +1,10 @@
+// Anneau de focus clavier — patron déjà en place (DSG-001.md §Accessibilité), formalisé en
+// tokens `--lt-focus-ring*` par US-129/DDS-LT-006. Valeurs numériques inchangées (`#38bdf8`,
+// `3px`) : substitution sans impact visuel.
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: var(--lt-focus-ring-width) var(--lt-focus-ring-style) var(--lt-focus-ring);
+  outline-offset: 2px;
+}
