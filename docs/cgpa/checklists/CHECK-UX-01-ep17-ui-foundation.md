@@ -55,3 +55,33 @@ inchangé, la validation Product Owner n'était qu'une partie de la preuve atten
 l'agrégat de cette instance (0 PASS, 6 Préparation en cours, 7 Non exécuté) n'est pas modifié par
 cette précision. Contenu de la ligne d'origine non réécrit, conformément à la préservation des
 décisions historiques (`CLAUDE.md`).
+
+## Note de mise à jour (2026-08-01, postérieure à cette instance) — Lot 1 livré
+
+Le Lot 1 (`US-129` Design Tokens, `US-130` Thème PrimeNG, `US-131` Architecture SCSS) est
+désormais mergé sur `main` (PR #331-334), avec de l'implémentation réelle, pas seulement
+documentaire — deux lignes évoluent :
+
+* **« Tokens »** (notait « candidates … non validées visuellement ») : les 13 tokens de couleur
+  ont été revus par contraste WCAG 2.2 (`DDS-LT-006`, Acceptée par le Product Owner le
+  2026-08-01), 2 corrections appliquées, 6 nouvelles catégories ajoutées, un fichier de tokens
+  versionné produit (`frontend/src/styles/tokens/_lt-tokens.scss`) et **partiellement adopté**
+  dans le CSS global (`--lt-surface-page`, `--lt-text-primary`, `--lt-focus-ring*`,
+  `--lt-radius-default`, `--lt-font-size-base` réellement utilisés par `styles/theme/`,
+  `styles/components/`). Reclassée **PASS** — validation et implémentation réelle obtenues,
+  distinct d'une simple documentation d'intention. Ne couvre pas l'adoption dans les composants
+  applicatifs existants (hors périmètre Lot 1, cf. `DD-EP17-06` ci-dessous).
+* **« Dark mode ou décision d'exemption »** (notait « formalisé comme cible, mode clair hors
+  périmètre — décision tracée ») : implémenté réellement en Lot 1 (`index.html`
+  `class="p-dark"`, `styles.scss`/`theme/_dark.scss` `color-scheme: dark`, corrigeant
+  l'incohérence `light dark` déjà signalée). Reclassée **PASS**.
+
+**Décompte recalculé** : sur 13 contrôles, **2 PASS** (Tokens, Dark mode), **5 « Préparation en
+cours »**, **6 « Non exécuté »**, **0 FAIL**. Les contrôles bloquants encore non exécutés
+(Responsive, Accessibilité, Cohérence multi-écrans, Composants et variantes, États erreur/vide/
+chargement) nécessitent tous une implémentation de composants `lt-*` réels — précisément l'objet
+du Lot 2 (`US-132`, Composants transverses). Conformément à la règle d'agrégation 2, le résultat
+agrégé reste **NO GO (en l'état)** pour un Gate 04A global du périmètre EP-17 complet — sans
+préjuger d'un GO sous réserve limité au seul Lot 2, objet d'une nouvelle instruction distincte
+(`gate-04A-decision-ep17-lot2.md`). Contenu des lignes d'origine non réécrit, conformément à la
+préservation des décisions historiques (`CLAUDE.md`).

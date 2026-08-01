@@ -4110,3 +4110,45 @@ distincte de leur PR respective à ce jour, hormis `US-129`/`DDS-LT-006` déjà 
 ajustements) ; au-delà, le Lot 1 étant complet, la prochaine étape structurante est une nouvelle
 instruction de Gate (04A/02A) pour statuer sur le Lot 2 (Composants transverses), conformément à
 « chaque lot reste un point de contrôle GO/NO GO distinct » (`plan-execution-ux-ui-primeng-keycloak.md`).
+
+### Nouvelle instruction Gate 04A/Gate 02A — Lot 2 (2026-08-01) — décision Product Owner attendue
+
+**Instruction explicite reçue** : « Instruire le Gate 04A/02A pour le Lot 2 ». Le Lot 1 étant
+livré et intégralement mergé sur `main` (CI verte, 4 workflows), deux nouvelles instances sont
+produites pour le périmètre Lot 2 (Composants transverses, `US-132`, 8 points), conformément au
+principe « chaque lot reste un point de contrôle GO/NO GO distinct ».
+
+**Mises à jour de cohérence apportées avant instruction** (reflètent l'évidence Lot 1 réellement
+livrée, sans réécrire les avis d'origine) :
+* `CHECK-UX-01-ep17-ui-foundation.md` : 2 contrôles reclassés PASS (Tokens — validés WCAG,
+  `DDS-LT-006` — ; Dark mode — implémenté, `US-130`). Recompte : 2 PASS, 5 Préparation en cours,
+  6 Non exécuté (sur 13).
+* `CHECK-FRONTEND-01-ep17-ui-foundation.md` : 2 contrôles reclassés PASS (Architecture CSS/SCSS —
+  implémentée, `US-131` — ; Mapping DSG et tokens) et 1 reclassé Préparation en cours (Budgets et
+  performance — mesuré, `514,07 kB`, ~50 % du budget). Recompte : 2 PASS, 5 Préparation en cours,
+  1 Non exécuté (sur 8).
+* `design-debt-register-loyertracker.md` : `DD-EP17-06` (spacing) marquée « Partiellement traité »
+  — tokens `--lt-space-*` définis, non adoptés (US-131 les a délibérément laissés en dehors des
+  valeurs déjà en dur pour ne pas introduire de régression visuelle). Reste Ouvert.
+
+**Ce que les nouvelles instances documentent** :
+* `gate-04A-decision-ep17-lot2.md` : les contrôles bloquants restants (6 `CHECK-UX-01`, 1
+  `CHECK-FRONTEND-01`) nécessitent tous des composants `lt-*` réels et testés — structurellement
+  impossibles à satisfaire avant l'exécution même du Lot 2. Réserves reprises : `DD-611-02`,
+  `DD-611-03` (dettes registre non closes, preuve d'implémentation requise), `DD-EP17-04`
+  (échéance Lot 2, hétérogénéité composants), `DD-EP17-05` (focus-trap `lt-confirm-dialog`,
+  exigences déjà fixées par `DDS-LT-005`), `DD-EP17-06` (spacing, partiellement traité). Section 6
+  volontairement laissée vide.
+* `gate-02A-decision-ep17-lot2.md` : sur les 11 critères, 5 sans matière nouvelle (aucun écran/
+  persona/parcours livré en Lot 2), 2 inchangés, 2 avec matière réelle (design system,
+  accessibilité) déjà couverte par du contenu accepté (`DSG-001.md`, `DDS-LT-005`) dont
+  l'implémentation relève du Gate 04A. Avis UX/UI Design Lead proposé : GO sous réserve. Section 6
+  volontairement laissée vide.
+* `plan-execution-ux-ui-primeng-keycloak.md` §3 Lot 2 : note ajoutée référençant les deux
+  instances, décision Product Owner attendue avant tout développement de ce Lot.
+
+**Prochaine action autorisée** : le Product Owner statue sur `gate-04A-decision-ep17-lot2.md` §6
+et `gate-02A-decision-ep17-lot2.md` §6 (GO / GO sous réserve / NO GO). Le développement technique
+du Lot 2 (composants `lt-*`) ne peut démarrer qu'après ces deux décisions, conformément au verrou
+`CLAUDE.md` (« Aucun code applicatif sans Plan d'Exécution approuvé ») — l'approbation du Plan
+reste limitée au Lot 1 tant qu'aucune extension n'est explicitement décidée.

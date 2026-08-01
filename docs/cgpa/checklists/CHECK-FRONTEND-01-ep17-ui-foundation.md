@@ -106,3 +106,31 @@ deux nécessitant une implémentation réelle, non substituables par de la docum
 à la règle d'agrégation 2, le résultat agrégé reste **NO GO (en l'état)** — inchangé dans sa
 conclusion, mais pour un motif réduit à ces deux seuls contrôles restants. Contenu de l'avis
 d'origine non réécrit, conformément à la préservation des décisions historiques (`CLAUDE.md`).
+
+## Note de mise à jour (2026-08-01, postérieure à cet avis) — Lot 1 livré
+
+Le Lot 1 (`US-129`/`US-130`/`US-131`) est mergé sur `main` (PR #331-334) — implémentation réelle,
+pas seulement une intention documentaire. Trois lignes évoluent :
+
+* **« Budgets et performance »** (notait « mesure … planifiée, non réalisée, aucune dépendance
+  installée ») : PrimeNG installé, mesure avant/après réalisée — `333,32 kB → 514,07 kB`
+  (transfert estimé `91,23 kB → 123,50 kB`), soit **~50 % du budget** `angular.json` (1 Mo
+  avertissement, 2,5 Mo erreur), aucun avertissement à la compilation. Reclassée **Préparation en
+  cours** (mesure de bundle réelle obtenue ; « performance » au sens large — Lighthouse,
+  perçue — reste non mesurée, cf. `CHECK-UX-01` « Performance UX/perçue », non bloquant, toujours
+  Non exécuté).
+* **« Architecture CSS/SCSS »** (notait « 4 couches documentées dans `ADR-UI-001`, aucune
+  implémentation ») : implémentée réellement (`US-131`, `frontend/src/styles/{foundations,theme,
+  components,utilities}/`), preuve d'absence de régression visuelle par diff CSS sémantique
+  (`project-state.md`, 2026-08-01). Reclassée **PASS**.
+* **« Mapping DSG et tokens »** (notait « valeurs candidates non validées visuellement ») : même
+  évolution que `CHECK-UX-01` « Tokens » — `DDS-LT-006` acceptée, tokens validés et partiellement
+  adoptés. Reclassée **PASS**.
+
+**Décompte recalculé** : sur 8 contrôles, **2 PASS** (Architecture CSS/SCSS, Mapping DSG et
+tokens), **5 « Préparation en cours »** (dont Budgets et performance, reclassé), **1 « Non
+exécuté »** (Component/accessibility/responsive tests — nécessite des composants `lt-*` réels,
+objet du Lot 2). Conformément à la règle d'agrégation 2, le résultat agrégé reste **NO GO (en
+l'état)** pour un Gate 04A global EP-17 complet, motif réduit à ce seul contrôle — sans préjuger
+d'un GO sous réserve limité au Lot 2 (`gate-04A-decision-ep17-lot2.md`). Contenu de l'avis
+d'origine non réécrit, conformément à la préservation des décisions historiques (`CLAUDE.md`).
