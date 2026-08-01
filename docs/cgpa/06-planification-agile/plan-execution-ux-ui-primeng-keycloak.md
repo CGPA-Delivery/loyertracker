@@ -290,3 +290,22 @@ sprint actif sans décision explicite du Product Owner.**
 * **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 UNIQUEMENT » (§ en-tête). Le
   développement Lot 1 (installation PrimeNG, thème, tokens) reste conditionné à l'obtention de la
   clé de licence — aucune installation ne peut démarrer avant cette action distincte.
+
+### Clé de licence PrimeNG Community obtenue — dernier verrou explicite d'installation levé (2026-08-01)
+
+* **Fait rapporté et vérifié** : la clé de licence PrimeUI Community a été obtenue et déposée hors
+  dépôt (`/home/ubuntu/INFRASTRUCTURE/primeui/key`), conforme au pattern DSO-03 existant. Détail de
+  la vérification : `rapport-licence-securite-primeng-lot0.md` §9.
+* **Effet** : la condition explicite « aucune installation ne peut démarrer avant cette action
+  distincte » (ci-dessus, 2026-07-31) est **remplie**. Ce n'est pas une nouvelle décision de Gate —
+  c'est la levée d'une condition déjà posée par une décision Product Owner antérieure.
+* **Ce qui reste ouvert, non neutralisé par ce fait** : les réserves continues du Gate 04A v2
+  (contrôles `CHECK-UX-01`/`CHECK-FRONTEND-01` « Non exécuté », preuves à produire au fil du
+  Lot 1) ; l'applicabilité du Gate 02A au socle EP-17 au-delà de US-125/EP-16, toujours non
+  tranchée — à clarifier avant, ou tenue comme réserve pendant, l'exécution du Lot 1, conformément
+  à `CLAUDE.md` (« un contrôle applicable sans preuve est non exécuté, jamais non applicable ») ;
+  le rappel de renouvellement annuel de la clé (avant 2027-08-01), non encore mis en place.
+* **Prochaine action autorisée** : le Product Owner peut désormais instruire le démarrage effectif
+  du travail technique du Lot 1 (installation PrimeNG, tokens, thème), sous réserve continue des
+  points ci-dessus ; ou clarifier au préalable l'applicabilité du Gate 02A. Ces deux choix restent
+  des décisions Product Owner distinctes, non tranchées par ce seul constat.
