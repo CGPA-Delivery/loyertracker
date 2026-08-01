@@ -2,6 +2,7 @@ import { Route } from '@angular/router';
 
 import { routes } from './app.routes';
 import { authGuard } from './core/auth/auth.guard';
+import { VerifyReceiptComponent } from './public/verify-receipt/verify-receipt.component';
 
 /**
  * Non-régression US-103 : l'ouverture de la route publique `/verify/receipt/:id` ne doit pas
@@ -25,5 +26,10 @@ describe('routes', () => {
     for (const path of ['bailleur', 'bailleur/profil', 'gestionnaire']) {
       expect(routePour(path).canActivate).toEqual([authGuard]);
     }
+  });
+
+  it('charge paresseusement le bon composant pour la route publique de vérification', async () => {
+    const loadComponent = routePour('verify/receipt/:id').loadComponent as () => Promise<unknown>;
+    expect(await loadComponent()).toBe(VerifyReceiptComponent);
   });
 });
