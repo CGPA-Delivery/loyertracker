@@ -4248,3 +4248,34 @@ n'est adopté dans le code applicatif existant (relève des Lots 3+, écran par 
 fonctionnellement terminé (8/8 points). La prochaine étape structurante est une nouvelle
 instruction de Gate pour le Lot 3 (Pilote Angular — premiers écrans métier réels), conformément à
 « chaque lot reste un point de contrôle GO/NO GO distinct ».
+
+### Correctif CI — Quality Gate SonarQube, PR #338/US-132 (2026-08-02)
+
+**Constat** : le check requis `Frontend (build + tests)` de la PR #338
+(`feat/us-132-composants-transverses`) échouait — build Angular et 133/133 tests au vert, mais le
+scanner SonarQube retournait `QUALITY GATE STATUS: FAILED` (exit code 3). Vérification directe sur
+l'instance réelle `sonar.loyerpro.org` (`sonarqube-instance-et-prevalidation`, pré-validation des
+Quality Gates) : la condition `new_violations > 0` était en défaut (1 violation), couverture
+(97,9 %) et duplication (0,0 %) conformes. Sur les 15 issues remontées en période de référence
+(leak period depuis 2026-07-03), une seule datait de ce commit (`d9cbbda`) — les 14 autres,
+antérieures, sont hors périmètre du Quality Gate en new-code.
+
+**Violation bloquante** : `typescript:S3358` (MAJOR, « Extract this nested ternary operation into
+an independent statement ») dans `lt-form-field`
+(`frontend/src/app/shared/form-field/form-field.component.ts:66`), composant livré par `US-132`.
+
+**Correctif appliqué** : `describedBy` réécrit avec un `if`/`return` explicite au lieu du ternaire
+imbriqué, comportement strictement identique (priorité erreur > aide > rien). Vérifié par test réel
+(133/133 tests, dont les 6 tests dédiés `lt-form-field`), `ng build` (bundle stable, `514,30 kB`),
+`npx eslint` propre. Commit `26d384f` poussé sur `feat/us-132-composants-transverses`.
+
+**Vérification post-push** : les 11 checks requis de la PR #338 sont `pass` (Frontend, Backend,
+CodeQL java-kotlin/javascript-typescript, Sécurité gitleaks/SCA/Trivy, structural-audit,
+Quarantaine GHCR, Détection changements images, Build/scan/SBOM Docker) ; `Publication, signatures
+et attestations` en `skipping` (normal hors merge/tag).
+
+**Documents modifiés** : `frontend/src/app/shared/form-field/form-field.component.ts` (correctif
+ciblé, aucun autre fichier ni composant concerné).
+
+**Prochaine action autorisée** : inchangée — le Product Owner peut valider `US-132`, désormais avec
+CI intégralement verte sur la PR #338.
