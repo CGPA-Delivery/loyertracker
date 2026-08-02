@@ -347,6 +347,24 @@ describe('BailleurDashboardComponent', () => {
     });
   });
 
+  describe('EP-17 Lot 3 — ordre mobile liste-avant-formulaire (CHECK-UX-01 Responsive)', () => {
+    it('applique .mobile-list-first uniquement aux sections Biens et Patrimoines, pas aux 6 autres sections du dashboard', () => {
+      fixture.detectChanges();
+
+      const sections = fixture.nativeElement.querySelectorAll('section.mobile-list-first');
+      expect(sections.length).toBe(2);
+      expect(sections[0].querySelector('h2')?.textContent).toContain('Nouveau bien');
+      expect(sections[1].querySelector('h2')?.textContent).toContain('Modifier un patrimoine');
+    });
+
+    it('applique un touch target minimal de 44px aux champs input/select (DSG-001 Responsive Rules)', () => {
+      fixture.detectChanges();
+
+      const adresse = fixture.nativeElement.querySelector('#bien-adresse') as HTMLElement;
+      expect(getComputedStyle(adresse).minHeight).toBe('44px');
+    });
+  });
+
   describe('Sprint 4 — affectations patrimoine et exceptions', () => {
     const affectationPatrimoineActive = {
       id: 'aff-pat-1',

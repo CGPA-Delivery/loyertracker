@@ -61,7 +61,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       <span role="status" aria-live="polite" aria-atomic="true">{{ message() }}</span>
     </section>
 
-    <section class="grid two">
+    <section class="grid two mobile-list-first">
       <form [formGroup]="bienForm" (ngSubmit)="enregistrerBien()" class="panel">
         <h2>{{ bienSelectionne() ? 'Modifier le bien' : 'Nouveau bien' }}</h2>
         <lt-form-field #fAdresse="ltFormField" inputId="bien-adresse" label="Adresse">
@@ -116,7 +116,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       </div>
     </section>
 
-    <section class="grid two detail">
+    <section class="grid two detail mobile-list-first">
       <form [formGroup]="patrimoineForm" (ngSubmit)="modifierPatrimoine()" class="panel">
         <h2>Modifier un patrimoine</h2>
         <lt-form-field #fSelect="ltFormField" inputId="patrimoine-select" label="Patrimoine">
@@ -578,6 +578,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       input,
       select {
         width: 100%;
+        min-height: 44px;
         border: 1px solid #334155;
         border-radius: 6px;
         padding: 0.5rem;
@@ -615,6 +616,9 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         .status {
           display: grid;
           gap: 0.5rem;
+        }
+        .mobile-list-first form.panel {
+          order: 1;
         }
       }
     `,
