@@ -134,3 +134,43 @@
 * Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-08-02.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
 * Date de validation humaine : 2026-08-02.
+
+## 8. Note de mise à jour (2026-08-02, postérieure à cette instance) — Lot 3 restreint livré, bloqueur CHECK-UX-01 levé
+
+Le périmètre restreint confirmé (section Patrimoines/Biens) est désormais **intégralement migré** :
+liste des Biens, liste des Patrimoines, formulaire Bien, formulaire Patrimoine (`US-133`/`US-134`,
+PR #338-340, mergées sur `main`). Exécution respectée : section par section, liste avant
+formulaire, aucune extension au-delà du périmètre confirmé, mécanisme d'archivage `confirm()`
+natif préservé tel quel (non migré), aucune donnée financière introduite.
+
+**Bloqueur §4 « composants `lt-*` non intégrés à un écran réel »** : les 2 contrôles `CHECK-UX-01`
+qui en dépendaient (Responsive, Cohérence multi-écrans) ont désormais une preuve réelle produite
+en navigateur réel (Chrome Headless, PR #341, mergée) — voir `CHECK-UX-01-ep17-ui-foundation.md`
+note du 2026-08-02. Deux écarts réels détectés à cette occasion (ordre mobile liste/formulaire,
+touch targets `input`/`select` sous 44px), tous deux pré-existants et corrigés dans le périmètre
+strict des 2 écrans concernés. Reclassement : Responsive → **PASS sous réserve** (résidu
+`DD-EP17-11`, touch target `button` global, hors périmètre de ce Lot) ; Cohérence multi-écrans →
+**PASS** (scopé aux 4 écrans migrés).
+
+* **Instruction explicite reçue** : « je valide » — en réponse directe à la présentation de ce
+  constat (CI verte sur PR #341, écarts trouvés et corrigés, résidu `DD-EP17-11` signalé). Conforme
+  à `CLAUDE.md` (« aucun audit automatique ne remplace la validation humaine requise ») : cette
+  validation Product Owner constitue la validation humaine requise pour transformer la preuve
+  technique en clôture effective de ce bloqueur.
+* **Statut du bloqueur** (tableau §4, ligne « composants `lt-*` non intégrés à un écran réel ») :
+  **Levé (2026-08-02)** — preuve produite et validée humainement, conformément à la colonne
+  « Preuve attendue » de cette même ligne (« section Patrimoines/Biens migrée, testée responsive à
+  au moins 2 breakpoints, cohérence vérifiée entre sections migrées et non migrées »). Contenu de
+  la ligne d'origine non réécrit, conformément à la préservation des décisions historiques
+  (`CLAUDE.md`).
+* **Ce que cette levée ne couvre pas** : `DD-EP17-11` (touch target `button` global) reste ouverte,
+  correction hors périmètre Lot 3 (blast radius produit entier) ; `DD-611-02`, `DD-611-03`,
+  `DD-EP17-04`, `DD-EP17-06`, `DD-EP17-10` restent ouvertes selon leur statut propre (cf.
+  `design-debt-register-loyertracker.md`) — cette note ne referme aucune d'entre elles ; le Gate
+  04A **global** EP-17 (au-delà du seul Lot 3) reste NO GO en l'état
+  (`CHECK-UX-01-ep17-ui-foundation.md`, décompte recalculé : 5 PASS, 1 PASS sous réserve,
+  5 Préparation en cours, 1 Non exécuté non bloquant).
+* **Portée** : cette note clôt le bloqueur structurel spécifique au Lot 3 restreint tel
+  qu'instruit par cette décision (§4). Elle ne constitue pas une nouvelle instruction de Gate pour
+  les Lots 4-6, qui restent chacun un point de contrôle GO/NO GO distinct (§6, Plan d'Exécution
+  §12).
