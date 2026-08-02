@@ -109,3 +109,17 @@ du §5 n'est pas reconduit en GO.
 `phase-02-ui-mockups-ep17-lot4.md`, scopés aux 8 écrans `login/` listés ci-dessus, après
 vérification factuelle de la compatibilité de version Keycloak et de l'état SMTP
 (`gate-04A-decision-ep17-lot4.md` §8) — même enchaînement que le Lot 3.
+
+## 9. Correction de périmètre (2026-08-02, postérieure à la note §8) — 6 écrans, pas 8
+
+Les vérifications factuelles menées en parallèle sur le Gate 04A (`gate-04A-decision-ep17-lot4.md`
+§9) établissent que **« invitation » et « invitation expirée » ne sont pas des écrans Keycloak** :
+aucune occurrence dans les 2 fichiers de realm, mécanisme entièrement applicatif
+(`InvitationService.java`), jamais exposé via une page web (ni Angular ni Keycloak) — seulement en
+appel API direct, testé par `infra/smoke/smoke-stack.sh`. Le périmètre UX réel de ce Gate se réduit
+donc à **6 écrans** : login, mot de passe oublié, reset password, session expirée, accès refusé,
+logout. Le §8 ci-dessus (« 8 écrans ») n'est pas réécrit (préservation des décisions historiques,
+`CLAUDE.md`) — cette note corrige le compte, pas le contenu déjà produit. L'absence de toute
+interface pour l'acceptation d'invitation est tracée séparément (`DD-EP17-12`), hors périmètre d'un
+Gate portant sur un thème Keycloak. Les 2 bloqueurs structurels (parcours, maquettes) restent
+ouverts, désormais scopés à 6 écrans plutôt que 8.

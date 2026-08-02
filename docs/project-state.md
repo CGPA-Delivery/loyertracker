@@ -4898,3 +4898,41 @@ modification de realm.
 environnement et de l'état réel du SMTP, puis production des parcours utilisateurs et maquettes
 scopés aux 8 écrans `login/` (`phase-02-user-journeys-ep17-lot4.md`,
 `phase-02-ui-mockups-ep17-lot4.md`), même enchaînement que le Lot 3.
+
+### Vérifications factuelles Lot 4 — version Keycloak, SMTP, correction du périmètre à 6 écrans (2026-08-02)
+
+**Vérification de compatibilité de version Keycloak (RSV-UI-08)** — **Bloqueur levé, sans
+réserve.** Les 3 environnements (`docker-compose.yml`, `docker-compose.staging.yml`,
+`docker-compose.prod.yml` — ce dernier hérite l'image, aucune redéfinition) référencent le **même
+digest exact** `quay.io/keycloak/keycloak:24.0@sha256:f8ade9…`. Aucun risque de divergence de
+version entre Dev/Staging/Production.
+
+**Vérification SMTP** — configuration confirmée absente de toute source versionnée (`docker-compose*.yml`,
+`.env.example`, 2 fichiers de realm — recherche exhaustive, 0 occurrence partout). Nuance
+méthodologique tracée : le realm n'est importé qu'au démarrage du conteneur, une configuration SMTP
+faite depuis via la console d'administration Keycloak ne serait pas nécessairement reflétée ici —
+constat sur la configuration versionnée, pas sur l'instance vivante, vérification directe
+recommandée.
+
+**Correction significative de périmètre** : « invitation » et « invitation expirée », que le Plan
+d'Exécution §3 listait comme écrans du thème Keycloak, **ne sont pas des écrans Keycloak** — triple
+vérification convergente : 0 occurrence de « invitation » dans les 2 fichiers de realm ; mécanisme
+entièrement applicatif (`InvitationService.java`, lien `{baseUrl}/invitations/{token}`) ; aucune
+route Angular correspondante (`app.routes.ts`, 0 occurrence). Le flux est fonctionnel et testé en
+Production (`infra/smoke/smoke-stack.sh`, `POST /api/invitations/{token}/acceptation`) mais
+**exclusivement en appel API direct** — jamais via une page web, ni Angular ni Keycloak. **Le
+périmètre réel du Lot 4 se réduit à 6 écrans confirmés** (login, mot de passe oublié, reset
+password, session expirée, accès refusé, logout), pas 8. Nouvelle dette tracée : `DD-EP17-12`
+(absence de toute interface pour l'acceptation d'invitation), Majeur, distincte du Lot 4 puisque
+aucun écran Keycloak n'est concerné.
+
+**Documents modifiés** : `gate-04A-decision-ep17-lot4.md` (§9) ; `gate-02A-decision-ep17-lot4.md`
+(§9) ; `design-debt-register-loyertracker.md` (`DD-EP17-12`, nouvelle).
+
+**Ce que ces vérifications ne lèvent pas** : configuration SMTP à confirmer sur l'instance vivante ;
+approbation du Plan d'Exécution pour le Lot 4 ; absence de parcours utilisateurs et de maquettes
+pour les 6 écrans désormais confirmés. Les avis NO GO en l'état restent en vigueur.
+
+**Prochaine action autorisée** : production des parcours utilisateurs et maquettes scopés aux 6
+écrans confirmés (`phase-02-user-journeys-ep17-lot4.md`, `phase-02-ui-mockups-ep17-lot4.md`), même
+enchaînement que le Lot 3 — préalable à toute nouvelle instruction complète du Gate 04A/02A Lot 4.

@@ -152,3 +152,49 @@ strictement documentaire.
 environnement et de l'état réel de la configuration SMTP, puis production des parcours utilisateurs
 et maquettes (`phase-02-user-journeys-ep17-lot4.md`, `phase-02-ui-mockups-ep17-lot4.md`), sur le
 même modèle que le Lot 3 — préalable à toute nouvelle instruction complète de ce Gate.
+
+## 9. Vérifications factuelles (2026-08-02, postérieures à la note §8)
+
+**Compatibilité de version Keycloak (RSV-UI-08)** — **Bloqueur levé, sans réserve.** Les 3
+environnements (`docker-compose.yml` — Dev/local, `docker-compose.staging.yml` — Staging,
+`docker-compose.prod.yml` — Production, ce dernier un override sans image propre, héritant de
+`docker-compose.yml`) référencent tous **le même digest exact** :
+`quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9`.
+Aucun risque de divergence de version — un seul artefact Keycloak, identique partout, contrairement
+à l'hypothèse initiale de `ADR-UI-001` RSV-UI-08.
+
+**Configuration SMTP** — **Confirmée absente de toute configuration versionnée**, pas seulement des
+2 fichiers de realm (constat §3) : recherche exhaustive (`smtp`/`mail`) sur `docker-compose.yml`,
+`docker-compose.staging.yml`, `docker-compose.prod.yml` et `.env.example` — 0 occurrence partout.
+**Nuance méthodologique** : le realm est importé une fois au démarrage du conteneur
+(`/opt/keycloak/data/import/...:ro`) ; une configuration SMTP faite ultérieurement via la console
+d'administration Keycloak en environnement réel ne serait pas nécessairement reflétée dans ce
+fichier versionné sans export manuel. Ce constat porte donc sur la configuration **versionnée**,
+pas sur l'état de l'instance vivante — vérification directe recommandée avant de considérer ce
+point clos.
+
+**Correction du périmètre — écrans « invitation »/« invitation expirée »** : ces deux écrans,
+listés par le Plan d'Exécution §3 comme faisant partie du thème Keycloak à produire, **ne sont pas
+des écrans Keycloak**. Constat établi par triple vérification convergente :
+1. Recherche exhaustive de « invitation » dans les 2 fichiers de realm — **0 occurrence**.
+2. Le mécanisme d'invitation est entièrement **applicatif** (`backend/.../comptes/InvitationService.java`),
+   générant un lien `{baseUrl}/invitations/{token}` distinct de tout flux Keycloak natif.
+3. Ce lien ne correspond à **aucune route Angular existante** (`app.routes.ts`, recherche
+   exhaustive « invitation » — 0 occurrence) : l'acceptation d'invitation, bien que fonctionnelle et
+   testée en Production (`infra/smoke/smoke-stack.sh`, `POST /api/invitations/{token}/acceptation`),
+   n'est exercée **qu'en appel API direct** (smoke tests), jamais via une page web, ni Angular ni
+   Keycloak.
+
+**Conséquence** : le périmètre réel du thème Keycloak (Lot 4) se réduit à **6 écrans** confirmés
+(login, mot de passe oublié, reset password, session expirée, accès refusé, logout) — pas 8. Le
+constat initial de `plan-execution-ux-ui-primeng-keycloak.md` §3 (qui incluait « invitation »,
+« invitation expirée ») est corrigé, pas réécrit (préservation des décisions historiques,
+`CLAUDE.md`), signalé ici plutôt que silencieusement ajusté. L'absence de toute UI (Angular ou
+Keycloak) pour l'acceptation d'invitation est une lacune **distincte** du Lot 4, tracée séparément
+(nouvelle dette `DD-EP17-12`, `design-debt-register-loyertracker.md`) — hors périmètre d'un thème
+Keycloak puisqu'aucun écran Keycloak n'est concerné.
+
+**Bloqueurs restants après ces vérifications** : configuration SMTP à confirmer sur l'instance
+vivante (nuance ci-dessus) ; approbation du Plan d'Exécution pour le Lot 4 ; absence de parcours
+utilisateurs et de maquettes pour les 6 écrans désormais confirmés (`gate-02A-decision-ep17-lot4.md`
+§4). Les avis **NO GO en l'état** du §5 restent en vigueur.
