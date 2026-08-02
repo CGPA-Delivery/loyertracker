@@ -29,6 +29,9 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
     </div>
   `,
   styles: `
+    :host {
+      display: block;
+    }
     .lt-form-field {
       display: flex;
       flex-direction: column;
