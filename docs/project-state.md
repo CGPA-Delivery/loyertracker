@@ -4397,3 +4397,59 @@ Patrimoines/Biens (liste → détail) — dernier élément manquant avant que l
 statuer sur `gate-02A-decision-ep17-lot3.md` §6 avec un avis UX/UI Design Lead favorable. En
 parallèle, `gate-04A-decision-ep17-lot3.md` §6 reste ouvert à la décision du Product Owner
 (GO sous réserve stricte déjà recommandé par les avis Design/Frontend Architect).
+
+### Production de la maquette et du parcours écrit — Lot 3 Patrimoines/Biens (2026-08-02)
+
+**Instruction explicite reçue** : « Produis-les » (maquette basse fidélité + parcours écrit pour
+Patrimoines/Biens). Deux nouveaux documents produits, fondés sur une lecture directe du code réel
+(`dashboard.component.ts`, Bailleur), pas sur une supposition : `phase-02-user-journeys-ep17-lot3.md`
+(2 parcours : J-Lot3-1 Gérer mes biens, J-Lot3-2 Gérer mes patrimoines) et
+`phase-02-ui-mockups-ep17-lot3.md` (wireframes texte — Biens et Patrimoines, états nominal/
+sélection/vide/erreur, variante responsive, correspondance composants `lt-*`).
+
+**Écart réel détecté en cours de production, signalé plutôt que corrigé silencieusement** : les
+deux instances de Gate (`gate-04A-decision-ep17-lot3.md`, `gate-02A-decision-ep17-lot3.md`) et la
+confirmation de périmètre précédente caractérisaient le pilote comme « lecture principalement »,
+« aucune action destructive ». La lecture directe du code montre que la section Biens porte en
+réalité un **CRUD complet** : formulaire de création/modification, et une action d'archivage réelle
+(« Archiver ce bien »), déjà confirmée aujourd'hui par `globalThis.confirm()` natif du navigateur —
+pas par `lt-confirm-dialog`. Le périmètre fonctionnel migré reste inchangé (aucune donnée
+financière — vérifié sur le modèle réel `Bien`/`Patrimoine`, `s02-api.service.ts` — le loyer est un
+attribut du `Bail`, hors périmètre) ; seule la caractérisation du risque était inexacte. C'est
+exactement le type d'écart que la pratique déjà suivie pour `DDS-LT-005` (US-132) est censée
+détecter — traité de la même manière : corrigé explicitement dans les deux instances de Gate (§3bis
+ajoutée à `gate-02A-decision-ep17-lot3.md`), pas réécrit silencieusement.
+
+**Décision de conception tranchée par ce document** : le mécanisme d'archivage (`confirm()` natif)
+est **délibérément préservé tel quel** dans ce Lot — la migration porte sur la présentation
+(liste → `lt-data-table`, formulaire → `lt-form-field`, statut → `lt-status-tag`), pas sur cette
+logique. Migrer ce `confirm()` vers `lt-confirm-dialog` « en passant » sortirait du périmètre de
+présentation pure et redeviendrait un cas d'usage réel de `DD-EP17-05` (premier dialogue modal en
+Production) — à instruire séparément si souhaité, pas glissé dans cette migration.
+
+**Dette nouvellement identifiée** : `DD-EP17-10` — absence d'état d'erreur explicite au chargement
+des listes Biens/Patrimoines dans le code actuel (aucun état géré au-delà du succès et de la liste
+vide). La migration introduit cet état via `lt-empty-state` (variante erreur, déjà livrée en
+Lot 2) — une amélioration réelle, pas une simple reformulation visuelle, ajoutée au registre de
+dette pour éviter qu'elle passe inaperçue dans la revue de `US-133`/`US-134`.
+
+**Effet sur les Gates** : dans `gate-02A-decision-ep17-lot3.md`, les deux bloqueurs « maquettes
+absentes » et « parcours utilisateurs absents » sont levés ; 7 des 11 critères passent PASS ou
+disposent d'une matière réelle suffisante (contre 3 initialement). **Avis UX/UI Design Lead révisé
+de NO GO en l'état à GO sous réserve** — réserve unique : validation Product Owner explicite des
+deux documents produits, une production par Claude Code ne valant pas à elle seule validation
+humaine indépendante. Dans `gate-04A-decision-ep17-lot3.md`, les avis Design/Frontend Architect
+restent GO sous réserve stricte, avec la précision que le CRUD réel (pas une simple lecture) doit
+être exercé section par section comme prévu, et que le mécanisme d'archivage natif reste hors
+périmètre de migration.
+
+**Documents modifiés** : `phase-02-user-journeys-ep17-lot3.md`, `phase-02-ui-mockups-ep17-lot3.md`
+(nouveaux) ; `design-debt-register-loyertracker.md` (`DD-EP17-10` ajoutée, `DD-EP17-05` précisée) ;
+`gate-04A-decision-ep17-lot3.md` et `gate-02A-decision-ep17-lot3.md` (§3/§3bis/§4/§5 mis à jour,
+§6 toujours volontairement vide).
+
+**Prochaine action autorisée** : le Product Owner peut désormais statuer sur
+`gate-04A-decision-ep17-lot3.md` §6 et `gate-02A-decision-ep17-lot3.md` §6 — les deux avis
+spécialisés recommandent un GO sous réserve (stricte pour le Gate 04A, sous réserve de validation
+explicite des deux nouveaux documents pour le Gate 02A). Le développement du Lot 3 reste
+subordonné à ces deux décisions, conformément au verrou `CLAUDE.md`.

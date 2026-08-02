@@ -43,43 +43,53 @@
 | Critère | Constat pour le périmètre Lot 3 | Preuve |
 | --- | --- | --- |
 | Personas validés | **Matière réelle et partiellement couverte** — le persona « Bailleur — persona primaire » (`phase-02-user-journeys.md` §1.1) décrit déjà l'usage général du dashboard (fréquence de consultation, objectifs) ; produit pour `US-125`, mais son contenu générique reste valide pour ce pilote | `phase-02-user-journeys.md` §1.1 |
-| User journeys documentés | **Non exécuté, périmètre désormais restreint** — les parcours documentés (J1/J2) couvrent la gestion des notifications, pas la consultation Biens/Patrimoines ; aucun parcours n'existe pour ce périmètre précis, mais celui-ci se limite maintenant à un flux de lecture (liste + détail), plus simple à documenter que le CRUD complet initialement envisagé | `phase-02-user-journeys.md` (périmètre US-125 uniquement) |
-| Parcours critiques identifiés | **Non exécuté au sens documentaire, périmètre réduit** — la consultation Biens/Patrimoines existe et fonctionne en production, sans action destructive dans ce périmètre ; risque atténué par l'usage réel déjà établi et par le critère GWT `US-134` (non-régression sur l'unicité/l'isolation cross-bailleur) | Code existant (`BailleurDashboardComponent`, section Patrimoines/Biens) ; aucun document dédié |
-| Cas nominaux et cas d'erreur documentés | **Préparation en cours** — `lt-empty-state`/`lt-data-table` (Lot 2) fournissent le vocabulaire d'état vide/erreur, mapping restant à faire mais désormais circonscrit à une seule section (liste de biens vide, erreur de chargement) | `CHECK-UX-01-ep17-ui-foundation.md` (note 2026-08-02) |
+| User journeys documentés | **PASS (2026-08-02)** — `phase-02-user-journeys-ep17-lot3.md` produit : J-Lot3-1 (Gérer mes biens, CRUD complet — create/read/update/archive, correction du constat initial « lecture seule », cf. §0 de ce document) et J-Lot3-2 (Gérer mes patrimoines, modification) | `phase-02-user-journeys-ep17-lot3.md` |
+| Parcours critiques identifiés | **PASS (2026-08-02)** — les deux parcours sont retenus comme bloquants Gate 04A dans le document ci-dessus, avec cas d'erreur/limites documentés | `phase-02-user-journeys-ep17-lot3.md` §4 |
+| Cas nominaux et cas d'erreur documentés | **PASS (2026-08-02)** — états nominal/vide/erreur documentés par écran (`phase-02-ui-mockups-ep17-lot3.md` §1.1-1.4, §2.1-2.4) ; l'état d'erreur de chargement est **nouveau** (absent du code actuel, `DD-EP17-10` ajoutée), pas une simple reformulation | `phase-02-ui-mockups-ep17-lot3.md` |
 | Information architecture validée | **Matière réelle et disponible** — arborescence actuelle constatée par lecture directe du code ; le périmètre confirmé (Patrimoines/Biens) est une substitution de composants **à l'intérieur** de cette section, sans toucher aux autres ni à la navigation | `phase-02-information-architecture.md` §1 |
 | Navigation globale stabilisée | **Inchangée** — aucune route ni navigation touchée par une migration de présentation | idem |
-| Design system validé | Mapping initial documenté et son contenu accepté (`DSG-001.md` §Composants/§Component Mapping) ; 8 composants désormais **implémentés et testés** (Lot 2) ; leur **application réelle** à la section Patrimoines/Biens reste à faire — relève du Gate 04A | `DSG-001.md` §Composants ; `CHECK-UX-01-ep17-ui-foundation.md` |
-| Responsive strategy définie | Stratégie documentée (`DSG-001.md` §Responsive Rules, Lot 1) ; jamais testée sur un écran réel | `DSG-001.md` §Responsive Rules |
-| Accessibilité minimale définie | **Partiel, risque réduit** — `lt-confirm-dialog` testé (5/6 exigences `DDS-LT-005`) mais **non pertinent pour ce périmètre** (aucune action destructive, pas de dialogue modal prévu) ; la section Patrimoines/Biens elle-même (formulaires, tableau, navigation clavier) n'a fait l'objet d'aucun audit dédié | `CHECK-UX-01-ep17-ui-foundation.md` (note 2026-08-02) |
-| Maquettes des écrans critiques disponibles | **Non exécuté, périmètre réduit à une seule section** — aucune maquette « avant/après migration » n'existe pour la section Patrimoines/Biens ; `phase-02-ui-mockups.md` ne couvre que les écrans Notifications (`US-125`). Effort de production désormais restreint à 1 section (liste + détail), pas au dashboard complet | `phase-02-ui-mockups.md` (périmètre US-125 uniquement) |
+| Design system validé | Mapping initial documenté et son contenu accepté (`DSG-001.md` §Composants/§Component Mapping) ; 8 composants désormais **implémentés et testés** (Lot 2) ; correspondance élément-par-élément désormais établie (`phase-02-ui-mockups-ep17-lot3.md` §0) ; leur **application réelle** reste à faire — relève du Gate 04A | `DSG-001.md` §Composants ; `phase-02-ui-mockups-ep17-lot3.md` §0 |
+| Responsive strategy définie | Stratégie documentée (`DSG-001.md` §Responsive Rules, Lot 1) et désormais illustrée pour ce périmètre (`phase-02-ui-mockups-ep17-lot3.md` §3) ; jamais testée sur un écran réel — exécution renvoyée au Gate 04A | `phase-02-ui-mockups-ep17-lot3.md` §3 |
+| Accessibilité minimale définie | **Partiel** — `lt-confirm-dialog`/`DDS-LT-005` **non pertinent pour ce périmètre** : l'action « Archiver ce bien » existe réellement dans le code (constat corrigeant celui de cette instance à sa rédaction initiale, cf. §0), mais reste sur `confirm()` natif du navigateur, délibérément non migré vers `lt-confirm-dialog` dans ce Lot (`phase-02-ui-mockups-ep17-lot3.md` §1.2, §4) ; le reste de la section (formulaires, tableau, navigation clavier) n'a fait l'objet d'aucun audit dédié | `phase-02-ui-mockups-ep17-lot3.md` §4 |
+| Maquettes des écrans critiques disponibles | **PASS (2026-08-02)** — `phase-02-ui-mockups-ep17-lot3.md` produit : Biens (nominal, sélection, vide, erreur), Patrimoines (nominal, sélection, vide, erreur), variante responsive | `phase-02-ui-mockups-ep17-lot3.md` |
 | Validation Product Owner obtenue | **Objet de cette soumission** — distincte de la confirmation du périmètre exact du pilote, **obtenue le 2026-08-02** (`gate-04A-decision-ep17-lot3.md` §3) | §6 |
 
-**Lecture d'ensemble** : le périmètre confirmé (Patrimoines/Biens, lecture principalement) réduit
-matériellement le risque par rapport au dashboard complet initialement évalué. 2 critères
-disposent d'une base réelle et directement réutilisable (information architecture, navigation). 1
-critère (personas) est partiellement couvert par du contenu existant mais générique. 2 critères
-sont documentés en contenu mais non exécutés/testés sur ce périmètre (design system,
-accessibilité — renvoi au Gate 04A). 1 critère (responsive) a sa stratégie définie mais jamais
-vérifiée. Les réserves propres au dialogue modal (`DD-EP17-05`) et aux données financières
-deviennent non pertinentes pour ce périmètre restreint. **Persiste une lacune réelle, désormais
-circonscrite à une seule section** : aucune maquette ni parcours écrit n'existe encore pour
-Patrimoines/Biens — un effort de production nettement plus restreint que pour le dashboard complet,
-mais toujours non produit à ce jour. Le dernier critère (validation Product Owner de cette
-applicabilité) est l'objet de cette soumission.
+## 3bis. Correction du constat initial de cette instance (2026-08-02, postérieure à sa rédaction)
+
+Cette instance indiquait initialement que le périmètre confirmé était « lecture principalement »,
+« aucune donnée financière ni action destructive ». La production de `phase-02-user-journeys-ep17-lot3.md`
+et `phase-02-ui-mockups-ep17-lot3.md`, fondée sur une lecture directe de `dashboard.component.ts`,
+corrige ce constat : la section Biens porte un **CRUD complet** (création, modification, et une
+action d'archivage réelle, confirmée par `globalThis.confirm()` natif — pas `lt-confirm-dialog`).
+Le périmètre fonctionnel migré reste inchangé (Patrimoines/Biens uniquement, aucune donnée
+monétaire — ni `Bien` ni `Patrimoine` ne portent de champ financier). L'écart ne porte que sur la
+caractérisation initiale du risque, pas sur le périmètre lui-même — signalé plutôt que corrigé
+silencieusement, conformément à la pratique déjà suivie pour `DDS-LT-005` (US-132).
+
+**Lecture d'ensemble mise à jour** : sur les 11 critères, **6 sont désormais PASS ou disposent
+d'une matière réelle et suffisante** (personas, information architecture, navigation, user
+journeys, parcours critiques, cas nominaux/erreur, maquettes — 7 en réalité). 2 critères restent
+documentés en contenu mais non exécutés/testés sur ce périmètre réel (design system, accessibilité —
+renvoi au Gate 04A, nature normale de ce Gate). 1 critère (responsive) a sa stratégie illustrée mais
+non vérifiée. Le dernier critère (validation Product Owner de cette applicabilité) est l'objet de
+cette soumission. **Les deux lacunes qui motivaient l'avis NO GO en l'état de cette instance
+(parcours et maquettes absents) sont comblées.**
 
 ## 4. Bloqueurs et réserves
 
 | ID | Type | Impact | Autorité d'acceptation | Responsable | Échéance | Preuve attendue | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| — (maquettes absentes) | Bloqueur, périmètre réduit | Aucune maquette « avant/après » ne couvre la section Patrimoines/Biens confirmée — risque de découvrir des écarts visuels/fonctionnels seulement en cours de développement | Product Owner | Design Architect | Avant tout développement de cette section | Au moins un support visuel (maquette basse fidélité acceptable) pour Patrimoines/Biens, validé Product Owner | Ouvert |
+| — (maquettes absentes) | Bloqueur | Aucune maquette « avant/après » ne couvrait la section Patrimoines/Biens confirmée | Product Owner | Design Architect | Avant tout développement de cette section | Au moins un support visuel (maquette basse fidélité acceptable) pour Patrimoines/Biens, validé Product Owner | **Levé (2026-08-02)** — `phase-02-ui-mockups-ep17-lot3.md` produit, validation Product Owner formelle restant à obtenir en parallèle de la décision §6 |
+| — (parcours utilisateurs absents) | Bloqueur | Aucun parcours écrit ne couvrait les flux Biens/Patrimoines | Product Owner | UX/UI Design Lead | Avant tout développement de cette section | Parcours écrit par flux | **Levé (2026-08-02)** — `phase-02-user-journeys-ep17-lot3.md` produit |
 | — (périmètre exact du pilote non confirmé) | Bloqueur, partagé avec Gate 04A | Sans confirmation, ni maquette ni parcours ne peuvent être produits de façon ciblée | Product Owner | Product Owner | Avant toute instruction complémentaire | Décision Product Owner tracée | **Levé (2026-08-02)** — cf. `gate-04A-decision-ep17-lot3.md` §3 |
-| DD-EP17-05 | Réserve, Majeur | Focus-trap/restitution du focus testés (5/6 exigences), mais aucune action destructive réelle n'a encore utilisé `lt-confirm-dialog` | Product Owner | Design Architect | Avant tout dialogue modal en Production | Intégration réelle avec test de non-régression | **Non pertinent pour ce périmètre** — Patrimoines/Biens confirmé en lecture, aucun dialogue modal prévu |
+| DD-EP17-05 | Réserve, Majeur | Focus-trap/restitution du focus testés (5/6 exigences), mais aucune action destructive réelle n'a encore utilisé `lt-confirm-dialog` | Product Owner | Design Architect | Avant tout dialogue modal en Production | Intégration réelle avec test de non-régression | **Non pertinent pour ce périmètre** — l'action destructive existante (« Archiver ce bien ») reste délibérément sur `confirm()` natif, non migrée vers `lt-confirm-dialog` dans ce Lot (§3bis) |
+| DD-EP17-10 | Réserve, nouvelle | Absence d'état d'erreur au chargement des listes Biens/Patrimoines dans le code actuel, identifiée lors de la production de la maquette | Product Owner | Frontend Architect | Lot 3 | État `lt-empty-state` (variante erreur) livré et testé | Ouvert — ajoutée au registre (`design-debt-register-loyertracker.md`) |
 
 ## 5. Avis spécialisés
 
 | Agent | Avis | Réserves |
 | --- | --- | --- |
-| UX/UI Design Lead (Claude Code, désigné 2026-07-30, limite d'indépendance tracée) | **NO GO en l'état, mais périmètre substantiellement réduit** — le choix du Product Owner (Patrimoines/Biens uniquement, lecture principalement, aucune donnée financière ni action destructive) répond à 2 des 3 conditions posées par cet avis avant instruction complémentaire ; **persiste une lacune réelle unique** : aucune maquette ni parcours écrit pour cette section précise. Contrairement au dashboard complet, cet effort est désormais restreint (1 section, lecture seule) et réalisable rapidement | Recommande de produire, avant tout développement : une maquette basse fidélité (même texte structuré) et un parcours écrit bref pour Patrimoines/Biens (liste → détail). Une fois ces deux éléments produits, un **GO sous réserve** deviendrait directement défendable — le périmètre restreint ne justifie plus, à lui seul, un NO GO |
+| UX/UI Design Lead (Claude Code, désigné 2026-07-30, limite d'indépendance tracée) | **GO sous réserve (2026-08-02, avis révisé)** — les deux lacunes qui motivaient le NO GO en l'état (parcours et maquettes absents) sont comblées par `phase-02-user-journeys-ep17-lot3.md` et `phase-02-ui-mockups-ep17-lot3.md`. Le périmètre reste Patrimoines/Biens uniquement, sans donnée financière ; l'action « Archiver ce bien » existe réellement mais reste sur son mécanisme natif actuel, non touchée par la migration | Réserve : validation Product Owner explicite des deux documents produits (maquette + parcours), au même titre que toute autre preuve de ce Gate — une production par Claude Code ne vaut pas, à elle seule, validation humaine indépendante. `DD-EP17-10` (nouvelle) et `DD-EP17-05` (non pertinente pour ce périmètre) à confirmer |
 
 * Décision spécialisée Release Manager, si applicable : Non applicable à ce stade.
 
