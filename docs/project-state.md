@@ -4620,3 +4620,47 @@ dashboard Gestionnaire relèvent d'étapes distinctes du même Lot 3 ou d'un Lot
 vers `lt-form-field` (liste avant formulaire déjà respecté pour Biens et Patrimoines), sous réserve
 continue des preuves attendues par le Gate 04A Lot 3 (Responsive, Cohérence multi-écrans, toujours
 « Non exécuté »).
+
+### PR #338 fusionnée sur main ; formulaire Bien migré vers lt-form-field (2026-08-02)
+
+**Instruction explicite reçue** : « merge et ensuite, enchaîne sur le formulaire Bien vers
+lt-form-field ». PR #338 (US-132 + Lot 3 Biens/Patrimoines) fusionnée sur `main` par merge commit
+standard (`gh pr merge 338 --merge`, cohérent avec l'historique des PR #333-#337), CI entièrement
+verte avant fusion. Nouvelle branche `feat/ep17-lot3-bien-form` créée à partir de `main` à jour pour
+cette étape.
+
+**Migration** : les 4 champs du formulaire Bien (Adresse, Type, Patrimoine, Statut,
+`dashboard.component.ts`, panneau « Nouveau bien »/« Modifier le bien ») enveloppés dans
+`lt-form-field` (label + contrôle projeté), chaque contrôle relié à son `lt-form-field` via
+`#f="ltFormField"` et `[attr.aria-describedby]="f.describedBy()"`, conformément à l'usage documenté
+du composant. Migration de présentation uniquement — aucun message d'erreur de validation introduit
+(aucun n'existait avant, cohérent avec `phase-02-ui-mockups-ep17-lot3.md` §1 qui ne montre que
+label + contrôle), logique du formulaire (`bienForm`, `enregistrerBien()`, `reinitialiserBien()`)
+inchangée.
+
+**Premier écran réel pour `lt-form-field`** (composant livré isolément par `US-132`, jamais adopté
+avant ce jour) : correctif apporté à cette occasion — `:host { display: block; }` ajouté au
+composant partagé (`form-field.component.ts`), l'élément custom sans `display` explicite restant
+`inline` par défaut, incorrect pour un conteneur de champ empilé verticalement ; correctif
+générique bénéficiant à tout futur appelant, pas spécifique à cet écran. Espacement vertical entre
+champs restauré via une règle `lt-form-field { margin-bottom: 0.75rem }` scoping local au
+dashboard (équivalent à l'ancien `label { margin-bottom: 0.75rem }`, qui reste par ailleurs
+inchangé et continue de s'appliquer aux formulaires non encore migrés du même composant).
+
+**Vérification** : 144/144 tests (143 existants + 1 nouveau — rendu des 4 `lt-form-field` avec
+label associé par `for`/`id`, `BailleurDashboardComponent`), `ng lint` propre, `ng build` réussi
+(bundle initial stable à 516,00 kB).
+
+**Documents modifiés** : `frontend/src/app/bailleur/dashboard/dashboard.component.ts` (panneau
+formulaire Bien, import `FormFieldComponent`, CSS `lt-form-field { margin-bottom }`) ;
+`frontend/src/app/shared/form-field/form-field.component.ts` (`:host { display: block }`) ;
+`DSG-001.md` (adoption `lt-form-field`, compteurs de tests, statut Lot 3).
+
+**Ce que cette implémentation n'autorise pas** : aucune extension au-delà du formulaire Bien — le
+formulaire Patrimoine (`patrimoineForm`) et le reste du dashboard Gestionnaire relèvent d'étapes
+distinctes du même Lot 3 ou d'un Lot ultérieur.
+
+**Prochaine action autorisée** : le Product Owner statue sur la suite du Lot 3 — candidat naturel
+le formulaire Patrimoine vers `lt-form-field` (même patron que le formulaire Bien), sous réserve
+continue des preuves attendues par le Gate 04A Lot 3 (Responsive, Cohérence multi-écrans, toujours
+« Non exécuté »).

@@ -142,6 +142,25 @@ describe('BailleurDashboardComponent', () => {
     });
   });
 
+  describe('EP-17 Lot 3 — formulaire Bien via lt-form-field', () => {
+    it('rend les 4 champs (Adresse, Type, Patrimoine, Statut) via lt-form-field avec label associé', () => {
+      fixture.detectChanges();
+
+      const fields = fixture.nativeElement.querySelectorAll('lt-form-field');
+      expect(fields.length).toBe(4);
+
+      const adresse = fields[0] as HTMLElement;
+      expect(adresse.querySelector('label')?.textContent?.trim()).toBe('Adresse');
+      const input = adresse.querySelector('input') as HTMLInputElement;
+      expect(input.id).toBe('bien-adresse');
+      expect(adresse.querySelector('label')?.getAttribute('for')).toBe('bien-adresse');
+
+      expect(fields[1].querySelector('label')?.textContent?.trim()).toBe('Type');
+      expect(fields[2].querySelector('label')?.textContent?.trim()).toBe('Patrimoine');
+      expect(fields[3].querySelector('label')?.textContent?.trim()).toBe('Statut');
+    });
+  });
+
   it('régression Hotfix 2026-06-24 : le formulaire bien envoie un patrimoineId', () => {
     const cmp = fixture.componentInstance;
     expect(cmp.bienForm.invalid).toBe(true); // patrimoineId vide par défaut → requis

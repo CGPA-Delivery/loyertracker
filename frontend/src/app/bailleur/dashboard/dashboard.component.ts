@@ -27,6 +27,7 @@ import { GarantiesBailComponent } from '../../garanties/garanties-bail.component
 import { HonorairesBienComponent } from '../../honoraires/honoraires-bien.component';
 import { PaiementsBienComponent } from '../../paiements/paiements-bien.component';
 import { DataTableComponent, LtDataTableColumn } from '../../shared/data-table/data-table.component';
+import { FormFieldComponent } from '../../shared/form-field/form-field.component';
 import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
 import { BailleurInscriptionService } from '../inscription/bailleur-inscription.service';
 
@@ -42,6 +43,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
     AuditJournalComponent,
     MoneyFormatPipe,
     DataTableComponent,
+    FormFieldComponent,
   ],
   template: `
     <header class="page-head">
@@ -62,36 +64,32 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
     <section class="grid two">
       <form [formGroup]="bienForm" (ngSubmit)="enregistrerBien()" class="panel">
         <h2>{{ bienSelectionne() ? 'Modifier le bien' : 'Nouveau bien' }}</h2>
-        <label>
-          Adresse
-          <input type="text" formControlName="adresse" />
-        </label>
-        <label>
-          Type
-          <select formControlName="type">
+        <lt-form-field #fAdresse="ltFormField" inputId="bien-adresse" label="Adresse">
+          <input id="bien-adresse" type="text" formControlName="adresse" [attr.aria-describedby]="fAdresse.describedBy()" />
+        </lt-form-field>
+        <lt-form-field #fType="ltFormField" inputId="bien-type" label="Type">
+          <select id="bien-type" formControlName="type" [attr.aria-describedby]="fType.describedBy()">
             @for (typeBien of typesBiensDisponibles(); track typeBien.code) {
               <option [value]="typeBien.code">{{ typeBien.libelle }}</option>
             }
           </select>
-        </label>
-        <label>
-          Patrimoine
-          <select formControlName="patrimoineId">
+        </lt-form-field>
+        <lt-form-field #fPatrimoine="ltFormField" inputId="bien-patrimoine" label="Patrimoine">
+          <select id="bien-patrimoine" formControlName="patrimoineId" [attr.aria-describedby]="fPatrimoine.describedBy()">
             <option value="" disabled>Choisir un patrimoine</option>
             @for (patrimoine of patrimoinesDisponibles(); track patrimoine.id) {
               <option [value]="patrimoine.id">{{ patrimoine.nom }}</option>
             }
           </select>
-        </label>
-        <label>
-          Statut
-          <select formControlName="statut">
+        </lt-form-field>
+        <lt-form-field #fStatut="ltFormField" inputId="bien-statut" label="Statut">
+          <select id="bien-statut" formControlName="statut" [attr.aria-describedby]="fStatut.describedBy()">
             <option value="LIBRE">LIBRE</option>
             <option value="LOUE">LOUE</option>
             <option value="EN_TRAVAUX">EN_TRAVAUX</option>
             <option value="ARCHIVE">ARCHIVE</option>
           </select>
-        </label>
+        </lt-form-field>
         <div class="actions">
           <button type="submit" [disabled]="bienForm.invalid || chargement()">
             {{ bienSelectionne() ? 'Enregistrer' : 'Créer' }}
@@ -558,6 +556,9 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         gap: 0.35rem;
         margin-bottom: 0.75rem;
         color: #cbd5e1;
+      }
+      lt-form-field {
+        margin-bottom: 0.75rem;
       }
       input,
       select {
