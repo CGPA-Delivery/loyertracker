@@ -4562,3 +4562,61 @@ Gestionnaire relèvent d'étapes distinctes du même Lot 3 ou d'un Lot ultérieu
 la liste des Patrimoines (même patron `lt-data-table`), puis le formulaire Bien vers
 `lt-form-field`, sous réserve continue des preuves attendues par le Gate 04A Lot 3 (Responsive,
 Cohérence multi-écrans, toujours « Non exécuté »).
+
+### Liste des Patrimoines migrée vers lt-data-table (2026-08-02)
+
+**Instruction explicite reçue** : « enchaîner sur la liste des Patrimoines (prochaine étape du
+Plan d'Exécution) ». Deuxième écran métier réel migré du périmètre EP-17 Lot 3, strictement limité
+à ce que le Plan d'Exécution autorise : `frontend/src/app/bailleur/dashboard/dashboard.component.ts`,
+panneau « Patrimoines » (nom/adresse/statut). Migration de présentation uniquement — inchangés :
+formulaire de modification du patrimoine (`patrimoineForm`, sélecteur `<select>` de patrimoine à
+modifier), sélection d'un bien, panneau Biens (étape précédente), et tous les autres panneaux du
+dashboard.
+
+**Différence délibérée avec la migration Biens** : contrairement à la liste des Biens, la liste des
+Patrimoines n'a **pas** reçu `selectable`/`rowClick`. Avant cette migration, la liste des
+Patrimoines était un affichage pur, sans aucune interaction (la sélection du patrimoine à modifier
+se fait exclusivement via le `<select>` du formulaire « Modifier un patrimoine », `#patModifSel` /
+`selectionnerPatrimoineModif()`, inchangé). Ajouter la sélection au clic aurait introduit une
+interaction nouvelle, hors du principe « migration de présentation uniquement » rappelé par
+`phase-02-ui-mockups-ep17-lot3.md` §Niveau de fidélité — écart délibéré par rapport à la maquette
+(qui montre un état « ▶ sélectionné » dans la liste), signalé plutôt que reproduit sans réflexion.
+
+**Écart de densité d'information (maquette vs livré)** : la maquette (`phase-02-ui-mockups-ep17-lot3.md`
+§2.1) montre nom, adresse, ville/pays concaténés, référence interne et statut sur plusieurs lignes
+par carte. `lt-data-table` ne rend qu'un champ texte brut par colonne (pas de concaténation ni de
+template par colonne dans cette version, cf. `LtDataTableColumn`). Colonnes retenues : nom, adresse,
+statut (`type: 'status'`) — même arbitrage que Biens (adresse/type/statut). Ville, pays et référence
+interne, auparavant affichés en texte secondaire, ne sont plus visibles dans la liste. Aucune de ces
+données n'est perdue (toujours consultables via le formulaire de modification) ; signalé ici comme
+écart réel plutôt que reconcilié silencieusement.
+
+**DD-EP17-10 (absence d'état d'erreur explicite)** : la deuxième moitié de cette dette — Patrimoines
+— est désormais câblée. `chargerReferentielsBien()` (la méthode nommément citée par le constat
+initial de la dette) gère maintenant l'échec de `listerPatrimoines()` via un nouveau signal
+`patrimoinesErreur`, rendu par le même mécanisme `role="alert"` que Biens (`lt-data-table`, pas
+`lt-empty-state` — même écart déjà signalé pour Biens, cf. entrée précédente).
+
+**Vocabulaire `severityForStatut()`** étendu à `StatutPatrimoine` (`ACTIF`→success, `ARCHIVE`→
+secondary, déjà mappé par `StatutBien`).
+
+**Vérification** : 143/143 tests (140 existants + 3 nouveaux — 1 `severityForStatut` vocabulaire
+`StatutPatrimoine`, 2 intégration réelle dans `BailleurDashboardComponent` via
+`HttpTestingController`, dont un test de rendu nom/adresse/statut et un test de l'état d'erreur au
+rechargement), `ng lint` propre, `ng build` réussi (bundle initial stable à 516,00 kB, aucune
+régression de budget).
+
+**Documents modifiés** : `frontend/src/app/bailleur/dashboard/dashboard.component.ts` (panneau
+Patrimoines, signal `patrimoinesErreur`, colonnes `colonnesPatrimoines`, gestion d'erreur dans
+`chargerReferentielsBien()`) ; `frontend/src/app/shared/status-tag/status-tag.component.ts` (+spec,
+vocabulaire `StatutPatrimoine`) ; `design-debt-register-loyertracker.md` (`DD-EP17-04`, `DD-EP17-10`
+mis à jour) ; `DSG-001.md` (adoption étendue, compteurs de tests).
+
+**Ce que cette implémentation n'autorise pas** : aucune extension au-delà de la liste des
+Patrimoines — le formulaire Patrimoine (`lt-form-field`), le formulaire Bien et le reste du
+dashboard Gestionnaire relèvent d'étapes distinctes du même Lot 3 ou d'un Lot ultérieur.
+
+**Prochaine action autorisée** : poursuivre le Lot 3 — étape suivante logique le formulaire Bien
+vers `lt-form-field` (liste avant formulaire déjà respecté pour Biens et Patrimoines), sous réserve
+continue des preuves attendues par le Gate 04A Lot 3 (Responsive, Cohérence multi-écrans, toujours
+« Non exécuté »).

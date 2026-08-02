@@ -172,18 +172,13 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       </form>
       <div class="panel">
         <h2>Patrimoines</h2>
-        @for (p of patrimoinesDisponibles(); track p.id) {
-          <div class="item">
-            <strong>{{ p.nom }}</strong>
-            <span class="muted">{{ p.adresse }}{{ p.ville ? ', ' + p.ville : '' }}{{ p.pays ? ', ' + p.pays : '' }}</span>
-            @if (p.referenceInterne) {
-              <span class="muted">Réf. {{ p.referenceInterne }}</span>
-            }
-            <span class="badge">{{ p.statut }}</span>
-          </div>
-        } @empty {
-          <p class="muted">Aucun patrimoine.</p>
-        }
+        <lt-data-table
+          [columns]="colonnesPatrimoines"
+          [rows]="patrimoinesDisponibles()"
+          [loading]="chargement()"
+          [error]="patrimoinesErreur()"
+          emptyMessage="Aucun patrimoine."
+        />
       </div>
     </section>
 
@@ -626,6 +621,12 @@ export class BailleurDashboardComponent implements OnInit {
     { field: 'statut', header: 'Statut', type: 'status' },
   ];
   readonly patrimoines = signal<Patrimoine[]>([]);
+  readonly patrimoinesErreur = signal<string | null>(null);
+  protected readonly colonnesPatrimoines: LtDataTableColumn[] = [
+    { field: 'nom', header: 'Nom' },
+    { field: 'adresse', header: 'Adresse' },
+    { field: 'statut', header: 'Statut', type: 'status' },
+  ];
   readonly typesBiens = signal<TypeBien[]>([]);
   readonly patrimoinesDisponibles = computed(() => {
     const selectionne = this.bienSelectionne()?.patrimoineId;
@@ -750,10 +751,15 @@ export class BailleurDashboardComponent implements OnInit {
   }
 
   private chargerReferentielsBien(): void {
+    this.patrimoinesErreur.set(null);
     this.api.listerPatrimoines().subscribe({
       next: (patrimoines) => {
         this.patrimoines.set(patrimoines);
         this.chargerAffectationsPatrimoine(patrimoines);
+      },
+      error: (err: unknown) => {
+        this.patrimoinesErreur.set(this.erreurDetail(err));
+        this.signalerErreur(err);
       },
     });
     this.api.listerTypesBiens().subscribe({ next: (typesBiens) => this.typesBiens.set(typesBiens) });

@@ -56,4 +56,9 @@ describe('severityForStatut', () => {
     expect(severityForStatut('EN_TRAVAUX')).toBe('warning');
     expect(severityForStatut('ARCHIVE')).toBe('secondary');
   });
+
+  it('mappe le vocabulaire StatutPatrimoine (EP-17 Lot 3, dashboard Bailleur)', () => {
+    expect(severityForStatut('ACTIF')).toBe('success');
+    expect(severityForStatut('ARCHIVE')).toBe('secondary');
+  });
 });
