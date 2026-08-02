@@ -120,3 +120,56 @@ pour ce dernier). Conformément à la règle d'agrégation 2, le résultat agré
 moins un écran métier réel intégrant les composants `lt-*` — précisément l'objet du Lot 3
 (`gate-04A-decision-ep17-lot3.md`). Contenu des lignes d'origine non réécrit, conformément à la
 préservation des décisions historiques (`CLAUDE.md`).
+
+## Note de mise à jour (2026-08-02, postérieure à cette instance) — Lot 3 restreint livré
+
+Les 4 écrans du Lot 3 restreint (liste Biens, liste Patrimoines, formulaire Bien, formulaire
+Patrimoine, `dashboard.component.ts` Bailleur) sont désormais migrés (`US-133`/`US-134`, PR
+#338-340, mergées). Preuve de test réel produite pour les 2 derniers contrôles bloquants —
+navigateur réel (Chrome Headless, captures d'écran et mesures `getBoundingClientRect()`), pas une
+simulation :
+
+* **« Responsive »** (notait « stratégie documentée, aucun test exécuté ») : deux écarts réels
+  détectés par le test, tous deux **pré-existants** (présents avant la migration `lt-*`, non
+  introduits par elle) et corrigés dans le périmètre strict des 2 écrans concernés :
+  * **Ordre mobile liste/formulaire** — sous 640px, la grille `.two` empilait le formulaire
+    **avant** la liste (ordre DOM non corrigé par `auto-fit`/`minmax`), contredisant l'intention
+    documentée par `phase-02-ui-mockups-ep17-lot3.md` §3 (« la liste passe avant le formulaire en
+    mobile »). Confirmé par capture d'écran à 375px, corrigé par `order: 1` sur `form.panel`
+    scopé à une classe `.mobile-list-first` posée uniquement sur les sections Biens et Patrimoines
+    (pas sur les 6 autres sections `.grid.two` du même composant — baux, garanties, honoraires,
+    affectations, exceptions, hors périmètre Lot 3). Re-vérifié : liste au-dessus du formulaire à
+    375px, formulaire à gauche / liste à droite inchangé à 1200px.
+  * **Touch targets `input`/`select`** — mesurés à 33-35px de hauteur réelle (`padding: 0.5rem`),
+    sous la cible `≥ 44×44px` de `DSG-001.md` §Responsive Rules. Corrigé par `min-height: 44px`
+    (le reset global `box-sizing: border-box` déjà en place, `_reset.scss`, rend ce correctif
+    suffisant sans changement de `padding`). Re-mesuré à 44px exactement.
+  * **Touch target `button`** (composant global, `_button.scss`) — même écart mesuré (35px), **non
+    corrigé** : blast radius produit entier, hors périmètre Lot 3 restreint, nouvelle dette
+    `DD-EP17-11` tracée plutôt que corrigée silencieusement ou ignorée.
+  * Reclassée **PASS sous réserve** — preuve réelle produite et 2 écarts sur 3 corrigés, mais
+    strictement scopée aux 4 écrans du Lot 3 restreint (pas un audit responsive du produit
+    complet) et avec un résidu documenté (`DD-EP17-11`).
+* **« Cohérence multi-écrans »** (notait « mapping proposé, aucune implémentation ») : audit de
+  code des 4 écrans confirme un usage cohérent des composants `lt-*` — `lt-data-table` avec le
+  même patron colonnes (`type: 'status'` → `lt-status-tag`/`severityForStatut()`) pour Biens et
+  Patrimoines ; `lt-form-field` avec le même patron (`#f="ltFormField"` +
+  `[attr.aria-describedby]`) pour les 2 formulaires, y compris sur un contrôle non standard
+  (`<textarea>`, formulaire Patrimoine) sans adaptation nécessaire ; mécanisme d'erreur identique
+  (`role="alert"` natif à `lt-data-table`) pour les 2 listes. Reclassée **PASS** — pour le
+  périmètre des 4 écrans migrés uniquement ; les sections non migrées du même dashboard
+  (baux, garanties, honoraires, affectations, alertes, audit) et le dashboard Gestionnaire
+  utilisent toujours l'ancien patron, suivi par `DD-EP17-04`.
+
+**Décompte recalculé** : sur 13 contrôles, **5 PASS** (Tokens, Dark mode, Composants et variantes,
+États erreur/vide/chargement, Cohérence multi-écrans), **1 PASS sous réserve** (Responsive),
+**5 « Préparation en cours »**, **1 « Non exécuté »** (Performance UX/perçue — non bloquant).
+Conformément à la règle d'agrégation 2, le résultat agrégé reste **NO GO (en l'état)** pour un
+Gate 04A global EP-17 complet (les contrôles « Préparation en cours » restent insuffisants pour un
+GO global — validation humaine indépendante notamment). Pour le périmètre strict du Lot 3 restreint
+(Patrimoines/Biens), les 2 contrôles bloquants qui empêchaient spécifiquement sa clôture
+(Responsive, Cohérence multi-écrans) disposent désormais d'une preuve réelle — validation humaine
+(Design Architect désigné et/ou Product Owner) requise pour transformer ce constat en clôture
+formelle du Gate 04A Lot 3, conformément à `CLAUDE.md` (« Aucun pipeline, score, audit automatique
+... ne remplace la validation humaine requise »). Contenu des lignes d'origine non réécrit,
+conformément à la préservation des décisions historiques (`CLAUDE.md`).

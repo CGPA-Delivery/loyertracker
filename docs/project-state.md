@@ -4707,3 +4707,74 @@ instruction de Gate 04A/02A, conformément à `gate-04A-decision-ep17-lot3.md` �
 « aucun code applicatif sans Plan d'Exécution approuvé » (`CLAUDE.md`). Les 2 contrôles
 `CHECK-UX-01` (Responsive, Cohérence multi-écrans) restent « Non exécuté » et devront produire
 leurs preuves avant toute clôture du Lot 3.
+
+### PR #340 fusionnée sur main ; preuves CHECK-UX-01 Responsive/Cohérence multi-écrans produites (2026-08-02)
+
+**Instruction explicite reçue** : « merge la PR #340 et continue avec le plan d'exécution comme
+approuvé ». PR #340 (formulaire Patrimoine) fusionnée sur `main` par merge commit standard, CI
+verte avant fusion. **Clarification de gouvernance signalée avant d'agir** : le Plan d'Exécution
+(`plan-execution-ux-ui-primeng-keycloak.md` §12) est approuvé strictement pour Lot 1, Lot 2 et
+Lot 3 (restreint) — désormais entièrement livré (4/4 écrans). Les Lots 4-6 ne sont pas approuvés ;
+aucune extension de code applicatif n'était donc « comme approuvée » à ce stade. Question posée au
+Product Owner : réponse obtenue — produire les preuves `CHECK-UX-01` restantes (Responsive,
+Cohérence multi-écrans), travail de vérification sur l'existant, pas un nouveau périmètre
+applicatif.
+
+**Méthode de vérification** : navigateur réel (Chrome Headless, `google-chrome --headless=new`),
+captures d'écran et mesures `getBoundingClientRect()`/`getComputedStyle()` — pas une simulation ni
+une lecture de code seule. Le dashboard Bailleur exigeant une session Keycloak authentifiée non
+disponible dans cet environnement, la vérification du comportement CSS (grille, ordre, tailles) a
+été conduite sur une reproduction isolée exacte des règles CSS réelles du composant (mêmes
+sélecteurs, mêmes valeurs), puis le correctif retenu a été appliqué et re-testé de la même façon
+avant d'être reporté dans le composant réel ; complétée par un test d'intégration
+`getComputedStyle()` exécuté directement sur `BailleurDashboardComponent` en Chrome Headless réel
+(pas la reproduction isolée) pour la mesure de touch target.
+
+**Constats (Responsive)** : 2 écarts réels détectés, tous deux pré-existants (non introduits par
+les migrations `lt-*` de cette session) :
+* Ordre mobile liste/formulaire — sous 640px, la grille `.two` empilait le formulaire **avant** la
+  liste, contredisant `phase-02-ui-mockups-ep17-lot3.md` §3 (« la liste passe avant le formulaire
+  en mobile »). Corrigé par `order: 1` sur `form.panel`, scopé à une nouvelle classe
+  `.mobile-list-first` posée uniquement sur les sections Biens et Patrimoines — **pas** sur les 6
+  autres sections `.grid.two` du même composant (baux, garanties, honoraires, affectations,
+  exceptions), hors périmètre Lot 3, intentionnellement non touchées.
+* Touch targets `input`/`select` mesurés à 33-35px, sous la cible `≥ 44×44px` de `DSG-001.md`
+  §Responsive Rules. Corrigé par `min-height: 44px` (le reset global `box-sizing: border-box`
+  suffit, `_reset.scss`, aucun changement de `padding` nécessaire).
+* Touch target `button` (composant global, `_button.scss`) — même écart mesuré, **non corrigé** :
+  blast radius produit entier (tous écrans), hors périmètre Lot 3 restreint. Signalé plutôt que
+  corrigé silencieusement ou ignoré — nouvelle dette `DD-EP17-11`.
+
+**Constats (Cohérence multi-écrans)** : audit de code des 4 écrans migrés confirme un usage
+cohérent des composants `lt-*` (même patron colonnes `lt-data-table`/`lt-status-tag`, même patron
+`lt-form-field`/`aria-describedby` y compris sur un `<textarea>`, même mécanisme d'erreur
+`role="alert"`) — cohérence confirmée pour le périmètre des 4 écrans migrés, pas pour le produit
+entier (sections non migrées suivies par `DD-EP17-04`).
+
+**CHECK-UX-01** (`CHECK-UX-01-ep17-ui-foundation.md`, nouvelle note datée) : Responsive reclassé
+**PASS sous réserve** (preuve réelle, résidu `DD-EP17-11`) ; Cohérence multi-écrans reclassé
+**PASS** (scopé aux 4 écrans Lot 3). Décompte global recalculé : 5 PASS, 1 PASS sous réserve,
+5 Préparation en cours, 1 Non exécuté (Performance UX/perçue, non bloquant). Conformément à
+`CLAUDE.md` (« aucun audit automatique ne remplace la validation humaine requise »), ce constat
+n'emporte pas de lui-même la clôture du Gate 04A Lot 3 — validation humaine (Design Architect
+désigné et/ou Product Owner) requise pour transformer la preuve en clôture formelle.
+
+**Vérification** : 148/148 tests (146 existants + 2 nouveaux — garde de régression sur le
+périmètre exact de `.mobile-list-first`, mesure `getComputedStyle()` du touch target),
+`ng lint` propre, `ng build` réussi (bundle initial stable à 516,00 kB).
+
+**Documents modifiés** : `frontend/src/app/bailleur/dashboard/dashboard.component.ts` (classe
+`.mobile-list-first`, règle `order` en media query, `min-height: 44px`) ;
+`frontend/src/app/bailleur/dashboard/dashboard.component.spec.ts` (2 nouveaux tests) ;
+`CHECK-UX-01-ep17-ui-foundation.md` (note datée) ; `design-debt-register-loyertracker.md`
+(nouvelle dette `DD-EP17-11`).
+
+**Ce que cette implémentation n'autorise pas** : aucune extension de périmètre applicatif — les
+correctifs restent strictement des corrections de présentation sur les 4 écrans déjà autorisés du
+Lot 3 restreint, pas une nouvelle fonctionnalité. `DD-EP17-11` (touch target `button` global)
+reste ouverte, correction hors périmètre.
+
+**Prochaine action autorisée** : le Product Owner (et/ou un Design Architect désigné) statue sur
+la validation humaine de ces preuves pour clore formellement le Gate 04A Lot 3. Au-delà, toute
+poursuite (Lots 4-6, ou correction de `DD-EP17-11`) nécessite sa propre instruction de Gate,
+conformément au principe rappelé dans l'entrée précédente.
