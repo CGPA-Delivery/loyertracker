@@ -63,5 +63,10 @@ export class FormFieldComponent {
    * À passer en `[attr.aria-describedby]` sur le contrôle projeté par l'appelant (le composant ne
    * peut pas modifier l'élément projeté lui-même).
    */
-  readonly describedBy = computed(() => (this.error() ? this.errorId() : this.help() ? this.helpId() : null));
+  readonly describedBy = computed(() => {
+    if (this.error()) {
+      return this.errorId();
+    }
+    return this.help() ? this.helpId() : null;
+  });
 }
