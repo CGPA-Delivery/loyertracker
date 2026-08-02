@@ -4511,3 +4511,54 @@ datée).
 **Prochaine action autorisée** : le développement du Lot 3 peut être instruit — en commençant par
 la liste des Biens (`lt-data-table`), sous réserve continue des preuves de test/implémentation
 attendues par le Gate 04A Lot 3.
+
+### US-133/US-134 démarrées — liste des Biens migrée vers lt-data-table (2026-08-02)
+
+**Instruction explicite reçue** : « commence par la liste des Biens (`lt-data-table`) ». Premier
+écran métier réel migré du périmètre EP-17 Lot 3, strictement limité à ce que le Plan d'Exécution
+autorise : `frontend/src/app/bailleur/dashboard/dashboard.component.ts`, panneau « Biens »
+(adresse/type/statut, sélection d'un bien). Migration de présentation uniquement — inchangés :
+formulaire de création/modification du bien, section Patrimoines, tous les autres panneaux
+(baux, paiements, garanties, honoraires, affectations, exceptions, alertes, audit), et le
+mécanisme d'archivage natif (`globalThis.confirm()`), conformément à
+`gate-04A-decision-ep17-lot3.md` §5 (« liste avant formulaire », archivage hors périmètre).
+
+**Extension de `lt-data-table`** (composant livré isolément par `US-132`, jamais adopté avant ce
+jour) : besoin réel confirmé plutôt qu'anticipé, conformément à son propre commentaire
+(« à étendre lors d'une migration écran réelle »). Deux ajouts, tous deux testés en navigateur réel
+(Chrome Headless) : colonne `type: 'status'` (rendu via `lt-status-tag`/`severityForStatut()` au
+lieu du texte brut) et ligne sélectionnable (`selectable`/`selectedRow`/`rowClick`, clic **et**
+clavier — `role="button"`, `tabindex`, `Entrée`/`Espace` — pas de mécanisme de sélection PrimeNG
+natif, géré par le template `#body` déjà propre au composant). `severityForStatut()` étendu au
+vocabulaire `StatutBien` (`LIBRE`→success, `LOUE`→info, `EN_TRAVAUX`→warning, `ARCHIVE`→secondary),
+conformément à son propre commentaire invitant cette extension au moment de chaque migration réelle.
+
+**DD-EP17-10 (absence d'état d'erreur explicite)** : écart réel constaté et signalé plutôt que
+corrigé silencieusement — la cible anticipée par `phase-02-ui-mockups-ep17-lot3.md` était
+`lt-empty-state` (variante erreur) ; le mécanisme réellement livré dans `lt-data-table` depuis
+`US-132` est un paragraphe dédié `role="alert"` (`error()`), jugé équivalent voire plus adapté
+sémantiquement, pas réécrit pour coller à la cible initiale. Câblé pour Biens uniquement
+(`biensErreur`, nouveau signal, alimenté par `chargerBiens()`) — Patrimoines reste hors périmètre
+de cette étape.
+
+**Vérification** : 140/140 tests (133 existants + 7 nouveaux — 4 `lt-data-table` isolé, 1
+`severityForStatut` vocabulaire `StatutBien`, 2 intégration réelle dans `BailleurDashboardComponent`
+via `HttpTestingController`, dont un test de clic réel sur une ligne rendue et un test de l'état
+d'erreur), `ng lint` propre (aucune règle nouvelle nécessaire), `ng build` réussi (bundle initial
+516,00 kB, stable sous le budget `1mb`/`2.5mb` ; `p-table`/`lt-status-tag` désormais tirés dans le
+chunk paresseux `dashboard-component`, pas dans le bundle initial).
+
+**Documents modifiés** : `frontend/src/app/bailleur/dashboard/dashboard.component.ts` (panneau
+Biens, signal `biensErreur`, helper `erreurDetail()` extrait de `signalerErreur()`, nettoyage CSS
+mort `.list`/`.row`/`.selected`) ; `frontend/src/app/shared/data-table/data-table.component.ts`
+(+spec) ; `frontend/src/app/shared/status-tag/status-tag.component.ts` (+spec) ;
+`design-debt-register-loyertracker.md` (`DD-EP17-04`, `DD-EP17-10` mis à jour).
+
+**Ce que cette implémentation n'autorise pas** : aucune extension au-delà de la liste des Biens —
+le formulaire Biens, la section Patrimoines (liste et formulaire) et le reste du dashboard
+Gestionnaire relèvent d'étapes distinctes du même Lot 3 ou d'un Lot ultérieur.
+
+**Prochaine action autorisée** : poursuivre le Lot 3 section par section — étape suivante logique
+la liste des Patrimoines (même patron `lt-data-table`), puis le formulaire Bien vers
+`lt-form-field`, sous réserve continue des preuves attendues par le Gate 04A Lot 3 (Responsive,
+Cohérence multi-écrans, toujours « Non exécuté »).

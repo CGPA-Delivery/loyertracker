@@ -52,4 +52,63 @@ describe('DataTableComponent', () => {
     expect(error.getAttribute('role')).toBe('alert');
     expect(fixture.nativeElement.querySelector('p-table')).toBeNull();
   });
+
+  it('rend une colonne `type: "status"` via lt-status-tag, sévérité déduite de severityForStatut', () => {
+    fixture.componentRef.setInput('columns', [
+      { field: 'adresse', header: 'Adresse' },
+      { field: 'statut', header: 'Statut', type: 'status' },
+    ]);
+    fixture.componentRef.setInput('rows', [{ adresse: '12 rue des Lilas', statut: 'LIBRE' }]);
+    fixture.detectChanges();
+
+    const tag = fixture.nativeElement.querySelector('lt-status-tag');
+    expect(tag).not.toBeNull();
+    expect(tag.textContent.trim()).toBe('LIBRE');
+    expect(tag.querySelector('.p-tag-success')).not.toBeNull();
+  });
+
+  it('ne réagit pas au clic quand `selectable` est faux (par défaut)', () => {
+    const row = { periode: '2026-08', montant: '850,00 €' };
+    fixture.componentRef.setInput('rows', [row]);
+    fixture.detectChanges();
+    const emitted = jasmine.createSpy('rowClick');
+    fixture.componentInstance.rowClick.subscribe(emitted);
+
+    (fixture.nativeElement.querySelector('tbody tr') as HTMLElement).click();
+
+    expect(emitted).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('tbody tr').getAttribute('role')).toBeNull();
+  });
+
+  it('émet `rowClick` au clic sur une ligne quand `selectable` est vrai, et marque la ligne sélectionnée', () => {
+    const row = { periode: '2026-08', montant: '850,00 €' };
+    fixture.componentRef.setInput('rows', [row]);
+    fixture.componentRef.setInput('selectable', true);
+    fixture.componentRef.setInput('selectedRow', row);
+    fixture.detectChanges();
+    const emitted = jasmine.createSpy('rowClick');
+    fixture.componentInstance.rowClick.subscribe(emitted);
+
+    const tr = fixture.nativeElement.querySelector('tbody tr') as HTMLElement;
+    expect(tr.getAttribute('role')).toBe('button');
+    expect(tr.classList).toContain('selected');
+
+    tr.click();
+
+    expect(emitted).toHaveBeenCalledWith(row);
+  });
+
+  it('émet `rowClick` au clavier (Entrée) sur une ligne sélectionnable', () => {
+    const row = { periode: '2026-08', montant: '850,00 €' };
+    fixture.componentRef.setInput('rows', [row]);
+    fixture.componentRef.setInput('selectable', true);
+    fixture.detectChanges();
+    const emitted = jasmine.createSpy('rowClick');
+    fixture.componentInstance.rowClick.subscribe(emitted);
+
+    const tr = fixture.nativeElement.querySelector('tbody tr') as HTMLElement;
+    tr.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    expect(emitted).toHaveBeenCalledWith(row);
+  });
 });

@@ -32,10 +32,10 @@ export class StatusTagComponent {
 /**
  * Vocabulaire vérifié par lecture directe du code existant :
  * `paiements-bien.component.ts` (`EN_RETARD`→danger, `RECU`→success, `À VENIR`→warning, sinon
- * info) et `alertes-liste.component.ts` (`LOYER_EN_RETARD`→danger, `PREAVIS`→warning, sinon info).
- * Volontairement limité à ce vocabulaire déjà confirmé — l'extension à d'autres domaines
- * (garanties, honoraires…) est un jugement métier distinct, à faire au moment de leur migration
- * (Lot 3+), pas ici.
+ * info), `alertes-liste.component.ts` (`LOYER_EN_RETARD`→danger, `PREAVIS`→warning, sinon info)
+ * et `StatutBien` — `dashboard.component.ts` Bailleur, EP-17 Lot 3 (`LIBRE`→success, `LOUE`→info,
+ * `EN_TRAVAUX`→warning, `ARCHIVE`→secondary). Étendu au moment de chaque migration réelle
+ * (Lot 3+), pas anticipé pour des domaines pas encore migrés (garanties, honoraires…).
  */
 export function severityForStatut(statut: string): StatusTagSeverity {
   switch (statut) {
@@ -44,11 +44,17 @@ export function severityForStatut(statut: string): StatusTagSeverity {
       return 'danger';
     case 'RECU':
     case 'PAYE':
+    case 'LIBRE':
       return 'success';
     case 'A_VENIR':
     case 'À VENIR':
     case 'PREAVIS':
+    case 'EN_TRAVAUX':
       return 'warning';
+    case 'LOUE':
+      return 'info';
+    case 'ARCHIVE':
+      return 'secondary';
     default:
       return 'info';
   }

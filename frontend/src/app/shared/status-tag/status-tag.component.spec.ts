@@ -49,4 +49,11 @@ describe('severityForStatut', () => {
     expect(severityForStatut('PARTIEL')).toBe('info');
     expect(severityForStatut('STATUT_INCONNU')).toBe('info');
   });
+
+  it('mappe le vocabulaire StatutBien (EP-17 Lot 3, dashboard Bailleur)', () => {
+    expect(severityForStatut('LIBRE')).toBe('success');
+    expect(severityForStatut('LOUE')).toBe('info');
+    expect(severityForStatut('EN_TRAVAUX')).toBe('warning');
+    expect(severityForStatut('ARCHIVE')).toBe('secondary');
+  });
 });
