@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |---|---|
-| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 ET LOT 2** (voir §12, 2026-07-31 puis 2026-08-01) |
+| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2 ET LOT 3 (RESTREINT)** (voir §12, 2026-07-31, 2026-08-01, puis 2026-08-02) |
 | Date | 2026-07-30 |
 | Product Owner | jptshilombo@gmail.com |
 | Décision de socle liée | `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md` (Acceptée) |
@@ -348,3 +348,37 @@ sprint actif sans décision explicite du Product Owner.**
 * **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1 ET LOT 2 » (§ en-tête). Le
   développement technique du Lot 2 (8 composants transverses) peut démarrer, sous réserve continue
   des points ci-dessus.
+
+### Extension de l'approbation au Lot 3, périmètre restreint (2026-08-02)
+
+* **Instruction explicite reçue** : « Approuve l'extension du Plan d'Exécution au Lot 3 ».
+* Le Lot 2 (`US-132`, 8 composants transverses + service Toast) est livré, mergé (PR #338, CI
+  intégralement verte) et validé Product Owner (GO sous réserve, 2026-08-02). Les deux Gates
+  applicables au Lot 3 ont été instruits et statués : `gate-04A-decision-ep17-lot3.md` et
+  `gate-02A-decision-ep17-lot3.md`, tous deux **GO sous réserve, périmètre limité à EP-17 Lot 3**
+  (décision Product Owner du 2026-08-02).
+* **Confirmation de périmètre préalable (2026-08-02)** : contrairement à la recommandation initiale
+  de ce §3 (dashboard Bailleur complet), le Product Owner a retenu un périmètre restreint —
+  **section Patrimoines/Biens uniquement** (`US-133` restreinte + `US-134`). Explicitement hors
+  périmètre de ce Lot : Affectations, Paiements, Garanties, Honoraires, Alertes, Journal d'audit ;
+  ces sections restent en l'état, migration différée à un Lot ultérieur, chacun son propre point de
+  contrôle Gate.
+* **Décision Product Owner** : Plan d'Exécution **approuvé, strictement pour le périmètre Lot 3
+  ainsi restreint**, en plus des Lots 1 et 2 déjà approuvés. Cette approbation ne s'étend pas aux
+  Lots 4 à 6, ni au reste du dashboard Bailleur, ni au dashboard Gestionnaire — chacun reste un
+  point de contrôle GO/NO GO distinct.
+* **Ce que cette approbation ne couvre pas** — verrous inchangés :
+  * les réserves continues du Gate 04A Lot 3 (2 contrôles `CHECK-UX-01` — Responsive, Cohérence
+    multi-écrans — encore « Non exécuté », preuves de test/implémentation à produire au fil du
+    Lot 3) restent ouvertes ;
+  * `DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-06` et `DD-EP17-10` (nouvelle, absence d'état
+    d'erreur au chargement) restent ouverts ; `DD-EP17-05` reste non pertinente pour ce périmètre
+    tant que le mécanisme d'archivage natif (`confirm()`, préservé tel quel) n'est pas migré vers
+    `lt-confirm-dialog` — toute tentative de le faire « en passant » sortirait de cette approbation ;
+  * le périmètre du Lot 3 lui-même reste strictement celui confirmé — section Patrimoines/Biens,
+    migration de présentation uniquement (`lt-data-table`/`lt-form-field`/`lt-status-tag`/
+    `lt-empty-state`), sans toucher à la logique existante ; toute extension à une autre section
+    avant instruction distincte invaliderait les deux Gates.
+* **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2 ET LOT 3 (RESTREINT) »
+  (§ en-tête). Le développement technique du Lot 3 (section Patrimoines/Biens) peut démarrer,
+  section par section (liste avant formulaire), sous réserve continue des points ci-dessus.

@@ -4482,3 +4482,32 @@ Lot 3. Le développement technique (section Patrimoines/Biens, `lt-data-table`/`
 `lt-status-tag`/`lt-empty-state`) ne peut démarrer qu'après cette approbation, sous réserve
 continue des preuves de test/implémentation ci-dessus, et exécution section par section (liste
 avant formulaire).
+
+### Plan d'Exécution étendu au Lot 3, périmètre restreint (2026-08-02)
+
+**Instruction explicite reçue** : « Approuve l'extension du Plan d'Exécution au Lot 3 ».
+`plan-execution-ux-ui-primeng-keycloak.md` mis à jour : statut **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE
+LOT 1, LOT 2 ET LOT 3 (RESTREINT)** (en-tête et §12), appuyé sur `gate-04A-decision-ep17-lot3.md`
+et `gate-02A-decision-ep17-lot3.md` (GO sous réserve, Lot 3, tous deux 2026-08-02). Le verrou
+`CLAUDE.md` « Aucun code applicatif sans Plan d'Exécution approuvé » est donc levé **pour le Lot 3
+également**, strictement pour le périmètre confirmé (section Patrimoines/Biens) — inchangé pour les
+Lots 4 à 6, le reste du dashboard Bailleur et le dashboard Gestionnaire.
+
+**Ce que cette extension ne lève pas** : les réserves continues du Gate 04A Lot 3 (2 contrôles
+`CHECK-UX-01` — Responsive, Cohérence multi-écrans — encore « Non exécuté », preuves à produire au
+fil du Lot 3) ; `DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-06` et `DD-EP17-10`, tous ouverts ;
+`DD-EP17-05`, non pertinente tant que le mécanisme d'archivage natif (`confirm()`) n'est pas migré
+vers `lt-confirm-dialog` — toute migration « en passant » de ce mécanisme sortirait de cette
+approbation ; le périmètre strict du Lot 3 lui-même (section Patrimoines/Biens, migration de
+présentation uniquement, sans toucher à la logique existante).
+
+**Effet** : le développement technique du Lot 3 (section Patrimoines/Biens — `lt-data-table`,
+`lt-form-field`, `lt-status-tag`, `lt-empty-state`) peut démarrer, section par section (liste avant
+formulaire).
+
+**Documents modifiés** : `plan-execution-ux-ui-primeng-keycloak.md` (en-tête, §12 — nouvelle entrée
+datée).
+
+**Prochaine action autorisée** : le développement du Lot 3 peut être instruit — en commençant par
+la liste des Biens (`lt-data-table`), sous réserve continue des preuves de test/implémentation
+attendues par le Gate 04A Lot 3.
