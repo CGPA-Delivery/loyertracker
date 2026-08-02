@@ -4811,3 +4811,54 @@ correction de `DD-EP17-11`, ou extension à toute autre section du dashboard Bai
 nécessite une nouvelle instruction explicite du Product Owner et sa propre instruction de Gate
 04A/02A, conformément à `plan-execution-ux-ui-primeng-keycloak.md` §12 et au principe « aucun code
 applicatif sans Plan d'Exécution approuvé » (`CLAUDE.md`).
+
+### Gate 04A/02A instruits — EP-17 Lot 4 (Pilote Keycloak) (2026-08-02)
+
+**Instruction explicite reçue** : « Lot 4 » — en réponse à une clarification demandée sur lequel
+des Lots 4/5/6 (chacun un point de contrôle GO/NO GO distinct, Plan d'Exécution §12) instruire en
+premier.
+
+`gate-04A-decision-ep17-lot4.md` et `gate-02A-decision-ep17-lot4.md` produits (avis Design
+Architect, Frontend Architect, DevSecOps Lead, UX/UI Design Lead — §6 volontairement laissée non
+renseignée, décision réservée au Product Owner). **Différence structurelle majeure avec les Lots
+1-3** : le Lot 4 porte sur un thème Keycloak (FreeMarker + CSS statique), pas sur du Frontend
+Angular — surface technique distincte, touchant une authentification déjà utilisée en Production
+(`ADR-UI-001` §Isolation entre Angular et Keycloak).
+
+**Constat factuel établi par lecture directe du dépôt** (pas d'implémentation) :
+* Aucun thème Keycloak n'existe (`infra/keycloak/themes/` absent, aucune clé `theme`/`loginTheme`
+  dans les 2 fichiers de realm).
+* `DD-EP17-03` (source de tokens partagée Angular/Keycloak, Option A vs B) toujours non tranchée.
+* Aucun rôle « Security Architect Keycloak » désigné (`agent-designations-loyertracker.md` : 4
+  rôles actifs seulement), alors que `DD-EP17-01` en fait un responsable conjoint nommé.
+* Usage réel de l'Account Console « Non constaté » (`screen-inventory-loyertracker.md`) — périmètre
+  du thème `account/` à confirmer avant tout développement.
+* Configuration SMTP absente des 2 fichiers de realm versionnés — question posée (pas une panne
+  confirmée : peut être configurée hors dépôt) sur la pertinence de thémer « mot de passe
+  oublié »/« invitation » avant confirmation opérationnelle.
+* Compatibilité de version Keycloak par environnement (RSV-UI-08, `ADR-UI-001`) jamais vérifiée.
+* `CHECK-FRONTEND-01` (gabarit conçu pour une architecture Angular) d'applicabilité douteuse à un
+  thème FreeMarker — décision Product Owner requise plutôt que tranchée unilatéralement.
+* Aucun user journey ni maquette produits pour les écrans Keycloak (login, mot de passe oublié,
+  reset, invitation, invitation expirée, session expirée, accès refusé, logout).
+* `plan-execution-ux-ui-primeng-keycloak.md` §12 n'inclut pas le Lot 4 dans son périmètre approuvé.
+
+**Avis rendus** : Design Architect, Frontend Architect, DevSecOps Lead (Gate 04A) et UX/UI Design
+Lead (Gate 02A) — **NO GO en l'état**, tous les quatre. Contrairement aux Lots 2/3 où les
+fondations étaient déjà solides avant instruction, le Lot 4 part d'une page blanche technique et
+d'un vide de gouvernance (rôle non désigné) — l'avis n'est pas un jugement sur un travail déjà
+produit, mais le constat qu'aucune des conditions préalables (source de tokens, rôle sécurité,
+périmètre exact, parcours/maquettes) n'est encore réunie.
+
+**Documents produits** : `gate-04A-decision-ep17-lot4.md`, `gate-02A-decision-ep17-lot4.md`.
+
+**Ce que cette instruction n'autorise pas** : aucun code de thème, aucune modification de realm,
+aucune dépendance ajoutée — strictement documentaire, conformément au verrou `CLAUDE.md` (« aucun
+code applicatif sans Plan d'Exécution approuvé »), a fortiori renforcé ici par l'avis NO GO en
+l'état des quatre rôles désignés.
+
+**Prochaine action autorisée** : le Product Owner statue en §6 de chacune des deux décisions. Vu
+les avis NO GO en l'état, un GO ou GO sous réserve nécessiterait a minima : trancher `DD-EP17-03`
+(Option A/B), désigner explicitement un responsable de la revue sécurité Keycloak, confirmer le
+périmètre Account Console, et clarifier l'applicabilité de `CHECK-FRONTEND-01` — préalables à toute
+production de parcours/maquettes ou de code de thème.
