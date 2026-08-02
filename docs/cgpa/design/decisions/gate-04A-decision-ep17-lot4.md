@@ -198,3 +198,28 @@ Keycloak puisqu'aucun écran Keycloak n'est concerné.
 vivante (nuance ci-dessus) ; approbation du Plan d'Exécution pour le Lot 4 ; absence de parcours
 utilisateurs et de maquettes pour les 6 écrans désormais confirmés (`gate-02A-decision-ep17-lot4.md`
 §4). Les avis **NO GO en l'état** du §5 restent en vigueur.
+
+## 10. Parcours et maquettes produits — la question SMTP devient une certitude vérifiée (2026-08-02)
+
+`phase-02-user-journeys-ep17-lot4.md`/`phase-02-ui-mockups-ep17-lot4.md` produits en exécutant
+réellement le realm `loyertracker` (Keycloak 24.0.5 isolé, même image que Production ; détail
+complet en `gate-02A-decision-ep17-lot4.md` §10). Effet direct sur ce Gate 04A :
+
+* **La nuance SMTP du §9 (« question ouverte, pas une certitude ») est levée par la preuve** — la
+  soumission réelle du formulaire de réinitialisation, pour un utilisateur de test existant, produit
+  `HTTP 500` / « Failed to send email, please try again later. ». Ce n'est plus une hypothèse sur la
+  configuration versionnée : c'est un échec fonctionnel reproduit sur l'image exacte utilisée par
+  Dev/Staging/Production. Nouvelle dette `DD-EP17-14` (Majeur, DevSecOps Lead).
+* **Nouvelle dette non anticipée** : absence de traduction française sur l'ensemble des écrans
+  Keycloak (`DD-EP17-13`, Majeur, UX/UI Design Lead) — incohérence linguistique avec le reste du
+  produit, entièrement en français.
+* **Avis DevSecOps Lead renforcé** : le NO GO en l'état du §5 n'était fondé, pour ce rôle, que sur
+  l'absence de préalables (rôle non désigné, interdictions non auditées faute de code). Il repose
+  désormais **aussi** sur un défaut fonctionnel réel et vérifié (`DD-EP17-14`) — thémer le sous-écran
+  « mot de passe oublié » sans traiter ce défaut livrerait une expérience visuellement soignée sur un
+  flux qui ne fonctionne pas.
+
+**Prochaine action autorisée** : validation Product Owner de `phase-02-user-journeys-ep17-lot4.md`
+et `phase-02-ui-mockups-ep17-lot4.md`, décision explicite sur le traitement de `DD-EP17-14` (SMTP
+comme préalable bloquant, ou thème livré en assumant ce sous-écran incomplet) — préalable à toute
+nouvelle instruction complète de ce Gate.

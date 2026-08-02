@@ -4936,3 +4936,50 @@ pour les 6 écrans désormais confirmés. Les avis NO GO en l'état restent en v
 **Prochaine action autorisée** : production des parcours utilisateurs et maquettes scopés aux 6
 écrans confirmés (`phase-02-user-journeys-ep17-lot4.md`, `phase-02-ui-mockups-ep17-lot4.md`), même
 enchaînement que le Lot 3 — préalable à toute nouvelle instruction complète du Gate 04A/02A Lot 4.
+
+### Parcours et maquettes Lot 4 produits — flux « mot de passe oublié » cassé, confirmé (2026-08-02)
+
+**Instruction explicite reçue** : « enchaîne sur les parcours utilisateurs et maquettes des 6 écrans
+confirmés (login, mot de passe oublié, reset, session expirée, accès refusé, logout) ».
+
+**Méthode** : contrairement au Lot 3 (lecture de code Angular), les écrans Keycloak ont été vérifiés
+en **exécutant réellement** le realm `loyertracker` — instance Keycloak 24.0.5 isolée (même image
+`24.0@sha256:f8ade9…` que Dev/Staging/Production), realm versionné importé tel quel, utilisateur de
+test créé via l'API Admin, formulaires réellement soumis (pas une simulation). Instance détruite
+après vérification, aucune donnée résiduelle, aucune infrastructure du projet touchée.
+
+**Constat majeur, non anticipé** : la soumission réelle du formulaire « mot de passe oublié » pour
+un utilisateur existant produit **`HTTP 500` — « Failed to send email, please try again later. »**.
+Ce n'était jusqu'ici qu'une question ouverte (absence de SMTP dans la configuration versionnée,
+`gate-04A-decision-ep17-lot4.md` §9) ; c'est désormais un échec fonctionnel **reproduit et
+vérifié**, sur l'image exacte utilisée en Production. Nouvelle dette `DD-EP17-14` (Majeur).
+
+**Second constat, également non anticipé** : les écrans Keycloak (login, mot de passe oublié,
+logout, erreur générique) sont intégralement en anglais — aucune traduction française configurée,
+alors que le reste du produit est en français. Nouvelle dette `DD-EP17-13` (Majeur).
+
+**Regroupement révisé du périmètre** : les 6 écrans confirmés (§ précédente) correspondent en
+réalité à **4 familles visuelles**, pas 6 maquettes indépendantes — connexion, mot de passe oublié
+(saisie + résultat), déconnexion, erreur générique (un seul gabarit Keycloak `error.ftl` couvrant
+session expirée, cookie absent, requêtes malformées et — probablement, non reproduit dans cette
+vérification — accès refusé OIDC).
+
+**Bonne nouvelle vérifiée** : le thème par défaut Keycloak est déjà raisonnablement responsive
+(capture 375px sans débordement, empilement correct) — base saine à préserver, pas un correctif à
+apporter.
+
+**Documents produits** : `phase-02-user-journeys-ep17-lot4.md`, `phase-02-ui-mockups-ep17-lot4.md`.
+**Documents modifiés** : `gate-04A-decision-ep17-lot4.md` (§10) ; `gate-02A-decision-ep17-lot4.md`
+(§4 mis à jour, §10) ; `design-debt-register-loyertracker.md` (`DD-EP17-13`, `DD-EP17-14`,
+nouvelles).
+
+**Ce que ces documents ne lèvent pas** : les avis NO GO en l'état des 4 rôles désignés ne sont pas
+reconduits en GO — `DD-EP17-14` en particulier constitue un blocage fonctionnel réel pour toute
+mise en Production du sous-écran « mot de passe oublié », question posée explicitement au Product
+Owner (`phase-02-ui-mockups-ep17-lot4.md` §2bis) plutôt que tranchée unilatéralement. Aucun code de
+thème, aucune modification de realm produits par ce travail.
+
+**Prochaine action autorisée** : validation Product Owner du contenu des deux documents produits, et
+décision explicite sur le traitement de `DD-EP17-14` (SMTP comme préalable bloquant au thème « mot
+de passe oublié », ou thème livré en assumant ce sous-écran incomplet) — préalable à toute nouvelle
+instruction complète du Gate 04A/02A Lot 4, elle-même préalable à tout code de thème.

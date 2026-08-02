@@ -62,8 +62,8 @@
 
 | ID | Type | Impact | Autorité d'acceptation | Responsable | Échéance | Preuve attendue | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| — (parcours utilisateurs absents) | Bloqueur | Aucun parcours écrit ne couvre les flux d'authentification Keycloak concernés | Product Owner | UX/UI Design Lead | Avant tout développement de thème | Parcours écrit par flux (login, mot de passe oublié, reset, invitation, invitation expirée, session expirée, accès refusé, logout) | Ouvert |
-| — (maquettes absentes) | Bloqueur | Aucune maquette « avant/après » ne couvre ces écrans | Product Owner | Design Architect | Avant tout développement de thème | Au moins un support visuel par écran critique, validé Product Owner | Ouvert |
+| — (parcours utilisateurs absents) | Bloqueur | Aucun parcours écrit ne couvre les flux d'authentification Keycloak concernés | Product Owner | UX/UI Design Lead | Avant tout développement de thème | Parcours écrit par flux (login, mot de passe oublié, reset, invitation, invitation expirée, session expirée, accès refusé, logout) | **Levé (2026-08-02)** — `phase-02-user-journeys-ep17-lot4.md` produit, vérifié en exécutant réellement le realm (pas une lecture de code seule) ; validation Product Owner formelle du contenu restant distincte (§10) |
+| — (maquettes absentes) | Bloqueur | Aucune maquette « avant/après » ne couvre ces écrans | Product Owner | Design Architect | Avant tout développement de thème | Au moins un support visuel par écran critique, validé Product Owner | **Levé (2026-08-02)** — `phase-02-ui-mockups-ep17-lot4.md` produit (4 familles d'écrans, état actuel réel + cible proposée) ; validation Product Owner formelle du contenu restant distincte (§10) |
 | — (périmètre Account Console non confirmé) | Bloqueur | Détermine si le thème `account/` (`ADR-UI-001`) fait partie du périmètre réel de ce Lot | Product Owner | Product Owner | Avant tout développement | Confirmation Product Owner tracée (usage réel constaté ou non) | **Levé (2026-08-02)** — Account Console exclue du périmètre du Lot 4 (`gate-04A-decision-ep17-lot4.md` §8) ; le périmètre se limite au thème `login/` |
 | DD-EP17-03 | Bloqueur, réserve existante, partagée avec Gate 04A | Le Design System ne peut être « validé » pour ce périmètre tant que la source de tokens partagée n'est pas tranchée | Product Owner | Design Architect | Avant tout code de thème | Décision Option A vs B tracée | **Levé (2026-08-02)** — Option B confirmée (`gate-04A-decision-ep17-lot4.md` §8) ; dette non close, implémentation restant à produire |
 | — (contraintes de sécurité sur la navigation/redirections) | Réserve, Financial/Security Governance | `ADR-UI-001` interdit toute modification d'URL de redirection sans ADR dédiée — toute maquette proposant un parcours différent du parcours OIDC natif devra être vérifiée contre cette interdiction avant validation | Product Owner | DevSecOps Lead | Au moment de la production des maquettes | Vérification croisée maquette/interdictions de sécurité | Ouvert, préventif |
@@ -123,3 +123,33 @@ logout. Le §8 ci-dessus (« 8 écrans ») n'est pas réécrit (préservation de
 interface pour l'acceptation d'invitation est tracée séparément (`DD-EP17-12`), hors périmètre d'un
 Gate portant sur un thème Keycloak. Les 2 bloqueurs structurels (parcours, maquettes) restent
 ouverts, désormais scopés à 6 écrans plutôt que 8.
+
+## 10. Parcours et maquettes produits — 2 bloqueurs levés, 2 nouvelles dettes critiques (2026-08-02)
+
+`phase-02-user-journeys-ep17-lot4.md` et `phase-02-ui-mockups-ep17-lot4.md` produits en **exécutant
+réellement** le realm `loyertracker` (Keycloak 24.0.5 isolé, même image que Production, détruit
+après vérification) plutôt qu'en lecture de code seule — méthode plus rigoureuse que celle
+initialement anticipée par ce Gate, révélant des faits invisibles au seul realm JSON.
+
+**Les 6 écrans confirmés (§9) se regroupent en 4 familles visuelles**, pas 6 maquettes
+indépendantes : connexion, mot de passe oublié (2 sous-écrans), déconnexion, erreur générique
+(couvrant à la fois session expirée, requêtes malformées et — probablement, non reproduit — accès
+refusé OIDC). Les 2 bloqueurs de ce Gate (§4) sont levés sur cette base.
+
+**2 nouvelles dettes critiques révélées par l'exécution réelle, aucune anticipée par les instances
+précédentes** :
+* `DD-EP17-13` — les écrans Keycloak sont intégralement en anglais, aucune traduction française.
+* `DD-EP17-14` — le flux « mot de passe oublié » est **en échec fonctionnel réel** (`HTTP 500`,
+  reproduit sur un utilisateur de test), cohérent avec l'absence de SMTP déjà signalée comme
+  question ouverte en §9 — désormais une certitude vérifiée, pas une hypothèse.
+
+**Effet sur l'avis NO GO en l'état du §5** : non reconduit automatiquement en GO. `DD-EP17-14` en
+particulier constitue un blocage fonctionnel réel pour toute mise en Production du sous-écran
+« mot de passe oublié » — thémer visuellement un flux cassé sans le signaler serait trompeur,
+`phase-02-ui-mockups-ep17-lot4.md` §2bis pose explicitement cette question au Product Owner avant
+tout code.
+
+**Prochaine action autorisée** : validation Product Owner du contenu de ces deux documents
+(parcours + maquettes), décision sur le traitement de `DD-EP17-14` (thème livré en l'assumant
+incomplet, ou SMTP traité comme préalable bloquant), puis nouvelle instruction complète du Gate 04A/02A
+Lot 4 avant tout code de thème.
