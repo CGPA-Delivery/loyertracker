@@ -4664,3 +4664,46 @@ distinctes du même Lot 3 ou d'un Lot ultérieur.
 le formulaire Patrimoine vers `lt-form-field` (même patron que le formulaire Bien), sous réserve
 continue des preuves attendues par le Gate 04A Lot 3 (Responsive, Cohérence multi-écrans, toujours
 « Non exécuté »).
+
+### PR #339 fusionnée sur main ; formulaire Patrimoine migré vers lt-form-field (2026-08-02)
+
+**Instruction explicite reçue** : « merge et enchaîne sur le formulaire Patrimoine ». PR #339
+(formulaire Bien) fusionnée sur `main` par merge commit standard, CI entièrement verte avant
+fusion. Nouvelle branche `feat/ep17-lot3-patrimoine-form` créée à partir de `main` à jour.
+
+**Migration** : les 10 contrôles du panneau « Modifier un patrimoine »
+(`dashboard.component.ts`) enveloppés dans `lt-form-field` — le sélecteur de patrimoine à modifier
+(hors `patrimoineForm`, template ref `#patModifSel`, toujours visible) puis les 9 champs du
+formulaire détaillé affichés seulement après sélection (Nom, Adresse, Ville, Commune, Quartier,
+Province/État, Pays, Référence interne, Description — ce dernier un `<textarea>`, première
+projection non-`<input>`/`<select>` dans `lt-form-field`, fonctionne sans adaptation, la
+projection de contenu étant agnostique au type de contrôle). Même patron que le formulaire Bien :
+`#f="ltFormField"` + `[attr.aria-describedby]="f.describedBy()"` sur chaque contrôle. Migration de
+présentation uniquement — logique inchangée (`patrimoineForm`, `selectionnerPatrimoineModif()`,
+`modifierPatrimoine()`), aucun message d'erreur de validation introduit.
+
+**Vérification** : 146/146 tests (144 existants + 2 nouveaux — rendu du sélecteur avant sélection
+et rendu des 9 champs détaillés après sélection, `BailleurDashboardComponent`). Le test
+d'intégration du formulaire Bien (ajouté par la PR #339) a dû être corrigé au passage : il
+comptait `querySelectorAll('lt-form-field')` sur tout le composant (4 avant cette migration), ce
+qui aurait cassé avec l'ajout du sélecteur Patrimoine (5 au total) — corrigé pour cibler chaque
+champ par son `id` puis `.closest('lt-form-field')`, robuste à l'ajout d'autres formulaires
+migrés. `ng lint` propre, `ng build` réussi (bundle initial stable à 516,00 kB).
+
+**Documents modifiés** : `frontend/src/app/bailleur/dashboard/dashboard.component.ts` (panneau
+formulaire Patrimoine) ; `frontend/src/app/bailleur/dashboard/dashboard.component.spec.ts`
+(nouveaux tests + correction du test Bien existant) ; `DSG-001.md` (adoption étendue `lt-form-field`,
+compteurs de tests, statut Lot 3).
+
+**Ce que cette implémentation n'autorise pas** : aucune extension au-delà du formulaire
+Patrimoine — le reste du dashboard Gestionnaire relève d'un Lot ultérieur. Les quatre écrans
+autorisés par le périmètre restreint du Lot 3 (liste Biens, liste Patrimoines, formulaire Bien,
+formulaire Patrimoine) sont désormais tous migrés.
+
+**Prochaine action autorisée** : le Product Owner statue sur la suite — le périmètre restreint du
+Lot 3 (Patrimoines/Biens) étant maintenant intégralement couvert, toute extension (autres
+sections du dashboard Bailleur, dashboard Gestionnaire, ou Lots 4-6) nécessite une nouvelle
+instruction de Gate 04A/02A, conformément à `gate-04A-decision-ep17-lot3.md` §5 et au principe
+« aucun code applicatif sans Plan d'Exécution approuvé » (`CLAUDE.md`). Les 2 contrôles
+`CHECK-UX-01` (Responsive, Cohérence multi-écrans) restent « Non exécuté » et devront produire
+leurs preuves avant toute clôture du Lot 3.
