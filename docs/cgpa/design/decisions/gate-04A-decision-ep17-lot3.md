@@ -1,0 +1,106 @@
+# Décision GO / NO GO CGPA v6.1.1 — Gate 04A, instance EP-17 Lot 3 (Pilote Angular — dashboard Bailleur)
+
+> Instance du gabarit `docs/cgpa/templates/go-no-go.md`, même principe que
+> `gate-04A-decision-ep17-lot2.md`. Le Lot 2 (`US-132`, Composants transverses) est mergé et validé
+> Product Owner (GO sous réserve, 2026-08-02). Cette instance statue sur le périmètre **Lot 3**
+> (`plan-execution-ux-ui-primeng-keycloak.md` §3 « Lot 3 — Pilote Angular » ;
+> `addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`, `US-133`/`US-134`, 13 points). **La
+> section 6 est volontairement laissée non renseignée par Claude Code** — seul le Product Owner
+> peut la compléter, conformément à `chief-delivery-officer.md` et `CLAUDE.md`.
+
+## 1. Identification
+
+* ID décision : `GATE-04A-EP17-LOT3-2026-08-02`
+* Projet : LoyerTracker
+* Gate ou jalon évalué : Gate 04A — Design Readiness (`docs/cgpa/gates/gate-04A-design-readiness.md`)
+* Phase : Phase 04A, périmètre EP-17 Lot 3 (Pilote Angular), après Lot 2 livré et validé
+* Environnement source et cible : Aucun à ce stade — documentaire ; le Lot 3 lui-même vise un
+  déploiement effectif (premier écran métier réel touché, `BailleurDashboardComponent`)
+* Artefact, version, commit ou digest : `feat/us-132-composants-transverses` `d8c18c8` (US-132
+  validée GO sous réserve) ; `CHECK-UX-01-ep17-ui-foundation.md` et
+  `CHECK-FRONTEND-01-ep17-ui-foundation.md` (notes de mise à jour 2026-08-02) ;
+  `design-debt-register-loyertracker.md` (DD-EP17-04/05 partiellement traités, 2026-08-02)
+* Date : 2026-08-02
+* Décision précédente référencée : `gate-04A-decision-ep17-lot2.md` (GO sous réserve, Lot 2,
+  2026-08-01) — périmètre épuisé par la livraison et la validation du Lot 2 (2026-08-02)
+
+## 2. Périmètre et applicabilité
+
+* Contrôles applicables : les mêmes 16 critères bloquants de `gate-04A-design-readiness.md` (13
+  via `CHECK-UX-01`, 8 via `CHECK-FRONTEND-01`), réévalués après livraison du Lot 2. **Différence
+  structurelle majeure avec le Lot 2** : le Lot 3 n'est plus un développement isolé — il intègre
+  des composants `lt-*` dans un écran métier réel, en production potentielle, affichant des
+  données financières réelles (loyers, paiements, garanties, honoraires visibles sur le dashboard
+  Bailleur). Le raisonnement « structurellement impossible à satisfaire avant ce Lot » qui
+  justifiait le GO sous réserve du Lot 2 s'applique encore aux deux derniers contrôles bloquants
+  (Responsive, Cohérence multi-écrans — cf. `CHECK-UX-01-ep17-ui-foundation.md`, note 2026-08-02),
+  mais la nature du risque change : une erreur ici touche un écran déjà utilisé, pas un composant
+  isolé et hors production.
+* Applicabilité `CHECK-FIN-01` (Financial Governance) : le dashboard Bailleur affiche des données
+  financières (paiements, garanties, honoraires). `financial-governance-status-loyertracker.md`
+  rend `CHECK-FIN-01` obligatoire pour « tout changement significatif touchant des valeurs
+  monétaires ». Le périmètre de `US-133`/`US-134`, tel que défini par son critère GWT (« non-
+  régression fonctionnelle complète … aucune donnée financière masquée »), est une **migration de
+  présentation** (substitution de composants `lt-*` à du HTML/CSS existant), pas un changement de
+  calcul, de ledger ni de logique financière backend. **`CHECK-FIN-01` jugé non applicable à ce
+  stade, sous cette seule condition** : si le périmètre réel dépasse la présentation (toute
+  modification de calcul, d'arrondi, de devise ou de logique de solde), `CHECK-FIN-01` devient
+  obligatoire avant merge — condition d'invalidation explicite au §6.
+* Contrôles non exécutés (recalculé après notes de mise à jour du 2026-08-02) :
+  * `CHECK-UX-01` : Responsive, Cohérence multi-écrans (2 contrôles bloquants restants ;
+    Performance UX/perçue, non bloquant, reste également Non exécuté).
+  * `CHECK-FRONTEND-01` : 0 contrôle « Non exécuté » — le dernier (tests composant/a11y/responsive)
+    est reclassé « Préparation en cours » (volet responsive toujours absent).
+  * Les deux contrôles bloquants restants nécessitent un écran réel intégrant les composants —
+    exactement l'objet du Lot 3.
+
+## 3. Preuves et résultats
+
+| Contrôle | Résultat | Preuve | Criticité | Validité |
+| --- | --- | --- | --- | --- |
+| `CHECK-UX-01` (13 contrôles) | 4 PASS, 6 Préparation en cours, 3 Non exécuté (2 bloquants) | Note de mise à jour 2026-08-02 | Bloquant | 2026-08-02 |
+| `CHECK-FRONTEND-01` (8 contrôles) | 2 PASS, 6 Préparation en cours, 0 Non exécuté | Note de mise à jour 2026-08-02 | Bloquant | 2026-08-02 |
+| Livraison et validation effective du Lot 2 | 8 composants `lt-*` + service Toast, 133/133 tests, `lt-confirm-dialog` testé en navigateur réel (5/6 exigences `DDS-LT-005`) | PR #338 mergée, `docs/project-state.md` (décision GO sous réserve, 2026-08-02) | Bloquant (préalable) | 2026-08-02 |
+| Confirmation Product Owner du périmètre exact du pilote | **Non obtenue** — dépendance explicite de `US-133` (« confirmation PO du périmètre exact du pilote ») et de `plan-execution-ux-ui-primeng-keycloak.md` §3 (« le pilote exact doit être confirmé … avant exécution ») | `addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`, `plan-execution-ux-ui-primeng-keycloak.md` §3 | Bloquant | — |
+| Validation Product Owner — décision Gate 04A Lot 3 elle-même | **Objet de cette instance** — non obtenue au moment de la rédaction | §6 | Bloquant | — |
+
+## 4. Bloqueurs et réserves
+
+| ID | Type | Impact | Autorité d'acceptation | Responsable | Échéance | Preuve attendue | Statut |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| — (périmètre exact du pilote non confirmé) | Bloqueur structurel, nouveau | Sans ce choix, aucune maquette, parcours ni découpage de migration ne peut être produit pour Lot 3 — `US-133` ne peut pas démarrer | Product Owner | Product Owner | Avant tout développement Lot 3 | Décision Product Owner tracée : sections du dashboard Bailleur concernées, ordre de migration, périmètre `US-134` (Biens/Patrimoines) inclus ou différé | **Ouvert — objet même de cette instruction, distinct du §6** |
+| — (composants `lt-*` non intégrés à un écran réel) | Bloqueur structurel | 2 contrôles `CHECK-UX-01` (Responsive, Cohérence multi-écrans) restent « Non exécuté » faute d'écran réel | Product Owner | Design Architect, Frontend Architect | Au fil du Lot 3 | Dashboard Bailleur (ou sections confirmées) migré, testé responsive à au moins 2 breakpoints (`DSG-001.md` §Responsive Rules), cohérence vérifiée entre sections migrées et non migrées | Ouvert — objet même du Lot 3 |
+| DD-611-02 | Réserve | Dette registre non close (preuve d'implémentation `lt-*` en écran réel requise) | Product Owner | Design Architect | — | Composants adoptés dans un écran métier | Ouvert — composants livrés (Lot 2), adoption reste à faire (Lot 3) |
+| DD-611-03 | Réserve | Preuves de test par Story structurellement partielles (tests composant Lot 2 obtenus, tests d'intégration écran manquants) | Product Owner | Frontend Architect | — | Tests unitaires/a11y/responsive par écran migré | Ouvert |
+| DD-EP17-04 | Réserve, échéance Lot 2, partiellement traitée | `lt-data-table` livré mais non adopté par les 4 composants dupliqués existants | Product Owner | Frontend Architect | Lot 3 | Adoption réelle dans au moins un composant migré | Ouvert — adoption relève de ce Lot |
+| DD-EP17-05 | Réserve, Majeur, partiellement traitée | Test dédié exécuté (5/6 exigences `DDS-LT-005`), mais aucun dialogue modal encore en Production | Product Owner | Design Architect | Avant tout dialogue modal en Production | Intégration réelle de `lt-confirm-dialog` dans un flux (ex. suppression) avec test de non-régression | Ouvert — devient pertinent si le Lot 3 introduit une action destructive/irréversible |
+| DD-EP17-06 | Réserve, Mineur | Tokens `--lt-space-*` définis mais non adoptés | Product Owner | Design Architect | — | Adoption réelle dans les sections migrées | Ouvert |
+| — (données financières affichées) | Réserve, Financial Governance | Dashboard Bailleur affiche loyers/paiements/garanties/honoraires — critère GWT `US-133` (« aucune donnée financière masquée ») | Product Owner | Frontend Architect | Chaque section migrée | Diff visuel/fonctionnel démontrant l'absence de perte d'affichage de donnée financière | Ouvert — condition de non-régression, pas un contrôle `CHECK-FIN-01` (cf. §2) sauf extension de périmètre |
+
+## 5. Avis spécialisés
+
+| Agent | Avis | Réserves |
+| --- | --- | --- |
+| Design Architect (Claude Code, désigné 2026-07-30, limite d'indépendance tracée) | **GO sous réserve stricte** — les fondations (tokens, thème, architecture SCSS, 8 composants testés) sont solides et réduisent le risque d'implémentation ; les 2 derniers contrôles bloquants (Responsive, Cohérence multi-écrans) sont structurellement liés à l'exécution du Lot 3 lui-même, comme au Lot 2 | La différence de risque avec le Lot 2 (écran réel, données financières réelles) justifie une exécution **section par section**, pas une migration globale du dashboard en un seul changement — chaque section migrée devrait faire l'objet d'une Visual Review et d'un test de non-régression avant la section suivante |
+| Frontend Architect (Claude Code, désigné 2026-07-31, limite d'indépendance tracée) | **GO sous réserve stricte** — l'architecture par domaines et le lazy loading existants absorbent le changement sans réécriture ; `lt-data-table`/`lt-form-field` sont testés isolément mais jamais encore exercés contre un flux CRUD réel (biens/patrimoines/baux) | Recommande qu'`US-133` démarre par la section à plus faible risque du dashboard (ex. une liste en lecture seule) avant toute section avec action destructive, pour valider le pattern avant extension |
+
+* Aucun des deux rôles désignés n'a produit d'avis complet réinstruit spécifiquement contre le
+  périmètre détaillé de `US-133`/`US-134` (dépendant lui-même du choix de périmètre non encore
+  confirmé, §4) — avis de principe fondé sur l'état factuel connu à ce jour. Une ré-instruction
+  complète, une fois le périmètre exact confirmé par le Product Owner, reste recommandée.
+* Décision spécialisée Release Manager, si applicable : Non applicable à ce stade — la question se
+  posera au premier artefact candidat à une release incluant ce pilote.
+
+## 6. Décision finale
+
+* Décision du CGPA Chief Delivery Officer :
+* Justification :
+* Validité :
+* Conditions d'invalidation :
+* Prochaine action autorisée :
+
+## 7. Traçabilité
+
+* Mise à jour `/docs/project-state.md` : entrée d'instruction ajoutée le 2026-08-02.
+* Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
+* Date de validation humaine : —

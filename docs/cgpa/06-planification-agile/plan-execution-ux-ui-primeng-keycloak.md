@@ -107,6 +107,14 @@ Patrimoines/Biens, détail d'un bien, tableau des paiements ou échéances. **Le
 être confirmé par le Product Owner avant exécution** — ce Plan ne le fige pas au-delà de la
 recommandation.
 
+* Gate 02A/Gate 04A : **instruits le 2026-08-02** (`gate-02A-decision-ep17-lot3.md`,
+  `gate-04A-decision-ep17-lot3.md`), décision Product Owner attendue en §6 de chaque instance.
+  Différence structurelle avec les Lots 1/2 : premier écran métier réel touché
+  (`BailleurDashboardComponent`), avis UX/UI Design Lead proposé **NO GO en l'état** (maquettes et
+  parcours ciblés manquants), avis Design/Frontend Architect proposé **GO sous réserve stricte**
+  (migration section par section). Bloqueur partagé aux deux instances : confirmation Product
+  Owner du périmètre exact du pilote, non encore obtenue.
+
 ### Lot 4 — Pilote Keycloak
 
 Écrans à préparer puis implémenter (login, mot de passe oublié, reset password, invitation,

@@ -134,3 +134,24 @@ objet du Lot 2). Conformément à la règle d'agrégation 2, le résultat agrég
 l'état)** pour un Gate 04A global EP-17 complet, motif réduit à ce seul contrôle — sans préjuger
 d'un GO sous réserve limité au Lot 2 (`gate-04A-decision-ep17-lot2.md`). Contenu de l'avis
 d'origine non réécrit, conformément à la préservation des décisions historiques (`CLAUDE.md`).
+
+## Note de mise à jour (2026-08-02, postérieure à cet avis) — Lot 2 livré
+
+Le Lot 2 (`US-132`) est mergé — 8 composants `lt-*` + service Toast, 133/133 tests (100 existants +
+33 nouveaux), `ng lint` propre. Une ligne évolue :
+
+* **« Component, accessibility et responsive tests »** (notait « aucun framework/seuil défini ») :
+  un test unitaire par composant est désormais produit (Karma/Jasmine, framework déjà en usage),
+  ainsi qu'un test d'accessibilité réel en navigateur pour `lt-confirm-dialog` (5/6 exigences
+  `DDS-LT-005`, cf. note `CHECK-UX-01-ep17-ui-foundation.md` du même jour). Aucun test responsive
+  n'existe — les composants n'étant intégrés à aucun écran, il n'y a pas encore de layout réel à
+  tester à différents breakpoints. Reclassée **Préparation en cours** — tests unitaires et a11y
+  réels obtenus, volet responsive structurellement absent tant qu'aucun écran métier n'est couvert.
+
+**Décompte recalculé** : sur 8 contrôles, **2 PASS** (Architecture CSS/SCSS, Mapping DSG et
+tokens), **6 « Préparation en cours »** (dont Component/accessibility/responsive tests, reclassée),
+**0 « Non exécuté »**, **0 FAIL**. Conformément à la règle d'agrégation 2, le résultat agrégé reste
+**NO GO (en l'état)** pour un Gate 04A global EP-17 complet — aucun contrôle bloquant n'atteint
+encore PASS, la preuve responsive restant structurellement dépendante d'un écran réel, objet du
+Lot 3 (`gate-04A-decision-ep17-lot3.md`). Contenu de l'avis d'origine non réécrit, conformément à
+la préservation des décisions historiques (`CLAUDE.md`).

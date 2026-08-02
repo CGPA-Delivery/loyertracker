@@ -4309,3 +4309,59 @@ métier existant — relève d'une nouvelle instruction de Gate pour le Lot 3, d
 **Prochaine action autorisée** : une nouvelle instruction de Gate (04A/02A) peut être émise pour le
 Lot 3 (Pilote Angular — premiers écrans métier réels), conformément au principe déjà appliqué aux
 Lots 1 et 2.
+
+### Nouvelle instruction Gate 04A/Gate 02A — Lot 3 (2026-08-02) — décision Product Owner attendue
+
+**Instruction explicite reçue** : « Instruire le Gate 04A/02A pour le Lot 3 ». Le Lot 2 étant
+livré et validé (`US-132`, GO sous réserve, 2026-08-02), deux nouvelles instances sont produites
+pour le périmètre Lot 3 (Pilote Angular, `US-133`/`US-134`, 13 points) —
+`gate-04A-decision-ep17-lot3.md` et `gate-02A-decision-ep17-lot3.md`.
+
+**Mises à jour de cohérence apportées avant instruction** (reflètent l'évidence Lot 2 réellement
+livrée) :
+* `CHECK-UX-01-ep17-ui-foundation.md` : 2 contrôles reclassés PASS (Composants et variantes, États
+  erreur/vide/chargement), 1 reclassé Préparation en cours (Accessibilité — test réel sur
+  `lt-confirm-dialog`, 5/6 exigences `DDS-LT-005`). Recompte : 4 PASS, 6 Préparation en cours,
+  3 Non exécuté (2 bloquants : Responsive, Cohérence multi-écrans — sur 13).
+* `CHECK-FRONTEND-01-ep17-ui-foundation.md` : dernier contrôle Non exécuté reclassé Préparation en
+  cours (tests composant/a11y réels obtenus, volet responsive toujours absent). Recompte : 2 PASS,
+  6 Préparation en cours, 0 Non exécuté (sur 8).
+* `design-debt-register-loyertracker.md` : `DD-EP17-04` (lt-data-table livré, non adopté) et
+  `DD-EP17-05` (test dédié exécuté, 5/6 exigences, aucun dialogue encore en Production) marqués
+  « Partiellement traité ». Tous deux restent Ouverts.
+
+**Différence structurelle avec les instances Lot 1/Lot 2** : le Lot 3 introduit le **premier écran
+métier réel** du périmètre EP-17 (`BailleurDashboardComponent`, données financières affichées).
+Contrairement aux instances précédentes, la majorité des critères Gate 02A ne peuvent plus être
+jugés « sans matière nouvelle » :
+* `gate-04A-decision-ep17-lot3.md` : les 2 derniers contrôles bloquants `CHECK-UX-01` (Responsive,
+  Cohérence multi-écrans) restent structurellement liés à l'exécution du Lot 3 — même
+  raisonnement qu'aux Lots précédents. Avis Design/Frontend Architect proposé : **GO sous réserve
+  stricte**, migration section par section (pas de migration globale en un seul changement).
+  Applicabilité `CHECK-FIN-01` (Financial Governance) examinée : jugée non applicable pour une
+  migration de pure présentation, sous condition explicite d'invalidation si le périmètre touche
+  un jour le calcul/l'arrondi/la devise.
+* `gate-02A-decision-ep17-lot3.md` : sur les 11 critères, 4 portent une **lacune réelle** pour ce
+  périmètre (parcours utilisateurs CRUD biens/patrimoines/baux non documentés, cas nominaux/erreur
+  non mappés au réel, et surtout **aucune maquette** des sections à migrer). Avis UX/UI Design Lead
+  proposé : **NO GO en l'état** — recommande confirmation du périmètre, production d'au moins une
+  maquette basse fidélité par section et d'un parcours écrit avant toute instruction
+  complémentaire.
+* **Bloqueur partagé aux deux instances, distinct de la décision de Gate elle-même** : la
+  confirmation par le Product Owner du périmètre exact du pilote reste non obtenue — dépendance
+  déjà explicite dans `US-133` et `plan-execution-ux-ui-primeng-keycloak.md` §3 (« le pilote exact
+  doit être confirmé … avant exécution »). Sans cette confirmation, ni maquette ni parcours ciblé
+  ne peuvent être produits.
+
+**Documents modifiés** : `gate-04A-decision-ep17-lot3.md`, `gate-02A-decision-ep17-lot3.md`
+(nouveaux, §6 volontairement laissée vide) ; `CHECK-UX-01-ep17-ui-foundation.md`,
+`CHECK-FRONTEND-01-ep17-ui-foundation.md`, `design-debt-register-loyertracker.md` (notes de mise à
+jour 2026-08-02) ; `plan-execution-ux-ui-primeng-keycloak.md` §3 Lot 3 (note ajoutée référençant
+les deux instances).
+
+**Prochaine action autorisée** : le Product Owner statue sur `gate-04A-decision-ep17-lot3.md` §6 et
+`gate-02A-decision-ep17-lot3.md` §6 (GO / GO sous réserve / NO GO). Compte tenu de l'avis NO GO en
+l'état du Gate 02A, une décision distincte et préalable est recommandée : confirmer le périmètre
+exact du pilote (sections du dashboard Bailleur concernées, inclusion ou non d'`US-134`), condition
+nécessaire avant que les lacunes identifiées (maquettes, parcours) puissent être comblées. Aucun
+développement du Lot 3 ne peut démarrer avant ces décisions, conformément au verrou `CLAUDE.md`.
