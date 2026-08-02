@@ -4279,3 +4279,33 @@ ciblé, aucun autre fichier ni composant concerné).
 
 **Prochaine action autorisée** : inchangée — le Product Owner peut valider `US-132`, désormais avec
 CI intégralement verte sur la PR #338.
+
+### Décision Product Owner — US-132 GO sous réserve, Lot 2 clos fonctionnellement (2026-08-02)
+
+**Décision Product Owner explicite** : « GO sous réserve ». Rendue sur la base de la CI
+intégralement verte de la PR #338 (`Frontend`, `Backend`, `CodeQL` java-kotlin/javascript-typescript,
+`Sécurité` gitleaks/SCA/Trivy, `structural-audit`, `Build/scan/SBOM Docker`, `Quarantaine GHCR`,
+`Détection changements images`), après correctif du Quality Gate SonarQube (commit `26d384f`,
+`S3358` sur `lt-form-field`).
+
+**Portée** : validation de `US-132` (8 composants transverses + service Toast, Lot 2 EP-17),
+développés et testés isolément, sans intégration à un écran métier — cohérent avec le périmètre
+strict autorisé par `gate-04A-decision-ep17-lot2.md` et `gate-02A-decision-ep17-lot2.md`
+(GO sous réserve, 2026-08-01).
+
+**Réserves continues (non neutralisées par cette validation)** : les 6 contrôles `CHECK-UX-01` et
+1 `CHECK-FRONTEND-01` restés « Non exécuté » doivent toujours produire leurs preuves
+d'implémentation au fil des Lots suivants — non substituables par de la documentation.
+`DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-05` (focus-trap/restitution de focus
+`lt-confirm-dialog`) et `DD-EP17-06` (spacing, partiellement traité) restent ouverts.
+
+**Effet** : `US-132` est validée sous réserve. Le Lot 2 (Composants transverses) est désormais
+**fonctionnellement terminé et validé** (8/8 points), conformément à « chaque lot reste un point de
+contrôle GO/NO GO distinct ».
+
+**Ce que cette validation n'autorise pas** : aucune intégration de composant `lt-*` dans un écran
+métier existant — relève d'une nouvelle instruction de Gate pour le Lot 3, distincte de celle-ci.
+
+**Prochaine action autorisée** : une nouvelle instruction de Gate (04A/02A) peut être émise pour le
+Lot 3 (Pilote Angular — premiers écrans métier réels), conformément au principe déjà appliqué aux
+Lots 1 et 2.
