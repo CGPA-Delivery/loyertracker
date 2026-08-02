@@ -55,6 +55,93 @@ describe('BailleurDashboardComponent', () => {
     http.verify();
   });
 
+  describe('EP-17 Lot 3 — liste des biens via lt-data-table', () => {
+    it('affiche adresse/type/statut (badge coloré) et sélectionne un bien au clic', () => {
+      const cmp = fixture.componentInstance;
+      cmp.chargerBiens();
+      http.expectOne('/api/biens').flush([
+        { id: 'bien-1', adresse: '12 rue des Lilas', type: 'APPARTEMENT', statut: 'LIBRE', patrimoineId: 'patrimoine-1' },
+      ]);
+      fixture.detectChanges();
+
+      const table = fixture.nativeElement.querySelector('lt-data-table');
+      expect(table).not.toBeNull();
+      expect(table.textContent).toContain('12 rue des Lilas');
+      expect(table.textContent).toContain('APPARTEMENT');
+      const tag = table.querySelector('lt-status-tag');
+      expect(tag.textContent.trim()).toBe('LIBRE');
+      expect(tag.querySelector('.p-tag-success')).not.toBeNull();
+
+      const tr = table.querySelector('tbody tr') as HTMLElement;
+      expect(tr.getAttribute('role')).toBe('button');
+      tr.click();
+
+      expect(cmp.bienSelectionne()?.id).toBe('bien-1');
+      http.expectOne('/api/biens/bien-1/baux').flush([]);
+      http.expectOne('/api/biens/bien-1/affectations').flush([]);
+    });
+
+    it("affiche l'erreur de chargement des biens dans lt-data-table sans bloquer le reste du tableau de bord", () => {
+      const cmp = fixture.componentInstance;
+      cmp.chargerBiens();
+      http.expectOne('/api/biens').flush('indisponible', { status: 500, statusText: 'Server Error' });
+      fixture.detectChanges();
+
+      expect(cmp.biensErreur()).toContain('500');
+      const error = fixture.nativeElement.querySelector('lt-data-table .error');
+      expect(error).not.toBeNull();
+      expect(error.getAttribute('role')).toBe('alert');
+    });
+  });
+
+  describe('EP-17 Lot 3 — liste des patrimoines via lt-data-table', () => {
+    it('affiche nom/adresse/statut (badge coloré) du patrimoine chargé au démarrage', () => {
+      fixture.detectChanges();
+
+      const tables = fixture.nativeElement.querySelectorAll('lt-data-table');
+      const table = tables[1] as HTMLElement; // 0 = Biens, 1 = Patrimoines
+      expect(table.textContent).toContain('Patrimoine principal');
+      expect(table.textContent).toContain('1 rue Test');
+      const tag = table.querySelector('lt-status-tag');
+      expect(tag?.textContent?.trim()).toBe('ACTIF');
+      expect(tag?.querySelector('.p-tag-success')).not.toBeNull();
+    });
+
+    it("affiche l'erreur de rechargement des patrimoines dans lt-data-table sans bloquer le reste du tableau de bord", () => {
+      const cmp = fixture.componentInstance;
+      cmp.selectionnerPatrimoineModif('patrimoine-1');
+      cmp.patrimoineForm.setValue({
+        nom: 'Patrimoine Sud',
+        adresse: '12 rue des Lilas, Paris',
+        ville: 'Paris',
+        commune: null,
+        quartier: null,
+        provinceEtat: null,
+        pays: 'France',
+        description: null,
+        referenceInterne: 'PAT-SUD',
+      });
+
+      cmp.modifierPatrimoine();
+
+      http
+        .expectOne('/api/patrimoines/patrimoine-1')
+        .flush({ id: 'patrimoine-1', nom: 'Patrimoine Sud', adresse: '12 rue des Lilas, Paris', statut: 'ACTIF' });
+
+      // chargerReferentielsBien recharge les référentiels ; listerPatrimoines échoue ici
+      http.expectOne('/api/patrimoines').flush('indisponible', { status: 500, statusText: 'Server Error' });
+      http.expectOne('/api/types-biens').flush([{ code: 'APPARTEMENT', libelle: 'Appartement', actif: true }]);
+      http.expectOne('/api/locataires').flush([]);
+      fixture.detectChanges();
+
+      expect(cmp.patrimoinesErreur()).toContain('500');
+      const tables = fixture.nativeElement.querySelectorAll('lt-data-table');
+      const error = tables[1].querySelector('.error');
+      expect(error).not.toBeNull();
+      expect(error.getAttribute('role')).toBe('alert');
+    });
+  });
+
   it('régression Hotfix 2026-06-24 : le formulaire bien envoie un patrimoineId', () => {
     const cmp = fixture.componentInstance;
     expect(cmp.bienForm.invalid).toBe(true); // patrimoineId vide par défaut → requis

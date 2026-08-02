@@ -121,6 +121,15 @@ bénéficier d'une expérience cohérente sans régression fonctionnelle.
 | Points | 8 |
 | Sprint cible | Lot 3 |
 
+> **Note de confirmation Product Owner (2026-08-02)** : périmètre exact tranché — « sections
+> concernées par le pilote » limité à la section **Patrimoines/Biens** du dashboard Bailleur
+> uniquement (lecture principalement, en cohérence avec `US-134`). Explicitement **hors périmètre
+> de ce Lot 3** : Affectations, Paiements, Garanties, Honoraires, Alertes, Journal d'audit — ces
+> sections restent en l'état, migration différée à un Lot ultérieur, chacun son propre point de
+> contrôle Gate. Décision tracée dans `docs/project-state.md` et
+> `gate-04A-decision-ep17-lot3.md`/`gate-02A-decision-ep17-lot3.md` §4. GWT ci-dessus non réécrit,
+> conformément à la préservation des décisions historiques (`CLAUDE.md`).
+
 ### US-134 — Pilote Biens/Patrimoines
 
 **En tant que** Bailleur, **je veux** que la liste et le détail d'un bien utilisent
@@ -134,6 +143,10 @@ au reste du produit.
 | Priorité | Must |
 | Points | 5 |
 | Sprint cible | Lot 3 |
+
+> **Note de confirmation Product Owner (2026-08-02)** : périmètre inchangé par la confirmation
+> ci-dessus (`US-133`) — cette Story couvrait déjà la section Biens seule, cohérente avec le
+> périmètre restreint retenu pour le Lot 3.
 
 ### US-135 — Thème Keycloak
 

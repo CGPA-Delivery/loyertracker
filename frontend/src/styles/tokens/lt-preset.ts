@@ -18,8 +18,23 @@ import Aura from '@primeuix/themes/aura';
  * Tous les autres tokens sémantiques (formField, list, overlay, navigation, content, mask,
  * highlight…) référencent `{primary.*}`/`{surface.*}`/`{text.*}` par composition — ils héritent
  * automatiquement de ces deux surcharges sans réécriture individuelle.
+ *
+ * `components.tag` (US-132, `lt-status-tag`) : DSG-001.md §Composants exige que le mapping
+ * couleur/statut « ne doit jamais diverger » du vocabulaire déjà normalisé
+ * (`--lt-state-info`/`success`/`warning`/`danger`, texte plat sans fond, patron déjà en place
+ * dans `alertes-liste.component.ts`/`paiements-bien.component.ts`). Aura colore `Tag` par défaut
+ * avec un fond teinté et une famille `orange` pour `warn` (pas `amber`) — surchargé ici pour
+ * pointer exactement vers les mêmes tokens primitifs que la palette DSG et rester sans fond.
  */
 export const LtPreset = definePreset(Aura, {
+  components: {
+    tag: {
+      info: { background: 'transparent', color: '{sky.200}' },
+      success: { background: 'transparent', color: '{green.200}' },
+      warn: { background: 'transparent', color: '{amber.200}' },
+      danger: { background: 'transparent', color: '{red.200}' },
+    },
+  },
   semantic: {
     primary: {
       50: '{sky.50}',

@@ -26,6 +26,7 @@ import { AuditJournalComponent } from '../../audit/audit-journal.component';
 import { GarantiesBailComponent } from '../../garanties/garanties-bail.component';
 import { HonorairesBienComponent } from '../../honoraires/honoraires-bien.component';
 import { PaiementsBienComponent } from '../../paiements/paiements-bien.component';
+import { DataTableComponent, LtDataTableColumn } from '../../shared/data-table/data-table.component';
 import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
 import { BailleurInscriptionService } from '../inscription/bailleur-inscription.service';
 
@@ -40,6 +41,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
     AlertesListeComponent,
     AuditJournalComponent,
     MoneyFormatPipe,
+    DataTableComponent,
   ],
   template: `
     <header class="page-head">
@@ -100,25 +102,16 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
 
       <div class="panel">
         <h2>Biens</h2>
-        @if (biens().length === 0) {
-          <p class="muted">Aucun bien.</p>
-        }
-        <div class="list">
-          @for (bien of biens(); track bien.id) {
-            <button
-              type="button"
-              class="row"
-              [class.selected]="bien.id === bienSelectionne()?.id"
-              (click)="selectionnerBien(bien)"
-            >
-              <span>
-                <strong>{{ bien.adresse }}</strong>
-                <small>{{ bien.type }}</small>
-              </span>
-              <span class="badge">{{ bien.statut }}</span>
-            </button>
-          }
-        </div>
+        <lt-data-table
+          [columns]="colonnesBiens"
+          [rows]="biens()"
+          [loading]="chargement()"
+          [error]="biensErreur()"
+          [selectable]="true"
+          [selectedRow]="bienSelectionne()"
+          (rowClick)="selectionnerBien($event)"
+          emptyMessage="Aucun bien."
+        />
         @if (bienSelectionne()) {
           <button type="button" class="danger" (click)="archiverBien()">Archiver</button>
         }
@@ -179,18 +172,13 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       </form>
       <div class="panel">
         <h2>Patrimoines</h2>
-        @for (p of patrimoinesDisponibles(); track p.id) {
-          <div class="item">
-            <strong>{{ p.nom }}</strong>
-            <span class="muted">{{ p.adresse }}{{ p.ville ? ', ' + p.ville : '' }}{{ p.pays ? ', ' + p.pays : '' }}</span>
-            @if (p.referenceInterne) {
-              <span class="muted">Réf. {{ p.referenceInterne }}</span>
-            }
-            <span class="badge">{{ p.statut }}</span>
-          </div>
-        } @empty {
-          <p class="muted">Aucun patrimoine.</p>
-        }
+        <lt-data-table
+          [columns]="colonnesPatrimoines"
+          [rows]="patrimoinesDisponibles()"
+          [loading]="chargement()"
+          [error]="patrimoinesErreur()"
+          emptyMessage="Aucun patrimoine."
+        />
       </div>
     </section>
 
@@ -536,14 +524,12 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       .toolbar,
       .actions,
       .fields,
-      .row,
       .item {
         display: flex;
         gap: 0.75rem;
       }
       .page-head,
       .toolbar,
-      .row,
       .item {
         align-items: center;
         justify-content: space-between;
@@ -581,17 +567,6 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         padding: 0.5rem;
         background: #0f172a;
         color: #e2e8f0;
-      }
-      .list {
-        display: grid;
-        gap: 0.5rem;
-      }
-      .row {
-        width: 100%;
-        text-align: left;
-      }
-      .selected {
-        border-color: #38bdf8;
       }
       .badge,
       .status {
@@ -639,7 +614,19 @@ export class BailleurDashboardComponent implements OnInit {
   readonly message = signal('Prêt');
   readonly chargement = signal(false);
   readonly biens = signal<Bien[]>([]);
+  readonly biensErreur = signal<string | null>(null);
+  protected readonly colonnesBiens: LtDataTableColumn[] = [
+    { field: 'adresse', header: 'Adresse' },
+    { field: 'type', header: 'Type' },
+    { field: 'statut', header: 'Statut', type: 'status' },
+  ];
   readonly patrimoines = signal<Patrimoine[]>([]);
+  readonly patrimoinesErreur = signal<string | null>(null);
+  protected readonly colonnesPatrimoines: LtDataTableColumn[] = [
+    { field: 'nom', header: 'Nom' },
+    { field: 'adresse', header: 'Adresse' },
+    { field: 'statut', header: 'Statut', type: 'status' },
+  ];
   readonly typesBiens = signal<TypeBien[]>([]);
   readonly patrimoinesDisponibles = computed(() => {
     const selectionne = this.bienSelectionne()?.patrimoineId;
@@ -764,10 +751,15 @@ export class BailleurDashboardComponent implements OnInit {
   }
 
   private chargerReferentielsBien(): void {
+    this.patrimoinesErreur.set(null);
     this.api.listerPatrimoines().subscribe({
       next: (patrimoines) => {
         this.patrimoines.set(patrimoines);
         this.chargerAffectationsPatrimoine(patrimoines);
+      },
+      error: (err: unknown) => {
+        this.patrimoinesErreur.set(this.erreurDetail(err));
+        this.signalerErreur(err);
       },
     });
     this.api.listerTypesBiens().subscribe({ next: (typesBiens) => this.typesBiens.set(typesBiens) });
@@ -817,6 +809,7 @@ export class BailleurDashboardComponent implements OnInit {
   }
 
   chargerBiens(): void {
+    this.biensErreur.set(null);
     this.executer('Chargement des biens', () =>
       this.api.listerBiens().subscribe({
         next: (biens) => {
@@ -827,7 +820,10 @@ export class BailleurDashboardComponent implements OnInit {
             this.reinitialiserBien();
           }
         },
-        error: (err: unknown) => this.signalerErreur(err),
+        error: (err: unknown) => {
+          this.biensErreur.set(this.erreurDetail(err));
+          this.signalerErreur(err);
+        },
         complete: () => this.chargement.set(false),
       }),
     );
@@ -1164,14 +1160,16 @@ export class BailleurDashboardComponent implements OnInit {
     action();
   }
 
-  private signalerErreur(err: unknown): void {
+  private erreurDetail(err: unknown): string {
     if (err instanceof HttpErrorResponse) {
       const detail = err.status === 409 ? 'conflit métier' : err.status === 403 ? 'accès refusé' : 'erreur API';
-      this.message.set(`${detail} (${err.status})`);
-      this.chargement.set(false);
-      return;
+      return `${detail} (${err.status})`;
     }
-    this.message.set('erreur inconnue');
+    return 'erreur inconnue';
+  }
+
+  private signalerErreur(err: unknown): void {
+    this.message.set(this.erreurDetail(err));
     this.chargement.set(false);
   }
 }

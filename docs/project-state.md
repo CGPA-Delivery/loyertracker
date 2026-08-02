@@ -4206,3 +4206,417 @@ nouvelle entrée datée).
 **Prochaine action autorisée** : le développement du Lot 2 peut être instruit, composant par
 composant, sous réserve continue des preuves de test/implémentation attendues par le Gate 04A
 Lot 2.
+
+### US-132 démarrée — Composants transverses (2026-08-01)
+
+**Instruction explicite reçue** : « Start US-132 ». Unique User Story du Lot 2
+(`addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`, 8 points).
+
+**8 composants + 1 service implémentés, isolément** (`frontend/src/app/shared/{page-header,
+stat-card,status-tag,empty-state,form-field,data-table,confirm-dialog,toast}/`) : `lt-page-header`,
+`lt-stat-card`, `lt-status-tag` (+ `severityForStatut()`, vocabulaire paiements/alertes déjà
+vérifié dans le code), `lt-empty-state`, `lt-form-field` (association label/erreur/aide via
+`exportAs`), `lt-data-table` (états vide/erreur, sans tri/filtre/pagination — aucun besoin ≥ 2
+écrans confirmé), `lt-confirm-dialog` + `LtConfirmDialogService`, `lt-toast` +
+`LtToastService`. Aucun composant intégré à un écran métier (« sans intégration dans un écran
+métier existant », Plan d'Exécution §3 Lot 2).
+
+**Constat de test notable — `lt-confirm-dialog` (`DDS-LT-005`)** : `DDS-LT-005` supposait que
+`p-confirmdialog` (PrimeNG) gérait nativement le focus-trap **et** la restitution du focus au
+déclencheur. Un test réel en navigateur (Chrome Headless, pas une simulation) a confirmé le
+focus-trap natif mais montré que **la restitution du focus n'est pas native** — sans intervention,
+le focus retombe sur `<body>` à la fermeture. Corrigé explicitement dans `ConfirmDialogComponent`
+(capture du déclencheur dans `LtConfirmDialogService.confirm()`, restitution sur `(onHide)`),
+revérifié par test. C'est exactement le type d'écart qu'un test réel (plutôt qu'une confiance dans
+la documentation de la librairie) est censé détecter — la revue mérite d'être signalée telle
+quelle plutôt que silencieusement corrigée sans trace.
+
+**Vérification** : 133/133 tests (100 existants + 33 nouveaux), `ng lint` propre (règle
+`@angular-eslint/component-selector` étendue pour accepter le préfixe `lt-` en plus de `app-`,
+conforme à `DSG-001.md` §Naming Convention), `ng build` réussi (`514,30 kB`, stable — les
+composants non intégrés sont exclus du bundle par tree-shaking, aucune régression de budget).
+
+**Documents modifiés** : `frontend/src/app/shared/{page-header,stat-card,status-tag,empty-state,
+form-field,data-table,confirm-dialog,toast}/*.ts` (nouveaux) ; `frontend/eslint.config.js`
+(préfixe `lt-` autorisé) ; `DSG-001.md` (§Composants LoyerTracker candidats, §Component Mapping
+(Angular), statut Gouvernance).
+
+**Ce que cette implémentation n'autorise pas** : aucun écran métier n'est migré, aucun composant
+n'est adopté dans le code applicatif existant (relève des Lots 3+, écran par écran).
+
+**Prochaine action autorisée** : le Product Owner peut valider `US-132` ; avec elle, le Lot 2 est
+fonctionnellement terminé (8/8 points). La prochaine étape structurante est une nouvelle
+instruction de Gate pour le Lot 3 (Pilote Angular — premiers écrans métier réels), conformément à
+« chaque lot reste un point de contrôle GO/NO GO distinct ».
+
+### Correctif CI — Quality Gate SonarQube, PR #338/US-132 (2026-08-02)
+
+**Constat** : le check requis `Frontend (build + tests)` de la PR #338
+(`feat/us-132-composants-transverses`) échouait — build Angular et 133/133 tests au vert, mais le
+scanner SonarQube retournait `QUALITY GATE STATUS: FAILED` (exit code 3). Vérification directe sur
+l'instance réelle `sonar.loyerpro.org` (`sonarqube-instance-et-prevalidation`, pré-validation des
+Quality Gates) : la condition `new_violations > 0` était en défaut (1 violation), couverture
+(97,9 %) et duplication (0,0 %) conformes. Sur les 15 issues remontées en période de référence
+(leak period depuis 2026-07-03), une seule datait de ce commit (`d9cbbda`) — les 14 autres,
+antérieures, sont hors périmètre du Quality Gate en new-code.
+
+**Violation bloquante** : `typescript:S3358` (MAJOR, « Extract this nested ternary operation into
+an independent statement ») dans `lt-form-field`
+(`frontend/src/app/shared/form-field/form-field.component.ts:66`), composant livré par `US-132`.
+
+**Correctif appliqué** : `describedBy` réécrit avec un `if`/`return` explicite au lieu du ternaire
+imbriqué, comportement strictement identique (priorité erreur > aide > rien). Vérifié par test réel
+(133/133 tests, dont les 6 tests dédiés `lt-form-field`), `ng build` (bundle stable, `514,30 kB`),
+`npx eslint` propre. Commit `26d384f` poussé sur `feat/us-132-composants-transverses`.
+
+**Vérification post-push** : les 11 checks requis de la PR #338 sont `pass` (Frontend, Backend,
+CodeQL java-kotlin/javascript-typescript, Sécurité gitleaks/SCA/Trivy, structural-audit,
+Quarantaine GHCR, Détection changements images, Build/scan/SBOM Docker) ; `Publication, signatures
+et attestations` en `skipping` (normal hors merge/tag).
+
+**Documents modifiés** : `frontend/src/app/shared/form-field/form-field.component.ts` (correctif
+ciblé, aucun autre fichier ni composant concerné).
+
+**Prochaine action autorisée** : inchangée — le Product Owner peut valider `US-132`, désormais avec
+CI intégralement verte sur la PR #338.
+
+### Décision Product Owner — US-132 GO sous réserve, Lot 2 clos fonctionnellement (2026-08-02)
+
+**Décision Product Owner explicite** : « GO sous réserve ». Rendue sur la base de la CI
+intégralement verte de la PR #338 (`Frontend`, `Backend`, `CodeQL` java-kotlin/javascript-typescript,
+`Sécurité` gitleaks/SCA/Trivy, `structural-audit`, `Build/scan/SBOM Docker`, `Quarantaine GHCR`,
+`Détection changements images`), après correctif du Quality Gate SonarQube (commit `26d384f`,
+`S3358` sur `lt-form-field`).
+
+**Portée** : validation de `US-132` (8 composants transverses + service Toast, Lot 2 EP-17),
+développés et testés isolément, sans intégration à un écran métier — cohérent avec le périmètre
+strict autorisé par `gate-04A-decision-ep17-lot2.md` et `gate-02A-decision-ep17-lot2.md`
+(GO sous réserve, 2026-08-01).
+
+**Réserves continues (non neutralisées par cette validation)** : les 6 contrôles `CHECK-UX-01` et
+1 `CHECK-FRONTEND-01` restés « Non exécuté » doivent toujours produire leurs preuves
+d'implémentation au fil des Lots suivants — non substituables par de la documentation.
+`DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-05` (focus-trap/restitution de focus
+`lt-confirm-dialog`) et `DD-EP17-06` (spacing, partiellement traité) restent ouverts.
+
+**Effet** : `US-132` est validée sous réserve. Le Lot 2 (Composants transverses) est désormais
+**fonctionnellement terminé et validé** (8/8 points), conformément à « chaque lot reste un point de
+contrôle GO/NO GO distinct ».
+
+**Ce que cette validation n'autorise pas** : aucune intégration de composant `lt-*` dans un écran
+métier existant — relève d'une nouvelle instruction de Gate pour le Lot 3, distincte de celle-ci.
+
+**Prochaine action autorisée** : une nouvelle instruction de Gate (04A/02A) peut être émise pour le
+Lot 3 (Pilote Angular — premiers écrans métier réels), conformément au principe déjà appliqué aux
+Lots 1 et 2.
+
+### Nouvelle instruction Gate 04A/Gate 02A — Lot 3 (2026-08-02) — décision Product Owner attendue
+
+**Instruction explicite reçue** : « Instruire le Gate 04A/02A pour le Lot 3 ». Le Lot 2 étant
+livré et validé (`US-132`, GO sous réserve, 2026-08-02), deux nouvelles instances sont produites
+pour le périmètre Lot 3 (Pilote Angular, `US-133`/`US-134`, 13 points) —
+`gate-04A-decision-ep17-lot3.md` et `gate-02A-decision-ep17-lot3.md`.
+
+**Mises à jour de cohérence apportées avant instruction** (reflètent l'évidence Lot 2 réellement
+livrée) :
+* `CHECK-UX-01-ep17-ui-foundation.md` : 2 contrôles reclassés PASS (Composants et variantes, États
+  erreur/vide/chargement), 1 reclassé Préparation en cours (Accessibilité — test réel sur
+  `lt-confirm-dialog`, 5/6 exigences `DDS-LT-005`). Recompte : 4 PASS, 6 Préparation en cours,
+  3 Non exécuté (2 bloquants : Responsive, Cohérence multi-écrans — sur 13).
+* `CHECK-FRONTEND-01-ep17-ui-foundation.md` : dernier contrôle Non exécuté reclassé Préparation en
+  cours (tests composant/a11y réels obtenus, volet responsive toujours absent). Recompte : 2 PASS,
+  6 Préparation en cours, 0 Non exécuté (sur 8).
+* `design-debt-register-loyertracker.md` : `DD-EP17-04` (lt-data-table livré, non adopté) et
+  `DD-EP17-05` (test dédié exécuté, 5/6 exigences, aucun dialogue encore en Production) marqués
+  « Partiellement traité ». Tous deux restent Ouverts.
+
+**Différence structurelle avec les instances Lot 1/Lot 2** : le Lot 3 introduit le **premier écran
+métier réel** du périmètre EP-17 (`BailleurDashboardComponent`, données financières affichées).
+Contrairement aux instances précédentes, la majorité des critères Gate 02A ne peuvent plus être
+jugés « sans matière nouvelle » :
+* `gate-04A-decision-ep17-lot3.md` : les 2 derniers contrôles bloquants `CHECK-UX-01` (Responsive,
+  Cohérence multi-écrans) restent structurellement liés à l'exécution du Lot 3 — même
+  raisonnement qu'aux Lots précédents. Avis Design/Frontend Architect proposé : **GO sous réserve
+  stricte**, migration section par section (pas de migration globale en un seul changement).
+  Applicabilité `CHECK-FIN-01` (Financial Governance) examinée : jugée non applicable pour une
+  migration de pure présentation, sous condition explicite d'invalidation si le périmètre touche
+  un jour le calcul/l'arrondi/la devise.
+* `gate-02A-decision-ep17-lot3.md` : sur les 11 critères, 4 portent une **lacune réelle** pour ce
+  périmètre (parcours utilisateurs CRUD biens/patrimoines/baux non documentés, cas nominaux/erreur
+  non mappés au réel, et surtout **aucune maquette** des sections à migrer). Avis UX/UI Design Lead
+  proposé : **NO GO en l'état** — recommande confirmation du périmètre, production d'au moins une
+  maquette basse fidélité par section et d'un parcours écrit avant toute instruction
+  complémentaire.
+* **Bloqueur partagé aux deux instances, distinct de la décision de Gate elle-même** : la
+  confirmation par le Product Owner du périmètre exact du pilote reste non obtenue — dépendance
+  déjà explicite dans `US-133` et `plan-execution-ux-ui-primeng-keycloak.md` §3 (« le pilote exact
+  doit être confirmé … avant exécution »). Sans cette confirmation, ni maquette ni parcours ciblé
+  ne peuvent être produits.
+
+**Documents modifiés** : `gate-04A-decision-ep17-lot3.md`, `gate-02A-decision-ep17-lot3.md`
+(nouveaux, §6 volontairement laissée vide) ; `CHECK-UX-01-ep17-ui-foundation.md`,
+`CHECK-FRONTEND-01-ep17-ui-foundation.md`, `design-debt-register-loyertracker.md` (notes de mise à
+jour 2026-08-02) ; `plan-execution-ux-ui-primeng-keycloak.md` §3 Lot 3 (note ajoutée référençant
+les deux instances).
+
+**Prochaine action autorisée** : le Product Owner statue sur `gate-04A-decision-ep17-lot3.md` §6 et
+`gate-02A-decision-ep17-lot3.md` §6 (GO / GO sous réserve / NO GO). Compte tenu de l'avis NO GO en
+l'état du Gate 02A, une décision distincte et préalable est recommandée : confirmer le périmètre
+exact du pilote (sections du dashboard Bailleur concernées, inclusion ou non d'`US-134`), condition
+nécessaire avant que les lacunes identifiées (maquettes, parcours) puissent être comblées. Aucun
+développement du Lot 3 ne peut démarrer avant ces décisions, conformément au verrou `CLAUDE.md`.
+
+### Confirmation Product Owner — périmètre du pilote Lot 3 (2026-08-02)
+
+**Décision Product Owner explicite** : « Sections limitées, à faible risque d'abord » — périmètre
+retenu proposé par Claude Code (option recommandée, cohérente avec l'avis Design/Frontend Architect
+`gate-04A-decision-ep17-lot3.md` §5 et l'avis UX/UI Design Lead `gate-02A-decision-ep17-lot3.md` §5).
+
+**Périmètre confirmé** : section **Patrimoines/Biens** du dashboard Bailleur uniquement — `US-134`
+(liste + détail d'un bien via `lt-data-table`/`lt-form-field`, lecture principalement) et `US-133`
+restreinte à cette même section. **Explicitement hors périmètre de ce Lot 3** : Affectations,
+Paiements, Garanties, Honoraires, Alertes, Journal d'audit — ces sections restent en l'état,
+migration différée à un Lot ultérieur, chacun son propre point de contrôle Gate.
+
+**Effet sur les deux instances de Gate** : le bloqueur « périmètre exact du pilote non confirmé »
+est levé dans `gate-04A-decision-ep17-lot3.md` §4 et `gate-02A-decision-ep17-lot3.md` §4. Le
+périmètre restreint neutralise deux réserves devenues sans objet pour ce Lot : `DD-EP17-05`
+(aucun dialogue modal prévu, lecture seule) et la réserve « données financières affichées »
+(Patrimoines/Biens n'affiche pas de montants — loyers/paiements/garanties/honoraires restent dans
+les sections différées). **Persiste une lacune réelle, désormais circonscrite à une seule
+section** : aucune maquette ni parcours écrit n'existe encore pour Patrimoines/Biens — seul
+blocage restant identifié par l'avis UX/UI Design Lead avant qu'un GO sous réserve devienne
+directement défendable.
+
+**Documents modifiés** : `addendum-backlog-ep17-ui-foundation-primeng-keycloak.md` (notes de
+confirmation sous `US-133`/`US-134`) ; `gate-04A-decision-ep17-lot3.md` et
+`gate-02A-decision-ep17-lot3.md` (§2/§3/§4/§5 mis à jour, §6 toujours volontairement vide).
+
+**Prochaine action autorisée** : produire la maquette basse fidélité et le parcours écrit pour
+Patrimoines/Biens (liste → détail) — dernier élément manquant avant que le Product Owner puisse
+statuer sur `gate-02A-decision-ep17-lot3.md` §6 avec un avis UX/UI Design Lead favorable. En
+parallèle, `gate-04A-decision-ep17-lot3.md` §6 reste ouvert à la décision du Product Owner
+(GO sous réserve stricte déjà recommandé par les avis Design/Frontend Architect).
+
+### Production de la maquette et du parcours écrit — Lot 3 Patrimoines/Biens (2026-08-02)
+
+**Instruction explicite reçue** : « Produis-les » (maquette basse fidélité + parcours écrit pour
+Patrimoines/Biens). Deux nouveaux documents produits, fondés sur une lecture directe du code réel
+(`dashboard.component.ts`, Bailleur), pas sur une supposition : `phase-02-user-journeys-ep17-lot3.md`
+(2 parcours : J-Lot3-1 Gérer mes biens, J-Lot3-2 Gérer mes patrimoines) et
+`phase-02-ui-mockups-ep17-lot3.md` (wireframes texte — Biens et Patrimoines, états nominal/
+sélection/vide/erreur, variante responsive, correspondance composants `lt-*`).
+
+**Écart réel détecté en cours de production, signalé plutôt que corrigé silencieusement** : les
+deux instances de Gate (`gate-04A-decision-ep17-lot3.md`, `gate-02A-decision-ep17-lot3.md`) et la
+confirmation de périmètre précédente caractérisaient le pilote comme « lecture principalement »,
+« aucune action destructive ». La lecture directe du code montre que la section Biens porte en
+réalité un **CRUD complet** : formulaire de création/modification, et une action d'archivage réelle
+(« Archiver ce bien »), déjà confirmée aujourd'hui par `globalThis.confirm()` natif du navigateur —
+pas par `lt-confirm-dialog`. Le périmètre fonctionnel migré reste inchangé (aucune donnée
+financière — vérifié sur le modèle réel `Bien`/`Patrimoine`, `s02-api.service.ts` — le loyer est un
+attribut du `Bail`, hors périmètre) ; seule la caractérisation du risque était inexacte. C'est
+exactement le type d'écart que la pratique déjà suivie pour `DDS-LT-005` (US-132) est censée
+détecter — traité de la même manière : corrigé explicitement dans les deux instances de Gate (§3bis
+ajoutée à `gate-02A-decision-ep17-lot3.md`), pas réécrit silencieusement.
+
+**Décision de conception tranchée par ce document** : le mécanisme d'archivage (`confirm()` natif)
+est **délibérément préservé tel quel** dans ce Lot — la migration porte sur la présentation
+(liste → `lt-data-table`, formulaire → `lt-form-field`, statut → `lt-status-tag`), pas sur cette
+logique. Migrer ce `confirm()` vers `lt-confirm-dialog` « en passant » sortirait du périmètre de
+présentation pure et redeviendrait un cas d'usage réel de `DD-EP17-05` (premier dialogue modal en
+Production) — à instruire séparément si souhaité, pas glissé dans cette migration.
+
+**Dette nouvellement identifiée** : `DD-EP17-10` — absence d'état d'erreur explicite au chargement
+des listes Biens/Patrimoines dans le code actuel (aucun état géré au-delà du succès et de la liste
+vide). La migration introduit cet état via `lt-empty-state` (variante erreur, déjà livrée en
+Lot 2) — une amélioration réelle, pas une simple reformulation visuelle, ajoutée au registre de
+dette pour éviter qu'elle passe inaperçue dans la revue de `US-133`/`US-134`.
+
+**Effet sur les Gates** : dans `gate-02A-decision-ep17-lot3.md`, les deux bloqueurs « maquettes
+absentes » et « parcours utilisateurs absents » sont levés ; 7 des 11 critères passent PASS ou
+disposent d'une matière réelle suffisante (contre 3 initialement). **Avis UX/UI Design Lead révisé
+de NO GO en l'état à GO sous réserve** — réserve unique : validation Product Owner explicite des
+deux documents produits, une production par Claude Code ne valant pas à elle seule validation
+humaine indépendante. Dans `gate-04A-decision-ep17-lot3.md`, les avis Design/Frontend Architect
+restent GO sous réserve stricte, avec la précision que le CRUD réel (pas une simple lecture) doit
+être exercé section par section comme prévu, et que le mécanisme d'archivage natif reste hors
+périmètre de migration.
+
+**Documents modifiés** : `phase-02-user-journeys-ep17-lot3.md`, `phase-02-ui-mockups-ep17-lot3.md`
+(nouveaux) ; `design-debt-register-loyertracker.md` (`DD-EP17-10` ajoutée, `DD-EP17-05` précisée) ;
+`gate-04A-decision-ep17-lot3.md` et `gate-02A-decision-ep17-lot3.md` (§3/§3bis/§4/§5 mis à jour,
+§6 toujours volontairement vide).
+
+**Prochaine action autorisée** : le Product Owner peut désormais statuer sur
+`gate-04A-decision-ep17-lot3.md` §6 et `gate-02A-decision-ep17-lot3.md` §6 — les deux avis
+spécialisés recommandent un GO sous réserve (stricte pour le Gate 04A, sous réserve de validation
+explicite des deux nouveaux documents pour le Gate 02A). Le développement du Lot 3 reste
+subordonné à ces deux décisions, conformément au verrou `CLAUDE.md`.
+
+### Décisions Gate 04A/Gate 02A rendues — GO sous réserve, périmètre Lot 3 (2026-08-02)
+
+**Décision Product Owner explicite** : « GO sous réserve pour les deux Gates ». Section 6
+complétée en conséquence dans `gate-04A-decision-ep17-lot3.md` et `gate-02A-decision-ep17-lot3.md`.
+`gate-04A-decision-ep17-lot2.md` et `gate-02A-decision-ep17-lot2.md` (GO sous réserve, Lot 2)
+restent non réécrites — préservation des décisions historiques (`CLAUDE.md`).
+
+**Portée** : autorisation limitée à EP-17 Lot 3, section **Patrimoines/Biens** du dashboard
+Bailleur uniquement (`US-133` restreinte + `US-134`, migration de présentation — liste vers
+`lt-data-table`, formulaires vers `lt-form-field`, statut vers `lt-status-tag`). Ne couvre pas
+Affectations, Paiements, Garanties, Honoraires, Alertes, Journal d'audit, ni le dashboard
+Gestionnaire — nouvelle instruction de Gate requise pour toute extension de périmètre.
+
+**Réserves continues (non neutralisées par ces décisions)** : les 2 contrôles bloquants
+`CHECK-UX-01` restés « Non exécuté » (Responsive, Cohérence multi-écrans) doivent produire leurs
+preuves au fil du Lot 3. `DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-06` et `DD-EP17-10`
+(nouvelle) restent ouverts. `DD-EP17-05` reste non pertinente pour ce périmètre tant que le
+mécanisme d'archivage natif (`confirm()`) n'est pas migré vers `lt-confirm-dialog`.
+
+**Ce que ce GO ne couvre pas** : l'approbation de l'extension du Plan d'Exécution au Lot 3
+(`plan-execution-ux-ui-primeng-keycloak.md` §12, toujours limité aux Lots 1 et 2) — action Product
+Owner distincte, préalable à tout développement effectif du Lot 3 (verrou `CLAUDE.md`).
+
+**Prochaine action autorisée** : le Product Owner statue sur l'extension du Plan d'Exécution au
+Lot 3. Le développement technique (section Patrimoines/Biens, `lt-data-table`/`lt-form-field`/
+`lt-status-tag`/`lt-empty-state`) ne peut démarrer qu'après cette approbation, sous réserve
+continue des preuves de test/implémentation ci-dessus, et exécution section par section (liste
+avant formulaire).
+
+### Plan d'Exécution étendu au Lot 3, périmètre restreint (2026-08-02)
+
+**Instruction explicite reçue** : « Approuve l'extension du Plan d'Exécution au Lot 3 ».
+`plan-execution-ux-ui-primeng-keycloak.md` mis à jour : statut **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE
+LOT 1, LOT 2 ET LOT 3 (RESTREINT)** (en-tête et §12), appuyé sur `gate-04A-decision-ep17-lot3.md`
+et `gate-02A-decision-ep17-lot3.md` (GO sous réserve, Lot 3, tous deux 2026-08-02). Le verrou
+`CLAUDE.md` « Aucun code applicatif sans Plan d'Exécution approuvé » est donc levé **pour le Lot 3
+également**, strictement pour le périmètre confirmé (section Patrimoines/Biens) — inchangé pour les
+Lots 4 à 6, le reste du dashboard Bailleur et le dashboard Gestionnaire.
+
+**Ce que cette extension ne lève pas** : les réserves continues du Gate 04A Lot 3 (2 contrôles
+`CHECK-UX-01` — Responsive, Cohérence multi-écrans — encore « Non exécuté », preuves à produire au
+fil du Lot 3) ; `DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-06` et `DD-EP17-10`, tous ouverts ;
+`DD-EP17-05`, non pertinente tant que le mécanisme d'archivage natif (`confirm()`) n'est pas migré
+vers `lt-confirm-dialog` — toute migration « en passant » de ce mécanisme sortirait de cette
+approbation ; le périmètre strict du Lot 3 lui-même (section Patrimoines/Biens, migration de
+présentation uniquement, sans toucher à la logique existante).
+
+**Effet** : le développement technique du Lot 3 (section Patrimoines/Biens — `lt-data-table`,
+`lt-form-field`, `lt-status-tag`, `lt-empty-state`) peut démarrer, section par section (liste avant
+formulaire).
+
+**Documents modifiés** : `plan-execution-ux-ui-primeng-keycloak.md` (en-tête, §12 — nouvelle entrée
+datée).
+
+**Prochaine action autorisée** : le développement du Lot 3 peut être instruit — en commençant par
+la liste des Biens (`lt-data-table`), sous réserve continue des preuves de test/implémentation
+attendues par le Gate 04A Lot 3.
+
+### US-133/US-134 démarrées — liste des Biens migrée vers lt-data-table (2026-08-02)
+
+**Instruction explicite reçue** : « commence par la liste des Biens (`lt-data-table`) ». Premier
+écran métier réel migré du périmètre EP-17 Lot 3, strictement limité à ce que le Plan d'Exécution
+autorise : `frontend/src/app/bailleur/dashboard/dashboard.component.ts`, panneau « Biens »
+(adresse/type/statut, sélection d'un bien). Migration de présentation uniquement — inchangés :
+formulaire de création/modification du bien, section Patrimoines, tous les autres panneaux
+(baux, paiements, garanties, honoraires, affectations, exceptions, alertes, audit), et le
+mécanisme d'archivage natif (`globalThis.confirm()`), conformément à
+`gate-04A-decision-ep17-lot3.md` §5 (« liste avant formulaire », archivage hors périmètre).
+
+**Extension de `lt-data-table`** (composant livré isolément par `US-132`, jamais adopté avant ce
+jour) : besoin réel confirmé plutôt qu'anticipé, conformément à son propre commentaire
+(« à étendre lors d'une migration écran réelle »). Deux ajouts, tous deux testés en navigateur réel
+(Chrome Headless) : colonne `type: 'status'` (rendu via `lt-status-tag`/`severityForStatut()` au
+lieu du texte brut) et ligne sélectionnable (`selectable`/`selectedRow`/`rowClick`, clic **et**
+clavier — `role="button"`, `tabindex`, `Entrée`/`Espace` — pas de mécanisme de sélection PrimeNG
+natif, géré par le template `#body` déjà propre au composant). `severityForStatut()` étendu au
+vocabulaire `StatutBien` (`LIBRE`→success, `LOUE`→info, `EN_TRAVAUX`→warning, `ARCHIVE`→secondary),
+conformément à son propre commentaire invitant cette extension au moment de chaque migration réelle.
+
+**DD-EP17-10 (absence d'état d'erreur explicite)** : écart réel constaté et signalé plutôt que
+corrigé silencieusement — la cible anticipée par `phase-02-ui-mockups-ep17-lot3.md` était
+`lt-empty-state` (variante erreur) ; le mécanisme réellement livré dans `lt-data-table` depuis
+`US-132` est un paragraphe dédié `role="alert"` (`error()`), jugé équivalent voire plus adapté
+sémantiquement, pas réécrit pour coller à la cible initiale. Câblé pour Biens uniquement
+(`biensErreur`, nouveau signal, alimenté par `chargerBiens()`) — Patrimoines reste hors périmètre
+de cette étape.
+
+**Vérification** : 140/140 tests (133 existants + 7 nouveaux — 4 `lt-data-table` isolé, 1
+`severityForStatut` vocabulaire `StatutBien`, 2 intégration réelle dans `BailleurDashboardComponent`
+via `HttpTestingController`, dont un test de clic réel sur une ligne rendue et un test de l'état
+d'erreur), `ng lint` propre (aucune règle nouvelle nécessaire), `ng build` réussi (bundle initial
+516,00 kB, stable sous le budget `1mb`/`2.5mb` ; `p-table`/`lt-status-tag` désormais tirés dans le
+chunk paresseux `dashboard-component`, pas dans le bundle initial).
+
+**Documents modifiés** : `frontend/src/app/bailleur/dashboard/dashboard.component.ts` (panneau
+Biens, signal `biensErreur`, helper `erreurDetail()` extrait de `signalerErreur()`, nettoyage CSS
+mort `.list`/`.row`/`.selected`) ; `frontend/src/app/shared/data-table/data-table.component.ts`
+(+spec) ; `frontend/src/app/shared/status-tag/status-tag.component.ts` (+spec) ;
+`design-debt-register-loyertracker.md` (`DD-EP17-04`, `DD-EP17-10` mis à jour).
+
+**Ce que cette implémentation n'autorise pas** : aucune extension au-delà de la liste des Biens —
+le formulaire Biens, la section Patrimoines (liste et formulaire) et le reste du dashboard
+Gestionnaire relèvent d'étapes distinctes du même Lot 3 ou d'un Lot ultérieur.
+
+**Prochaine action autorisée** : poursuivre le Lot 3 section par section — étape suivante logique
+la liste des Patrimoines (même patron `lt-data-table`), puis le formulaire Bien vers
+`lt-form-field`, sous réserve continue des preuves attendues par le Gate 04A Lot 3 (Responsive,
+Cohérence multi-écrans, toujours « Non exécuté »).
+
+### Liste des Patrimoines migrée vers lt-data-table (2026-08-02)
+
+**Instruction explicite reçue** : « enchaîner sur la liste des Patrimoines (prochaine étape du
+Plan d'Exécution) ». Deuxième écran métier réel migré du périmètre EP-17 Lot 3, strictement limité
+à ce que le Plan d'Exécution autorise : `frontend/src/app/bailleur/dashboard/dashboard.component.ts`,
+panneau « Patrimoines » (nom/adresse/statut). Migration de présentation uniquement — inchangés :
+formulaire de modification du patrimoine (`patrimoineForm`, sélecteur `<select>` de patrimoine à
+modifier), sélection d'un bien, panneau Biens (étape précédente), et tous les autres panneaux du
+dashboard.
+
+**Différence délibérée avec la migration Biens** : contrairement à la liste des Biens, la liste des
+Patrimoines n'a **pas** reçu `selectable`/`rowClick`. Avant cette migration, la liste des
+Patrimoines était un affichage pur, sans aucune interaction (la sélection du patrimoine à modifier
+se fait exclusivement via le `<select>` du formulaire « Modifier un patrimoine », `#patModifSel` /
+`selectionnerPatrimoineModif()`, inchangé). Ajouter la sélection au clic aurait introduit une
+interaction nouvelle, hors du principe « migration de présentation uniquement » rappelé par
+`phase-02-ui-mockups-ep17-lot3.md` §Niveau de fidélité — écart délibéré par rapport à la maquette
+(qui montre un état « ▶ sélectionné » dans la liste), signalé plutôt que reproduit sans réflexion.
+
+**Écart de densité d'information (maquette vs livré)** : la maquette (`phase-02-ui-mockups-ep17-lot3.md`
+§2.1) montre nom, adresse, ville/pays concaténés, référence interne et statut sur plusieurs lignes
+par carte. `lt-data-table` ne rend qu'un champ texte brut par colonne (pas de concaténation ni de
+template par colonne dans cette version, cf. `LtDataTableColumn`). Colonnes retenues : nom, adresse,
+statut (`type: 'status'`) — même arbitrage que Biens (adresse/type/statut). Ville, pays et référence
+interne, auparavant affichés en texte secondaire, ne sont plus visibles dans la liste. Aucune de ces
+données n'est perdue (toujours consultables via le formulaire de modification) ; signalé ici comme
+écart réel plutôt que reconcilié silencieusement.
+
+**DD-EP17-10 (absence d'état d'erreur explicite)** : la deuxième moitié de cette dette — Patrimoines
+— est désormais câblée. `chargerReferentielsBien()` (la méthode nommément citée par le constat
+initial de la dette) gère maintenant l'échec de `listerPatrimoines()` via un nouveau signal
+`patrimoinesErreur`, rendu par le même mécanisme `role="alert"` que Biens (`lt-data-table`, pas
+`lt-empty-state` — même écart déjà signalé pour Biens, cf. entrée précédente).
+
+**Vocabulaire `severityForStatut()`** étendu à `StatutPatrimoine` (`ACTIF`→success, `ARCHIVE`→
+secondary, déjà mappé par `StatutBien`).
+
+**Vérification** : 143/143 tests (140 existants + 3 nouveaux — 1 `severityForStatut` vocabulaire
+`StatutPatrimoine`, 2 intégration réelle dans `BailleurDashboardComponent` via
+`HttpTestingController`, dont un test de rendu nom/adresse/statut et un test de l'état d'erreur au
+rechargement), `ng lint` propre, `ng build` réussi (bundle initial stable à 516,00 kB, aucune
+régression de budget).
+
+**Documents modifiés** : `frontend/src/app/bailleur/dashboard/dashboard.component.ts` (panneau
+Patrimoines, signal `patrimoinesErreur`, colonnes `colonnesPatrimoines`, gestion d'erreur dans
+`chargerReferentielsBien()`) ; `frontend/src/app/shared/status-tag/status-tag.component.ts` (+spec,
+vocabulaire `StatutPatrimoine`) ; `design-debt-register-loyertracker.md` (`DD-EP17-04`, `DD-EP17-10`
+mis à jour) ; `DSG-001.md` (adoption étendue, compteurs de tests).
+
+**Ce que cette implémentation n'autorise pas** : aucune extension au-delà de la liste des
+Patrimoines — le formulaire Patrimoine (`lt-form-field`), le formulaire Bien et le reste du
+dashboard Gestionnaire relèvent d'étapes distinctes du même Lot 3 ou d'un Lot ultérieur.
+
+**Prochaine action autorisée** : poursuivre le Lot 3 — étape suivante logique le formulaire Bien
+vers `lt-form-field` (liste avant formulaire déjà respecté pour Biens et Patrimoines), sous réserve
+continue des preuves attendues par le Gate 04A Lot 3 (Responsive, Cohérence multi-écrans, toujours
+« Non exécuté »).

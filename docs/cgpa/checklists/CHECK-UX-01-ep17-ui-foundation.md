@@ -85,3 +85,38 @@ agrégé reste **NO GO (en l'état)** pour un Gate 04A global du périmètre EP-
 préjuger d'un GO sous réserve limité au seul Lot 2, objet d'une nouvelle instruction distincte
 (`gate-04A-decision-ep17-lot2.md`). Contenu des lignes d'origine non réécrit, conformément à la
 préservation des décisions historiques (`CLAUDE.md`).
+
+## Note de mise à jour (2026-08-02, postérieure à cette instance) — Lot 2 livré
+
+Le Lot 2 (`US-132`, Composants transverses) est désormais mergé — 8 composants `lt-*` + service
+Toast implémentés et testés (133/133 tests, 33 nouveaux), validés par le Product Owner (GO sous
+réserve, 2026-08-02). Trois lignes évoluent :
+
+* **« Composants et variantes »** (notait « mapping documenté, aucun composant implémenté ») : les
+  8 composants sont désormais codés, testés unitairement et documentés dans `DSG-001.md`
+  §Component Mapping. Reclassée **PASS** — implémentation réelle obtenue. Ne couvre pas leur
+  adoption dans un écran métier (aucun composant intégré à ce jour, objet du Lot 3).
+* **« États erreur, vide et chargement »** (notait « aucun composant `lt-error-state`/
+  `lt-empty-state`/`lt-loading-state` livré ») : `lt-empty-state` livré et testé ; `lt-data-table`
+  gère nativement ses propres états vide/erreur (sans tri/filtre/pagination — aucun besoin ≥ 2
+  écrans confirmé à ce stade). Reclassée **PASS** pour le périmètre transverse ; l'usage réel par
+  écran reste à vérifier au fil du Lot 3.
+* **« Accessibilité »** (notait « aucun audit exécuté ») : `lt-confirm-dialog` (premier modal du
+  produit) a fait l'objet d'un test dédié en navigateur réel (Chrome Headless, pas une simulation)
+  couvrant 5 des 6 exigences non négociables de `DDS-LT-005` (focus-trap, restitution du focus,
+  fermeture `Échap`, rôle ARIA/`aria-modal`/`aria-labelledby`, libellés explicites) — un écart réel
+  détecté et corrigé (restitution du focus non native chez PrimeNG). L'exigence 6 (message
+  post-action) est couverte structurellement par `lt-toast`/PrimeNG `p-toast`
+  (`role="alert"`/`aria-live="assertive"` natifs), non encore câblée à un appelant réel. Reclassée
+  **Préparation en cours** — audit réel mais circonscrit à un seul composant, non un audit WCAG 2.2
+  AA global du produit ; reste bloquant tant qu'aucun écran métier n'est couvert.
+
+**Décompte recalculé** : sur 13 contrôles, **4 PASS** (Tokens, Dark mode, Composants et variantes,
+États erreur/vide/chargement), **6 « Préparation en cours »** (dont Accessibilité, reclassée),
+**3 « Non exécuté »** (Responsive, Cohérence multi-écrans, Performance UX/perçue — non bloquant
+pour ce dernier). Conformément à la règle d'agrégation 2, le résultat agrégé reste **NO GO
+(en l'état)** pour un Gate 04A global EP-17 complet — motif réduit à 2 contrôles bloquants restants
+(Responsive, Cohérence multi-écrans), tous deux structurellement impossibles à satisfaire sans au
+moins un écran métier réel intégrant les composants `lt-*` — précisément l'objet du Lot 3
+(`gate-04A-decision-ep17-lot3.md`). Contenu des lignes d'origine non réécrit, conformément à la
+préservation des décisions historiques (`CLAUDE.md`).
