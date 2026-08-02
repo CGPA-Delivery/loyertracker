@@ -4862,3 +4862,39 @@ les avis NO GO en l'état, un GO ou GO sous réserve nécessiterait a minima : t
 (Option A/B), désigner explicitement un responsable de la revue sécurité Keycloak, confirmer le
 périmètre Account Console, et clarifier l'applicabilité de `CHECK-FRONTEND-01` — préalables à toute
 production de parcours/maquettes ou de code de thème.
+
+### 4 des 7 bloqueurs Lot 4 levés — recommandation validée (2026-08-02)
+
+**Instruction explicite reçue** : « qu'elle la meilleur proposition que tu me fait pour trancher ? »
+puis, après présentation d'une recommandation en 4 points, « je valide ta recommandation ».
+
+**Décisions actées** :
+1. `DD-EP17-03` (source de tokens Angular/Keycloak) — **Option B (CSS commun) confirmée**, conforme
+   à la recommandation déjà documentée par `ADR-UI-001`. Dette non close (implémentation à
+   produire).
+2. Rôle de revue sécurité Keycloak — pas de nouveau rôle créé, **périmètre du DevSecOps Lead
+   étendu explicitement** pour couvrir la revue sécurité du thème Keycloak (`DD-EP17-01`).
+3. `CHECK-FRONTEND-01` — déclaré **non applicable** tel quel à un thème FreeMarker/CSS ; remplacé
+   par une checklist allégée dédiée, à instancier au moment des preuves.
+4. Account Console — **exclue du périmètre du Lot 4** (aucun usage réel constaté,
+   `screen-inventory-loyertracker.md`) ; le périmètre se limite désormais au thème `login/` (8
+   écrans : login, mot de passe oublié, reset, invitation, invitation expirée, session expirée,
+   accès refusé, logout).
+
+**Ce que ces décisions ne lèvent pas** : 3 bloqueurs restent ouverts —  compatibilité de version
+Keycloak par environnement (non vérifiée), état réel de la configuration SMTP (absente des
+fichiers de realm versionnés, à confirmer), et approbation du Plan d'Exécution pour le Lot 4 (§12
+toujours limité aux Lots 1-3). L'absence de parcours utilisateurs et de maquettes reste également
+entière (`gate-02A-decision-ep17-lot4.md` §4). Les avis **NO GO en l'état** des 4 rôles désignés ne
+sont pas reconduits en GO par cette seule instruction — nouvelle évaluation nécessaire une fois le
+travail de vérification et de conception produit. Strictement documentaire, aucun code de thème ni
+modification de realm.
+
+**Documents modifiés** : `gate-04A-decision-ep17-lot4.md` (§8, §4 mis à jour) ;
+`gate-02A-decision-ep17-lot4.md` (§8, §4 mis à jour) ; `design-debt-register-loyertracker.md`
+(`DD-EP17-03`) ; `agent-designations-loyertracker.md` (portée DevSecOps Lead étendue).
+
+**Prochaine action autorisée** : vérification factuelle de la compatibilité de version Keycloak par
+environnement et de l'état réel du SMTP, puis production des parcours utilisateurs et maquettes
+scopés aux 8 écrans `login/` (`phase-02-user-journeys-ep17-lot4.md`,
+`phase-02-ui-mockups-ep17-lot4.md`), même enchaînement que le Lot 3.

@@ -85,10 +85,10 @@
 
 | ID | Type | Impact | Autorité d'acceptation | Responsable | Échéance | Preuve attendue | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| DD-EP17-03 | Bloqueur, réserve existante | Le thème ne peut consommer une source de tokens qui n'existe pas encore ; construire le thème avant ce choix risquerait une divergence visuelle avec Angular dès le premier jour | Product Owner | Design Architect | Avant tout code de thème | Décision Option A vs B tracée (DDS dédiée ou tranchée directement en Gate) | Ouvert |
-| — (rôle Security Architect Keycloak non désigné) | Bloqueur structurel | `DD-EP17-01` (thème Keycloak, Majeur) nomme un responsable qui n'existe pas comme rôle CGPA actif sur ce dépôt ; la revue sécurité d'un thème touchant un flux d'authentification réel ne peut reposer sur une désignation implicite | Product Owner | Product Owner | Avant instruction complète de ce Gate | Désignation explicite (ex. extension du périmètre DevSecOps Lead, ou nouveau rôle dédié) tracée dans `agent-designations-loyertracker.md` | Ouvert |
-| — (gabarit `CHECK-FRONTEND-01` inadapté à un thème non-Angular) | Bloqueur structurel, méthodologique | Sans décision, ce Gate ne peut ni cocher ni écarter légitimement ce contrôle bloquant | Product Owner | Product Owner | Avant instruction complète de ce Gate | Décision tracée : instance adaptée, ou gabarit distinct | Ouvert |
-| — (Account Console : périmètre `account/` à confirmer) | Bloqueur | Sans confirmation, le thème `account/` documenté par `ADR-UI-001` ne peut être ni inclus ni écarté du périmètre réel du Lot 4 | Product Owner | Product Owner | Avant tout développement de thème | Confirmation Product Owner : Account Console utilisée ou non | Ouvert |
+| DD-EP17-03 | Bloqueur, réserve existante | Le thème ne peut consommer une source de tokens qui n'existe pas encore ; construire le thème avant ce choix risquerait une divergence visuelle avec Angular dès le premier jour | Product Owner | Design Architect | Avant tout code de thème | Décision Option A vs B tracée (DDS dédiée ou tranchée directement en Gate) | **Levé (2026-08-02)** — Option B (CSS commun) confirmée par le Product Owner (§8) ; dette non close (implémentation restant à faire) |
+| — (rôle Security Architect Keycloak non désigné) | Bloqueur structurel | `DD-EP17-01` (thème Keycloak, Majeur) nomme un responsable qui n'existe pas comme rôle CGPA actif sur ce dépôt ; la revue sécurité d'un thème touchant un flux d'authentification réel ne peut reposer sur une désignation implicite | Product Owner | Product Owner | Avant instruction complète de ce Gate | Désignation explicite (ex. extension du périmètre DevSecOps Lead, ou nouveau rôle dédié) tracée dans `agent-designations-loyertracker.md` | **Levé (2026-08-02)** — périmètre du DevSecOps Lead étendu explicitement à la revue sécurité Keycloak (§8, `agent-designations-loyertracker.md`) |
+| — (gabarit `CHECK-FRONTEND-01` inadapté à un thème non-Angular) | Bloqueur structurel, méthodologique | Sans décision, ce Gate ne peut ni cocher ni écarter légitimement ce contrôle bloquant | Product Owner | Product Owner | Avant instruction complète de ce Gate | Décision tracée : instance adaptée, ou gabarit distinct | **Levé (2026-08-02)** — déclaré non applicable tel quel ; remplacé par une checklist allégée dédiée au thème Keycloak, à instancier au moment des preuves (§8) |
+| — (Account Console : périmètre `account/` à confirmer) | Bloqueur | Sans confirmation, le thème `account/` documenté par `ADR-UI-001` ne peut être ni inclus ni écarté du périmètre réel du Lot 4 | Product Owner | Product Owner | Avant tout développement de thème | Confirmation Product Owner : Account Console utilisée ou non | **Levé (2026-08-02)** — Account Console exclue du périmètre du Lot 4 (§8), aucun usage réel constaté |
 | — (compatibilité de version Keycloak, RSV-UI-08) | Bloqueur, réserve existante | Un thème incompatible avec la version Keycloak effective de chaque environnement casserait l'authentification réelle | Product Owner | DevSecOps Lead | Avant tout déploiement, même Staging | Version Keycloak vérifiée par environnement (Dev/Staging/Production), compatibilité du thème confirmée | Ouvert |
 | — (SMTP non visible dans le realm versionné) | Réserve, opérationnelle | Si l'e-mail n'est effectivement pas configuré, thémer « mot de passe oublié »/« invitation » habillerait un flux non fonctionnel — priorité de scope à clarifier | Product Owner | DevSecOps Lead | Avant de scoper ces deux écrans dans le Lot 4 | Confirmation opérationnelle (hors dépôt si nécessaire) de l'état SMTP réel par environnement | Ouvert — question posée, pas une panne confirmée |
 | — (Plan d'Exécution non étendu au Lot 4) | Bloqueur | Verrou `CLAUDE.md` (« aucun code applicatif sans Plan d'Exécution approuvé ») | Product Owner | Product Owner | Avant tout développement | Extension explicite du Plan d'Exécution au Lot 4 | Ouvert |
@@ -119,3 +119,36 @@ Owner / CGPA Chief Delivery Officer, conformément à `CLAUDE.md` et `chief-deli
   co-auteur de `ADR-UI-001`, `plan-execution-ux-ui-primeng-keycloak.md`, qu'il est ici appelé à
   évaluer).
 * Décision et validation humaine : en attente (§6).
+
+## 8. Note de mise à jour (2026-08-02, postérieure à cette instance) — 4 des 7 bloqueurs levés
+
+**Instruction explicite reçue** : après présentation d'une recommandation en 4 points (réponse à
+« qu'elle la meilleur proposition que tu me fait pour trancher ? »), le Product Owner a répondu
+« je valide ta recommandation ». Décisions actées :
+
+1. **`DD-EP17-03` (source de tokens)** : Option B (CSS commun) confirmée — conforme à la
+   recommandation déjà documentée par `ADR-UI-001` §Isolation entre Angular et Keycloak. Registre
+   de dette mis à jour (`design-debt-register-loyertracker.md`) ; dette non close, implémentation
+   restant à produire.
+2. **Rôle de revue sécurité Keycloak** : pas de nouveau rôle CGPA créé — périmètre du DevSecOps
+   Lead déjà désigné **étendu explicitement** à la revue sécurité du thème Keycloak
+   (`agent-designations-loyertracker.md`, note du 2026-08-02).
+3. **`CHECK-FRONTEND-01`** : déclaré non applicable tel quel à un thème FreeMarker/CSS non-Angular.
+   Remplacé par une checklist allégée dédiée, **à instancier au moment où les preuves seront
+   produites** (pas à cette étape d'instruction).
+4. **Account Console** : exclue explicitement du périmètre du Lot 4 — `screen-inventory-loyertracker.md`
+   ne constate aucun usage réel ; réduit le périmètre du thème à `login/` uniquement (login, mot de
+   passe oublié, reset, invitation, invitation expirée, session expirée, accès refusé, logout).
+
+**Ce que cette instruction ne lève pas** : les 3 bloqueurs restants du §4 (compatibilité de version
+Keycloak par environnement, configuration SMTP à vérifier, approbation du Plan d'Exécution pour le
+Lot 4) ainsi que l'absence de parcours utilisateurs et de maquettes (`gate-02A-decision-ep17-lot4.md`
+§4) restent ouverts. Les avis **NO GO en l'état** du §5 ne sont pas reconduits automatiquement en
+GO — nouvelle évaluation nécessaire une fois le travail de vérification et de conception produit.
+Aucun code de thème, aucune modification de realm, aucune dépendance ajoutée par cette note —
+strictement documentaire.
+
+**Prochaine action autorisée** : vérification factuelle de la compatibilité de version Keycloak par
+environnement et de l'état réel de la configuration SMTP, puis production des parcours utilisateurs
+et maquettes (`phase-02-user-journeys-ep17-lot4.md`, `phase-02-ui-mockups-ep17-lot4.md`), sur le
+même modèle que le Lot 3 — préalable à toute nouvelle instruction complète de ce Gate.

@@ -64,8 +64,8 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | — (parcours utilisateurs absents) | Bloqueur | Aucun parcours écrit ne couvre les flux d'authentification Keycloak concernés | Product Owner | UX/UI Design Lead | Avant tout développement de thème | Parcours écrit par flux (login, mot de passe oublié, reset, invitation, invitation expirée, session expirée, accès refusé, logout) | Ouvert |
 | — (maquettes absentes) | Bloqueur | Aucune maquette « avant/après » ne couvre ces écrans | Product Owner | Design Architect | Avant tout développement de thème | Au moins un support visuel par écran critique, validé Product Owner | Ouvert |
-| — (périmètre Account Console non confirmé) | Bloqueur | Détermine si le thème `account/` (`ADR-UI-001`) fait partie du périmètre réel de ce Lot | Product Owner | Product Owner | Avant tout développement | Confirmation Product Owner tracée (usage réel constaté ou non) | Ouvert — `screen-inventory-loyertracker.md` indique « Non constaté » |
-| DD-EP17-03 | Bloqueur, réserve existante, partagée avec Gate 04A | Le Design System ne peut être « validé » pour ce périmètre tant que la source de tokens partagée n'est pas tranchée | Product Owner | Design Architect | Avant tout code de thème | Décision Option A vs B tracée | Ouvert |
+| — (périmètre Account Console non confirmé) | Bloqueur | Détermine si le thème `account/` (`ADR-UI-001`) fait partie du périmètre réel de ce Lot | Product Owner | Product Owner | Avant tout développement | Confirmation Product Owner tracée (usage réel constaté ou non) | **Levé (2026-08-02)** — Account Console exclue du périmètre du Lot 4 (`gate-04A-decision-ep17-lot4.md` §8) ; le périmètre se limite au thème `login/` |
+| DD-EP17-03 | Bloqueur, réserve existante, partagée avec Gate 04A | Le Design System ne peut être « validé » pour ce périmètre tant que la source de tokens partagée n'est pas tranchée | Product Owner | Design Architect | Avant tout code de thème | Décision Option A vs B tracée | **Levé (2026-08-02)** — Option B confirmée (`gate-04A-decision-ep17-lot4.md` §8) ; dette non close, implémentation restant à produire |
 | — (contraintes de sécurité sur la navigation/redirections) | Réserve, Financial/Security Governance | `ADR-UI-001` interdit toute modification d'URL de redirection sans ADR dédiée — toute maquette proposant un parcours différent du parcours OIDC natif devra être vérifiée contre cette interdiction avant validation | Product Owner | DevSecOps Lead | Au moment de la production des maquettes | Vérification croisée maquette/interdictions de sécurité | Ouvert, préventif |
 
 ## 5. Avis spécialisés
@@ -87,3 +87,25 @@ Owner / CGPA Chief Delivery Officer, conformément à `CLAUDE.md`.)*
 * Rédacteur : Claude Code, en tant que UX/UI Design Lead désigné
   (`agent-designations-loyertracker.md`), limite d'indépendance tracée.
 * Décision et validation humaine : en attente (§6).
+
+## 8. Note de mise à jour (2026-08-02, postérieure à cette instance) — périmètre restreint à `login/`
+
+**Instruction explicite reçue** : « je valide ta recommandation » (détail complet en
+`gate-04A-decision-ep17-lot4.md` §8). Pour ce Gate 02A, l'effet est double :
+
+* **Account Console exclue du périmètre** — le thème `account/` documenté par `ADR-UI-001` ne fait
+  pas partie du Lot 4. Le périmètre UX de ce Gate se limite désormais aux écrans `login/` : login,
+  mot de passe oublié, reset password, invitation, invitation expirée, session expirée, accès
+  refusé, logout.
+* **`DD-EP17-03` tranchée (Option B)** — le critère « Design system validé » (§3) reste toutefois
+  **non exécuté** en pratique tant qu'aucune implémentation de `tokens.css` commun n'existe.
+
+**Ce que cette note ne lève pas** : les 2 bloqueurs structurels de ce Gate (parcours utilisateurs
+absents, maquettes absentes, §4) restent entiers — aucun travail de conception UX n'a été produit
+par cette note, seulement des décisions de périmètre et de gouvernance. L'avis **NO GO en l'état**
+du §5 n'est pas reconduit en GO.
+
+**Prochaine action autorisée** : production de `phase-02-user-journeys-ep17-lot4.md` et
+`phase-02-ui-mockups-ep17-lot4.md`, scopés aux 8 écrans `login/` listés ci-dessus, après
+vérification factuelle de la compatibilité de version Keycloak et de l'état SMTP
+(`gate-04A-decision-ep17-lot4.md` §8) — même enchaînement que le Lot 3.
