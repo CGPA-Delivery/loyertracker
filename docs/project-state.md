@@ -4778,3 +4778,36 @@ reste ouverte, correction hors périmètre.
 la validation humaine de ces preuves pour clore formellement le Gate 04A Lot 3. Au-delà, toute
 poursuite (Lots 4-6, ou correction de `DD-EP17-11`) nécessite sa propre instruction de Gate,
 conformément au principe rappelé dans l'entrée précédente.
+
+### PR #341 fusionnée sur main ; validation Product Owner du Gate 04A Lot 3 (2026-08-02)
+
+**Instruction explicite reçue** : « je valide » — en réponse directe à la présentation du constat
+`CHECK-UX-01` (CI verte PR #341, écarts trouvés et corrigés, résidu `DD-EP17-11` signalé). PR #341
+fusionnée sur `main` par merge commit standard, CI entièrement verte avant fusion.
+
+**Effet** : conformément à `CLAUDE.md` (« aucun audit automatique ne remplace la validation
+humaine requise »), cette validation Product Owner constitue la validation humaine requise pour
+transformer la preuve technique produite en clôture effective. Le bloqueur structurel
+`gate-04A-decision-ep17-lot3.md` §4 (« composants `lt-*` non intégrés à un écran réel ») est
+**Levé (2026-08-02)** — note ajoutée à cette décision (§8), sans réécrire le contenu d'origine
+(préservation des décisions historiques).
+
+**Ce que cette validation ne couvre pas** : `DD-EP17-11` (touch target `button` global) reste
+ouverte, hors périmètre Lot 3 ; `DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-06`, `DD-EP17-10`
+restent ouvertes selon leur statut propre ; le Gate 04A **global** EP-17 (au-delà du Lot 3 seul)
+reste NO GO en l'état (`CHECK-UX-01-ep17-ui-foundation.md` : 5 PASS, 1 PASS sous réserve,
+5 Préparation en cours, 1 Non exécuté non bloquant) ; aucune autorisation pour les Lots 4-6, chacun
+restant un point de contrôle GO/NO GO distinct nécessitant sa propre instruction de Gate.
+
+**État du périmètre Lot 3 restreint (Patrimoines/Biens)** : entièrement livré et désormais validé
+— liste Biens, liste Patrimoines, formulaire Bien, formulaire Patrimoine (PR #338-340), plus les 2
+derniers contrôles bloquants `CHECK-UX-01` du Gate 04A Lot 3 (PR #341). Rien n'est en attente dans
+ce périmètre.
+
+**Documents modifiés** : `gate-04A-decision-ep17-lot3.md` (§8, note de clôture du bloqueur).
+
+**Prochaine action autorisée** : aucune par défaut. Toute poursuite (Lots 4-6 du Plan d'Exécution,
+correction de `DD-EP17-11`, ou extension à toute autre section du dashboard Bailleur/Gestionnaire)
+nécessite une nouvelle instruction explicite du Product Owner et sa propre instruction de Gate
+04A/02A, conformément à `plan-execution-ux-ui-primeng-keycloak.md` §12 et au principe « aucun code
+applicatif sans Plan d'Exécution approuvé » (`CLAUDE.md`).
