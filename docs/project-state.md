@@ -4365,3 +4365,35 @@ l'état du Gate 02A, une décision distincte et préalable est recommandée : co
 exact du pilote (sections du dashboard Bailleur concernées, inclusion ou non d'`US-134`), condition
 nécessaire avant que les lacunes identifiées (maquettes, parcours) puissent être comblées. Aucun
 développement du Lot 3 ne peut démarrer avant ces décisions, conformément au verrou `CLAUDE.md`.
+
+### Confirmation Product Owner — périmètre du pilote Lot 3 (2026-08-02)
+
+**Décision Product Owner explicite** : « Sections limitées, à faible risque d'abord » — périmètre
+retenu proposé par Claude Code (option recommandée, cohérente avec l'avis Design/Frontend Architect
+`gate-04A-decision-ep17-lot3.md` §5 et l'avis UX/UI Design Lead `gate-02A-decision-ep17-lot3.md` §5).
+
+**Périmètre confirmé** : section **Patrimoines/Biens** du dashboard Bailleur uniquement — `US-134`
+(liste + détail d'un bien via `lt-data-table`/`lt-form-field`, lecture principalement) et `US-133`
+restreinte à cette même section. **Explicitement hors périmètre de ce Lot 3** : Affectations,
+Paiements, Garanties, Honoraires, Alertes, Journal d'audit — ces sections restent en l'état,
+migration différée à un Lot ultérieur, chacun son propre point de contrôle Gate.
+
+**Effet sur les deux instances de Gate** : le bloqueur « périmètre exact du pilote non confirmé »
+est levé dans `gate-04A-decision-ep17-lot3.md` §4 et `gate-02A-decision-ep17-lot3.md` §4. Le
+périmètre restreint neutralise deux réserves devenues sans objet pour ce Lot : `DD-EP17-05`
+(aucun dialogue modal prévu, lecture seule) et la réserve « données financières affichées »
+(Patrimoines/Biens n'affiche pas de montants — loyers/paiements/garanties/honoraires restent dans
+les sections différées). **Persiste une lacune réelle, désormais circonscrite à une seule
+section** : aucune maquette ni parcours écrit n'existe encore pour Patrimoines/Biens — seul
+blocage restant identifié par l'avis UX/UI Design Lead avant qu'un GO sous réserve devienne
+directement défendable.
+
+**Documents modifiés** : `addendum-backlog-ep17-ui-foundation-primeng-keycloak.md` (notes de
+confirmation sous `US-133`/`US-134`) ; `gate-04A-decision-ep17-lot3.md` et
+`gate-02A-decision-ep17-lot3.md` (§2/§3/§4/§5 mis à jour, §6 toujours volontairement vide).
+
+**Prochaine action autorisée** : produire la maquette basse fidélité et le parcours écrit pour
+Patrimoines/Biens (liste → détail) — dernier élément manquant avant que le Product Owner puisse
+statuer sur `gate-02A-decision-ep17-lot3.md` §6 avec un avis UX/UI Design Lead favorable. En
+parallèle, `gate-04A-decision-ep17-lot3.md` §6 reste ouvert à la décision du Product Owner
+(GO sous réserve stricte déjà recommandé par les avis Design/Frontend Architect).
