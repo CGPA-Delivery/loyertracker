@@ -4453,3 +4453,32 @@ périmètre de migration.
 spécialisés recommandent un GO sous réserve (stricte pour le Gate 04A, sous réserve de validation
 explicite des deux nouveaux documents pour le Gate 02A). Le développement du Lot 3 reste
 subordonné à ces deux décisions, conformément au verrou `CLAUDE.md`.
+
+### Décisions Gate 04A/Gate 02A rendues — GO sous réserve, périmètre Lot 3 (2026-08-02)
+
+**Décision Product Owner explicite** : « GO sous réserve pour les deux Gates ». Section 6
+complétée en conséquence dans `gate-04A-decision-ep17-lot3.md` et `gate-02A-decision-ep17-lot3.md`.
+`gate-04A-decision-ep17-lot2.md` et `gate-02A-decision-ep17-lot2.md` (GO sous réserve, Lot 2)
+restent non réécrites — préservation des décisions historiques (`CLAUDE.md`).
+
+**Portée** : autorisation limitée à EP-17 Lot 3, section **Patrimoines/Biens** du dashboard
+Bailleur uniquement (`US-133` restreinte + `US-134`, migration de présentation — liste vers
+`lt-data-table`, formulaires vers `lt-form-field`, statut vers `lt-status-tag`). Ne couvre pas
+Affectations, Paiements, Garanties, Honoraires, Alertes, Journal d'audit, ni le dashboard
+Gestionnaire — nouvelle instruction de Gate requise pour toute extension de périmètre.
+
+**Réserves continues (non neutralisées par ces décisions)** : les 2 contrôles bloquants
+`CHECK-UX-01` restés « Non exécuté » (Responsive, Cohérence multi-écrans) doivent produire leurs
+preuves au fil du Lot 3. `DD-611-02`, `DD-611-03`, `DD-EP17-04`, `DD-EP17-06` et `DD-EP17-10`
+(nouvelle) restent ouverts. `DD-EP17-05` reste non pertinente pour ce périmètre tant que le
+mécanisme d'archivage natif (`confirm()`) n'est pas migré vers `lt-confirm-dialog`.
+
+**Ce que ce GO ne couvre pas** : l'approbation de l'extension du Plan d'Exécution au Lot 3
+(`plan-execution-ux-ui-primeng-keycloak.md` §12, toujours limité aux Lots 1 et 2) — action Product
+Owner distincte, préalable à tout développement effectif du Lot 3 (verrou `CLAUDE.md`).
+
+**Prochaine action autorisée** : le Product Owner statue sur l'extension du Plan d'Exécution au
+Lot 3. Le développement technique (section Patrimoines/Biens, `lt-data-table`/`lt-form-field`/
+`lt-status-tag`/`lt-empty-state`) ne peut démarrer qu'après cette approbation, sous réserve
+continue des preuves de test/implémentation ci-dessus, et exécution section par section (liste
+avant formulaire).

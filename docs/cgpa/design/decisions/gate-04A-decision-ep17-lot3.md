@@ -98,14 +98,39 @@
 
 ## 6. Décision finale
 
-* Décision du CGPA Chief Delivery Officer :
-* Justification :
-* Validité :
-* Conditions d'invalidation :
-* Prochaine action autorisée :
+* Décision du CGPA Chief Delivery Officer : **GO sous réserve, périmètre limité à EP-17 Lot 3 —
+  section Patrimoines/Biens uniquement** — décision explicite du Product Owner
+  (jptshilombo@gmail.com), 2026-08-02, alignée sur les avis Design Architect et Frontend Architect
+  (§5, GO sous réserve stricte).
+* Justification : les fondations livrées au Lot 2 (8 composants `lt-*` testés, tokens, thème,
+  architecture SCSS) réduisent le risque d'implémentation. Le périmètre confirmé (Patrimoines/Biens
+  uniquement, aucune donnée financière — vérifié sur le modèle réel) limite l'exposition par
+  rapport à un dashboard complet, malgré la correction apportée en cours d'instruction (la section
+  porte un CRUD complet, pas une simple lecture). Les deux derniers contrôles bloquants `CHECK-UX-01`
+  (Responsive, Cohérence multi-écrans) restent structurellement liés à l'exécution de ce Lot lui-même,
+  même raisonnement déjà appliqué aux Lots 1 et 2.
+* Validité : limitée strictement au périmètre confirmé — section **Patrimoines/Biens** du dashboard
+  Bailleur (`US-133` restreinte + `US-134`), migration de présentation uniquement. Ne couvre pas
+  Affectations, Paiements, Garanties, Honoraires, Alertes, Journal d'audit, ni les dashboards
+  Gestionnaire — chacun nécessite sa propre instruction de Gate. Ne vaut pas autorisation pour tout
+  Lot ultérieur.
+* Conditions d'invalidation : toute évolution matérielle des preuves invalide cette décision et
+  impose une nouvelle instruction (clause reprise de `gate-04A-decision-ep17-lot2.md` §6).
+  S'ajoutent explicitement : toute migration touchant une autre section du dashboard que
+  Patrimoines/Biens ; toute migration du mécanisme d'archivage (`confirm()` natif) vers
+  `lt-confirm-dialog` sans instruction distincte (réactiverait `DD-EP17-05`) ; toute introduction de
+  donnée financière dans le périmètre migré ; réouverture de `DD-611-02`, `DD-611-03`, `DD-EP17-04`,
+  `DD-EP17-06` ou `DD-EP17-10`.
+* Prochaine action autorisée : ce GO sous réserve **ne vaut pas, à lui seul, autorisation de
+  code** — `plan-execution-ux-ui-primeng-keycloak.md` reste « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE
+  LOT 1 ET LOT 2 » (§12). L'approbation explicite de l'extension du Plan d'Exécution au Lot 3 reste
+  une action Product Owner distincte, préalable à tout développement effectif — cohérente avec le
+  traitement déjà appliqué au passage Lot 1 → Lot 2. Une fois cette approbation obtenue, le
+  développement du Lot 3 peut démarrer, section par section (liste avant formulaire), sous réserve
+  continue des preuves de test/implémentation §4.
 
 ## 7. Traçabilité
 
-* Mise à jour `/docs/project-state.md` : entrée d'instruction ajoutée le 2026-08-02.
+* Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-08-02.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
-* Date de validation humaine : —
+* Date de validation humaine : 2026-08-02.

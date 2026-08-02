@@ -95,14 +95,36 @@ cette soumission. **Les deux lacunes qui motivaient l'avis NO GO en l'état de c
 
 ## 6. Décision finale
 
-* Décision du CGPA Chief Delivery Officer :
-* Justification :
-* Validité :
-* Conditions d'invalidation :
-* Prochaine action autorisée :
+* Décision du CGPA Chief Delivery Officer : **GO sous réserve, périmètre limité à EP-17 Lot 3 —
+  section Patrimoines/Biens uniquement** — décision explicite du Product Owner
+  (jptshilombo@gmail.com), 2026-08-02, alignée sur l'avis UX/UI Design Lead révisé (§5).
+* Justification : sur les 11 critères du Gate 02A, 7 disposent désormais d'une matière réelle
+  suffisante (personas, information architecture, navigation, user journeys, parcours critiques,
+  cas nominaux/erreur, maquettes — `phase-02-user-journeys-ep17-lot3.md`,
+  `phase-02-ui-mockups-ep17-lot3.md`, produits et implicitement validés par cette décision Product
+  Owner), 2 sont documentés en contenu mais renvoyés au Gate 04A pour exécution (design system,
+  accessibilité — nature normale de ce Gate), 1 (responsive) a sa stratégie illustrée mais non
+  vérifiée. Le dernier (validation Product Owner de cette applicabilité) est levé par cette
+  décision elle-même. Les deux lacunes qui motivaient l'avis NO GO en l'état initial (parcours et
+  maquettes absents) sont comblées.
+* Validité : limitée strictement au périmètre confirmé — section Patrimoines/Biens du dashboard
+  Bailleur (`US-133` restreinte + `US-134`). Ne vaut pas autorisation pour Affectations, Paiements,
+  Garanties, Honoraires, Alertes, Journal d'audit, le dashboard Gestionnaire, ni tout Lot ultérieur —
+  chacun nécessite sa propre instruction de ce Gate, réévaluant sur sa propre matière les critères
+  ici jugés satisfaits pour ce seul périmètre.
+* Conditions d'invalidation : toute évolution matérielle du périmètre tel que défini au moment de
+  cette décision (notamment toute extension à une autre section, ou toute migration du mécanisme
+  d'archivage natif vers `lt-confirm-dialog`) invalide cette décision et impose une nouvelle
+  instruction — jamais une simple reconduction tacite.
+* Prochaine action autorisée : ce GO sous réserve, combiné à celui de
+  `gate-04A-decision-ep17-lot3.md` (également rendu le 2026-08-02), lève les deux points Gate
+  restés ouverts pour le Lot 3. Le développement technique reste toutefois subordonné à
+  l'approbation explicite de l'extension du Plan d'Exécution au Lot 3
+  (`plan-execution-ux-ui-primeng-keycloak.md` §12, action Product Owner distincte), sous réserve
+  continue des preuves de test/implémentation attendues par le Gate 04A.
 
 ## 7. Traçabilité
 
-* Mise à jour `/docs/project-state.md` : entrée d'instruction ajoutée le 2026-08-02.
+* Mise à jour `/docs/project-state.md` : entrée de décision ajoutée le 2026-08-02.
 * Responsable de la décision : Product Owner (jptshilombo@gmail.com), CGPA Chief Delivery Officer.
-* Date de validation humaine : —
+* Date de validation humaine : 2026-08-02.
