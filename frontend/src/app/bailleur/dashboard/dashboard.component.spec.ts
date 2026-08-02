@@ -146,18 +146,18 @@ describe('BailleurDashboardComponent', () => {
     it('rend les 4 champs (Adresse, Type, Patrimoine, Statut) via lt-form-field avec label associé', () => {
       fixture.detectChanges();
 
-      const fields = fixture.nativeElement.querySelectorAll('lt-form-field');
-      expect(fields.length).toBe(4);
-
-      const adresse = fields[0] as HTMLElement;
+      const adresse = fixture.nativeElement.querySelector('#bien-adresse').closest('lt-form-field') as HTMLElement;
       expect(adresse.querySelector('label')?.textContent?.trim()).toBe('Adresse');
-      const input = adresse.querySelector('input') as HTMLInputElement;
-      expect(input.id).toBe('bien-adresse');
       expect(adresse.querySelector('label')?.getAttribute('for')).toBe('bien-adresse');
 
-      expect(fields[1].querySelector('label')?.textContent?.trim()).toBe('Type');
-      expect(fields[2].querySelector('label')?.textContent?.trim()).toBe('Patrimoine');
-      expect(fields[3].querySelector('label')?.textContent?.trim()).toBe('Statut');
+      const type = fixture.nativeElement.querySelector('#bien-type').closest('lt-form-field') as HTMLElement;
+      expect(type.querySelector('label')?.textContent?.trim()).toBe('Type');
+
+      const patrimoine = fixture.nativeElement.querySelector('#bien-patrimoine').closest('lt-form-field') as HTMLElement;
+      expect(patrimoine.querySelector('label')?.textContent?.trim()).toBe('Patrimoine');
+
+      const statut = fixture.nativeElement.querySelector('#bien-statut').closest('lt-form-field') as HTMLElement;
+      expect(statut.querySelector('label')?.textContent?.trim()).toBe('Statut');
     });
   });
 
@@ -314,6 +314,36 @@ describe('BailleurDashboardComponent', () => {
       http.expectOne('/api/types-biens').flush([{ code: 'APPARTEMENT', libelle: 'Appartement', actif: true }]);
       http.expectOne('/api/locataires').flush([]);
       http.expectOne('/api/patrimoines/patrimoine-1/affectations').flush([]);
+    });
+  });
+
+  describe('EP-17 Lot 3 — formulaire Patrimoine via lt-form-field', () => {
+    it('rend le sélecteur de patrimoine via lt-form-field avant toute sélection', () => {
+      fixture.detectChanges();
+
+      const select = fixture.nativeElement.querySelector('#patrimoine-select').closest('lt-form-field') as HTMLElement;
+      expect(select.querySelector('label')?.textContent?.trim()).toBe('Patrimoine');
+      expect(select.querySelector('label')?.getAttribute('for')).toBe('patrimoine-select');
+
+      // Le formulaire détaillé (9 champs) reste masqué tant qu'aucun patrimoine n'est choisi.
+      expect(fixture.nativeElement.querySelector('#patrimoine-nom')).toBeNull();
+    });
+
+    it('rend les 9 champs détaillés via lt-form-field une fois un patrimoine choisi', () => {
+      const cmp = fixture.componentInstance;
+      cmp.selectionnerPatrimoineModif('patrimoine-1');
+      fixture.detectChanges();
+
+      const nom = fixture.nativeElement.querySelector('#patrimoine-nom').closest('lt-form-field') as HTMLElement;
+      expect(nom.querySelector('label')?.textContent?.trim()).toBe('Nom');
+      expect(nom.querySelector('label')?.getAttribute('for')).toBe('patrimoine-nom');
+
+      const adresse = fixture.nativeElement.querySelector('#patrimoine-adresse').closest('lt-form-field') as HTMLElement;
+      expect(adresse.querySelector('label')?.textContent?.trim()).toBe('Adresse');
+
+      const description = fixture.nativeElement.querySelector('#patrimoine-description').closest('lt-form-field') as HTMLElement;
+      expect(description.querySelector('label')?.textContent?.trim()).toBe('Description');
+      expect(description.querySelector('textarea')).not.toBeNull();
     });
   });
 

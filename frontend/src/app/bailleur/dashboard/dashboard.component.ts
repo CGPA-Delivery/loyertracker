@@ -119,52 +119,67 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
     <section class="grid two detail">
       <form [formGroup]="patrimoineForm" (ngSubmit)="modifierPatrimoine()" class="panel">
         <h2>Modifier un patrimoine</h2>
-        <label>
-          Patrimoine
-          <select #patModifSel (change)="selectionnerPatrimoineModif(patModifSel.value)">
+        <lt-form-field #fSelect="ltFormField" inputId="patrimoine-select" label="Patrimoine">
+          <select
+            id="patrimoine-select"
+            #patModifSel
+            (change)="selectionnerPatrimoineModif(patModifSel.value)"
+            [attr.aria-describedby]="fSelect.describedBy()"
+          >
             <option value="" disabled selected>Choisir un patrimoine</option>
             @for (p of patrimoinesDisponibles(); track p.id) {
               <option [value]="p.id">{{ p.nom }}{{ p.adresse ? ' — ' + p.adresse : '' }}</option>
             }
           </select>
-        </label>
+        </lt-form-field>
         @if (patrimoineModifId()) {
-          <label>
-            Nom
-            <input type="text" formControlName="nom" />
-          </label>
-          <label>
-            Adresse
-            <input type="text" formControlName="adresse" placeholder="ex. 12 rue des Lilas, Paris" />
-          </label>
-          <label>
-            Ville
-            <input type="text" formControlName="ville" />
-          </label>
-          <label>
-            Commune
-            <input type="text" formControlName="commune" />
-          </label>
-          <label>
-            Quartier
-            <input type="text" formControlName="quartier" />
-          </label>
-          <label>
-            Province / État
-            <input type="text" formControlName="provinceEtat" />
-          </label>
-          <label>
-            Pays
-            <input type="text" formControlName="pays" />
-          </label>
-          <label>
-            Référence interne
-            <input type="text" formControlName="referenceInterne" />
-          </label>
-          <label>
-            Description
-            <textarea formControlName="description"></textarea>
-          </label>
+          <lt-form-field #fNom="ltFormField" inputId="patrimoine-nom" label="Nom">
+            <input id="patrimoine-nom" type="text" formControlName="nom" [attr.aria-describedby]="fNom.describedBy()" />
+          </lt-form-field>
+          <lt-form-field #fAdresse="ltFormField" inputId="patrimoine-adresse" label="Adresse">
+            <input
+              id="patrimoine-adresse"
+              type="text"
+              formControlName="adresse"
+              placeholder="ex. 12 rue des Lilas, Paris"
+              [attr.aria-describedby]="fAdresse.describedBy()"
+            />
+          </lt-form-field>
+          <lt-form-field #fVille="ltFormField" inputId="patrimoine-ville" label="Ville">
+            <input id="patrimoine-ville" type="text" formControlName="ville" [attr.aria-describedby]="fVille.describedBy()" />
+          </lt-form-field>
+          <lt-form-field #fCommune="ltFormField" inputId="patrimoine-commune" label="Commune">
+            <input id="patrimoine-commune" type="text" formControlName="commune" [attr.aria-describedby]="fCommune.describedBy()" />
+          </lt-form-field>
+          <lt-form-field #fQuartier="ltFormField" inputId="patrimoine-quartier" label="Quartier">
+            <input id="patrimoine-quartier" type="text" formControlName="quartier" [attr.aria-describedby]="fQuartier.describedBy()" />
+          </lt-form-field>
+          <lt-form-field #fProvinceEtat="ltFormField" inputId="patrimoine-province-etat" label="Province / État">
+            <input
+              id="patrimoine-province-etat"
+              type="text"
+              formControlName="provinceEtat"
+              [attr.aria-describedby]="fProvinceEtat.describedBy()"
+            />
+          </lt-form-field>
+          <lt-form-field #fPays="ltFormField" inputId="patrimoine-pays" label="Pays">
+            <input id="patrimoine-pays" type="text" formControlName="pays" [attr.aria-describedby]="fPays.describedBy()" />
+          </lt-form-field>
+          <lt-form-field #fReferenceInterne="ltFormField" inputId="patrimoine-reference-interne" label="Référence interne">
+            <input
+              id="patrimoine-reference-interne"
+              type="text"
+              formControlName="referenceInterne"
+              [attr.aria-describedby]="fReferenceInterne.describedBy()"
+            />
+          </lt-form-field>
+          <lt-form-field #fDescription="ltFormField" inputId="patrimoine-description" label="Description">
+            <textarea
+              id="patrimoine-description"
+              formControlName="description"
+              [attr.aria-describedby]="fDescription.describedBy()"
+            ></textarea>
+          </lt-form-field>
           <button type="submit" [disabled]="patrimoineForm.invalid || chargement()">Modifier</button>
         }
       </form>
