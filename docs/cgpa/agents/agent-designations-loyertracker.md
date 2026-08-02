@@ -12,7 +12,7 @@
 | UX/UI Design Lead | Claude Code (agent IA, `docs/cgpa/agents/ux-ui-design-lead.md`) | Product Owner (jptshilombo@gmail.com), instruction explicite « désigne-toi UX/UI Design Lead et Design Architect » | 2026-07-30 | EP-16/US-125 (Gate 02A) et EP-17 (socle UI PrimeNG/Keycloak) | Actif |
 | Design Architect | Claude Code (agent IA, `docs/cgpa/agents/design-architect.md`) | Idem | 2026-07-30 | EP-17 (DSG-001, inventaire, dette, Gate 04A) | Actif |
 | Frontend Architect | Claude Code (agent IA, `docs/cgpa/agents/frontend-architect.md`) | Product Owner (jptshilombo@gmail.com), instruction explicite « désigne un Frontend Architect et un DevSecOps Lead », périmètre confirmé par le Product Owner (EP-17 / Gate 04A) | 2026-07-31 | EP-17 — structure applicative, composants, routing, lazy loading, state management, CSS/SCSS, shared library, mapping tokens, performance et stratégie de tests (Gate 04A) | Actif |
-| DevSecOps Lead | Claude Code (agent IA, `docs/cgpa/agents/devsecops-lead.md`) | Idem | 2026-07-31 | Avant Lot 1 EP-17 — CI/CD, sécurité technique, environnements, Gate 06A DevSecOps Readiness, DEVSECOPS-07 avant promotion Staging | Actif |
+| DevSecOps Lead | Claude Code (agent IA, `docs/cgpa/agents/devsecops-lead.md`) | Idem | 2026-07-31 | Avant Lot 1 EP-17 — CI/CD, sécurité technique, environnements, Gate 06A DevSecOps Readiness, DEVSECOPS-07 avant promotion Staging. **Portée étendue (2026-08-02)** : couvre explicitement la revue sécurité du thème Keycloak du Lot 4 (`plan-execution-ux-ui-primeng-keycloak.md` §3, interdictions `ADR-UI-001` §Sécurité) — Product Owner, instruction explicite « je valide ta recommandation » en réponse à `gate-04A-decision-ep17-lot4.md` §4 (rôle « Security Architect Keycloak » nommé par `DD-EP17-01` mais jamais désigné comme rôle distinct) ; pas de nouveau rôle créé, extension du périmètre du rôle déjà actif | Actif |
 
 ## Ce que cette désignation autorise
 
@@ -34,7 +34,10 @@ Architect explicitement définis comme sous-agents activables) :
 * Claude Code peut produire, **en tant que** DevSecOps Lead, l'avis attendu par
   `devsecops-lead.md` (CI/CD, SAST/SCA, secrets, dépendances, images, environnements, Gate 06A —
   DevSecOps Readiness, DEVSECOPS-07 avant promotion Staging) pour le périmètre EP-17 avant le
-  Lot 1.
+  Lot 1. **Depuis le 2026-08-02**, ce même rôle couvre aussi la revue sécurité du thème Keycloak du
+  Lot 4 (interdictions `ADR-UI-001` §Sécurité — flux OIDC/PKCE, politiques de mot de passe, cookies/
+  tokens, CSRF, anti-clickjacking, scripts/CDN externes) — la limite d'indépendance déjà tracée
+  ci-dessous s'applique identiquement à cette extension (Claude Code est co-auteur de `ADR-UI-001`).
 
 ## Ce que cette désignation n'autorise PAS
 
