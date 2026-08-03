@@ -1,17 +1,24 @@
-/* Design Tokens LoyerTracker (--lt-*) — source unique partagée Angular/Keycloak.
+/* Design Tokens LoyerTracker (--lt-*) — source canonique partagée Angular/Keycloak.
  *
  * DD-EP17-03 (registre de dette) — Option B retenue par le Product Owner (2026-08-02,
- * ADR-UI-001 §Isolation entre Angular et Keycloak) : un seul fichier CSS physique, sans
- * outillage de génération, consommé tel quel par les deux surfaces :
- *   - Keycloak (thème `login`) : servi directement par ce chemin
- *     (`resources/css/tokens.css`, référencé par `login.ftl` via `${url.resourcesPath}`) —
- *     ce fichier DOIT vivre ici physiquement, car le volume Docker monté au runtime ne couvre
- *     que `infra/keycloak/themes/` (aucun chemin en dehors de cet arbre n'est résolvable dans
- *     le conteneur).
- *   - Angular : `frontend/src/styles/tokens/_lt-tokens.scss` est un lien symbolique relatif
- *     vers ce même fichier (même inode, zéro duplication, zéro risque de divergence) — Sass
- *     traite son contenu comme SCSS valide (le CSS est un sous-ensemble syntaxique valide de
- *     SCSS), sans aucune fonctionnalité Sass utilisée ici.
+ * ADR-UI-001 §Isolation entre Angular et Keycloak) : une seule et même définition de tokens,
+ * consommée par les deux surfaces, sans outillage de génération.
+ *
+ * Ce fichier EST la source canonique, physiquement ici parce que le volume Docker monté au
+ * runtime dans le conteneur Keycloak ne couvrira que `infra/keycloak/themes/` (même patron que
+ * le montage déjà en place pour `realm-loyertracker.json`) — un fichier situé ailleurs serait
+ * inaccessible au conteneur.
+ *
+ * `frontend/src/styles/tokens/_lt-tokens.scss` est une **copie** de ce fichier, pas un lien
+ * symbolique : un lien traversant `frontend/` casse la construction de l'image Docker
+ * (`frontend/Dockerfile` ne copie que ce sous-arbre dans son contexte de build — testé et
+ * confirmé en échec réel le 2026-08-03, `ENOENT`). Les deux fichiers DOIVENT rester identiques
+ * pour les valeurs de tokens (chaque déclaration `--lt-*`) — seule la syntaxe des commentaires
+ * diffère légitimement (commentaires bloc ici, plain CSS ; commentaires ligne autorisés côté
+ * SCSS). Toute modification d'un token doit être répercutée immédiatement dans les deux
+ * fichiers (compromis explicitement accepté par `ADR-UI-001` pour Option B :
+ * « risque de divergence, dépend de la discipline ») — vérification manuelle à chaque
+ * modification, aucune automatisation ajoutée (cohérent avec « aucun outillage de génération »).
  *
  * Source de vérité fonctionnelle : docs/cgpa/design/DSG-001.md v0.2.0 §Fondations.
  * Revue visuelle/contraste WCAG 2.2 AA : docs/cgpa/design/decisions/DDS-LT-006-validation-visuelle-design-tokens.md

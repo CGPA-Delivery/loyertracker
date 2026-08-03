@@ -5108,20 +5108,34 @@ code applicatif du Lot 4, autorisé par l'extension du Plan d'Exécution du mêm
 
 **Implémentation produite** :
 * `infra/keycloak/themes/loyertracker/login/resources/css/tokens.css` — fichier physique
-  canonique, unique, contenant les 34 tokens `--lt-*` déjà validés (`DDS-LT-006`).
-* `frontend/src/styles/tokens/_lt-tokens.scss` — remplacé par un **lien symbolique relatif** vers
-  ce même fichier (même inode, zéro duplication, zéro outillage de génération, conforme Option B).
+  canonique, contenant les 34 tokens `--lt-*` déjà validés (`DDS-LT-006`).
+* `frontend/src/styles/tokens/_lt-tokens.scss` — **copie disciplinée** de ce fichier (mêmes
+  valeurs de tokens ; seule la syntaxe des commentaires diffère légitimement entre SCSS et CSS
+  pur), avec un commentaire d'en-tête rappelant l'obligation de synchronisation manuelle dans les
+  deux fichiers.
 * Emplacement du fichier canonique déterminé par une contrainte non anticipée par `ADR-UI-001` : le
   volume Docker monté au runtime dans le conteneur Keycloak ne pourra couvrir que
   `infra/keycloak/themes/` — un fichier canonique situé ailleurs serait inaccessible au conteneur.
-  Angular, dont l'outillage de build tourne sur l'intégralité du dépôt (pas dans un conteneur),
-  n'a pas cette contrainte — d'où le sens du lien symbolique (Angular référence Keycloak, jamais
-  l'inverse). Note datée ajoutée à `ADR-UI-001` §Isolation entre Angular et Keycloak.
+
+**Correction en cours de route — lien symbolique tenté puis abandonné** : la première
+implémentation faisait de `_lt-tokens.scss` un lien symbolique relatif vers le fichier canonique
+(zéro duplication). CI a échoué sur le job « Build, scan et SBOM Docker » de la PR #354 (`ENOENT`)
+— un build Docker réel de l'image Frontend (`docker build -f frontend/Dockerfile .`, pas seulement
+`ng build` en local) a révélé que `frontend/Dockerfile` ne copie que le sous-arbre `frontend/` dans
+son contexte de build : le lien symbolique, une fois copié tel quel dans l'image, pointe hors de ce
+contexte et devient introuvable. Un lien inverse échouerait symétriquement côté Keycloak (volume
+runtime limité à `infra/keycloak/themes/`) — **aucun lien symbolique ne peut satisfaire les deux
+frontières de conteneur à la fois**. La duplication disciplinée, corrigée ci-dessus, est donc
+l'implémentation réelle d'Option B, pas un pis-aller : c'est exactement le compromis qu'`ADR-UI-001`
+décrivait déjà (« risque de divergence, dépend de la discipline »).
 
 **Vérifications réelles effectuées** (pas une lecture de code seule) :
-* `ng build` — bundle CSS compilé contient bien les 34 déclarations `--lt-*` attendues, confirmant
-  que Sass résout et inline correctement le contenu du lien symbolique.
+* `ng build` — bundle CSS compilé contient bien les 34 déclarations `--lt-*` attendues.
 * `ng test` — 148/148 tests passent, aucune régression introduite par le changement.
+* `docker build -f frontend/Dockerfile .` (build réel de l'image Frontend, depuis la racine du
+  dépôt) — échoue avec le lien symbolique (`ENOENT`, reproduit localement avant correction) ;
+  **réussit** avec la copie disciplinée. C'est cette vérification, absente de la première passe,
+  qui a révélé le problème avant que la CI n'ait besoin de le signaler une seconde fois.
 
 **`DD-EP17-03` close** au registre de dette (`design-debt-register-loyertracker.md`) — preuve
 attendue (« décision tracée + implémentation ») effectivement produite, conformément au Validation
@@ -5136,8 +5150,9 @@ listées à l'extension du Plan d'Exécution (`DD-EP17-13`, `DD-EP17-14`, checkl
 ouvertes, non affectées par ce travail.
 
 **Documents modifiés** : `infra/keycloak/themes/loyertracker/login/resources/css/tokens.css`
-(nouveau) ; `frontend/src/styles/tokens/_lt-tokens.scss` (converti en lien symbolique) ;
-`design-debt-register-loyertracker.md` (`DD-EP17-03` close) ; `ADR-UI-001-...md` (note datée).
+(nouveau) ; `frontend/src/styles/tokens/_lt-tokens.scss` (copie disciplinée, pas un lien
+symbolique) ; `design-debt-register-loyertracker.md` (`DD-EP17-03` close) ; `ADR-UI-001-...md`
+(note datée, corrigée).
 
 **Prochaine action autorisée** : câblage du thème Keycloak lui-même (`theme.properties`,
 templates FreeMarker des 6 écrans confirmés), sous réserve continue des points ci-dessus —
