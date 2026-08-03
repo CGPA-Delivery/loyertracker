@@ -153,3 +153,36 @@ tout code.
 (parcours + maquettes), décision sur le traitement de `DD-EP17-14` (thème livré en l'assumant
 incomplet, ou SMTP traité comme préalable bloquant), puis nouvelle instruction complète du Gate 04A/02A
 Lot 4 avant tout code de thème.
+
+## 11. Décision sur `DD-EP17-14` — avis révisé de NO GO en l'état à GO sous réserve (2026-08-02)
+
+**Instruction explicite reçue** : « j'approuve ta recommandation », en réponse à la proposition de
+découpler `DD-EP17-14` du calendrier du Lot 4 plutôt que de le traiter comme un préalable bloquant
+(détail complet en `gate-04A-decision-ep17-lot4.md` §11, décision identique, ici reprise du point de
+vue UX de ce Gate). **Décision actée** : `DD-EP17-14` reste ouverte mais suit un **suivi propre**,
+indépendant du Lot 4 — c'est un défaut de Production pré-existant (le flux « mot de passe oublié »
+est déjà cassé aujourd'hui, avec ou sans thème), pas quelque chose que la maquette ou le thème
+créent ou aggravent. Le Lot 4 est autorisé à couvrir l'écran de saisie « mot de passe oublié » et son
+état d'erreur honnête déjà maquettés (`phase-02-ui-mockups-ep17-lot4.md` §2bis/§4bis), sans attendre
+la résolution SMTP — la maquette documente le comportement réel plutôt que de le masquer, ce qui est
+cohérent avec l'exigence UX de cas d'erreur honnêtes (§3, critère « Cas nominaux et cas d'erreur
+documentés »).
+
+**Réévaluation de l'avis du §5**, fondé sur les 2 bloqueurs structurels de ce Gate (parcours
+utilisateurs absents, maquettes absentes), tous deux levés depuis (§10) :
+
+| Agent | Avis révisé | Réserves continues |
+| --- | --- | --- |
+| UX/UI Design Lead | **GO sous réserve** — les 2 lacunes structurelles qui fondaient le NO GO en l'état (absence de parcours, absence de maquettes) sont levées : `phase-02-user-journeys-ep17-lot4.md` et `phase-02-ui-mockups-ep17-lot4.md` produits et vérifiés en exécutant réellement le realm (méthode plus rigoureuse qu'une lecture de code) ; le périmètre est stabilisé à 6 écrans (§9) ; `DD-EP17-14` ne bloque plus ce Gate (suivi propre, ci-dessus) | `DD-EP17-13` (absence de traduction française) à traiter avec le thème lui-même, pas encore corrigée ; validation Product Owner du **contenu** des deux documents produits reste distincte de cette décision de Gate ; `DD-EP17-03` non close (Option B tranchée mais `tokens.css` non implémenté) |
+
+**Ce que cette révision ne couvre pas** : la validation Product Owner du contenu de
+`phase-02-user-journeys-ep17-lot4.md`/`phase-02-ui-mockups-ep17-lot4.md` reste une action distincte
+de cette décision de Gate — un GO sous réserve ici statue sur la complétude structurelle du dossier
+UX, pas sur l'approbation du contenu produit écran par écran. L'extension du Plan d'Exécution au
+Lot 4 (`plan-execution-ux-ui-primeng-keycloak.md` §12) reste elle aussi une action Product Owner
+distincte, préalable à tout développement effectif.
+
+**Prochaine action autorisée** : le Product Owner statue en §6 (ce document) et en §6 de
+`gate-04A-decision-ep17-lot4.md`. Un GO ou GO sous réserve à ce niveau ne vaudrait toujours pas, à
+lui seul, autorisation de code — l'extension du Plan d'Exécution au Lot 4 reste une action distincte
+requise avant tout développement de thème.

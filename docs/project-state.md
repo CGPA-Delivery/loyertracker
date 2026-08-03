@@ -4983,3 +4983,55 @@ thème, aucune modification de realm produits par ce travail.
 décision explicite sur le traitement de `DD-EP17-14` (SMTP comme préalable bloquant au thème « mot
 de passe oublié », ou thème livré en assumant ce sous-écran incomplet) — préalable à toute nouvelle
 instruction complète du Gate 04A/02A Lot 4, elle-même préalable à tout code de thème.
+
+## 2026-08-02 — `DD-EP17-14` découplée du Lot 4 ; avis Gate 04A/02A révisés en GO sous réserve
+
+**Instruction explicite reçue** : « j'approuve ta recommandation », en réponse à la proposition de
+traitement de `DD-EP17-14` (flux « mot de passe oublié » cassé en Production, `HTTP 500`, absence de
+SMTP, reproduit et vérifié sur l'image Keycloak exacte de Production — cf. entrée précédente).
+
+**Décision actée** : `DD-EP17-14` reste ouverte au registre de dette, mais suit désormais un **suivi
+propre, découplé du calendrier du Lot 4** — c'est un défaut de Production pré-existant (le flux est
+déjà cassé aujourd'hui, indépendamment de tout thème), pas quelque chose que le pilote Keycloak crée
+ou aggrave. Le Lot 4 est autorisé à couvrir l'écran de saisie « mot de passe oublié » et son état
+d'erreur honnête déjà maquettés (`phase-02-ui-mockups-ep17-lot4.md` §2bis/§4bis), sans attendre la
+résolution SMTP.
+
+**Effet sur les avis spécialisés** : les 4 avis **NO GO en l'état** portés sur le Gate 04A et le Gate
+02A Lot 4 sont révisés en **GO sous réserve** — chacun des bloqueurs qui les fondait est désormais
+résolu (source de tokens tranchée, rôle de sécurité désigné, périmètre à 6 écrans confirmé, parcours
+et maquettes produits et vérifiés en conditions réelles, et maintenant `DD-EP17-14` découplée plutôt
+que bloquante) :
+
+| Agent | Avis révisé |
+| --- | --- |
+| Design Architect | GO sous réserve |
+| Frontend Architect | GO sous réserve |
+| DevSecOps Lead | GO sous réserve |
+| UX/UI Design Lead | GO sous réserve |
+
+Détail complet et réserves continues par rôle : `gate-04A-decision-ep17-lot4.md` §11 et
+`gate-02A-decision-ep17-lot4.md` §11.
+
+**Ce que cette décision ne lève pas** :
+* L'extension du Plan d'Exécution au Lot 4 (`plan-execution-ux-ui-primeng-keycloak.md` §12, toujours
+  limité aux Lots 1-3) reste une action Product Owner distincte — un GO ou GO sous réserve de Gate
+  n'a jamais valu, à lui seul, autorisation de code (`CLAUDE.md`).
+* La validation Product Owner du **contenu** de `phase-02-user-journeys-ep17-lot4.md` et
+  `phase-02-ui-mockups-ep17-lot4.md` reste distincte de la décision de Gate.
+* `DD-EP17-03` non close (Option B tranchée, implémentation `tokens.css` restant à produire).
+* `DD-EP17-13` (absence de traduction française) non traitée, à couvrir avec le thème lui-même.
+* Checklist de remplacement de `CHECK-FRONTEND-01` non encore instanciée.
+* Audit des 13 interdictions de sécurité `ADR-UI-001` §Sécurité contre le code de thème réel — sans
+  objet tant qu'aucun code de thème n'existe.
+* `STG-ISOL-01` (Staging mutualisé) reste un jalon futur, pertinent à la première promotion Staging.
+
+**Documents modifiés** : `design-debt-register-loyertracker.md` (`DD-EP17-14`, colonnes
+Responsable/Échéance/Statut) ; `gate-04A-decision-ep17-lot4.md` (§11, nouveau) ;
+`gate-02A-decision-ep17-lot4.md` (§11, nouveau). Aucun code de thème, aucune modification de realm,
+aucune dépendance ajoutée par ces documents — strictement documentaire.
+
+**Prochaine action autorisée** : le Product Owner statue en §6 de `gate-04A-decision-ep17-lot4.md`
+et en §6 de `gate-02A-decision-ep17-lot4.md`. Une décision GO ou GO sous réserve à ce niveau ne
+vaudrait toujours pas, à elle seule, autorisation de code de thème — l'extension explicite du Plan
+d'Exécution au Lot 4 reste requise au préalable.
