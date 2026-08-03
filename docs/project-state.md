@@ -5157,3 +5157,75 @@ symbolique) ; `design-debt-register-loyertracker.md` (`DD-EP17-03` close) ; `ADR
 **Prochaine action autorisée** : câblage du thème Keycloak lui-même (`theme.properties`,
 templates FreeMarker des 6 écrans confirmés), sous réserve continue des points ci-dessus —
 prochaine étape naturelle du Lot 4 une fois cette fondation en place.
+
+## 2026-08-03 — Câblage du thème Keycloak (DD-EP17-01)
+
+**Instruction explicite reçue** : « enchaîne sur le câblage du thème Keycloak ».
+
+**Stratégie retenue, CSS-only** : `infra/keycloak/themes/loyertracker/login/theme.properties`
+déclare `parent=keycloak` (héritant lui-même de `base`) — **aucun template FreeMarker n'est
+surchargé**. Les 6 écrans confirmés (login, mot de passe oublié, reset password, session expirée,
+accès refusé, logout) partagent tous le même `template.ftl` hérité ; une seule feuille de style
+(`resources/css/login.css`, tokens `--lt-*`) suffit à les thémer tous. Ce choix élimine la quasi-
+totalité de la surface de risque listée par `ADR-UI-001` §Sécurité (CSRF, redirections, messages de
+sécurité, flux OIDC/PKCE) : aucune logique FreeMarker n'est touchée, seule l'apparence l'est.
+
+**Vérifié par un Keycloak réel** (même digest que Dev/Staging/Production), pas une lecture de code
+seule :
+* Structure du thème par défaut (KC 24.0.5) inspectée directement depuis le jar de thèmes de
+  l'image — confirme `parent=base`, les classes PatternFly réelles (`card-pf`, `pf-c-form-control`,
+  `pf-c-button.pf-m-primary`, `pf-m-danger`/`pf-m-success`/`pf-m-warning`/`pf-m-info`,
+  `kc-feedback-text`) et que Keycloak **concatène** `styles` du parent et de l'enfant (confirmé par
+  les 6 `<link>` effectivement présents dans la page rendue — PatternFly hérité + nos 2 fichiers).
+* Écrans connexion et mot de passe oublié capturés par Chrome headless : thème sombre appliqué,
+  cohérent avec le reste du produit.
+* Message d'erreur de champ (« Invalid username or password. ») initialement non coloré malgré la
+  règle CSS écrite — bug de spécificité réel détecté (PatternFly avait la même spécificité,
+  chargé après), corrigé, puis **vérifié par échantillonnage de pixels** sur la capture
+  (`(254, 202, 202)` = exactement `--lt-state-danger` `#fecaca`) plutôt que par jugement visuel
+  d'une vignette.
+* Une règle CSS ciblant un logo image (`div.kc-logo-text`) s'est révélée être du code mort : ce
+  bloc n'existe pas dans le HTML réellement rendu par cette version de Keycloak (l'en-tête affiche
+  le nom du realm en texte, pas d'image). Retirée avant commit plutôt que laissée sans effet.
+
+**Activation sans toucher aux fichiers de realm** : le Plan d'Exécution (§3 Lot 4) pose comme
+prérequis bloquant « aucune modification des flux OIDC/PKCE ni des fichiers de realm ». Nouveau
+script dédié `infra/keycloak/activate-login-theme.sh`, décorrélé de `bootstrap-test-account.sh`
+(aucune dépendance à un compte de test, donc réutilisable identiquement en Production) : positionne
+`loginTheme=loyertracker` exclusivement via l'API Admin (`kcadm.sh`), jamais par édition du JSON
+versionné. Vérifié réel : script exécuté deux fois contre un realm importé (idempotent, confirmé),
+`git diff` sur les deux fichiers de realm confirmé vide après exécution.
+
+**Câblage Docker, 3 environnements** :
+* `docker-compose.yml`, `docker-compose.staging.yml` : montage `./infra/keycloak/themes/loyertracker`
+  (lecture seule) sur le service `keycloak` + nouveau service one-shot `keycloak-theme-init`.
+* `docker-compose.prod.yml` : **la liste `volumes` d'un override Compose remplace, ne complète pas,
+  celle du fichier de base** — le mont du thème a donc dû être répété explicitement dans ce fichier,
+  sinon silencieusement perdu en Production. `keycloak-theme-init` n'a pas besoin d'y être redéfini
+  (aucune dépendance à un compte de test) : hérité tel quel du fichier de base, vérifié par
+  `docker compose -f docker-compose.yml -f docker-compose.prod.yml config`.
+* Les 3 configurations fusionnées (dev, staging, prod) vérifiées par `docker compose ... config` —
+  montage du thème et service d'activation confirmés présents dans les 3.
+* Intégration complète testée réellement (pas seulement le service `keycloak` isolé) : stack dev
+  démarrée (`postgres`, `keycloak`, `keycloak-init`, `keycloak-theme-init`), les deux services
+  one-shot s'exécutent avec succès l'un à côté de l'autre (`keycloak-init` toujours fonctionnel,
+  non affecté), fichiers du thème confirmés montés et servis à l'intérieur du conteneur réel, puis
+  environnement détruit proprement (`docker compose down` + suppression du volume nommé de test —
+  aucun résidu).
+
+**`DD-EP17-01` non close** — reste ouvert : `STG-ISOL-01` (Staging mutualisé) et le Gate Staging
+dédié, prérequis explicites de la preuve attendue de cette dette, non encore engagés. Les autres
+réserves de Lot 4 (`DD-EP17-13` langue, `DD-EP17-14` SMTP découplée, checklist
+`CHECK-FRONTEND-01`, audit sécurité `ADR-UI-001` §Sécurité contre le code réel — désormais possible
+puisque du code existe, mais pas encore fait) restent également ouvertes.
+
+**Documents modifiés** : `infra/keycloak/themes/loyertracker/login/theme.properties` (nouveau),
+`.../resources/css/login.css` (nouveau) ; `infra/keycloak/activate-login-theme.sh` (nouveau) ;
+`docker-compose.yml`, `docker-compose.staging.yml`, `docker-compose.prod.yml` (montage thème +
+service `keycloak-theme-init`) ; `design-debt-register-loyertracker.md` (`DD-EP17-01` progression).
+Aucune modification de `realm-loyertracker.json` / `realm-loyertracker-production.json` (vérifié
+par `git diff`, vide).
+
+**Prochaine action autorisée** : audit des 13 interdictions de sécurité `ADR-UI-001` §Sécurité
+contre ce code réel (désormais possible, du code existant) ; traitement de `DD-EP17-13` (langue) ;
+`STG-ISOL-01` avant toute promotion Staging du thème.

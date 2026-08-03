@@ -32,6 +32,9 @@ services:
       # Impact : uniquement en cas de down -v + redémarrage à froid (Keycloak ignore --import-realm
       # si le realm existe déjà en base).
       - ./infra/keycloak/realm-loyertracker-production.json:/opt/keycloak/data/import/realm-loyertracker.json:ro
+      # Cette liste REMPLACE (ne complète pas) celle du compose de base : le mont du thème doit
+      # donc être répété ici explicitement (Lot 4, DD-EP17-01), sinon perdu en Production.
+      - ./infra/keycloak/themes/loyertracker:/opt/keycloak/themes/loyertracker:ro
     restart: always
 
   api:

@@ -42,6 +42,9 @@ services:
       # Realm versionné (sans secret) importé au démarrage. Mont du seul fichier
       # JSON : le répertoire d'import ne doit contenir que des realms.
       - ./infra/keycloak/realm-loyertracker.json:/opt/keycloak/data/import/realm-loyertracker.json:ro
+      # Thème Keycloak LoyerTracker (Lot 4, DD-EP17-01) : lecture seule, mont du seul sous-répertoire
+      # du thème custom — les thèmes intégrés (keycloak, base, ...) restent ceux de l'image.
+      - ./infra/keycloak/themes/loyertracker:/opt/keycloak/themes/loyertracker:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,6 +73,24 @@ services:
       KEYCLOAK_API_CLIENT_SECRET: ${KEYCLOAK_API_CLIENT_SECRET}
     volumes:
       - ./infra/keycloak/bootstrap-test-account.sh:/opt/keycloak/data/bootstrap-test-account.sh:ro
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks: [loyertracker-net]
+    restart: "no"
+
+  # One-shot : active le thème `loyertracker` (loginTheme) après l'import du realm, via l'API
+  # Admin uniquement — jamais par édition de realm-loyertracker.json (Lot 4, DD-EP17-01).
+  # Décorrélé de keycloak-init (bootstrap-test-account.sh) : aucune dépendance à un compte de
+  # test, donc réutilisable à l'identique en Staging/Production.
+  keycloak-theme-init:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    entrypoint: ["bash", "/opt/keycloak/data/activate-login-theme.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./infra/keycloak/activate-login-theme.sh:/opt/keycloak/data/activate-login-theme.sh:ro
     depends_on:
       keycloak:
         condition: service_healthy
