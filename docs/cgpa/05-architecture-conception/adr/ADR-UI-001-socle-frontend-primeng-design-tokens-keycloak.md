@@ -164,6 +164,38 @@ consommation par une future app mobile). **Ce choix reste à confirmer explicite
 Plan d'Exécution** — cette ADR ne fige pas le Lot 4 (thème Keycloak), qui reste un lot distinct
 soumis à son propre Gate.
 
+> **Note d'implémentation (2026-08-03, DD-EP17-03 close)** : Option B confirmée par le Product
+> Owner (2026-08-02) et implémentée. Le fichier physique canonique est
+> `infra/keycloak/themes/loyertracker/login/resources/css/tokens.css` — **pas** l'inverse (source
+> côté Angular, copie côté Keycloak) — pour une raison non anticipée par ce document : le volume
+> Docker qui sera monté au runtime dans le conteneur Keycloak ne pourra couvrir que l'arbre
+> `infra/keycloak/themes/` (même patron que le montage déjà en place pour
+> `realm-loyertracker.json`) ; un fichier canonique situé ailleurs dans le dépôt (ex. côté
+> `frontend/`) serait physiquement inaccessible au conteneur.
+>
+> **Tentative initiale d'un lien symbolique, abandonnée (2026-08-03)** : la première implémentation
+> faisait de `frontend/src/styles/tokens/_lt-tokens.scss` un lien symbolique relatif vers le
+> fichier canonique (zéro duplication, même inode). Testée par un build Docker réel de l'image
+> Frontend (`docker build -f frontend/Dockerfile .`, pas seulement `ng build` en local), cette
+> approche échoue : `frontend/Dockerfile` ne copie que le sous-arbre `frontend/` dans son contexte
+> de build (`COPY frontend/ ./`) — le lien symbolique, une fois copié tel quel dans l'image, pointe
+> hors de ce contexte et devient introuvable (`ENOENT` confirmé). Un lien inverse (canonique côté
+> Angular, lien côté Keycloak) échouerait symétriquement au runtime, pour la même raison que
+> ci-dessus (volume Docker Keycloak limité à `infra/keycloak/themes/`). **Aucun lien symbolique ne
+> peut satisfaire les deux frontières de conteneur à la fois.**
+>
+> **Implémentation retenue** : duplication disciplinée — exactement le compromis qu'Option B décrit
+> déjà dans ce document (« risque de divergence, dépend de la discipline »), sans automatisation
+> ajoutée. `frontend/src/styles/tokens/_lt-tokens.scss` contient la même définition de tokens que le
+> fichier canonique (seule la syntaxe des commentaires diffère légitimement entre SCSS et CSS pur) ;
+> toute modification doit être répercutée manuellement dans les deux fichiers, chacun portant un
+> commentaire d'en-tête qui rappelle cette obligation et référence l'autre fichier. Vérifié par
+> `ng build` (34 tokens `--lt-*` présents dans le bundle CSS compilé), `ng test` (148/148, aucune
+> régression) **et** un build Docker réel de l'image Frontend (succès, contrairement à la tentative
+> par lien symbolique). Le câblage du thème Keycloak lui-même (`theme.properties`, `login.ftl`,
+> montage du volume dans `docker-compose*.yml`, `loginTheme` dans le realm) reste un travail
+> distinct, non couvert par cette note — objet du reste du Lot 4.
+
 ## Organisation des fichiers
 
 Voir arborescences cibles ci-dessus (§Stratégie de thème Keycloak) et
