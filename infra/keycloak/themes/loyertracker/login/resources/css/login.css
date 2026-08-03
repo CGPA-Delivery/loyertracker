@@ -1,0 +1,112 @@
+/* Thème Keycloak LoyerTracker — réhabillage CSS-only du thème PatternFly hérité (`parent=keycloak`).
+ *
+ * Aucun template FreeMarker n'est modifié : ce fichier ne fait que réappliquer les tokens
+ * --lt-* (importés via tokens.css, chargé avant celui-ci — theme.properties `styles`) par-dessus
+ * les classes PatternFly déjà rendues par le thème hérité (`theme/keycloak/login/theme.properties`
+ * du thème par défaut, vérifié dans l'image Keycloak 24.0.5 réelle avant d'écrire ce fichier).
+ *
+ * Cohérence de marque : mêmes valeurs neutres que le bouton Angular
+ * (frontend/src/styles/components/_button.scss — #1e293b/#334155 en dur, pas encore migrées vers
+ * un token, cf. commentaire de ce fichier) plutôt qu'une couleur de marque inventée qui n'existe
+ * nulle part ailleurs dans le produit.
+ *
+ * Ne masque, n'atténue et ne modifie AUCUN message de sécurité (ADR-UI-001 §Sécurité) — seule la
+ * couleur des messages déjà rendus par le thème hérité est stylée, jamais leur contenu ni leur
+ * présence conditionnelle.
+ */
+
+/* Fond de page : remplace l'image de marketing Keycloak par défaut par une surface unie. */
+.login-pf {
+  background: none;
+}
+.login-pf body {
+  background: var(--lt-surface-page);
+  background-size: auto;
+  height: 100%;
+}
+
+body {
+  color: var(--lt-text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+#kc-header-wrapper {
+  color: var(--lt-text-primary);
+}
+
+/* Carte de connexion */
+.card-pf {
+  background: var(--lt-surface-card);
+  border: 1px solid var(--lt-border-default);
+  border-radius: var(--lt-radius-default);
+  color: var(--lt-text-primary);
+}
+
+/* Note vérifiée (build réel, 2026-08-03) : contrairement au thème `keycloak` classique
+   d'anciennes versions, `template.ftl` de Keycloak 24 n'affiche aucun logo image dans l'en-tête
+   (`#kc-header-wrapper` ne rend que `realm.displayNameHtml`, du texte). Aucune règle CSS ciblant
+   un logo image n'est donc ajoutée ici — un tel remplacement nécessiterait de surcharger
+   `template.ftl` (risque FreeMarker écarté par ce thème, cf. theme.properties). L'en-tête texte
+   « LoyerTracker » (realm `displayName`) suffit à l'identification de marque pour ce pilote. */
+
+/* Champs de formulaire */
+.pf-c-form-control {
+  background: var(--lt-surface-page);
+  border: 1px solid var(--lt-border-default);
+  color: var(--lt-text-primary);
+  border-radius: var(--lt-radius-default);
+}
+.pf-c-form-control:focus {
+  outline: var(--lt-focus-ring-width) var(--lt-focus-ring-style) var(--lt-focus-ring);
+  outline-offset: 1px;
+  border-color: var(--lt-focus-ring);
+}
+
+.pf-c-form__label-text,
+label {
+  color: var(--lt-text-primary);
+}
+
+/* Bouton d'action principal — même traitement neutre que le reste du produit, aucune couleur
+   de marque distincte inventée pour ce pilote. */
+.pf-c-button.pf-m-primary {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: var(--lt-text-primary);
+  border-radius: var(--lt-radius-default);
+}
+.pf-c-button.pf-m-primary:hover {
+  background: #334155;
+}
+
+/* Messages d'alerte (erreur/succès/avertissement/info) — classes réelles rendues par
+   theme/base/login/template.ftl (vérifiées dans l'image Keycloak 24.0.5) : pf-m-danger,
+   pf-m-success, pf-m-warning, pf-m-info sur le conteneur ; kc-feedback-text sur le texte.
+   Cas distinct vérifié par build réel : les messages d'erreur au niveau d'un champ
+   (kcInputErrorMessageClass = « pf-c-form__helper-text pf-m-error required kc-feedback-text »)
+   portent `kc-feedback-text` directement, sans conteneur `.pf-c-alert` ancêtre. Spécificité à deux
+   classes requise (`.pf-c-form__helper-text.kc-feedback-text`) : la règle PatternFly héritée sur
+   `.pf-c-form__helper-text.pf-m-error` a la même spécificité et, chargée avant la nôtre, ne serait
+   sinon pas systématiquement supplantée par un simple `.kc-feedback-text` à une classe — vérifié
+   par capture d'écran réelle avant correction (couleur PatternFly par défaut visible, pas la
+   nôtre). */
+.pf-c-form__helper-text.kc-feedback-text {
+  color: var(--lt-state-danger);
+}
+.pf-c-alert.pf-m-danger .kc-feedback-text {
+  color: var(--lt-state-danger);
+}
+.pf-c-alert.pf-m-warning .kc-feedback-text {
+  color: var(--lt-state-warning);
+}
+.pf-c-alert.pf-m-success .kc-feedback-text {
+  color: var(--lt-state-success);
+}
+.pf-c-alert.pf-m-info .kc-feedback-text {
+  color: var(--lt-state-info);
+}
+
+/* Liens */
+a {
+  color: var(--lt-focus-ring);
+}
