@@ -5068,3 +5068,35 @@ Owner, si le développement du thème doit commencer ; en parallèle, validation
 contenu de `phase-02-user-journeys-ep17-lot4.md`/`phase-02-ui-mockups-ep17-lot4.md`, et traitement
 des réserves listées ci-dessus (notamment `DD-EP17-03`, `DD-EP17-13`, checklist de remplacement de
 `CHECK-FRONTEND-01`).
+
+## 2026-08-03 — Plan d'Exécution étendu au Lot 4 (Pilote Keycloak)
+
+**Instruction explicite reçue** : « étends le Plan d'Exécution au Lot 4 ».
+
+**Décision actée** : `plan-execution-ux-ui-primeng-keycloak.md` §12 étendu — statut passe de
+« APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2 ET LOT 3 (RESTREINT) » à « APPROUVÉ SOUS RÉSERVE —
+PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT) ET LOT 4 (PILOTE KEYCLOAK) ». Fondé sur les deux Gates
+04A/02A Lot 4, tous deux statués **GO sous réserve** le 2026-08-03 (§6 de chacun). Le périmètre
+approuvé est le périmètre **confirmé** (6 écrans du thème `login/` : login, mot de passe oublié,
+reset password, session expirée, accès refusé, logout), pas l'énoncé initial du §3 (qui incluait à
+tort « invitation »/« invitation expirée » et l'Account Console) — corrigé par les vérifications
+factuelles antérieures (`gate-04A-decision-ep17-lot4.md` §9).
+
+**Ce que cette extension n'autorise pas sans réserve** : `DD-EP17-03` (implémentation `tokens.css`
+restant à produire avant tout code de thème) ; `DD-EP17-13` (traduction française, à couvrir avec le
+thème) ; `DD-EP17-14` (flux « mot de passe oublié » cassé, découplée du calendrier — le thème peut
+couvrir l'écran de saisie et son état d'erreur honnête, sans masquer l'échec réel) ; checklist de
+remplacement de `CHECK-FRONTEND-01` (à instancier au fil des preuves) ; les 13 interdictions de
+sécurité `ADR-UI-001` §Sécurité (aucune modification des flux OIDC/PKCE ni des fichiers de realm,
+à respecter dès la première ligne de code) ; `STG-ISOL-01` (obligatoire avant toute promotion
+Staging, pas avant le développement) ; validation Product Owner du contenu des parcours/maquettes
+déjà produits, distincte de cette approbation de Plan.
+
+**Documents modifiés** : `plan-execution-ux-ui-primeng-keycloak.md` (en-tête, §12). Aucun code de
+thème, aucune modification de realm, aucune dépendance ajoutée par cette extension — strictement
+documentaire.
+
+**Prochaine action autorisée** : le développement technique du thème Keycloak (Lot 4, 6 écrans
+`login/`) peut démarrer, en commençant par l'implémentation de la source de tokens commune
+(`DD-EP17-03`, Option B) avant tout code consommant ces tokens — même discipline que les Lots
+précédents (fondations avant intégration).

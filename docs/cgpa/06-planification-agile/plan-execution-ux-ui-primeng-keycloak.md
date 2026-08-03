@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |---|---|
-| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2 ET LOT 3 (RESTREINT)** (voir §12, 2026-07-31, 2026-08-01, puis 2026-08-02) |
+| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT) ET LOT 4 (PILOTE KEYCLOAK)** (voir §12, 2026-07-31, 2026-08-01, 2026-08-02, puis 2026-08-03) |
 | Date | 2026-07-30 |
 | Product Owner | jptshilombo@gmail.com |
 | Décision de socle liée | `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md` (Acceptée) |
@@ -382,3 +382,62 @@ sprint actif sans décision explicite du Product Owner.**
 * **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2 ET LOT 3 (RESTREINT) »
   (§ en-tête). Le développement technique du Lot 3 (section Patrimoines/Biens) peut démarrer,
   section par section (liste avant formulaire), sous réserve continue des points ci-dessus.
+
+### Extension de l'approbation au Lot 4 — Pilote Keycloak (2026-08-03)
+
+* **Instruction explicite reçue** : « étends le Plan d'Exécution au Lot 4 ».
+* Le Lot 3 restreint (section Patrimoines/Biens, `US-133`/`US-134`) est livré, mergé et validé
+  Product Owner (« je valide », 2026-08-02, `gate-04A-decision-ep17-lot3.md` §8). Les deux Gates
+  applicables au Lot 4 ont été instruits et statués : `gate-04A-decision-ep17-lot4.md` et
+  `gate-02A-decision-ep17-lot4.md`, tous deux **GO sous réserve, périmètre limité à EP-17 Lot 4**
+  (décision Product Owner du 2026-08-03, §6 de chaque instance — « statue en §6 des deux gates, GO
+  sous réserve »).
+* **Confirmation de périmètre préalable, distincte de ce Plan** : contrairement à l'énoncé initial
+  de ce §3 (« invitation », « invitation expirée » incluses, profil si Account Console), les
+  vérifications factuelles menées lors de l'instruction des Gates (`gate-04A-decision-ep17-lot4.md`
+  §8-§9) établissent que :
+  * l'**Account Console est exclue** du périmètre — aucun usage réel constaté
+    (`screen-inventory-loyertracker.md`) ;
+  * les écrans « invitation » et « invitation expirée » **ne sont pas des écrans Keycloak** —
+    mécanisme entièrement applicatif (`InvitationService.java`), jamais exposé via une page web,
+    tracé séparément (`DD-EP17-12`), hors périmètre d'un thème Keycloak.
+  Le périmètre réel et confirmé de ce Lot 4 est donc restreint à **6 écrans** du thème `login/` :
+  login, mot de passe oublié, reset password, session expirée, accès refusé, logout.
+* **Décision Product Owner** : Plan d'Exécution **approuvé, strictement pour le périmètre Lot 4
+  ainsi confirmé** (6 écrans `login/`, ci-dessus), en plus des Lots 1, 2 et 3 (restreint) déjà
+  approuvés. Cette approbation ne s'étend pas à l'Account Console, ni à l'acceptation d'invitation
+  (`DD-EP17-12`, hors périmètre Keycloak), ni aux Lots 5 et 6 — chacun reste un point de contrôle
+  GO/NO GO distinct.
+* **Ce que cette approbation ne couvre pas** — verrous inchangés :
+  * `DD-EP17-03` (source de tokens partagée Angular/Keycloak) — Option B tranchée par le Product
+    Owner, mais **non close** : l'implémentation `tokens.css` commune reste à produire avant tout
+    code de thème consommant ces tokens ;
+  * `DD-EP17-13` (absence de traduction française sur l'ensemble des écrans Keycloak) — non
+    traitée, à couvrir avec le développement du thème lui-même ;
+  * `DD-EP17-14` (flux « mot de passe oublié » en échec fonctionnel réel, `HTTP 500`, absence SMTP)
+    — reste ouverte, suivie séparément et découplée du calendrier de ce Lot
+    (`gate-04A-decision-ep17-lot4.md` §11) ; le thème est autorisé à couvrir l'écran de saisie et
+    son état d'erreur honnête déjà maquettés (`phase-02-ui-mockups-ep17-lot4.md` §2bis/§4bis), sans
+    attendre la résolution SMTP — thémer ce sous-écran en masquant l'échec réel serait en revanche
+    hors de cette approbation ;
+  * `CHECK-FRONTEND-01` — déclaré non applicable tel quel à un thème FreeMarker/CSS non-Angular ;
+    la checklist allégée de remplacement reste **à instancier** au moment où les preuves seront
+    produites, pas encore rédigée ;
+  * les 13 interdictions de sécurité (`ADR-UI-001` §Sécurité, reprises mission §17 — notamment
+    aucune modification des flux OIDC/PKCE ni des fichiers de realm) s'appliquent intégralement à
+    tout code produit sous cette approbation ; aucun audit dédié n'a encore pu être mené faute de
+    code de thème existant — à produire au fil du développement, pas après coup ;
+  * `STG-ISOL-01` (Staging mutualisé `ai-test-server`) reste **obligatoire avant toute promotion
+    Staging** du thème (§3, rappelé) — cette approbation couvre le développement, pas la
+    promotion ;
+  * la validation Product Owner du **contenu** de `phase-02-user-journeys-ep17-lot4.md` et
+    `phase-02-ui-mockups-ep17-lot4.md` reste distincte de cette approbation de Plan et des
+    décisions de Gate déjà rendues ;
+  * compatibilité de version Keycloak (RSV-UI-08) : **déjà vérifiée sans réserve**
+    (`gate-04A-decision-ep17-lot4.md` §9) — seul point du §3 Lot 4 entièrement clos, mentionné ici
+    pour mémoire, pas comme verrou restant.
+* **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT) ET
+  LOT 4 (PILOTE KEYCLOAK) » (§ en-tête). Le développement technique du Lot 4 (thème `login/`, 6
+  écrans confirmés) peut démarrer, sous réserve continue des points ci-dessus — en particulier
+  l'implémentation de la source de tokens commune (`DD-EP17-03`) avant tout code de thème, et le
+  respect intégral des interdictions de sécurité Keycloak dès la première ligne de code.
