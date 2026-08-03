@@ -5304,3 +5304,69 @@ prérequis au Lot 5, pas un remplacement.
 Keycloak) ; `STG-ISOL-01` (contrôles avant/après Staging mutualisé) avant toute promotion du thème
 sur `ai-test-server` ; exécution réelle des scénarios de test de sécurité du Lot 5 (§9) une fois en
 Staging.
+
+## 2026-08-03 — `DD-EP17-13` close : traduction française des écrans Keycloak
+
+**Instruction explicite reçue** : « enchaîne sur DD-EP17-13, traduction française des écrans
+Keycloak ».
+
+**Constat qui change le problème** : `DD-EP17-13` a été identifiée en observant un realm réel
+tourner intégralement en anglais, mais **aucune traduction n'a dû être écrite** — Keycloak 24.0.5
+embarque déjà une traduction française complète du thème par défaut
+(`theme/base/login/messages/messages_fr.properties`, extraite et inspectée directement depuis
+l'image réelle du dépôt, pas une hypothèse). Le vrai défaut : `internationalizationEnabled`,
+`supportedLocales` et `defaultLocale` sont absents des deux fichiers de realm versionnés — recherche
+textuelle exhaustive confirmée vide — donc Keycloak servait sa locale par défaut (anglais), realm
+après realm, sans jamais avoir été configuré pour proposer le français.
+
+**Couverture vérifiée par clé, pas par supposition** : les 6 templates FreeMarker portant les 6
+écrans confirmés du Lot 4 (`login.ftl`, `login-reset-password.ftl`, `login-page-expired.ftl`,
+`error.ftl`, `logout-confirm.ftl`, `template.ftl` commun) extraits du thème réel — 31 clés `msg(...)`
+distinctes recensées, comparées une à une entre `messages_en.properties` et `messages_fr.properties`
+réels. Seules 2 manquent côté français : `languages` (libellé du sélecteur de langue, non affiché
+puisqu'une seule locale est supportée — `template.ftl` : `<#if ... locale.supported?size gt 1>`,
+vérifié) et `showPassword`/`hidePassword` (attributs `aria-label`/`data-label-*` du bouton
+afficher/masquer le mot de passe, jamais un texte visible — vérifié dans `login.ftl`). Aucun impact
+utilisateur.
+
+**Activation, même discipline que l'activation du thème** : `infra/keycloak/activate-login-theme.sh`
+étendu (pas de nouveau script ni service — même realm, même moment du cycle de vie, aucun nouveau
+secret) pour positionner `internationalizationEnabled=true`, `supportedLocales=["fr"]`,
+`defaultLocale=fr` via l'API Admin (`kcadm.sh`), jamais par édition des fichiers de realm versionnés
+— même prérequis bloquant que `DD-EP17-01`. Une seule locale supportée (pas `["en","fr"]`) : le
+Frontend Angular n'a aucun sélecteur de langue nulle part (`grep` exhaustif, aucune trace de `i18n`/
+`ngx-translate`/`@angular/localize`) — le produit est français uniquement, sans choix de langue ;
+avec une seule locale realm, Keycloak n'affiche d'ailleurs lui-même aucun sélecteur.
+
+**Aucun fichier de thème ajouté** : contrairement à l'hypothèse initiale (créer
+`infra/keycloak/themes/loyertracker/login/messages/messages_fr.properties`), rien de tel n'a été
+ajouté — la traduction héritée du thème `base` suffit intégralement, une surcharge aurait été de la
+duplication inutile sans valeur ajoutée.
+
+**Vérifié par un Keycloak réel** (même digest que Dev/Staging/Production), pas une lecture de code
+seule : stack dev démarrée (`postgres`, `keycloak`, `keycloak-init`, `keycloak-theme-init`), script
+d'activation étendu exécuté avec succès (log confirmé : locale française activée après le thème).
+Écran de connexion obtenu par un flux OIDC/PKCE réel (`code_challenge`/`code_verifier` générés,
+client public `loyertracker-spa`, requête HTTP directe sur le réseau Docker du realm, aucun
+raccourci) : `<html lang="fr">`, titre « Se connecter à LoyerTracker », corps « Connectez-vous à
+votre compte » — confirmé en français. Lien « mot de passe oublié » suivi avec la session réelle
+(cookies, `tab_id`) : page réelle obtenue, en-tête « Mot de passe oublié ? » confirmé (clé
+`emailForgotTitle`, pas un texte de lien réutilisé par coïncidence). Zéro occurrence de
+`kc-locale` dans les deux pages rendues — sélecteur de langue confirmé absent, cohérent avec
+l'attendu. Écrans session expirée/accès refusé/logout non déclenchés en direct (nécessiteraient de
+forger des états serveur artificiels) — couverts par la vérification statique exhaustive des clés
+ci-dessus, mécanisme d'activation identique et réel (drapeau realm unique, pas de logique par écran).
+Environnement détruit proprement ensuite (`docker compose down -v`), aucun résidu.
+
+**`DD-EP17-13` close** au registre de dette — traduction livrée et vérifiée, sans réserve de Staging
+explicite contrairement à `DD-EP17-01` (la preuve attendue du registre ne conditionnait pas la
+clôture à un Gate Staging dédié).
+
+**Documents modifiés** : `infra/keycloak/activate-login-theme.sh` (internationalisation ajoutée) ;
+`docs/project-state.md` (cette entrée) ; `design-debt-register-loyertracker.md` (`DD-EP17-13`
+close). Aucune modification de `realm-loyertracker.json` / `realm-loyertracker-production.json`.
+
+**Prochaine action autorisée** : `STG-ISOL-01` (contrôles avant/après Staging mutualisé) avant toute
+promotion du thème + de l'activation de locale sur `ai-test-server` ; exécution réelle des scénarios
+de test de sécurité du Lot 5 (§9) une fois en Staging ; `DD-EP17-14` (SMTP/« mot de passe oublié »
+cassé) reste suivie séparément, découplée du calendrier du Lot 4.
