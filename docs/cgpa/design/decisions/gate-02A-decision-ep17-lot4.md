@@ -78,8 +78,33 @@
 
 ## 6. Décision finale
 
-*(Section volontairement laissée non renseignée par Claude Code — décision réservée au Product
-Owner / CGPA Chief Delivery Officer, conformément à `CLAUDE.md`.)*
+**Décision** : **GO sous réserve**.
+
+**Instruction reçue (2026-08-03)** : « statue en §6 des deux gates, GO sous réserve », du Product
+Owner / CGPA Chief Delivery Officer.
+
+**Portée de la décision** : ce GO sous réserve couvre le périmètre de ce Gate 02A tel qu'instruit
+(§1-§11) — la correction de périmètre à 6 écrans (§9), la production et la vérification en
+conditions réelles des parcours et maquettes (`phase-02-user-journeys-ep17-lot4.md`,
+`phase-02-ui-mockups-ep17-lot4.md`, §10), et le découplage de `DD-EP17-14` (§11) sur lequel l'avis
+UX/UI Design Lead a été révisé de NO GO en l'état à GO sous réserve.
+
+**Réserves qui subsistent après ce GO** (reprises de §11, non levées par cette décision) :
+* `DD-EP17-13` (absence de traduction française des écrans Keycloak) non traitée, à couvrir avec le
+  thème lui-même.
+* Validation Product Owner du **contenu** de `phase-02-user-journeys-ep17-lot4.md` et
+  `phase-02-ui-mockups-ep17-lot4.md` — distincte de ce GO de Gate, qui statue sur la complétude
+  structurelle du dossier UX, pas sur l'approbation écran par écran.
+* `DD-EP17-03` non close — Option B tranchée, implémentation `tokens.css` restant à produire.
+* `DD-EP17-14` (flux « mot de passe oublié » cassé, Production) reste ouverte, suivie séparément
+  (§11) — non levée par ce GO, simplement découplée du calendrier du Lot 4.
+
+**Ce que ce GO n'autorise pas** : conformément à `CLAUDE.md` (« aucun code applicatif sans Plan
+d'Exécution approuvé », « un push ou merge ne vaut jamais autorisation de promotion »), ce GO sous
+réserve de Gate 02A ne vaut à lui seul ni extension du Plan d'Exécution au Lot 4
+(`plan-execution-ux-ui-primeng-keycloak.md` §12, toujours limité aux Lots 1-3), ni autorisation de
+développement de thème Keycloak. L'extension du Plan d'Exécution reste une action Product Owner
+distincte, préalable à tout code.
 
 ## 7. Traçabilité
 

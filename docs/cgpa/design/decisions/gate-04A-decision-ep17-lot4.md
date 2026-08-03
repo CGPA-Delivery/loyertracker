@@ -108,8 +108,33 @@
 
 ## 6. Décision finale
 
-*(Section volontairement laissée non renseignée par Claude Code — décision réservée au Product
-Owner / CGPA Chief Delivery Officer, conformément à `CLAUDE.md` et `chief-delivery-officer.md`.)*
+**Décision** : **GO sous réserve**.
+
+**Instruction reçue (2026-08-03)** : « statue en §6 des deux gates, GO sous réserve », du Product
+Owner / CGPA Chief Delivery Officer.
+
+**Portée de la décision** : ce GO sous réserve couvre le périmètre de ce Gate 04A tel qu'instruit
+(§1-§11) — la résolution des 4 bloqueurs structurels initiaux (§8), la vérification factuelle de
+version Keycloak et l'état SMTP (§9), la production des parcours et maquettes (§10), et le
+découplage de `DD-EP17-14` (§11) sur lequel les avis Design Architect, Frontend Architect et
+DevSecOps Lead ont été révisés de NO GO en l'état à GO sous réserve.
+
+**Réserves qui subsistent après ce GO** (reprises de §11, non levées par cette décision) :
+* `DD-EP17-03` non close — Option B tranchée, implémentation `tokens.css` restant à produire.
+* `DD-EP17-13` (absence de traduction française des écrans Keycloak) non traitée.
+* Checklist de remplacement de `CHECK-FRONTEND-01` non instanciée.
+* Audit des 13 interdictions de sécurité `ADR-UI-001` §Sécurité contre le code de thème réel — sans
+  objet tant qu'aucun code de thème n'existe.
+* `STG-ISOL-01` (Staging mutualisé) reste un jalon futur, à couvrir avant toute promotion Staging.
+* `DD-EP17-14` (flux « mot de passe oublié » cassé, Production) reste ouverte, suivie séparément
+  (§11) — non levée par ce GO, simplement découplée du calendrier du Lot 4.
+
+**Ce que ce GO n'autorise pas** : conformément à `CLAUDE.md` (« aucun code applicatif sans Plan
+d'Exécution approuvé », « un push ou merge ne vaut jamais autorisation de promotion »), ce GO sous
+réserve de Gate 04A ne vaut à lui seul ni extension du Plan d'Exécution au Lot 4
+(`plan-execution-ux-ui-primeng-keycloak.md` §12, toujours limité aux Lots 1-3), ni autorisation de
+développement de thème Keycloak. L'extension du Plan d'Exécution reste une action Product Owner
+distincte, préalable à tout code.
 
 ## 7. Traçabilité
 
