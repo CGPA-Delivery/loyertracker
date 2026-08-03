@@ -5229,3 +5229,78 @@ par `git diff`, vide).
 **Prochaine action autorisée** : audit des 13 interdictions de sécurité `ADR-UI-001` §Sécurité
 contre ce code réel (désormais possible, du code existant) ; traitement de `DD-EP17-13` (langue) ;
 `STG-ISOL-01` avant toute promotion Staging du thème.
+
+## 2026-08-03 — Audit des 13 interdictions de sécurité `ADR-UI-001` §Sécurité (DD-EP17-01)
+
+**Instruction explicite reçue** : « enchaîne sur le câblage du thème Keycloak » ; le thème étant
+déjà câblé et commité (`4509049`), l'utilisateur a choisi cette action parmi les trois listées
+ci-dessus lorsqu'interrogé sur la priorité.
+
+**Périmètre audité** — code réel, pas une relecture de la conception :
+`infra/keycloak/themes/loyertracker/login/theme.properties`, `.../resources/css/tokens.css`,
+`.../resources/css/login.css`, `infra/keycloak/activate-login-theme.sh`, montages/volumes des 3
+`docker-compose*.yml`.
+
+**Note de méthode** : `ADR-UI-001` §Sécurité énumère 11 interdictions ; le Plan d'Exécution §5 en
+reprend 12 (ajoute « altérer les messages de sécurité au profit de l'esthétique »), le tout sourcé
+de la mission §17 (prompt externe, non présent dans ce dépôt). Le compte « 13 » cité par ce
+document et par `gate-04A-decision-ep17-lot4.md` s'obtient en distinguant cookies et tokens comme
+deux interdictions séparées plutôt qu'une seule (« modifier les cookies ou les tokens »). Les 13
+points ci-dessous suivent ce découpage, faute d'accès à l'énumération originale de la mission.
+
+**Résultat — RAS sur les 13 points, code vérifié directement (pas seulement les commentaires du
+code qui l'affirment déjà)** :
+
+1. **Flux OIDC/PKCE** — `theme.properties` ne déclare que `parent=keycloak`, `import=common/keycloak`
+   et `styles=`. Aucun template FreeMarker (`login.ftl`, etc.) n'est surchargé — confirmé par
+   `find infra/keycloak/themes -type f` : seuls `theme.properties` et 2 fichiers CSS existent, aucun
+   `.ftl`. Le flux OIDC/PKCE reste entièrement celui du thème `keycloak` hérité.
+2. **Politiques de mot de passe** — aucun fichier de ce Lot ne touche à la configuration de realm ;
+   `git show 4509049` confirme qu'aucun des deux fichiers de realm n'apparaît dans le diff.
+3. **Message de sécurité masqué** — recherche de `display:\s*none`, `visibility:\s*hidden`,
+   `opacity:\s*0` dans les 2 fichiers CSS : aucune occurrence. Les sélecteurs `.pf-c-alert.pf-m-*`
+   et `.kc-feedback-text` ne reçoivent qu'une déclaration `color`, jamais de propriété affectant la
+   présence ou la visibilité du message.
+4. **Détail technique exposé** — aucune règle `content:` (pseudo-éléments `::before`/`::after`)
+   dans les 2 fichiers CSS ; aucun texte n'est injecté par le CSS, qui ne fait que recolorer du
+   contenu déjà rendu par le template hérité.
+5. **Script externe non maîtrisé** — `theme.properties` ne déclare aucune clé `scripts=` (seule
+   `styles=` est présente) ; aucun fichier `.js` sous `infra/keycloak/themes/`.
+6. **CDN introduit** — recherche de `url(` et `@import` dans les 2 fichiers CSS : aucune occurrence.
+   Toutes les valeurs sont des `var(--lt-*)` ou des littéraux locaux (couleurs hex, `system-ui`
+   comme police système, pas de `@font-face` distant).
+7. **Cookies modifiés** — ni le CSS, ni `theme.properties`, ni `activate-login-theme.sh` ne
+   touchent à un cookie ; `activate-login-theme.sh` ne fait qu'un `kcadm.sh update realms/... -s
+   loginTheme=...`, une seule clé d'attribut de realm, sans rapport avec la gestion de session.
+8. **Tokens (JWT/session) modifiés** — même constat : aucun fichier de ce Lot ne touche à
+   l'émission, la durée de vie ou le contenu des tokens Keycloak.
+9. **Secret stocké** — `activate-login-theme.sh` consomme `KEYCLOAK_ADMIN`/
+   `KEYCLOAK_ADMIN_PASSWORD` exclusivement via variables d'environnement injectées au runtime
+   (mécanisme déjà en place pour `keycloak-init`/`bootstrap-test-account.sh`) ; le script ne les
+   écrit jamais sur disque ni ne les journalise — les 3 `echo` du script (lignes 21, 27, 31) ne
+   portent que des messages d'état, vérifié ligne par ligne.
+10. **Protection CSRF contournée** — aucun template FreeMarker touché (cf. point 1), donc le
+    rendu du token CSRF (`kcFormAction`, champ caché standard du thème hérité) reste inchangé.
+11. **URL de redirection modifiée sans ADR** — aucune clé `redirect_uri`/`Location` ni fichier de
+    realm dans le diff ; le script d'activation ne positionne que `loginTheme`.
+12. **Protection anti-clickjacking cassée** — les en-têtes de sécurité (`X-Frame-Options`/
+    `Content-Security-Policy: frame-ancestors`) sont une configuration de realm/serveur Keycloak,
+    hors du périmètre thème CSS/`theme.properties` ; aucun fichier de ce Lot n'y touche.
+13. **Message de sécurité altéré au profit de l'esthétique** — les 4 tokens de sévérité restent
+    distincts et cohérents avec leur rôle (`--lt-state-danger` rougeâtre `#fecaca`,
+    `--lt-state-warning` jaune `#fde68a`, `--lt-state-success` vert `#bbf7d0`,
+    `--lt-state-info` bleu `#bae6fd`) — aucun message d'erreur n'est repeint dans une teinte
+    neutre ou positive qui en atténuerait la perception.
+
+**Limite de cet audit, tracée honnêtement** : vérification statique du code versionné (lecture +
+recherches ciblées), pas une exécution des 11 scénarios de test de sécurité prévus au Lot 5 (§9 du
+Plan d'Exécution — login invalide, compte désactivé, reset expiré, etc.). Cet audit statique est un
+prérequis au Lot 5, pas un remplacement.
+
+**Documents modifiés** : `docs/project-state.md` (cette entrée) ;
+`design-debt-register-loyertracker.md` (`DD-EP17-01`, note d'audit ajoutée).
+
+**Prochaine action autorisée** : traitement de `DD-EP17-13` (traduction française des écrans
+Keycloak) ; `STG-ISOL-01` (contrôles avant/après Staging mutualisé) avant toute promotion du thème
+sur `ai-test-server` ; exécution réelle des scénarios de test de sécurité du Lot 5 (§9) une fois en
+Staging.
