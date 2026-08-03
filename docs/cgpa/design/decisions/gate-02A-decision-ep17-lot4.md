@@ -62,8 +62,8 @@
 
 | ID | Type | Impact | Autorité d'acceptation | Responsable | Échéance | Preuve attendue | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| — (parcours utilisateurs absents) | Bloqueur | Aucun parcours écrit ne couvre les flux d'authentification Keycloak concernés | Product Owner | UX/UI Design Lead | Avant tout développement de thème | Parcours écrit par flux (login, mot de passe oublié, reset, invitation, invitation expirée, session expirée, accès refusé, logout) | Ouvert |
-| — (maquettes absentes) | Bloqueur | Aucune maquette « avant/après » ne couvre ces écrans | Product Owner | Design Architect | Avant tout développement de thème | Au moins un support visuel par écran critique, validé Product Owner | Ouvert |
+| — (parcours utilisateurs absents) | Bloqueur | Aucun parcours écrit ne couvre les flux d'authentification Keycloak concernés | Product Owner | UX/UI Design Lead | Avant tout développement de thème | Parcours écrit par flux (login, mot de passe oublié, reset, invitation, invitation expirée, session expirée, accès refusé, logout) | **Levé (2026-08-02)** — `phase-02-user-journeys-ep17-lot4.md` produit, vérifié en exécutant réellement le realm (pas une lecture de code seule) ; validation Product Owner formelle du contenu restant distincte (§10) |
+| — (maquettes absentes) | Bloqueur | Aucune maquette « avant/après » ne couvre ces écrans | Product Owner | Design Architect | Avant tout développement de thème | Au moins un support visuel par écran critique, validé Product Owner | **Levé (2026-08-02)** — `phase-02-ui-mockups-ep17-lot4.md` produit (4 familles d'écrans, état actuel réel + cible proposée) ; validation Product Owner formelle du contenu restant distincte (§10) |
 | — (périmètre Account Console non confirmé) | Bloqueur | Détermine si le thème `account/` (`ADR-UI-001`) fait partie du périmètre réel de ce Lot | Product Owner | Product Owner | Avant tout développement | Confirmation Product Owner tracée (usage réel constaté ou non) | **Levé (2026-08-02)** — Account Console exclue du périmètre du Lot 4 (`gate-04A-decision-ep17-lot4.md` §8) ; le périmètre se limite au thème `login/` |
 | DD-EP17-03 | Bloqueur, réserve existante, partagée avec Gate 04A | Le Design System ne peut être « validé » pour ce périmètre tant que la source de tokens partagée n'est pas tranchée | Product Owner | Design Architect | Avant tout code de thème | Décision Option A vs B tracée | **Levé (2026-08-02)** — Option B confirmée (`gate-04A-decision-ep17-lot4.md` §8) ; dette non close, implémentation restant à produire |
 | — (contraintes de sécurité sur la navigation/redirections) | Réserve, Financial/Security Governance | `ADR-UI-001` interdit toute modification d'URL de redirection sans ADR dédiée — toute maquette proposant un parcours différent du parcours OIDC natif devra être vérifiée contre cette interdiction avant validation | Product Owner | DevSecOps Lead | Au moment de la production des maquettes | Vérification croisée maquette/interdictions de sécurité | Ouvert, préventif |
@@ -123,3 +123,66 @@ logout. Le §8 ci-dessus (« 8 écrans ») n'est pas réécrit (préservation de
 interface pour l'acceptation d'invitation est tracée séparément (`DD-EP17-12`), hors périmètre d'un
 Gate portant sur un thème Keycloak. Les 2 bloqueurs structurels (parcours, maquettes) restent
 ouverts, désormais scopés à 6 écrans plutôt que 8.
+
+## 10. Parcours et maquettes produits — 2 bloqueurs levés, 2 nouvelles dettes critiques (2026-08-02)
+
+`phase-02-user-journeys-ep17-lot4.md` et `phase-02-ui-mockups-ep17-lot4.md` produits en **exécutant
+réellement** le realm `loyertracker` (Keycloak 24.0.5 isolé, même image que Production, détruit
+après vérification) plutôt qu'en lecture de code seule — méthode plus rigoureuse que celle
+initialement anticipée par ce Gate, révélant des faits invisibles au seul realm JSON.
+
+**Les 6 écrans confirmés (§9) se regroupent en 4 familles visuelles**, pas 6 maquettes
+indépendantes : connexion, mot de passe oublié (2 sous-écrans), déconnexion, erreur générique
+(couvrant à la fois session expirée, requêtes malformées et — probablement, non reproduit — accès
+refusé OIDC). Les 2 bloqueurs de ce Gate (§4) sont levés sur cette base.
+
+**2 nouvelles dettes critiques révélées par l'exécution réelle, aucune anticipée par les instances
+précédentes** :
+* `DD-EP17-13` — les écrans Keycloak sont intégralement en anglais, aucune traduction française.
+* `DD-EP17-14` — le flux « mot de passe oublié » est **en échec fonctionnel réel** (`HTTP 500`,
+  reproduit sur un utilisateur de test), cohérent avec l'absence de SMTP déjà signalée comme
+  question ouverte en §9 — désormais une certitude vérifiée, pas une hypothèse.
+
+**Effet sur l'avis NO GO en l'état du §5** : non reconduit automatiquement en GO. `DD-EP17-14` en
+particulier constitue un blocage fonctionnel réel pour toute mise en Production du sous-écran
+« mot de passe oublié » — thémer visuellement un flux cassé sans le signaler serait trompeur,
+`phase-02-ui-mockups-ep17-lot4.md` §2bis pose explicitement cette question au Product Owner avant
+tout code.
+
+**Prochaine action autorisée** : validation Product Owner du contenu de ces deux documents
+(parcours + maquettes), décision sur le traitement de `DD-EP17-14` (thème livré en l'assumant
+incomplet, ou SMTP traité comme préalable bloquant), puis nouvelle instruction complète du Gate 04A/02A
+Lot 4 avant tout code de thème.
+
+## 11. Décision sur `DD-EP17-14` — avis révisé de NO GO en l'état à GO sous réserve (2026-08-02)
+
+**Instruction explicite reçue** : « j'approuve ta recommandation », en réponse à la proposition de
+découpler `DD-EP17-14` du calendrier du Lot 4 plutôt que de le traiter comme un préalable bloquant
+(détail complet en `gate-04A-decision-ep17-lot4.md` §11, décision identique, ici reprise du point de
+vue UX de ce Gate). **Décision actée** : `DD-EP17-14` reste ouverte mais suit un **suivi propre**,
+indépendant du Lot 4 — c'est un défaut de Production pré-existant (le flux « mot de passe oublié »
+est déjà cassé aujourd'hui, avec ou sans thème), pas quelque chose que la maquette ou le thème
+créent ou aggravent. Le Lot 4 est autorisé à couvrir l'écran de saisie « mot de passe oublié » et son
+état d'erreur honnête déjà maquettés (`phase-02-ui-mockups-ep17-lot4.md` §2bis/§4bis), sans attendre
+la résolution SMTP — la maquette documente le comportement réel plutôt que de le masquer, ce qui est
+cohérent avec l'exigence UX de cas d'erreur honnêtes (§3, critère « Cas nominaux et cas d'erreur
+documentés »).
+
+**Réévaluation de l'avis du §5**, fondé sur les 2 bloqueurs structurels de ce Gate (parcours
+utilisateurs absents, maquettes absentes), tous deux levés depuis (§10) :
+
+| Agent | Avis révisé | Réserves continues |
+| --- | --- | --- |
+| UX/UI Design Lead | **GO sous réserve** — les 2 lacunes structurelles qui fondaient le NO GO en l'état (absence de parcours, absence de maquettes) sont levées : `phase-02-user-journeys-ep17-lot4.md` et `phase-02-ui-mockups-ep17-lot4.md` produits et vérifiés en exécutant réellement le realm (méthode plus rigoureuse qu'une lecture de code) ; le périmètre est stabilisé à 6 écrans (§9) ; `DD-EP17-14` ne bloque plus ce Gate (suivi propre, ci-dessus) | `DD-EP17-13` (absence de traduction française) à traiter avec le thème lui-même, pas encore corrigée ; validation Product Owner du **contenu** des deux documents produits reste distincte de cette décision de Gate ; `DD-EP17-03` non close (Option B tranchée mais `tokens.css` non implémenté) |
+
+**Ce que cette révision ne couvre pas** : la validation Product Owner du contenu de
+`phase-02-user-journeys-ep17-lot4.md`/`phase-02-ui-mockups-ep17-lot4.md` reste une action distincte
+de cette décision de Gate — un GO sous réserve ici statue sur la complétude structurelle du dossier
+UX, pas sur l'approbation du contenu produit écran par écran. L'extension du Plan d'Exécution au
+Lot 4 (`plan-execution-ux-ui-primeng-keycloak.md` §12) reste elle aussi une action Product Owner
+distincte, préalable à tout développement effectif.
+
+**Prochaine action autorisée** : le Product Owner statue en §6 (ce document) et en §6 de
+`gate-04A-decision-ep17-lot4.md`. Un GO ou GO sous réserve à ce niveau ne vaudrait toujours pas, à
+lui seul, autorisation de code — l'extension du Plan d'Exécution au Lot 4 reste une action distincte
+requise avant tout développement de thème.

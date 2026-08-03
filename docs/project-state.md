@@ -4936,3 +4936,102 @@ pour les 6 écrans désormais confirmés. Les avis NO GO en l'état restent en v
 **Prochaine action autorisée** : production des parcours utilisateurs et maquettes scopés aux 6
 écrans confirmés (`phase-02-user-journeys-ep17-lot4.md`, `phase-02-ui-mockups-ep17-lot4.md`), même
 enchaînement que le Lot 3 — préalable à toute nouvelle instruction complète du Gate 04A/02A Lot 4.
+
+### Parcours et maquettes Lot 4 produits — flux « mot de passe oublié » cassé, confirmé (2026-08-02)
+
+**Instruction explicite reçue** : « enchaîne sur les parcours utilisateurs et maquettes des 6 écrans
+confirmés (login, mot de passe oublié, reset, session expirée, accès refusé, logout) ».
+
+**Méthode** : contrairement au Lot 3 (lecture de code Angular), les écrans Keycloak ont été vérifiés
+en **exécutant réellement** le realm `loyertracker` — instance Keycloak 24.0.5 isolée (même image
+`24.0@sha256:f8ade9…` que Dev/Staging/Production), realm versionné importé tel quel, utilisateur de
+test créé via l'API Admin, formulaires réellement soumis (pas une simulation). Instance détruite
+après vérification, aucune donnée résiduelle, aucune infrastructure du projet touchée.
+
+**Constat majeur, non anticipé** : la soumission réelle du formulaire « mot de passe oublié » pour
+un utilisateur existant produit **`HTTP 500` — « Failed to send email, please try again later. »**.
+Ce n'était jusqu'ici qu'une question ouverte (absence de SMTP dans la configuration versionnée,
+`gate-04A-decision-ep17-lot4.md` §9) ; c'est désormais un échec fonctionnel **reproduit et
+vérifié**, sur l'image exacte utilisée en Production. Nouvelle dette `DD-EP17-14` (Majeur).
+
+**Second constat, également non anticipé** : les écrans Keycloak (login, mot de passe oublié,
+logout, erreur générique) sont intégralement en anglais — aucune traduction française configurée,
+alors que le reste du produit est en français. Nouvelle dette `DD-EP17-13` (Majeur).
+
+**Regroupement révisé du périmètre** : les 6 écrans confirmés (§ précédente) correspondent en
+réalité à **4 familles visuelles**, pas 6 maquettes indépendantes — connexion, mot de passe oublié
+(saisie + résultat), déconnexion, erreur générique (un seul gabarit Keycloak `error.ftl` couvrant
+session expirée, cookie absent, requêtes malformées et — probablement, non reproduit dans cette
+vérification — accès refusé OIDC).
+
+**Bonne nouvelle vérifiée** : le thème par défaut Keycloak est déjà raisonnablement responsive
+(capture 375px sans débordement, empilement correct) — base saine à préserver, pas un correctif à
+apporter.
+
+**Documents produits** : `phase-02-user-journeys-ep17-lot4.md`, `phase-02-ui-mockups-ep17-lot4.md`.
+**Documents modifiés** : `gate-04A-decision-ep17-lot4.md` (§10) ; `gate-02A-decision-ep17-lot4.md`
+(§4 mis à jour, §10) ; `design-debt-register-loyertracker.md` (`DD-EP17-13`, `DD-EP17-14`,
+nouvelles).
+
+**Ce que ces documents ne lèvent pas** : les avis NO GO en l'état des 4 rôles désignés ne sont pas
+reconduits en GO — `DD-EP17-14` en particulier constitue un blocage fonctionnel réel pour toute
+mise en Production du sous-écran « mot de passe oublié », question posée explicitement au Product
+Owner (`phase-02-ui-mockups-ep17-lot4.md` §2bis) plutôt que tranchée unilatéralement. Aucun code de
+thème, aucune modification de realm produits par ce travail.
+
+**Prochaine action autorisée** : validation Product Owner du contenu des deux documents produits, et
+décision explicite sur le traitement de `DD-EP17-14` (SMTP comme préalable bloquant au thème « mot
+de passe oublié », ou thème livré en assumant ce sous-écran incomplet) — préalable à toute nouvelle
+instruction complète du Gate 04A/02A Lot 4, elle-même préalable à tout code de thème.
+
+## 2026-08-02 — `DD-EP17-14` découplée du Lot 4 ; avis Gate 04A/02A révisés en GO sous réserve
+
+**Instruction explicite reçue** : « j'approuve ta recommandation », en réponse à la proposition de
+traitement de `DD-EP17-14` (flux « mot de passe oublié » cassé en Production, `HTTP 500`, absence de
+SMTP, reproduit et vérifié sur l'image Keycloak exacte de Production — cf. entrée précédente).
+
+**Décision actée** : `DD-EP17-14` reste ouverte au registre de dette, mais suit désormais un **suivi
+propre, découplé du calendrier du Lot 4** — c'est un défaut de Production pré-existant (le flux est
+déjà cassé aujourd'hui, indépendamment de tout thème), pas quelque chose que le pilote Keycloak crée
+ou aggrave. Le Lot 4 est autorisé à couvrir l'écran de saisie « mot de passe oublié » et son état
+d'erreur honnête déjà maquettés (`phase-02-ui-mockups-ep17-lot4.md` §2bis/§4bis), sans attendre la
+résolution SMTP.
+
+**Effet sur les avis spécialisés** : les 4 avis **NO GO en l'état** portés sur le Gate 04A et le Gate
+02A Lot 4 sont révisés en **GO sous réserve** — chacun des bloqueurs qui les fondait est désormais
+résolu (source de tokens tranchée, rôle de sécurité désigné, périmètre à 6 écrans confirmé, parcours
+et maquettes produits et vérifiés en conditions réelles, et maintenant `DD-EP17-14` découplée plutôt
+que bloquante) :
+
+| Agent | Avis révisé |
+| --- | --- |
+| Design Architect | GO sous réserve |
+| Frontend Architect | GO sous réserve |
+| DevSecOps Lead | GO sous réserve |
+| UX/UI Design Lead | GO sous réserve |
+
+Détail complet et réserves continues par rôle : `gate-04A-decision-ep17-lot4.md` §11 et
+`gate-02A-decision-ep17-lot4.md` §11.
+
+**Ce que cette décision ne lève pas** :
+* L'extension du Plan d'Exécution au Lot 4 (`plan-execution-ux-ui-primeng-keycloak.md` §12, toujours
+  limité aux Lots 1-3) reste une action Product Owner distincte — un GO ou GO sous réserve de Gate
+  n'a jamais valu, à lui seul, autorisation de code (`CLAUDE.md`).
+* La validation Product Owner du **contenu** de `phase-02-user-journeys-ep17-lot4.md` et
+  `phase-02-ui-mockups-ep17-lot4.md` reste distincte de la décision de Gate.
+* `DD-EP17-03` non close (Option B tranchée, implémentation `tokens.css` restant à produire).
+* `DD-EP17-13` (absence de traduction française) non traitée, à couvrir avec le thème lui-même.
+* Checklist de remplacement de `CHECK-FRONTEND-01` non encore instanciée.
+* Audit des 13 interdictions de sécurité `ADR-UI-001` §Sécurité contre le code de thème réel — sans
+  objet tant qu'aucun code de thème n'existe.
+* `STG-ISOL-01` (Staging mutualisé) reste un jalon futur, pertinent à la première promotion Staging.
+
+**Documents modifiés** : `design-debt-register-loyertracker.md` (`DD-EP17-14`, colonnes
+Responsable/Échéance/Statut) ; `gate-04A-decision-ep17-lot4.md` (§11, nouveau) ;
+`gate-02A-decision-ep17-lot4.md` (§11, nouveau). Aucun code de thème, aucune modification de realm,
+aucune dépendance ajoutée par ces documents — strictement documentaire.
+
+**Prochaine action autorisée** : le Product Owner statue en §6 de `gate-04A-decision-ep17-lot4.md`
+et en §6 de `gate-02A-decision-ep17-lot4.md`. Une décision GO ou GO sous réserve à ce niveau ne
+vaudrait toujours pas, à elle seule, autorisation de code de thème — l'extension explicite du Plan
+d'Exécution au Lot 4 reste requise au préalable.
