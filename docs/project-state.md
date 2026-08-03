@@ -5035,3 +5035,36 @@ aucune dépendance ajoutée par ces documents — strictement documentaire.
 et en §6 de `gate-02A-decision-ep17-lot4.md`. Une décision GO ou GO sous réserve à ce niveau ne
 vaudrait toujours pas, à elle seule, autorisation de code de thème — l'extension explicite du Plan
 d'Exécution au Lot 4 reste requise au préalable.
+
+## 2026-08-03 — Décision finale Gate 04A/02A Lot 4 : GO sous réserve
+
+**Instruction explicite reçue** : « statue en §6 des deux gates, GO sous réserve », du Product
+Owner / CGPA Chief Delivery Officer.
+
+**Décision actée** : §6 de `gate-04A-decision-ep17-lot4.md` et §6 de `gate-02A-decision-ep17-lot4.md`
+renseignés — **GO sous réserve** pour les deux Gates, sur le périmètre EP-17 Lot 4 (Pilote
+Keycloak) tel qu'instruit dans ces deux documents.
+
+**Réserves qui subsistent, listées dans chaque §6** : `DD-EP17-03` non close (implémentation
+`tokens.css` restant à produire) ; `DD-EP17-13` (absence de traduction française des écrans
+Keycloak) non traitée ; `DD-EP17-14` (flux « mot de passe oublié » cassé en Production) ouverte,
+suivie séparément, non levée par ce GO ; checklist de remplacement de `CHECK-FRONTEND-01` non
+instanciée ; audit des interdictions de sécurité `ADR-UI-001` §Sécurité contre le code de thème réel
+(sans objet tant qu'aucun code n'existe) ; `STG-ISOL-01` toujours un jalon futur ; validation
+Product Owner du **contenu** de `phase-02-user-journeys-ep17-lot4.md` et
+`phase-02-ui-mockups-ep17-lot4.md`, distincte de cette décision de Gate.
+
+**Ce que ce GO n'autorise pas** : conformément à `CLAUDE.md`, ce GO sous réserve de Gate ne vaut à
+lui seul ni extension du Plan d'Exécution au Lot 4 (`plan-execution-ux-ui-primeng-keycloak.md` §12,
+toujours limité aux Lots 1-3), ni autorisation de développement de thème Keycloak. L'extension du
+Plan d'Exécution reste une action Product Owner distincte, préalable à tout code applicatif.
+
+**Documents modifiés** : `gate-04A-decision-ep17-lot4.md` (§6) ; `gate-02A-decision-ep17-lot4.md`
+(§6). Aucun code de thème, aucune modification de realm, aucune dépendance ajoutée — strictement
+documentaire.
+
+**Prochaine action autorisée** : extension explicite du Plan d'Exécution au Lot 4 par le Product
+Owner, si le développement du thème doit commencer ; en parallèle, validation Product Owner du
+contenu de `phase-02-user-journeys-ep17-lot4.md`/`phase-02-ui-mockups-ep17-lot4.md`, et traitement
+des réserves listées ci-dessus (notamment `DD-EP17-03`, `DD-EP17-13`, checklist de remplacement de
+`CHECK-FRONTEND-01`).
