@@ -164,6 +164,24 @@ consommation par une future app mobile). **Ce choix reste à confirmer explicite
 Plan d'Exécution** — cette ADR ne fige pas le Lot 4 (thème Keycloak), qui reste un lot distinct
 soumis à son propre Gate.
 
+> **Note d'implémentation (2026-08-03, DD-EP17-03 close)** : Option B confirmée par le Product
+> Owner (2026-08-02) et implémentée. Le fichier physique canonique est
+> `infra/keycloak/themes/loyertracker/login/resources/css/tokens.css` — **pas** l'inverse (source
+> côté Angular, copie côté Keycloak) — pour une raison non anticipée par ce document : le volume
+> Docker qui sera monté au runtime dans le conteneur Keycloak ne pourra couvrir que l'arbre
+> `infra/keycloak/themes/` (même patron que le montage déjà en place pour
+> `realm-loyertracker.json`) ; un fichier canonique situé ailleurs dans le dépôt (ex. côté
+> `frontend/`) serait physiquement inaccessible au conteneur, quel que soit le mécanisme de
+> référence choisi côté CSS. Angular n'a pas cette contrainte (son outillage de build tourne sur
+> l'intégralité du dépôt, pas dans un conteneur isolé) : `frontend/src/styles/tokens/_lt-tokens.scss`
+> est donc un **lien symbolique relatif** vers le fichier canonique — même inode, aucune
+> duplication, aucun générateur. Sass traite le contenu du lien comme SCSS valide (le CSS y est un
+> sous-ensemble syntaxique valide), sans qu'aucune fonctionnalité Sass ne soit utilisée. Vérifié par
+> `ng build` (34 tokens `--lt-*` présents dans le bundle CSS compilé) et `ng test` (148/148, aucune
+> régression). Le câblage du thème Keycloak lui-même (`theme.properties`, `login.ftl`, montage du
+> volume dans `docker-compose*.yml`, `loginTheme` dans le realm) reste un travail distinct, non
+> couvert par cette note — objet du reste du Lot 4.
+
 ## Organisation des fichiers
 
 Voir arborescences cibles ci-dessus (§Stratégie de thème Keycloak) et

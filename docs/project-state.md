@@ -5100,3 +5100,45 @@ documentaire.
 `login/`) peut démarrer, en commençant par l'implémentation de la source de tokens commune
 (`DD-EP17-03`, Option B) avant tout code consommant ces tokens — même discipline que les Lots
 précédents (fondations avant intégration).
+
+## 2026-08-03 — `DD-EP17-03` implémentée : source de tokens commune Angular/Keycloak
+
+**Instruction explicite reçue** : « enchaîne sur DD-EP17-03, implémentation tokens.css ». Premier
+code applicatif du Lot 4, autorisé par l'extension du Plan d'Exécution du même jour.
+
+**Implémentation produite** :
+* `infra/keycloak/themes/loyertracker/login/resources/css/tokens.css` — fichier physique
+  canonique, unique, contenant les 34 tokens `--lt-*` déjà validés (`DDS-LT-006`).
+* `frontend/src/styles/tokens/_lt-tokens.scss` — remplacé par un **lien symbolique relatif** vers
+  ce même fichier (même inode, zéro duplication, zéro outillage de génération, conforme Option B).
+* Emplacement du fichier canonique déterminé par une contrainte non anticipée par `ADR-UI-001` : le
+  volume Docker monté au runtime dans le conteneur Keycloak ne pourra couvrir que
+  `infra/keycloak/themes/` — un fichier canonique situé ailleurs serait inaccessible au conteneur.
+  Angular, dont l'outillage de build tourne sur l'intégralité du dépôt (pas dans un conteneur),
+  n'a pas cette contrainte — d'où le sens du lien symbolique (Angular référence Keycloak, jamais
+  l'inverse). Note datée ajoutée à `ADR-UI-001` §Isolation entre Angular et Keycloak.
+
+**Vérifications réelles effectuées** (pas une lecture de code seule) :
+* `ng build` — bundle CSS compilé contient bien les 34 déclarations `--lt-*` attendues, confirmant
+  que Sass résout et inline correctement le contenu du lien symbolique.
+* `ng test` — 148/148 tests passent, aucune régression introduite par le changement.
+
+**`DD-EP17-03` close** au registre de dette (`design-debt-register-loyertracker.md`) — preuve
+attendue (« décision tracée + implémentation ») effectivement produite, conformément au Validation
+Framework CGPA v6.1.1 §5.
+
+**Ce que cette implémentation ne couvre pas** : le câblage réel du thème Keycloak lui-même
+(`theme.properties`, `login.ftl` et les autres templates FreeMarker des 6 écrans confirmés, montage
+du volume `infra/keycloak/themes/` dans `docker-compose*.yml`, `loginTheme` dans le realm) reste un
+travail distinct, non entamé par cette implémentation — objet du reste du Lot 4. Les autres réserves
+listées à l'extension du Plan d'Exécution (`DD-EP17-13`, `DD-EP17-14`, checklist
+`CHECK-FRONTEND-01`, audit sécurité `ADR-UI-001` §Sécurité, `STG-ISOL-01`) restent également
+ouvertes, non affectées par ce travail.
+
+**Documents modifiés** : `infra/keycloak/themes/loyertracker/login/resources/css/tokens.css`
+(nouveau) ; `frontend/src/styles/tokens/_lt-tokens.scss` (converti en lien symbolique) ;
+`design-debt-register-loyertracker.md` (`DD-EP17-03` close) ; `ADR-UI-001-...md` (note datée).
+
+**Prochaine action autorisée** : câblage du thème Keycloak lui-même (`theme.properties`,
+templates FreeMarker des 6 écrans confirmés), sous réserve continue des points ci-dessus —
+prochaine étape naturelle du Lot 4 une fois cette fondation en place.

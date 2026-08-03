@@ -1,0 +1,87 @@
+/* Design Tokens LoyerTracker (--lt-*) — source unique partagée Angular/Keycloak.
+ *
+ * DD-EP17-03 (registre de dette) — Option B retenue par le Product Owner (2026-08-02,
+ * ADR-UI-001 §Isolation entre Angular et Keycloak) : un seul fichier CSS physique, sans
+ * outillage de génération, consommé tel quel par les deux surfaces :
+ *   - Keycloak (thème `login`) : servi directement par ce chemin
+ *     (`resources/css/tokens.css`, référencé par `login.ftl` via `${url.resourcesPath}`) —
+ *     ce fichier DOIT vivre ici physiquement, car le volume Docker monté au runtime ne couvre
+ *     que `infra/keycloak/themes/` (aucun chemin en dehors de cet arbre n'est résolvable dans
+ *     le conteneur).
+ *   - Angular : `frontend/src/styles/tokens/_lt-tokens.scss` est un lien symbolique relatif
+ *     vers ce même fichier (même inode, zéro duplication, zéro risque de divergence) — Sass
+ *     traite son contenu comme SCSS valide (le CSS est un sous-ensemble syntaxique valide de
+ *     SCSS), sans aucune fonctionnalité Sass utilisée ici.
+ *
+ * Source de vérité fonctionnelle : docs/cgpa/design/DSG-001.md v0.2.0 §Fondations.
+ * Revue visuelle/contraste WCAG 2.2 AA : docs/cgpa/design/decisions/DDS-LT-006-validation-visuelle-design-tokens.md
+ * Statut : DDS-LT-006 = Acceptée (Product Owner, 2026-08-01) — valeurs validées, US-129 close.
+ */
+
+:root {
+  /* color / surface — 11 des 13 tokens conformes WCAG tels quels ; 2 corrections proposées
+     (voir DDS-LT-006) appliquées ici directement. */
+  --lt-color-background: #0f172a;
+  --lt-surface-page: #0f172a;
+  --lt-surface-card: #111827;
+  --lt-border-default: #64748b; /* proposé (DDS-LT-006) — remplace #334155, non conforme SC 1.4.11 */
+  --lt-state-danger-strong: #dc2626; /* proposé (DDS-LT-006) — remplace #7f1d1d, non conforme SC 1.4.11 */
+
+  /* text */
+  --lt-text-primary: #e2e8f0;
+  --lt-text-muted: #94a3b8;
+  --lt-text-subtle: #cbd5e1;
+
+  /* focus */
+  --lt-focus-ring: #38bdf8;
+  --lt-focus-ring-width: 3px;
+  --lt-focus-ring-style: solid;
+
+  /* state (texte — usage réel constaté dans le code, jamais fond de badge) */
+  --lt-state-info: #bae6fd;
+  --lt-state-danger: #fecaca;
+  --lt-state-warning: #fde68a;
+  --lt-state-success: #bbf7d0;
+
+  /* radius */
+  --lt-radius-default: 6px;
+
+  /* spacing */
+  --lt-space-3xs: 0.25rem;
+  --lt-space-2xs: 0.35rem;
+  --lt-space-xs: 0.5rem;
+  --lt-space-sm: 0.75rem;
+  --lt-space-md: 1rem;
+  --lt-space-lg: 1.5rem;
+  --lt-space-xl: 2rem;
+
+  /* typography */
+  --lt-font-size-xs: 0.75rem;
+  --lt-font-size-sm: 0.85rem;
+  --lt-font-size-base: 0.9rem;
+  --lt-font-size-md: 1rem;
+  --lt-font-size-lg: 1.125rem;
+  --lt-font-size-xl: 1.5rem;
+  --lt-font-weight-regular: 400;
+  --lt-font-weight-medium: 500;
+  --lt-font-weight-semibold: 600;
+  --lt-line-height-tight: 1.25;
+  --lt-line-height-normal: 1.5;
+
+  /* size (contrôles interactifs) */
+  --lt-control-height-sm: 32px;
+  --lt-control-height-md: 40px;
+  --lt-control-height-lg: 44px; /* seuil touch target minimum */
+
+  /* z-index */
+  --lt-z-dropdown: 1000;
+  --lt-z-sticky: 1100;
+  --lt-z-modal-backdrop: 1200;
+  --lt-z-modal: 1300;
+  --lt-z-toast: 1400;
+
+  /* breakpoint (référence uniquement — non exploitable comme valeur SCSS dans un media query) */
+  --lt-breakpoint-mobile: 640px;
+
+  /* shadow, motion — explicitement différés (DDS-LT-006) : aucun besoin réel constaté à ce jour. */
+}
