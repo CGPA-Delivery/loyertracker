@@ -5761,3 +5761,52 @@ touché.
 **Prochaine action autorisée** : instruction PO explicite et distincte pour le déploiement
 technique (recréation ciblée de `keycloak` + exécution de `keycloak-theme-init`, `api`/`nginx`/
 `postgres` non touchés), suivie d'une vérification réelle de l'écran de connexion en Production.
+
+## 2026-08-04 — Déploiement technique du pilote Keycloak en Production — `KEYCLOAK_THEME_DEPLOYED`
+
+**Instruction explicite reçue** : « instruis le déploiement technique du pilote Keycloak », sur la
+base du Préflight PASS ci-dessus.
+
+**Snapshot avant** relevé (16:59 UTC) : 8/8 conteneurs `Up`/`healthy`, digests `api`/`nginx`
+identiques à `.env` (`sha256:9603330e…`/`sha256:7dbc551e…`, aucun override nécessaire cette fois),
+fichiers de realm sans modification locale.
+
+**Déploiement ciblé exécuté** : `docker compose -f docker-compose.yml -f docker-compose.prod.yml
+up -d keycloak keycloak-theme-init` — **`keycloak` recréé** (nouveau montage du thème),
+**`keycloak-theme-init` exécuté** (`ExitCode=0`, log confirmant activation `loginTheme` puis locale
+française). `api`/`nginx`/`postgres` et les 4 services `monitoring` **non touchés** :
+`StartedAt` identique avant/après pour les trois premiers, `Status` inchangé pour les seconds
+(l'avertissement Compose « orphan containers », dû à l'invocation ciblée, n'a entraîné aucune
+suppression — vérifié).
+
+**État du realm après activation** : `loginTheme=loyertracker`, `internationalizationEnabled=true`,
+`supportedLocales=["fr"]`, `defaultLocale=fr` — exclusivement via l'API Admin, **aucune modification
+de fichier de realm** (`git status --short` vide avant et après sur les deux fichiers).
+
+**Vérification réelle de l'écran de connexion Production** (flux OIDC/PKCE réel, port interne
+`18443`, aucun mock) : `HTTP 200`, `<html lang="fr">`, titre « Connectez-vous à votre compte »,
+`login.css`/`card-pf` confirmés (thème appliqué), aucun sélecteur de langue (cohérent, une seule
+locale). **Résultat identique à la vérification Staging du 2026-08-03**, cette fois sur le realm
+Production réel. Site public `https://loyertracker.loyerpro.org` → `200`.
+
+**Verdict : `KEYCLOAK_THEME_DEPLOYED` — 2026-08-04 ~17:00 UTC.** Détail complet :
+`docs/cgpa/09-production/deploiement-technique-ep17-lot4-pilote-keycloak-report.md`. `DD-EP17-01`
+et `DD-EP17-13` (déjà closes sur preuve Staging) sont désormais également **vérifiées en Production
+réelle**.
+
+**Ce que ce déploiement ne change pas** : `DD-EP17-14` (mot de passe oublié cassé, SMTP absent)
+reste un défaut préexistant et actif en Production, indépendant de ce déploiement — non aggravé, non
+masqué (mécanisme Keycloak sous-jacent identique à celui déjà observé en Staging au Lot 5). Ce
+déploiement **n'est pas une release applicative** : aucun `PRODUCTION_DEPLOYED` au sens du verrou
+`R-V54-2`, `infra/release/production-state.env` non concerné, pas d'hypercare T0/T+12/T+24 formelle
+requise pour ce type de changement thème/config.
+
+**Documents modifiés** :
+`docs/cgpa/09-production/deploiement-technique-ep17-lot4-pilote-keycloak-report.md` (nouveau) ;
+`docs/project-state.md` (cette entrée). Sur l'hôte : `keycloak` recréé, `keycloak-theme-init`
+exécuté puis sorti — aucune autre écriture, aucun fichier de realm modifié.
+
+**Prochaine action autorisée** : surveillance courte de l'écran de connexion réel (non formelle,
+sans rapport avec le cycle d'hypercare des releases) ; traitement des deux réserves héritées des
+Gates (validation PO du contenu, `CHECK-FRONTEND-01`) sur instruction PO ; `DD-EP17-14` reste suivie
+séparément.

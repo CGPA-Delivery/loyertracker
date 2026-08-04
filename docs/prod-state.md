@@ -6,6 +6,23 @@
 
 
 
+## 0Q. Thème Keycloak — EP-17 Lot 4 (pilote) — **`KEYCLOAK_THEME_DEPLOYED` le 2026-08-04 ~17:00 UTC** ✅
+
+> **Changement infrastructure/config, pas une release applicative** — sans rapport avec le cycle
+> `PRODUCTION_DEPLOYED`/`R-V54-2`/`infra/release/production-state.env` ci-dessous. Déploiement
+> ciblé `keycloak`+`keycloak-theme-init` uniquement (`api`/`nginx`/`postgres`/`monitoring` non
+> touchés, `StartedAt`/`Status` inchangés vérifiés avant/après). Realm activé exclusivement via
+> l'API Admin (`loginTheme=loyertracker`, `internationalizationEnabled=true`,
+> `supportedLocales=["fr"]`) — **aucun fichier de realm modifié** (`git status` vide avant/après).
+> Vérification réelle de l'écran de connexion en conditions OIDC/PKCE : `HTTP 200`, `<html
+> lang="fr">`, thème appliqué (`login.css`/`card-pf`), identique à la vérification Staging du
+> 2026-08-03. Cycle complet : Gate Staging du pilote (GO sous réserve) → Gate Production du pilote
+> (GO sous réserve) → Préflight (sauvegarde + sync dépôt hôte, PASS) → déploiement technique
+> ci-dessus. Réserves héritées non bloquantes : validation PO du contenu des parcours/maquettes,
+> `CHECK-FRONTEND-01` de remplacement. `DD-EP17-14` (mot de passe oublié cassé, SMTP absent) reste
+> un défaut préexistant indépendant, non aggravé ni masqué par ce déploiement. Détail :
+> `docs/cgpa/09-production/deploiement-technique-ep17-lot4-pilote-keycloak-report.md`.
+
 ## 0P. Déploiement Production `1.15.0` — 2026-07-30 (EP-16 Sprint N+2 Lot A) — **`PRODUCTION_DEPLOYED` le 2026-07-30 ~13:20 UTC, RELEASE CLÔTURÉE le 2026-08-04** ✅
 
 > **Déploiement technique réel le 2026-07-30 ~12:27–12:33 UTC** (bascule ciblée `api` uniquement,
