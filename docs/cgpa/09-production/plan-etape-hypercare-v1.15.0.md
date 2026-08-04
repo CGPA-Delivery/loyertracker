@@ -226,9 +226,8 @@ prononcée par le présent document, subordonnée à une instruction PO explicit
 
 ## Après l'hypercare
 
-- **Clôture de release CDO** `1.15.0` — étape distincte, sur instruction PO, désormais possible
-  puisque T+12 et T+24 sont statués (les deux avec les réserves de valeur probante documentées
-  ci-dessus, à porter à la connaissance du CDO/PO avant toute décision de clôture).
+- **Clôture de release CDO `1.15.0`** — **GO le 2026-08-04 ~15:36 UTC**, sur instruction PO
+  explicite reçue le même jour. Dossier : `docs/cgpa/09-production/cloture-release-v1.15.0.md`.
 - L'activation des canaux externes reste interdite jusqu'à la clôture en GO du Sprint N+2
   **complet** (Lot A et Lot B), conformément à K8 (ADR-18) ; Lot B (US-125) reste bloqué.
 - Dette technique identifiée, hors périmètre de cette hypercare : faux positif du digest `nginx`

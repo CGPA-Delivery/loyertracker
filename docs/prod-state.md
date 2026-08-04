@@ -6,7 +6,7 @@
 
 
 
-## 0P. Déploiement Production `1.15.0` — 2026-07-30 (EP-16 Sprint N+2 Lot A) — **`PRODUCTION_DEPLOYED` le 2026-07-30 ~13:20 UTC**
+## 0P. Déploiement Production `1.15.0` — 2026-07-30 (EP-16 Sprint N+2 Lot A) — **`PRODUCTION_DEPLOYED` le 2026-07-30 ~13:20 UTC, RELEASE CLÔTURÉE le 2026-08-04** ✅
 
 > **Déploiement technique réel le 2026-07-30 ~12:27–12:33 UTC** (bascule ciblée `api` uniquement,
 > migration V29 strictement additive appliquée, `nginx`/`postgres`/`keycloak` non recréés — cf.
@@ -43,8 +43,15 @@
 > critère de suspension atteint sur le cycle : 0 dérive de tag/digest réelle, Flyway 29/29,
 > invariant financier 0 écart, `OBS-S10-01` 0 ligne ambiguë, `notification_outbox`/`delivery` à 0
 > du début à la fin, `bailleur-test`/`directAccessGrants` désactivés en continu. Surveillance
-> planifiée close. **Clôture de release CDO reste une décision PO distincte, non prononcée ici.**
-> Détail : `docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md`.
+> planifiée close. Détail : `docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md`.
+>
+> **RELEASE `1.15.0` (Lot A) CLÔTURÉE — CDO GO (2026-08-04 ~15:36 UTC).** Relevé live à la
+> clôture confirmant l'état sans dérive (digests, Flyway 29/29, invariant financier 0 écart,
+> `outbox`/`delivery` à 0). Réserves maintenues sans rapport avec `1.15.0` : `RSV-MIG-611-04`,
+> `RSV-EP16-N2-02`, `RSV-MIG-611-06` (bloquante Lot B/US-125 uniquement). `1.15.0` devient la
+> **base de rollback applicatif**. Dossier : `docs/cgpa/09-production/cloture-release-v1.15.0.md`.
+> **Prochaine action autorisée : GO PO du Sprint N+2 complet (Lot B), seule voie vers l'activation
+> d'un canal externe (K8/ADR-18).**
 
 ## 0O. Déploiement Production `1.14.0` — 2026-07-24 (EP-16 Sprint N+1) — régularisé le 2026-07-27, **`PRODUCTION_DEPLOYED` le 2026-07-27 ~16:46 UTC, RELEASE CLÔTURÉE le 2026-07-28** ✅
 

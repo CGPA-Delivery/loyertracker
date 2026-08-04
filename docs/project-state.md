@@ -5506,3 +5506,42 @@ de valeur probante documentées pour T+12 et T+24 avant tout GO.
 CDO `1.15.0`, sur la base du dossier d'hypercare complet ci-dessus ; en parallèle, aucune action
 requise côté EP-17 (pilote Keycloak, branche `feature/ep17-lot4-stg-isol-01-keycloak-theme-staging`)
 — chantier sans rapport avec cette entrée.
+
+## 2026-08-04 — Clôture de release CDO `1.15.0` (Lot A)
+
+**Instruction explicite reçue** : « instruis la clôture de release CDO 1.15.0 », immédiatement
+après la reprise du checkpoint T+24 ci-dessus (les trois checkpoints d'hypercare étant statués
+PASS, la clôture devenait possible conformément au plan d'hypercare).
+
+**Relevé live effectué avant décision** (pas une réutilisation du T+24) : nouveau contrôle SSH sur
+`loyertracker-prod-server` à 2026-08-04 15:36:28 UTC (~12 min après le T+24) — stack 8/8 `Up`,
+4/4 `(healthy)`, digests API/Web réels conformes aux valeurs déclarées, Flyway 29/29,
+`notification_outbox`/`delivery` toujours à 0, invariant financier 0 écart, `OBS-S10-01` 0 ligne
+ambiguë, 0 5xx/`ERROR` depuis le boot, site public et `/healthz` 200. Aucune évolution par rapport
+au T+24, à l'exception de l'horodatage — cohérent avec l'absence d'activité métier sur l'intervalle.
+
+**Décision actée** : **CDO GO — Release `1.15.0` (Lot A) CLÔTURÉE le 2026-08-04 ~15:36 UTC.**
+Dossier complet : `docs/cgpa/09-production/cloture-release-v1.15.0.md` — récapitulatif du cycle
+complet (Gate Staging → Gate Production → Préflight → déploiement technique → validation finale →
+hypercare), registre des réserves (aucune bloquante sur le périmètre Lot A ; `RSV-MIG-611-04`,
+`RSV-EP16-N2-02`, `RSV-MIG-611-06` maintenues, sans rapport avec cette clôture), état de Production
+au relevé de clôture, et justification détaillée de la décision GO — notamment le traitement
+explicite des deux écarts de fenêtre d'hypercare (T+12 anticipé ~12 h, T+24 repris ~4,5 jours après
+sa cible) comme des écarts **assumés et tracés**, sans les rapprocher mécaniquement des écarts de
+quelques heures déjà qualifiés sur les cycles précédents.
+
+**`1.15.0` devient la base de rollback applicatif** des releases suivantes (`sha-ac374193` pour
+l'API ; le digest Web reste celui de `1.14.0`, `nginx` n'ayant jamais été recréé par le Lot A).
+
+**Ce que cette clôture n'autorise pas** : aucun code, migration, credential Twilio, promotion ou
+déploiement. L'activation de tout canal externe en Production reste interdite jusqu'à la clôture
+en GO du Sprint N+2 **complet** — Lot B (US-125) reste bloqué par les Gates 02A/04A Frontend
+(`RSV-MIG-611-06`), sans rapport avec le pilote Keycloak EP-17 en cours sur une branche distincte.
+
+**Documents modifiés** : `docs/cgpa/09-production/cloture-release-v1.15.0.md` (nouveau) ;
+`docs/prod-state.md` (§0P, statut clôturé) ; `docs/project-state.md` (cette entrée). Aucune
+modification applicative, aucune modification de realm, aucun redémarrage ni déploiement.
+
+**Prochaine action autorisée** : instruction PO explicite et distincte pour le GO du Sprint N+2
+complet (Lot B, US-125), seule voie vers l'activation d'un canal externe en Production (K8/ADR-18) ;
+aucune autre action Production requise dans l'immédiat.
