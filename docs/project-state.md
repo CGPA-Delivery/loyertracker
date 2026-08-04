@@ -5545,3 +5545,60 @@ modification applicative, aucune modification de realm, aucun redémarrage ni d�
 **Prochaine action autorisée** : instruction PO explicite et distincte pour le GO du Sprint N+2
 complet (Lot B, US-125), seule voie vers l'activation d'un canal externe en Production (K8/ADR-18) ;
 aucune autre action Production requise dans l'immédiat.
+
+## 2026-08-04 — Tests de sécurité Lot 5 exécutés (pilote Keycloak EP-17 Lot 4)
+
+**Instruction explicite reçue** : « continue le pilote Keycloak, lot 5 tests sécurité ». Chantier
+distinct et sans rapport avec la clôture de release `1.15.0` ci-dessus (Production).
+
+**Cadrage préalable** : le Plan d'Exécution (§12) précise explicitement que son approbation
+« ne s'étend pas... aux Lots 5 et 6 — chacun reste un point de contrôle GO/NO GO distinct ». Ce
+travail est traité comme de la **vérification/preuve** (aucun code, aucune modification de realm,
+aucun déploiement), pas comme un développement du Lot 5 nécessitant sa propre extension de Plan —
+cohérent avec les entrées précédentes de ce journal qui nommaient déjà cette exécution comme
+« prochaine action autorisée ».
+
+**Exécution réelle contre Staging** (`ai-test-server`, port interne `18443`, flux OIDC/PKCE réels,
+aucun mock) : les 11 scénarios de sécurité du Plan §5, adaptés au périmètre confirmé à 6 écrans
+(`invitation expirée` et Account Console restent hors périmètre, `DD-EP17-12`). Un utilisateur
+éphémère créé/supprimé via l'API Admin pour les scénarios nécessitant un compte réel ; le mot de
+passe réel de `bailleur-test` n'a jamais été consulté. Détail complet, résultats scénario par
+scénario et méthode : `docs/cgpa/07-devsecops/security-tests-lot5-ep17-keycloak-theme.md`.
+
+**Résultat : PASS — aucune régression de sécurité introduite par le thème.** Login invalide,
+compte désactivé (cas mot de passe incorrect), reset expiré, session expirée (cookie absent) et
+accès refusé (`redirect_uri` non enregistré) affichent tous des messages français génériques, sans
+trace technique dans les 8 corps de réponse inspectés directement. Login valide confirme la
+redirection réelle avec `code=`. Logout affiche l'écran de confirmation réel (thémé) lorsqu'une
+session est active. Les 13 interdictions `ADR-UI-001` §Sécurité, déjà auditées statiquement le
+2026-08-03, sont ici confirmées par un comportement dynamique réel identique à l'attendu.
+
+**Constat clé, aggravant `DD-EP17-14` sans le requalifier** : soumettre le formulaire « mot de
+passe oublié » avec un e-mail inexistant renvoie `HTTP 200` (succès générique, anti-énumération
+correct) tandis qu'un e-mail réellement enregistré renvoie `HTTP 500` (panne SMTP déjà connue) —
+cette **différence de code de statut** constitue un canal d'énumération de comptes, indépendant du
+thème (comportement du backend Keycloak/SMTP), qui précise sans le changer le traitement déjà
+décidé de `DD-EP17-14` (résolution SMTP reste la seule preuve attendue, suivi découplé du Lot 4,
+PO 2026-08-02). Détail consigné dans `design-debt-register-loyertracker.md`.
+
+**Limite tracée honnêtement** : le scénario « compte désactivé » n'a été testé qu'avec un mot de
+passe incorrect (le mot de passe réel de `bailleur-test` n'a délibérément pas été consulté) — le
+cas mot de passe correct sur un compte désactivé, où Keycloak pourrait afficher un message distinct
+par défaut, reste une hypothèse non vérifiée sur ce realm.
+
+**Ce que ce travail ne couvre pas** : les items plus larges du Lot 5 (§9 du Plan) — tests unitaires/
+composants Angular, a11y automatisés, tests clavier exhaustifs, responsive formel, Visual Review,
+régression visuelle, comparaison de bundle — restent `Non exécuté`. Cette exécution est une
+vérification, **pas une décision de Gate** : elle ne prononce ni GO ni NO GO sur le Lot 5 ou le
+Gate Staging du pilote.
+
+**Documents modifiés** : `docs/cgpa/07-devsecops/security-tests-lot5-ep17-keycloak-theme.md`
+(nouveau) ; `design-debt-register-loyertracker.md` (`DD-EP17-14`, constat d'aggravation ajouté) ;
+`docs/project-state.md` (cette entrée). Aucune modification applicative, aucune modification de
+realm, aucun déploiement — utilisateur de test éphémère créé puis supprimé via l'API Admin, aucun
+résidu.
+
+**Prochaine action autorisée** : le Product Owner statue sur le traitement de l'aggravation
+constatée de `DD-EP17-14` (canal d'énumération, priorité déjà propre) ; les items plus larges du
+Lot 5 (§9) restent disponibles à instruire ; Gate Staging du pilote et Gate Production restent des
+actes distincts, non instruits par ce travail.
