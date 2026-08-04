@@ -5631,3 +5631,48 @@ realm, aucun déploiement — travail strictement documentaire.
 **Prochaine action autorisée** : inchangée — attente d'une décision Product Owner sur le
 fournisseur SMTP pour clore `DD-EP17-14` ; les items plus larges du Lot 5 (§9) et le Gate Staging
 du pilote restent disponibles à instruire séparément.
+
+## 2026-08-04 — Gate Staging du pilote Keycloak — GO sous réserve
+
+**Instruction explicite reçue** : « instruis le Gate Staging du pilote », suivie du choix explicite
+« GO sous réserve » sur la checklist et les avis proposés soumis. Distinct du Gate Staging du
+pilote Angular (Lots 1-3), non couvert ici — les deux restent des Gates séparés
+(`plan-execution-ux-ui-primeng-keycloak.md` §10).
+
+**Checklist rebâtie depuis les réserves de `gate-04A-decision-ep17-lot4.md` §11** : les quatre
+réserves alors ouvertes (`DD-EP17-03`, `DD-EP17-13`, audit sécurité `ADR-UI-001`, `STG-ISOL-01`)
+sont désormais toutes **PASS** — closes ou exécutées entre le 2026-08-03 et le 2026-08-04 (thème
+câblé, locale française, audit statique 13/13 RAS, `STG-ISOL-01` live PASS, puis confirmées
+dynamiquement par les 8 scénarios réels du Lot 5). Deux réserves nouvelles, plus fines, restent
+ouvertes : validation Product Owner du **contenu** de `phase-02-user-journeys-ep17-lot4.md`/
+`phase-02-ui-mockups-ep17-lot4.md` (jamais obtenue à ce jour, distincte de toute décision de Gate
+déjà rendue) ; `CHECK-FRONTEND-01` de remplacement (artefact FreeMarker/CSS) toujours à instancier
+formellement.
+
+**Avis proposés** (Claude Code dans les rôles CGPA désignés, limite d'indépendance déjà tracée) :
+Design Architect et UX/UI Design Lead **GO sous réserve** (contenu à valider) ; Frontend Architect
+**GO sous réserve** (`CHECK-FRONTEND-01` à instancier) ; DevSecOps Lead **GO sans réserve**
+(toutes les réserves de sécurité du Gate 04A désormais satisfaites et confirmées dynamiquement).
+
+**Décision Product Owner : GO SOUS RÉSERVE.** La promotion Staging du thème Keycloak (6 écrans
+confirmés) est validée — aucune modification OIDC/PKCE/realm, 13 interdictions de sécurité
+respectées et confirmées dynamiquement, `STG-ISOL-01` PASS, fonctionnement réel vérifié, français
+confirmé, aucune fuite d'information, smoke 63/0. Les deux réserves ci-dessus restent ouvertes et
+non bloquantes, tracées explicitement pour traitement ultérieur sur instruction PO distincte.
+`DD-EP17-14` (canal d'énumération, arbitré le même jour) reste hors du périmètre bloquant de ce
+Gate. Décision : `docs/cgpa/design/decisions/gate-staging-decision-ep17-lot4-pilote-keycloak.md`.
+
+**Ce que ce GO n'autorise pas** : aucune promotion Production (Gate Production distinct requis,
+instruction PO explicite nécessaire) ; aucune extension à l'Account Console ni à l'acceptation
+d'invitation (`DD-EP17-12`) ; aucune clôture du Lot 5 dans son ensemble (items non-Keycloak — a11y
+automatisé, responsive formel, tests Angular, Visual Review, bundle — restent `Non exécuté`).
+
+**Documents modifiés** : `docs/cgpa/design/decisions/gate-staging-decision-ep17-lot4-pilote-keycloak.md`
+(nouveau) ; `docs/project-state.md` (cette entrée). Aucune modification applicative, aucune
+modification de realm, aucun déploiement — travail strictement documentaire, aucune action sur
+l'hôte Staging au-delà de la lecture des preuves déjà produites.
+
+**Prochaine action autorisée** : Gate Production distinct si une promotion Production du pilote
+Keycloak est souhaitée (hors périmètre CGPA immédiat pour un pilote sans Account Console) ; sinon,
+traitement des deux réserves ouvertes (contenu, `CHECK-FRONTEND-01`) ou poursuite des items plus
+larges du Lot 5, sur instruction PO.
