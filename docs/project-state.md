@@ -5370,3 +5370,59 @@ close). Aucune modification de `realm-loyertracker.json` / `realm-loyertracker-p
 promotion du thème + de l'activation de locale sur `ai-test-server` ; exécution réelle des scénarios
 de test de sécurité du Lot 5 (§9) une fois en Staging ; `DD-EP17-14` (SMTP/« mot de passe oublié »
 cassé) reste suivie séparément, découplée du calendrier du Lot 4.
+
+## 2026-08-03 — `STG-ISOL-01` live PASS, `DD-EP17-01` close — thème Keycloak livré en Staging
+
+**Instruction explicite reçue** : « enchaîne sur STG-ISOL-01 » ; confirmation explicite obtenue
+avant toute action touchant l'hôte mutualisé `ai-test-server` (mode Plan, plan approuvé), et avant
+le déploiement live proprement dit.
+
+**Dérive opérationnelle découverte et résolue au préalable, hors périmètre applicatif** : le dépôt
+sur `ai-test-server` était à `27dce09` (~40 commits de retard sur `origin/main`). `git pull
+--ff-only` bloqué par 3 fichiers : `docker-compose.staging.yml` et `infra/smoke/smoke-stack.sh`
+modifiés localement (contenu vérifié **identique** à `main` — vars Twilio SMS fallback EP-16
+Sprint N+2, déjà mergées — `git checkout --` sans perte) ; `infra/release/production-state.env`
+non suivi, snapshot orphelin de l'ancienne release `1.14.0` (`FLYWAY_EXPECTED_PROD=28`) strictement
+remplacé par la version maintenant versionnée dans `main` (`1.15.0`, `29`) — déplacé
+(`.superseded-2026-08-03`, pas supprimé, par prudence) plutôt que supprimé pour débloquer le pull.
+`git pull --ff-only` ensuite propre (`27dce09..b6b9c7c`).
+
+**Déploiement ciblé, 3 services uniquement** (`keycloak`, `keycloak-init`, `keycloak-theme-init`) —
+`api`/`nginx`/`postgres`/monitoring non touchés, aucune image applicative changée. Note technique :
+`docker compose` interpole l'intégralité du fichier même pour un `up -d` ciblé, donc `API_IMAGE_REF`/
+`WEB_IMAGE_REF` ont dû être fournis pour cette seule invocation — valeurs reprises à l'identique des
+conteneurs `api`/`nginx` déjà en cours d'exécution (`docker inspect`, digests exacts), sans changer
+ce qui tourne réellement.
+
+**`STG-ISOL-01` live — PASS** : snapshot avant (16:50 UTC) = 9 conteneurs (`loyertracker-staging-*`
+×8 + `nginx-proxy-manager`) ; snapshot après (16:53 UTC) = identique, seul `keycloak` recréé (nouveau
+montage du thème, `Up ~1 min, healthy`), tous les autres services à leur uptime d'avant déploiement
+(6 h, inchangés) — aucune perturbation d'un autre projet de l'hôte mutualisé. Logs
+`keycloak-theme-init` : activation `loginTheme` puis locale française confirmées, `exit 0`.
+
+**Vérification réelle de l'écran de connexion sur l'hôte Staging** (port interne `18443`, flux
+OIDC/PKCE réel — `code_challenge`/`code_verifier` générés, client public `loyertracker-spa`, aucun
+raccourci) : `<html lang="fr">`, titre « Se connecter à LoyerTracker », corps « Connectez-vous à
+votre compte », classe `card-pf` du thème présente dans le HTML rendu, **0** occurrence `kc-locale`
+(sélecteur de langue absent, cohérent avec une seule locale supportée) — résultat identique à la
+vérification Dev déjà faite pour `DD-EP17-01`/`DD-EP17-13`.
+
+**Smoke test rejoué** (`infra/smoke/smoke-stack.sh`, `BASE=https://localhost:18443`) : **63 PASS, 0
+FAIL** — confirme l'absence de régression ailleurs (`api`/`nginx` non recréés, changement isolé au
+service `keycloak`).
+
+**`DD-EP17-01` close** au registre de dette — dernière preuve attendue (« Thème livré en Staging
+isolé + Gate Staging dédié ») maintenant complète.
+
+**Documents modifiés** : `docs/staging-state.md` (§8 nouvelle entrée, §11 extension `STG-ISOL-01`
+Lot 4) ; `design-debt-register-loyertracker.md` (`DD-EP17-01` close) ; `docs/project-state.md`
+(cette entrée). Aucune modification de fichier de realm. Sur l'hôte : 2 fichiers resynchronisés avec
+`main` (`git checkout --`), 1 fichier orphelin déplacé (pas supprimé) — aucune perte de travail réel,
+tout vérifié identique ou strictement remplacé par une version plus récente déjà versionnée.
+
+**Prochaine action autorisée** : `DD-EP17-13` (langue) et `DD-EP17-01` (thème) sont closes — reste
+`DD-EP17-14` (SMTP/« mot de passe oublié » cassé, suivie séparément, découplée du Lot 4) ; exécution
+réelle des scénarios de test de sécurité du Lot 5 (§9, login invalide, compte désactivé, reset
+expiré, etc.) désormais possible en Staging ; Gate Production distinct si une promotion est
+souhaitée (hors périmètre CGPA immédiat pour un pilote Keycloak sans Account Console, cf. Plan
+d'Exécution §3 Lot 4).
