@@ -32,12 +32,19 @@
 >
 > Réserves inchangées, aucune bloquante : `RSV-MIG-611-04` (Enterprise Architect, sans échéance),
 > `RSV-MIG-611-06` (bloquante US-125 uniquement, Lot B toujours hors périmètre),
-> `RSV-EP16-N2-02` (fallback SMS, couverture asynchrone). **Restent à instruire : hypercare
-> T0/T+12/T+24, puis clôture de release CDO**, distinctes. Rapports :
+> `RSV-EP16-N2-02` (fallback SMS, couverture asynchrone). Rapports :
 > `docs/cgpa/09-production/gate-production-sprint-n2-ep16-decision.md`,
 > `docs/cgpa/09-production/preflight-backup-v1.15.0-report.md`,
 > `docs/cgpa/09-production/deploiement-technique-v1.15.0-report.md`,
 > `docs/cgpa/09-production/validation-finale-v1.15.0-report.md`.
+>
+> **Hypercare T0/T+12/T+24 — PASS sur les trois checkpoints (2026-08-04, T+24 repris tardivement
+> ~4 jours après la cible sur instruction PO explicite, cf. note de valeur probante).** Aucun
+> critère de suspension atteint sur le cycle : 0 dérive de tag/digest réelle, Flyway 29/29,
+> invariant financier 0 écart, `OBS-S10-01` 0 ligne ambiguë, `notification_outbox`/`delivery` à 0
+> du début à la fin, `bailleur-test`/`directAccessGrants` désactivés en continu. Surveillance
+> planifiée close. **Clôture de release CDO reste une décision PO distincte, non prononcée ici.**
+> Détail : `docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md`.
 
 ## 0O. Déploiement Production `1.14.0` — 2026-07-24 (EP-16 Sprint N+1) — régularisé le 2026-07-27, **`PRODUCTION_DEPLOYED` le 2026-07-27 ~16:46 UTC, RELEASE CLÔTURÉE le 2026-07-28** ✅
 

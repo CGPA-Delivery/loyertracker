@@ -5426,3 +5426,83 @@ réelle des scénarios de test de sécurité du Lot 5 (§9, login invalide, comp
 expiré, etc.) désormais possible en Staging ; Gate Production distinct si une promotion est
 souhaitée (hors périmètre CGPA immédiat pour un pilote Keycloak sans Account Console, cf. Plan
 d'Exécution §3 Lot 4).
+
+## 2026-08-04 — Hypercare Production `1.15.0` reprise : checkpoint T+24 statué, cycle clos
+
+**Instruction explicite reçue** : « resume T+12/T+24 hypercare pour 1.15.0 », en réponse à un
+constat de statut projet qui avait relevé que la release Production `1.15.0` était en hypercare
+suspendue depuis le T0 (2026-07-30), sans que T+12 ni T+24 n'apparaissent statués dans ce document
+au-delà d'une entrée T0 isolée (§ ci-dessus, 2026-07-30).
+
+**Constat en ouverture, distinct de ce que le titre de l'instruction laissait supposer** :
+`docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md` montrait en réalité que **T+12 avait déjà
+été statué PASS** (2026-07-30, ~10 min après le T0, sur instruction PO explicite, valeur probante
+réduite et déjà tracée comme telle) — seul **T+24 restait « à instruire »**, sa cible
+(2026-07-31 ~13:20 UTC) étant dépassée d'environ 4,5 jours au moment de cette instruction. Le
+travail réel de cette entrée porte donc sur le seul T+24.
+
+**Accès à l'hôte Production** : SSH a d'abord échoué (time-out) alors que le site public répondait
+200 — l'instance EC2 était `running`. Diagnostic réel (pas une hypothèse) : la règle entrante du
+port 22 sur `sg-095b269cbd42907b0` (`loyertracker-prod-sg`) ne contenait plus l'IP d'egress de
+cette session (`52.29.80.119/32`), remplacée par deux autres IP — dérive déjà documentée comme
+récurrente (le PO édite ce groupe de sécurité directement entre les sessions). **Confirmation
+explicite obtenue avant modification** : ajout de la règle `52.29.80.119/32` sur le port 22
+(`sgr-0b187eac7a6b0d997`), aucune autre règle touchée.
+
+**Checkpoint T+24 exécuté le 2026-08-04, 15:24–15:32 UTC, en lecture seule** — détail complet,
+tableau de contrôles et notes d'investigation dans
+`docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md` (section « Checkpoint T+24 »). Résumé :
+**PASS, aucun critère de suspension atteint.** Un redémarrage complet de l'hôte est survenu entre
+le T+12 et ce contrôle (`StartedAt` des 4 services applicatifs = `2026-08-04T15:07:1{4,5}Z`, soit
+17 min avant le contrôle — pattern d'exploitation connu, hôte volontairement éteint) : l'état
+persistant (Flyway 29/29, invariant financier 0 écart sur les 8 garanties, `OBS-S10-01` 0 ligne
+ambiguë, `notification_outbox`/`delivery` à 0, `bailleur-test`/`directAccessGrants` désactivés,
+0 credential Twilio, digests d'image réellement chargés conformes) a traversé ce redémarrage sans
+aucune dérive.
+
+**Deux découvertes investiguées et qualifiées non bloquantes, pas balayées** :
+1. `infra/release/check-release-state.sh --host` a signalé une fausse « DÉRIVE » sur le digest
+   `nginx` — vérification réelle (`docker inspect .Image` / `RepoDigests` de l'image tournant
+   réellement) confirmant que le digest exécuté est identique à celui déclaré ; le script compare
+   en réalité `Config.Image` (chaîne figée à la création du conteneur, non recréé depuis `1.14.0`)
+   plutôt que le digest réel, produisant un faux positif de forme. Dette technique consignée,
+   correction hors périmètre de cette entrée (outillage de gouvernance, Plan d'Exécution distinct
+   requis).
+2. Une nouvelle alerte Alertmanager, `NotificationKillSwitchFerme` (absente à T0/T+12), active
+   depuis peu après le redémarrage. Investigation réelle des logs `NotificationDispatcher`
+   (cycle ~15 s, `WARN` à chaque passage tant que `app.notifications.external.enabled=false`) et
+   du compteur associé : comportement strictement conforme à la conception (kill switch fermé,
+   aucune ligne en `outbox`/`delivery`), qualifié explicitement « attendu... avant activation » par
+   l'annotation de la règle elle-même — cohérent avec l'état K8/ADR-18 courant (Sprint N+2 Lot B
+   non GO). Probablement la première évaluation live de cette règle, livrée avec Lot A mais jamais
+   vue tourner en continu avant ce redémarrage de la chaîne `monitoring`.
+
+**Écarts de fenêtre du cycle, tracés sans les banaliser** : T+12 anticipé de ~12 h sur instruction
+PO (déjà qualifié à l'origine) ; T+24 repris ~4,5 jours après sa cible, sur instruction PO du
+2026-08-04. Ampleur inédite dans l'historique du projet — la synthèse du plan d'hypercare le dit
+explicitement plutôt que de recycler la qualification « PASS sous surveillance » des écarts de
+quelques heures déjà tracés sur `1.7.0`/`1.8.0`/`1.9.0`/`1.12.0`/`1.14.0`.
+
+**Écart documentaire corrigé au passage** : `infra/release/production-state.env` —
+`PRODUCTION_DEPLOYED_AT` était resté à la date de confirmation de `1.14.0`
+(`2026-07-27T16:46:00Z`) au lieu d'être mis à jour à la validation finale `1.15.0` du 2026-07-30
+~13:20 UTC, contrairement à ce que son propre commentaire prescrit. Corrigé à
+`2026-07-30T13:20:00Z` — correction factuelle d'un oubli, pas une nouvelle décision, signalée avant
+d'être appliquée.
+
+**Documents modifiés** : `docs/cgpa/09-production/plan-etape-hypercare-v1.15.0.md` (T+24 rempli,
+synthèse ajoutée) ; `docs/prod-state.md` (§0P, pointeur vers l'hypercare close) ;
+`infra/release/production-state.env` (`PRODUCTION_DEPLOYED_AT` corrigé) ; `docs/project-state.md`
+(cette entrée). Aucune modification applicative, aucune modification de realm, aucun redémarrage ni
+déploiement — travail strictement en lecture seule côté Production, plus une modification de
+security group (ajout d'une règle d'entrée SSH, confirmée explicitement avant exécution).
+
+**Ce que cette entrée ne fait PAS** : elle ne prononce **aucune clôture de release CDO** pour
+`1.15.0`. La surveillance planifiée est close (les trois checkpoints sont statués), mais la
+clôture reste un acte distinct, sur instruction PO explicite, qui devra tenir compte des réserves
+de valeur probante documentées pour T+12 et T+24 avant tout GO.
+
+**Prochaine action autorisée** : instruction PO explicite et distincte pour la clôture de release
+CDO `1.15.0`, sur la base du dossier d'hypercare complet ci-dessus ; en parallèle, aucune action
+requise côté EP-17 (pilote Keycloak, branche `feature/ep17-lot4-stg-isol-01-keycloak-theme-staging`)
+— chantier sans rapport avec cette entrée.
