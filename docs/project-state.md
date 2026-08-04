@@ -5723,3 +5723,41 @@ pour construire le dossier, aucune écriture.
 
 **Prochaine action autorisée** : instruction PO explicite et distincte pour le Préflight (sauvegarde
 + synchronisation du dépôt hôte), préalable à tout déploiement technique du thème en Production.
+
+## 2026-08-04 — Préflight du pilote Keycloak exécuté — PASS
+
+**Instruction explicite reçue** : « instruis le Préflight du pilote Keycloak », sur la base du Gate
+Production GO sous réserve ci-dessus.
+
+**Sauvegarde préalable** (`infra/backup/backup-postgres.sh`, strictement en lecture seule côté
+application) : `loyertracker-20260804-175158.dump` (865 286 octets, SHA-256 `8a4bfa28…`) +
+`.globals.sql` (1 108 octets, SHA-256 `f7265063…`), permissions 600, `pg_restore --list` vérifié
+par le script, heartbeat Pushgateway poussé avec succès.
+
+**Synchronisation du dépôt hôte** : `git pull --ff-only origin main`, fast-forward propre de
+`162154e` (très en retard, ~106 commits) à `5eb5187` (= `origin/main`), aucun fichier tracké en
+conflit. Amène l'ensemble de la documentation EP-17 et le câblage `docker-compose.prod.yml` du
+thème, ainsi que des changements Frontend/Backend d'EP-17 Lots 1-3 (pilote Angular, hors périmètre
+de ce déploiement) — **sans effet sur les conteneurs en cours d'exécution**, les images `api`/`web`
+restant épinglées par digest dans `.env` indépendamment du contenu du dépôt.
+
+**Configuration Compose fusionnée** : `docker compose -f docker-compose.yml -f
+docker-compose.prod.yml config` — exit 0, montage du thème et service `keycloak-theme-init`
+confirmés présents, revérifié **après** la synchronisation (pas seulement avant, le 2026-08-03).
+
+**Stack Production inchangée tout au long de l'opération** : 8/8 conteneurs `Up`, 4/4 `(healthy)`,
+tous à `Up 2 hours` sans redémarrage ni recréation ; site public `200`. **Aucune commande `docker
+compose up` exécutée** — le thème n'est toujours pas monté dans le conteneur `keycloak` en cours
+d'exécution, comme attendu à ce stade.
+
+**Verdict : PASS.** Détail complet :
+`docs/cgpa/09-production/preflight-ep17-lot4-pilote-keycloak-report.md`.
+
+**Documents modifiés** : `docs/cgpa/09-production/preflight-ep17-lot4-pilote-keycloak-report.md`
+(nouveau) ; `docs/project-state.md` (cette entrée). Sur l'hôte : dépôt synchronisé (fast-forward),
+une sauvegarde ajoutée (hors dépôt, jamais versionnée) — aucune autre écriture, aucun conteneur
+touché.
+
+**Prochaine action autorisée** : instruction PO explicite et distincte pour le déploiement
+technique (recréation ciblée de `keycloak` + exécution de `keycloak-theme-init`, `api`/`nginx`/
+`postgres` non touchés), suivie d'une vérification réelle de l'écran de connexion en Production.
