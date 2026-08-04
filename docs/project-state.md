@@ -5676,3 +5676,50 @@ l'hôte Staging au-delà de la lecture des preuves déjà produites.
 Keycloak est souhaitée (hors périmètre CGPA immédiat pour un pilote sans Account Console) ; sinon,
 traitement des deux réserves ouvertes (contenu, `CHECK-FRONTEND-01`) ou poursuite des items plus
 larges du Lot 5, sur instruction PO.
+
+## 2026-08-04 — Gate Production du pilote Keycloak — GO sous réserve
+
+**Instruction explicite reçue** : « instruis le Gate Production du pilote Keycloak », suivie du
+choix explicite « GO sous réserve » sur la checklist et les avis proposés soumis. Le Plan
+d'Exécution déclare ce Gate « hors périmètre... phase ultérieure » (§10) : aucun critère n'y était
+pré-écrit — cette instance construit une checklist adaptée à la nature réelle du changement
+(thème/config, aucun code applicatif, aucune migration), plutôt que de réutiliser telle quelle la
+grille des releases applicatives (Flyway, tag SemVer, verrou `R-V54-2`, tous non concernés ici).
+
+**Relevé live de l'état Production effectué avant construction du dossier** (2026-08-04 16:39 UTC) :
+8/8 conteneurs `Up`/`healthy`, mais **le thème n'y est pas monté** dans le conteneur `keycloak` en
+cours d'exécution, `loginTheme` toujours par défaut, `internationalizationEnabled=false` — la
+Production n'a reçu aucun des changements du Lot 4 à ce jour. Dépôt hôte à `162154e`, très en
+retard sur `main` (`793be85`).
+
+**Checklist** : même artefact immutable entre Staging et Production confirmé (`git diff` vide entre
+le commit de validation Staging `3ef7d06` et `main` sur les fichiers de thème/script/compose) ;
+câblage Docker Production déjà mergé et vérifié le 2026-08-03 ; aucune modification OIDC/PKCE/realm ;
+13 interdictions de sécurité respectées et confirmées dynamiquement (Lot 5) ; plan de rollback
+simple (retour à `loginTheme=keycloak`, aucune donnée en jeu). Trois éléments encore `Non exécuté`,
+mais relevant du **Préflight** (étape distincte, pas de ce Gate) : sauvegarde préalable,
+synchronisation du dépôt hôte. Les deux réserves déjà ouvertes au Gate Staging restent ouvertes :
+validation Product Owner du **contenu** des parcours/maquettes (plus consequente ici — utilisateurs
+réels) ; `CHECK-FRONTEND-01` de remplacement à instancier.
+
+**Avis proposés** (Claude Code dans les 4 rôles CGPA désignés) : Design Architect, UX/UI Design
+Lead, Frontend Architect et DevSecOps Lead — **tous GO sous réserve**.
+
+**Décision Product Owner : GO SOUS RÉSERVE.** La promotion Production est validée sur le plan
+technique et sécurité. Les réserves opérationnelles (sauvegarde, synchronisation du dépôt hôte)
+restent à lever au Préflight ; les deux réserves héritées du Gate Staging (contenu,
+`CHECK-FRONTEND-01`) restent ouvertes et non bloquantes pour ce GO, tracées explicitement.
+`DD-EP17-14` reste hors du périmètre bloquant de ce Gate. Décision :
+`docs/cgpa/design/decisions/gate-production-decision-ep17-lot4-pilote-keycloak.md`.
+
+**Ce que ce GO n'autorise pas** : aucun Préflight, aucune sauvegarde, aucun déploiement technique —
+ces étapes restent des actions PO distinctes et postérieures. Aucune extension à l'Account Console
+ni à l'acceptation d'invitation. Aucune résolution de `DD-EP17-14` par cette décision.
+
+**Documents modifiés** : `docs/cgpa/design/decisions/gate-production-decision-ep17-lot4-pilote-keycloak.md`
+(nouveau) ; `docs/project-state.md` (cette entrée). Aucune modification applicative, aucune
+modification de realm, aucun déploiement — un relevé en lecture seule effectué sur l'hôte Production
+pour construire le dossier, aucune écriture.
+
+**Prochaine action autorisée** : instruction PO explicite et distincte pour le Préflight (sauvegarde
++ synchronisation du dépôt hôte), préalable à tout déploiement technique du thème en Production.
