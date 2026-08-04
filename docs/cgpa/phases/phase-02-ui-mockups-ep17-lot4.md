@@ -304,4 +304,40 @@ navigateur réel).
 * Le contenu exact du texte final (copie française) reste à valider par le Product Owner — les
   formulations proposées ici sont des candidates, pas un texte figé.
 * Aucun code de thème n'est produit par ce document — strictement une maquette, conformément au
+  périmètre annoncé.
+
+---
+
+## 7. Avis de validation — recoupement avec l'implémentation réelle (2026-08-04)
+
+Rendu par Claude Code en tant que **UX/UI Design Lead**, en vue de la validation Product Owner du
+contenu, distincte des décisions de Gate déjà rendues. Les 4 maquettes « cible proposée » (§1bis,
+§2bis, §3bis, §4bis) ont été comparées directement au thème réellement construit et vérifié en
+Production (`infra/keycloak/themes/loyertracker/login/`, `KEYCLOAK_THEME_DEPLOYED` 2026-08-04) :
+
+* **Connexion (§1bis)** — libellés implémentés à l'identique : « Connectez-vous à votre compte »,
+  « E-mail », « Mot de passe », « Mot de passe oublié ? », « Se connecter » ; message d'erreur
+  traduit en « Identifiants invalides » **au sens** — le texte réel observé est « Nom d'utilisateur
+  ou mot de passe invalide. », une formulation différente mais sémantiquement équivalente (la
+  traduction Keycloak native utilisée, pas une chaîne rédigée par ce Lot, cf. `DD-EP17-13`) ;
+  structure DOM et attributs `name`/`id` non modifiés, conforme à l'interdiction `ADR-UI-001`.
+* **Mot de passe oublié (§2bis)** — l'engagement « texte honnête sur l'indisponibilité, jamais un
+  détail technique masquant l'échec réel » est tenu : le message observé en Production/Staging
+  (« Erreur lors de l'envoi du courriel, veuillez essayer plus tard. ») est générique, traduit,
+  sans trace technique — conforme à l'annotation sécurité de cette maquette.
+* **Déconnexion (§3bis)** — implémenté à l'identique : « Déconnexion », « Voulez-vous vraiment vous
+  déconnecter ? », vérifié en conditions réelles avec session active (Lot 5).
+* **Erreur générique (§4bis)** — l'annotation sécurité (« jamais un détail technique, stack, nom de
+  service SMTP ») est respectée : les 3 messages réels observés (paramètre invalide, cookie
+  introuvable, erreur d'envoi) sont tous génériques et traduits, aucune trace technique dans aucun
+  des 8 corps de réponse inspectés au Lot 5.
+* **Responsive (§5)** — non re-mesuré formellement à l'implémentation (cf. réserve tracée dans
+  `CHECK-FRONTEND-01-ep17-lot4-keycloak-theme.md`) ; le principe « ne pas régresser la base déjà
+  saine » n'a pas été mis en défaut par les changements strictement CSS de ce Lot (aucune structure
+  HTML modifiée).
+
+**Aucun écart matériel entre les maquettes proposées et l'implémentation réelle.** Le seul écart
+mineur (formulation exacte du message d'erreur de connexion) provient de l'usage délibéré des
+traductions Keycloak natives plutôt que de chaînes réécrites par ce Lot — cohérent avec la décision
+`DD-EP17-13` de ne pas dupliquer une traduction déjà fournie par le thème `base`.
   verrou `CLAUDE.md`.

@@ -173,3 +173,33 @@ en cas de problème, quelle qu'en soit la cause exacte.
 | J-Lot4-2 — Réinitialiser mot de passe | Bailleur, Gestionnaire | Élevée | Oui | **Cassé (HTTP 500, SMTP absent)** |
 | J-Lot4-3 — Se déconnecter | Bailleur, Gestionnaire | Faible | Non | Fonctionnel, en anglais |
 | J-Lot4-4 — Erreur générique (accès refusé/session expirée) | Tous | Élevée (fréquence d'exposition) | Oui | Fonctionnel, un seul gabarit partagé |
+
+## 6. Avis de validation — recoupement avec l'implémentation réelle (2026-08-04)
+
+Rendu par Claude Code en tant que **UX/UI Design Lead**, sous-agent CGPA désigné
+(`agent-designations-loyertracker.md`), en vue de la validation Product Owner du contenu, restée
+distincte de toutes les décisions de Gate déjà rendues (`gate-04A-decision-ep17-lot4.md`,
+`gate-staging-decision-ep17-lot4-pilote-keycloak.md`, `gate-production-decision-ep17-lot4-pilote-keycloak.md`).
+
+Les quatre parcours ci-dessus ont depuis été **implémentés et vérifiés en Production réelle**
+(`KEYCLOAK_THEME_DEPLOYED`, 2026-08-04) — recoupement factuel, pas une relecture :
+
+* **J-Lot4-1** — le constat « intégralement en anglais » qui fondait ce parcours n'est plus vrai :
+  `DD-EP17-13` a fermé cet écart, écran de connexion confirmé en français en Production
+  (`<html lang="fr">`, « Connectez-vous à votre compte »). Le message d'erreur générique
+  (« Nom d'utilisateur ou mot de passe invalide. ») reste conforme à la bonne pratique déjà notée
+  ici (aucune indication email/mot de passe).
+* **J-Lot4-2** — le constat « flux cassé, HTTP 500 » reste **exact et non résolu** : reproduit à
+  nouveau en Staging au Lot 5 (2026-08-04), avec une précision supplémentaire non prévue par ce
+  document d'origine (canal d'énumération de comptes via la différence de code HTTP), arbitrée par
+  le Product Owner sans changement de traitement. L'option 1 envisagée ici (« thémer l'écran de
+  saisie et l'erreur générique, sans prétendre à un parcours fonctionnel ») est celle qui a
+  effectivement été retenue et implémentée.
+* **J-Lot4-3** — implémenté et vérifié : écran de confirmation réel obtenu avec une session active
+  (Lot 5), titre traduit « Déconnexion ».
+* **J-Lot4-4** — confirmé : un seul gabarit `error.ftl` partagé couvre bien les trois causes
+  distinctes (redirect_uri invalide, session/cookie absent, échec technique), chacune vérifiée
+  réellement au Lot 5 avec un message français distinct et cohérent.
+
+**Aucun écart entre ce document et l'implémentation réelle** — les quatre parcours décrits ici sont
+ceux qui ont été construits, sans dérive de périmètre.

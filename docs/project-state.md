@@ -5810,3 +5810,37 @@ exécuté puis sorti — aucune autre écriture, aucun fichier de realm modifié
 sans rapport avec le cycle d'hypercare des releases) ; traitement des deux réserves héritées des
 Gates (validation PO du contenu, `CHECK-FRONTEND-01`) sur instruction PO ; `DD-EP17-14` reste suivie
 séparément.
+
+## 2026-08-04 — Traitement des deux réserves héritées des Gates du pilote Keycloak
+
+**Instruction explicite reçue** : « traite les deux réserves ouvertes ».
+
+**Réserve 1 — `CHECK-FRONTEND-01` de remplacement : instanciée et RÉSOLUE.**
+`docs/cgpa/checklists/CHECK-FRONTEND-01-ep17-lot4-keycloak-theme.md` — checklist de remplacement
+adaptée à un artefact FreeMarker/CSS statique (le gabarit Angular original ne s'applique pas :
+aucune architecture par domaines, aucun routing, aucun bundle applicatif à mesurer). 9 contrôles :
+7 PASS (aucune surcharge FreeMarker, source de tokens partagée sans duplication non disciplinée,
+0 `!important`, aucun script/CDN externe, poids négligeable 12 Ko, 13 interdictions de sécurité
+RAS, stratégie de test réelle démontrée à 3 reprises), 2 « Préparation en cours » non bloquantes
+(audit WCAG 2.2 AA formel, mesure responsive dédiée — risque borné par construction : seul le CSS a
+changé, jamais le HTML/FreeMarker). **Résultat agrégé : PASS SOUS RÉSERVE** — la réserve Frontend
+Architect des Gates 04A/02A/Staging/Production du Lot 4 est levée par cette instance.
+
+**Réserve 2 — validation Product Owner du contenu des parcours/maquettes : avis proposé rendu,
+validation PO explicite requise.** Une section « Avis de validation » a été ajoutée à
+`phase-02-user-journeys-ep17-lot4.md` et `phase-02-ui-mockups-ep17-lot4.md` (rôle UX/UI Design
+Lead désigné), recoupant chaque parcours/maquette avec l'implémentation réelle vérifiée en
+Production (`KEYCLOAK_THEME_DEPLOYED`) : **aucun écart matériel constaté** — les 4 parcours et les
+4 familles de maquettes décrits sont ceux effectivement construits, à une différence mineure près
+(formulation exacte du message d'erreur de connexion, traduction Keycloak native utilisée plutôt
+qu'une chaîne réécrite, cohérent avec `DD-EP17-13`). **Cet avis proposé ne vaut pas validation —
+la validation humaine du contenu reste au Product Owner**, conformément à `CLAUDE.md`.
+
+**Documents modifiés** : `docs/cgpa/checklists/CHECK-FRONTEND-01-ep17-lot4-keycloak-theme.md`
+(nouveau) ; `docs/cgpa/phases/phase-02-user-journeys-ep17-lot4.md` (§6, avis ajouté) ;
+`docs/cgpa/phases/phase-02-ui-mockups-ep17-lot4.md` (§7, avis ajouté) ; `docs/project-state.md`
+(cette entrée). Aucune modification applicative, aucune modification de realm, aucun déploiement.
+
+**Prochaine action autorisée** : Product Owner statue explicitement sur la validation du contenu
+des deux documents (accepte l'avis proposé, ou demande des ajustements) — seule action requise pour
+clore intégralement les deux réserves héritées des Gates.
