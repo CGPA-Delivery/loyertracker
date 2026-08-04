@@ -5844,3 +5844,24 @@ la validation humaine du contenu reste au Product Owner**, conformément à `CLA
 **Prochaine action autorisée** : Product Owner statue explicitement sur la validation du contenu
 des deux documents (accepte l'avis proposé, ou demande des ajustements) — seule action requise pour
 clore intégralement les deux réserves héritées des Gates.
+
+### Validation Product Owner du contenu — obtenue (2026-08-04)
+
+**Instruction explicite reçue** : « je valide le contenu ». **Décision Product Owner : contenu de
+`phase-02-user-journeys-ep17-lot4.md` et `phase-02-ui-mockups-ep17-lot4.md` validé, sans réserve.**
+
+**Les deux réserves héritées des Gates du pilote Keycloak (Staging et Production) sont désormais
+intégralement closes** : `CHECK-FRONTEND-01` de remplacement (PASS sous réserve, ci-dessus) et
+validation PO du contenu (ci-dessus) — les deux seuls points encore ouverts au moment de ces Gates.
+Ne restent hors de ce périmètre : `DD-EP17-14` (mot de passe oublié cassé, SMTP absent, suivi
+séparé, aucun changement de traitement) et les deux réserves non bloquantes de
+`CHECK-FRONTEND-01-ep17-lot4-keycloak-theme.md` elles-mêmes (audit WCAG formel, mesure responsive
+dédiée — non issues des Gates, propres à cette checklist).
+
+**Documents modifiés** : `docs/project-state.md` (cette entrée). Aucune modification applicative,
+aucune modification de realm, aucun déploiement.
+
+**Prochaine action autorisée** : aucune action Production requise dans l'immédiat pour le pilote
+Keycloak — le cycle Gate Staging → Gate Production → Préflight → déploiement technique → réserves
+est intégralement clos. Suite possible sur instruction PO : Lot 5 plus large (a11y/responsive/tests
+Angular), Lot 6 (extension progressive), ou décision sur le fournisseur SMTP (`DD-EP17-14`).
