@@ -5602,3 +5602,32 @@ résidu.
 constatée de `DD-EP17-14` (canal d'énumération, priorité déjà propre) ; les items plus larges du
 Lot 5 (§9) restent disponibles à instruire ; Gate Staging du pilote et Gate Production restent des
 actes distincts, non instruits par ce travail.
+
+## 2026-08-04 — Arbitrage `DD-EP17-14` : canal d'énumération, aucun changement de traitement
+
+**Instruction explicite reçue** : « statue sur DD-EP17-14, canal d'énumération de comptes »,
+en réponse à l'aggravation constatée aux tests de sécurité du Lot 5 ci-dessus (différence de code
+HTTP 200/500 selon qu'un e-mail est enregistré ou non).
+
+**Trois options soumises au Product Owner** : (1) aucun changement de traitement — la résolution
+SMTP déjà attendue referme aussi le canal d'énumération, sans action distincte ; (2) escalade de
+criticité — reclassifier la dette comme un problème de confidentialité prioritaire, sans changer la
+preuve attendue ; (3) mitigation intérimaire avant la résolution SMTP — uniformiser la réponse
+(toujours `200` générique), ce qui aurait exigé une extension Java/SPI Keycloak hors du périmètre
+du thème CSS-only du Lot 4, un engagement d'ingénierie distinct pour un correctif temporaire.
+
+**Décision Product Owner** : **option (1), aucun changement de traitement**. `DD-EP17-14` reste
+ouverte, priorité déjà propre et découplée du calendrier du Lot 4 (décision du 2026-08-02
+inchangée) ; la **seule preuve attendue reste une configuration SMTP fonctionnelle** vérifiée par
+un envoi réel réussi (fournisseur toujours à décider par le Product Owner). Le canal d'énumération
+ne justifie ni escalade de criticité ni correctif intérimaire distinct : il se referme
+automatiquement dès que le flux « mot de passe oublié » fonctionne réellement, puisque les deux
+chemins (e-mail inexistant / e-mail réel) convergeront alors vers la même réponse de succès.
+
+**Documents modifiés** : `design-debt-register-loyertracker.md` (`DD-EP17-14`, arbitrage ajouté) ;
+`docs/project-state.md` (cette entrée). Aucune modification applicative, aucune modification de
+realm, aucun déploiement — travail strictement documentaire.
+
+**Prochaine action autorisée** : inchangée — attente d'une décision Product Owner sur le
+fournisseur SMTP pour clore `DD-EP17-14` ; les items plus larges du Lot 5 (§9) et le Gate Staging
+du pilote restent disponibles à instruire séparément.
