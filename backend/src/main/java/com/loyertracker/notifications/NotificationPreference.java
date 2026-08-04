@@ -41,6 +41,12 @@ public class NotificationPreference {
     @Column(name = "phone_e164")
     private String phoneE164;
 
+    @Column
+    private String email;
+
+    @Column(name = "email_opt_in", nullable = false)
+    private boolean emailOptIn;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "preferred_channel", nullable = false, length = 20)
     private CanalNotification preferredChannel;
@@ -126,7 +132,11 @@ public class NotificationPreference {
         this.dateDesactivation = null;
     }
 
-    /** Éligibilité d'un envoi externe (ADR-18 §Consentement) : actif et opt-in pour ce canal précis. */
+    /**
+     * Éligibilité d'un envoi externe (ADR-18 §Consentement, étendu EMAIL par ADR-19 §2.6) : actif
+     * et opt-in pour ce canal précis. Ne s'applique jamais à la voie transactionnelle (ADR-19 §2,
+     * ex. invitation), qui ne consulte aucune préférence.
+     */
     public boolean estEligiblePour(CanalNotification canal) {
         if (!enabled || canal == CanalNotification.IN_APP) {
             return false;
@@ -134,6 +144,7 @@ public class NotificationPreference {
         return switch (canal) {
             case WHATSAPP -> whatsappOptIn;
             case SMS -> smsOptIn;
+            case EMAIL -> emailOptIn;
             case IN_APP -> false;
         };
     }
@@ -143,6 +154,8 @@ public class NotificationPreference {
     public TypeDestinataire getRecipientType() { return recipientType; }
     public UUID getRecipientId() { return recipientId; }
     public String getPhoneE164() { return phoneE164; }
+    public String getEmail() { return email; }
+    public boolean isEmailOptIn() { return emailOptIn; }
     public CanalNotification getPreferredChannel() { return preferredChannel; }
     public CanalNotification getFallbackChannel() { return fallbackChannel; }
     public boolean isWhatsappOptIn() { return whatsappOptIn; }
