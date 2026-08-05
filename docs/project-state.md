@@ -1,5 +1,32 @@
 # Project State — LoyerTracker
 
+> **Gate Production EP-18 — GO sous réserve / `PRODUCTION_READY` (2026-08-05).**
+> Après correction de la dérive Production `R-V54-2`, le Gate Production EP-18 a été réinstruit :
+> `check-release-state.sh --host` est **COHÉRENT**, Production est healthy (API/Web/PostgreSQL/Keycloak,
+> `/healthz` 200, racine publique 200), Flyway Production reste 29/29, et Resend reste désactivé
+> (`RESEND_EMAIL_ENABLED` absent, `RESEND_FROM_EMAIL` absent). Décision : **GO sous réserve** autorisant
+> uniquement le **Préflight Production EP-18**. Aucun déploiement EP-18, aucune migration V30/V31,
+> aucune activation Resend, aucun `PRODUCTION_DEPLOYED`.
+
+> **Correction dérive Production `R-V54-2` — PASS (2026-08-05).** Sur instruction PO,
+> la dérive identifiée au Gate Production EP-18 a été traitée sans promotion EP-18 : backup `.env`,
+> resync fast-forward de l'hôte Production `5eb5187` → `901a861`, alignement
+> `LOYERTRACKER_TAG=sha-ac374193`, recréation ciblée de `loyertracker-nginx-1` uniquement avec le
+> digest `PRODUCTION_WEB_IMAGE_REF`. Invariants : API/PostgreSQL/Keycloak inchangés, Flyway 29/29,
+> `/healthz` 200, racine publique 200, `check-release-state.sh --host` **COHÉRENT**. Resend reste
+> désactivé (`RESEND_EMAIL_ENABLED` absent). Rapport :
+> `docs/cgpa/09-production/correction-derive-production-ep18-rv542-report.md`.
+
+> **Gate Production EP-18 — NO GO technique temporaire (2026-08-05).** Après merge PR #371
+> (`901a861`) et contrôles post-merge `main` verts (CI, CodeQL, Registry Policy, CGPA Audit),
+> l'instruction Gate Production EP-18 a découvert un bloqueur d'entrée `R-V54-2` sur la Production :
+> `check-release-state.sh --host` échoue car `loyertracker-nginx-1` exécute encore l'image Web via
+> le tag `sha-27dce09d` au lieu du digest déclaré `PRODUCTION_WEB_IMAGE_REF`. Production reste
+> healthy (`/healthz` 200, API/Nginx/Postgres/Keycloak healthy, Flyway 29/29), mais `PRODUCTION_READY`
+> EP-18 n'est pas atteint. Prochaine action CGPA : corriger cette dérive d'exploitation sans
+> promotion EP-18, puis réinstruire le Gate Production. Décision :
+> `docs/cgpa/09-production/gate-production-ep18-resend-decision.md`.
+
 > **Gate Staging EP-18 — GO (2026-08-05).** EP-18 a été déployé techniquement sur
 > `ai-test-server` après fusion de la PR #370 (`dbded12`) corrigeant le câblage Compose Resend.
 > Artefacts Staging : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web

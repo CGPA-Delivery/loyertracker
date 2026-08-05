@@ -8,6 +8,24 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Gate Production EP-18 réinstruit
+
+- Après correction `R-V54-2`, Gate Production EP-18 statué **GO sous réserve / `PRODUCTION_READY`** pour Préflight uniquement.
+- Contrôles live Production verts : `check-release-state.sh --host` cohérent, API/Web par digest attendu, Flyway `29/29`, `/healthz` et racine publique `200`.
+- Aucun déploiement EP-18, aucune migration V30/V31 et aucune activation Resend ; `RESEND_EMAIL_ENABLED` reste absent donc désactivé par défaut.
+
+### Exploitation Production — correction dérive `R-V54-2`
+
+- Dérive Production traitée sans promotion EP-18 : `loyertracker-nginx-1` recréé uniquement pour passer de la référence tag `sha-27dce09d` au digest `PRODUCTION_WEB_IMAGE_REF` attendu.
+- `check-release-state.sh --host` repasse **COHÉRENT** ; API/PostgreSQL/Keycloak inchangés, Flyway Production `29/29`, `/healthz` et racine publique `200`.
+- Resend reste désactivé en Production (`RESEND_EMAIL_ENABLED` absent) ; aucune migration et aucun déploiement EP-18 effectués.
+
+### Gouvernance — Gate Production EP-18 Resend
+
+- Gate Production EP-18 instruit après merge de la PR #371 : **NO GO technique temporaire**.
+- Motif : contrôle `R-V54-2` Production `check-release-state.sh --host` en échec — conteneur Web/Nginx courant encore référencé par tag `sha-27dce09d` au lieu du digest `PRODUCTION_WEB_IMAGE_REF`, malgré une Production healthy.
+- Aucun déploiement, aucune migration et aucune activation Resend effectués ; prochaine action CGPA = correction préalable de dérive Production puis réinstruction du Gate.
+
 ### Gouvernance — Gate EP-18 Resend
 
 - Gate Staging EP-18 reclassé en **GO** : API Resend authentifiée, e-mail envoyé et réception confirmée par le Product Owner, Provider Message ID `fdac0ef4-a19f-4893-9f89-abe55b1f25c8`, PR #371 mergeable et contrôles CI verts.
