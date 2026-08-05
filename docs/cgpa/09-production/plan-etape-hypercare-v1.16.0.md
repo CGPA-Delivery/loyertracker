@@ -4,7 +4,7 @@
 |---|---|
 | `PRODUCTION_DEPLOYED` | 2026-08-05T19:25:04Z (`validation-finale-ep18-notifications-email-resend-report.md`) |
 | T0 | 2026-08-05T19:57:29Z — **PASS** |
-| T+12 | cible 2026-08-06T07:25:04Z ± 30 min — à exécuter |
+| T+12 | cible 2026-08-06T07:25:04Z ± 30 min — pré-check anticipé 2026-08-05T20:59:04Z **PASS technique / WARN fenêtre** |
 | T+24 | cible 2026-08-06T19:25:04Z ± 30 min — à exécuter |
 | Tag surveillé | `sha-8c9f1e4a` |
 | Rollback applicatif | `sha-ac374193` (`1.15.0`) — backup Préflight disponible |
@@ -78,3 +78,47 @@ Conclusion : **non bloquant pour T0**, à recontrôler à T+12/T+24 après fenê
 **Hypercare EP-18 T0 PASS. Aucun critère de suspension atteint.**
 
 Prochaine étape : checkpoint **T+12** cible `2026-08-06T07:25:04Z ± 30 min`, puis T+24.
+
+## Pré-check T+12 — 2026-08-05T20:59:04Z
+
+**Statut : PASS technique / WARN fenêtre.** Le cron a exécuté les contrôles en avance sur la fenêtre cible T+12 (`2026-08-06T07:25:04Z ± 30 min`). Les preuves ci-dessous ne montrent aucun critère de suspension Production, mais ne clôturent pas à elles seules la fenêtre officielle si le PO exige une mesure strictement dans la bande cible.
+
+| Contrôle | Résultat |
+|---|---:|
+| PR #377 / dépôt local | ✅ mergée (`e381357120b71f40e8a88bbd3882a3a7ac89f9b1`) ; `main` local à jour `origin/main` |
+| Hôte Production | ✅ resynchronisé `main` sur `e381357120b71f40e8a88bbd3882a3a7ac89f9b1` ; seules sauvegardes `.env.bak*` non suivies présentes |
+| `check-release-state.sh --host` | ✅ **COHÉRENT** — release `1.16.0`, tag `sha-8c9f1e4a`, Flyway réel `31` |
+| API | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T18:55:22Z`, digest EP-18 attendu |
+| Web/Nginx | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T18:55:22Z`, digest EP-18 attendu |
+| PostgreSQL | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T14:13:21Z` |
+| Keycloak | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T14:13:21Z` |
+| `/healthz` / racine publique | ✅ `302 -> 200` / `200` |
+| Flyway | ✅ `31/31` ; dernières migrations V31 `ep18 sprint b invitation email`, V30 `ep18 sprint a email resend fondation` |
+| `notification_event/outbox/delivery/template/preference` | ✅ `34 / 0 / 0 / 4 / 0` |
+| Baseline métier | ✅ `3 bailleurs, 2 patrimoines, 8 biens, 8 baux, 8 garanties, 1 gestionnaire, 8 locataires, 7 quittances` |
+| `directAccessGrantsEnabled` | ✅ `false` |
+| `bailleur-test@test.local` | ✅ `enabled=false` |
+| Resend | ✅ `RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent ; secrets seulement présents par métadonnée (`SET len=N`), valeurs non lues/non exposées |
+| Prometheus | ✅ `5/5` cibles `up` |
+| Hikari pending | ✅ `0` |
+| Nginx 5xx 12 h | ✅ `0` |
+| API `ERROR` 12 h | ⚠️ 1 ligne qualifiée : `duplicate key value violates unique constraint "bailleur_keycloak_id_key"` à `2026-08-05T19:25:14Z`, pattern du smoke Production final déjà qualifié, sans résidu ni outbox/delivery |
+| Disque / mémoire / charge | ✅ `/` 24 % utilisé, 29 Gio libres ; ~1,8 Gio mémoire disponible ; load 0.12/0.09/0.02 |
+
+## Alertes qualifiées au pré-check T+12
+
+### `NotificationKillSwitchFerme` — warning, non bloquante
+
+Alerte active depuis `2026-08-05T14:20:05Z`. Qualification inchangée et renforcée : le kill-switch est volontairement fermé, `RESEND_EMAIL_ENABLED=false`, `notification_outbox=0`, `notification_delivery=0`, aucun canal externe activé.
+
+Conclusion : **non bloquant**, attendu tant que Resend et les canaux externes restent fermés.
+
+### `BackupHeartbeatMissing` — critical, non bloquante qualifiée au moment du pré-check
+
+Alerte active depuis `2026-08-05T14:14:35Z`. Preuves relevées : `backup_metric_series=0`, cron hôte présent (`15 2 * * * ... backup-postgres.sh`), dernier `backup.log` disponible daté `2026-07-30T02:15:01Z`, Pushgateway volatil depuis le redémarrage de la stack. Au moment de l'exécution anticipée (`2026-08-05T20:59Z`), la prochaine fenêtre cron quotidienne `02:15 UTC` suivant le redémarrage n'avait pas encore rejoué.
+
+Conclusion : **non bloquant pour ce pré-check**, à requalifier dans la fenêtre officielle T+12/T+24 après passage potentiel du cron.
+
+## Décision pré-check T+12
+
+**Aucun critère technique de suspension n'est atteint.** Décision opérationnelle : **PASS technique / WARN fenêtre** car l'exécution a eu lieu avant la cible T+12. Resend reste désactivé ; aucune migration, aucun smoke destructif, aucune suppression de données et aucune activation externe n'ont été effectués.
