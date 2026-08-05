@@ -6204,3 +6204,21 @@ PASS Sonar ni GO CGPA n'est anticipé avant la nouvelle preuve distante.
 **Prochaine action autorisée** : committer et pousser ce lot avec les trois commits Sprint C déjà
 préparés, conformément à l'instruction PO courante, puis vérifier la nouvelle CI de la PR #368.
 Toute revue/merge, promotion Staging ou Production reste une décision distincte.
+
+### Addendum — première relance CI et corrections Sprint C
+
+Le commit correctif `b927ec7` a été poussé avec les trois commits Sprint C ; la CI
+`31006098326` confirme **249/249 tests PASS**, couverture JaCoCo PASS, Frontend PASS et Sécurité
+PASS. Les quatre violations initiales ont disparu et la couverture Sonar du nouveau code atteint
+**80,3 %** (seuil 80 %). Le Gate reste rouge sur le hotspot non revu (50 %) et deux nouvelles
+violations révélées par l'inclusion du Sprint C : `java:S2184` et `java:S1168` dans
+`ResendSignatureVerifier`.
+
+Corrections additionnelles préparées : multiplication de la fenêtre de fraîcheur effectuée en
+`long` (`5L * 60`) ; décodage Base64 invalide représenté par un tableau vide au lieu de `null`,
+avec garde `cle.length == 0` ; test unitaire dédié au secret Base64 invalide. Suite ciblée
+`ResendSignatureVerifierTest` + `ResendCallbackIntegrationTest` : **9/9 PASS**. La réserve sur la
+revue humaine du hotspot Sonar reste inchangée.
+
+**Prochaine action autorisée** : committer/pousser ce correctif additionnel et vérifier la CI ;
+aucun merge ni déploiement n'est autorisé.

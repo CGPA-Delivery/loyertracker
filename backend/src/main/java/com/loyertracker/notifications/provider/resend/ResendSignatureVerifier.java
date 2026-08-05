@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResendSignatureVerifier {
 
-    private static final long FENETRE_FRAICHEUR_SECONDES = 5 * 60;
+    private static final long FENETRE_FRAICHEUR_SECONDES = 5L * 60;
     private static final String PREFIXE_SECRET = "whsec_";
 
     private final String secretBrut;
@@ -50,7 +50,7 @@ public class ResendSignatureVerifier {
             return false;
         }
         byte[] cle = decoderSecret(secretBrut);
-        if (cle == null) {
+        if (cle.length == 0) {
             return false;
         }
         String donnees = svixId + "." + svixTimestamp + "." + corpsBrut;
@@ -88,7 +88,7 @@ public class ResendSignatureVerifier {
         try {
             return Base64.getDecoder().decode(sansPrefixe);
         } catch (IllegalArgumentException e) {
-            return null;
+            return new byte[0];
         }
     }
 
