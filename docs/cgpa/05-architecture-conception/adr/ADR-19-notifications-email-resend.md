@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |-------|--------|
-| Statut | **Sprint A implémenté (2026-08-04, GO explicite du PO)** — kickoff K1→K5 toujours en recommandations par défaut, aucune décision PO formelle distincte. Socle EMAIL/Resend codé et testé (34/34 + 10/10 tests verts, non-régression WhatsApp/SMS confirmée), **`RESEND_EMAIL_ENABLED=false` partout, aucune activation, aucun déploiement**. Sprint B (invitation) et Sprint C (webhooks) restent à instruire séparément. |
+| Statut | **Sprint A + Sprint B implémentés (2026-08-05, GO explicite du PO pour chaque sprint)** — kickoff K1→K5 toujours en recommandations par défaut, aucune décision PO formelle distincte. Socle EMAIL/Resend (Sprint A) et invitation gestionnaire par e-mail (Sprint B, US-139) codés et testés (suite complète 237/237 verte, non-régression WhatsApp/SMS/invitation confirmée), **`RESEND_EMAIL_ENABLED=false` partout, aucune activation, aucun déploiement**. Sprint C (webhooks, RSV-EP18-01) reste à instruire séparément. |
 | Date | 2026-08-04 |
 | Origine | Instruction PO du 2026-08-04 (« intégrer Resend comme fournisseur d'e-mails transactionnels ») |
 | Décision | **D-NOTIF-002** |
@@ -194,10 +194,16 @@ implémentée le 2026-08-04)** :
   du modèle).
 - `notification_template.subject`/`html_body`/`text_body` nullables (EMAIL uniquement).
 
-**Reste à livrer par une migration Sprint B distincte** (non incluse dans `V30`) : `TypeDestinataire.
-INVITATION`, `TypeEvenementNotification.INVITATION_CREEE`, `TypeAgregatNotification.INVITATION`, et
-l'extension des contraintes `CHECK` de `notification_event` (`event_type`/`aggregate_type`)
-correspondantes — le socle Sprint A ne les nécessite pas encore.
+**Livré par la migration `V31` (Sprint B, implémentée le 2026-08-05, GO explicite du PO)** :
+`TypeDestinataire.INVITATION`, `TypeEvenementNotification.INVITATION_CREEE`,
+`TypeAgregatNotification.INVITATION` (trois enums additifs, une valeur ajoutée en fin
+d'énumération), l'extension des contraintes `CHECK` de `notification_event`
+(`event_type`/`aggregate_type`) correspondantes, et le seed du gabarit EMAIL `INVITATION_CREEE`
+(sujet/HTML/texte, variables `lien`/`dureeValiditeHeures`). `NotificationOutboxService
+.emettreTransactionnel(...)` (nouvelle méthode) et le câblage dans `InvitationService.inviter(...)`
+complètent la voie transactionnelle : `NotificationDispatcher`/`ResendEmailProvider`/
+`NoopEmailProvider` n'ont nécessité aucune modification (déjà entièrement câblés depuis le
+Sprint A).
 
 `fallback_channel` reste `CHECK (fallback_channel IN ('SMS'))` — décision K5 ADR-18 non rejouée,
 cohérent avec §7 ci-dessus.
@@ -247,7 +253,7 @@ WhatsApp/SMS. Aucun impact sur `Alerte`, `Paiement`, `Garantie`, `Quittance`,
 | # | Risque | Mitigation proposée | Statut |
 |---|--------|----------------------|--------|
 | RSV-EP18-01 | Webhooks Resend non couverts au Lot 1 : le statut `ACCEPTED` par Resend n'est jamais confirmé livré | Documenté comme dette explicite (K1), aucune prétention de statut final de livraison tant que non couvert | Accepté (en surveillance), Sprint C |
-| RSV-EP18-02 | Confusion entre voie préférence et voie transactionnelle produisant un envoi non désiré (ex. un opt-out contourné) | La voie transactionnelle ne s'applique qu'à `TypeDestinataire.INVITATION`, jamais à `BAILLEUR`/`GESTIONNAIRE`/`LOCATAIRE` — vérification explicite par test dédié (isolation des deux voies) | Ouvert — à verrouiller par test avant codage |
+| RSV-EP18-02 | Confusion entre voie préférence et voie transactionnelle produisant un envoi non désiré (ex. un opt-out contourné) | La voie transactionnelle ne s'applique qu'à `TypeDestinataire.INVITATION`, jamais à `BAILLEUR`/`GESTIONNAIRE`/`LOCATAIRE` — vérification explicite par test dédié (isolation des deux voies) | **Verrouillé (2026-08-05, Sprint B)** — `emettreTransactionnel` n'appelle jamais `NotificationPreferenceRepository` (mécanisme structurel) ; test TC-130 prouve qu'une ligne Outbox transactionnelle passe `PENDING` sans aucune `NotificationPreference` créée ; non-régression `NotificationDispatchIntegrationTest` inchangée (voie préférence sans préférence ⇒ `DEAD`) |
 | RSV-EP18-03 | Dette RGPD préexistante (`RgpdService` sans couverture `notification_*`) étendue à EMAIL sans être comblée | Signalée, non aggravée — hors périmètre de ce Lot (aucune `NotificationPreference` créée pour l'invitation) | Accepté (en surveillance), sans échéance dans ce mandat |
 | RSV-EP18-04 | Budget EMAIL mal isolé du budget WhatsApp/SMS, un pic EMAIL bloquant les canaux existants | Plafond dédié (K3), fonction SQL paramétrée par canal | **Ouvert, non implémenté au Sprint A** — sans risque réel tant que `RESEND_EMAIL_ENABLED=false` (aucune ligne EMAIL possible) ; à résoudre avant toute activation Staging avec volume réel (avant Sprint B ou en tout début de Sprint B) |
 | RSV-EP18-05 | `RSV-MIG-611-04` (addendum DAT EP-16 encore ouvert) confondu avec le nouvel addendum DAT EP-18 | Addendum DAT §3.6 explicitement distinct, ne clôt pas RSV-MIG-611-04 | Ouvert (hérité, sans rapport direct) |

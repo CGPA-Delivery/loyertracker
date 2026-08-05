@@ -6018,3 +6018,79 @@ Sprint B (invitation par e-mail) reste soumis à un GO distinct, non inclus dans
 **Prochaine action autorisée** : aucune par défaut. Sprint B (US-139, invitation par e-mail),
 Sprint C (webhooks) et toute revue/merge de la PR #368 restent soumis à un GO/instruction distincte
 et explicite du PO.
+
+## 2026-08-05 — Plan d'Exécution Sprint B (approuvé) et EP-18 Sprint B implémenté sur branche dédiée
+
+**Instruction PO** : demande de planification du Sprint B (mode plan), exploration du code réel
+(flux invitation, dispatcher/Sprint A), Plan d'Exécution rédigé et **approuvé explicitement par le
+PO** (mécanisme d'approbation du mode plan — équivalent du GO CGPA sur ce Plan d'Exécution précis),
+puis instruction explicite « commit et mets à jour la doc ».
+
+**Périmètre livré (US-139 + complément US-140)** — raccorde la voie transactionnelle EMAIL du
+Sprint A à la fonctionnalité métier réelle :
+
+- Migration `V31__ep18_sprint_b_invitation_email.sql` (additive) : élargit
+  `notification_event.event_type`/`aggregate_type` pour admettre `INVITATION_CREEE`/`INVITATION` ;
+  seed le gabarit EMAIL correspondant (sujet/HTML/texte, variables `lien`/`dureeValiditeHeures`).
+  `FLYWAY_EXPECTED_REPO` porté à 31 (`infra/release/production-state.env`) —
+  `FLYWAY_EXPECTED_PROD` inchangé (29, rien de déployé).
+- `TypeEvenementNotification.INVITATION_CREEE`, `TypeAgregatNotification.INVITATION`,
+  `TypeDestinataire.INVITATION` : trois enums additifs (une valeur en fin d'énumération).
+- `NotificationOutboxService.emettreTransactionnel(...)` (nouvelle méthode, sœur structurelle de
+  `emettre()`) : écrit directement une ligne Outbox EMAIL avec adresse déjà résolue, sans jamais
+  consulter `NotificationPreferenceRepository` — mécanisme concret garantissant RSV-EP18-02/RM-125
+  côté émission (verrouillage complet du risque, cf. mise à jour ADR-19 ci-dessous).
+- `InvitationService.inviter(...)` : appelle `emettreTransactionnel` juste après
+  `invitations.saveAndFlush(invitation)`, dans la même transaction. `payload_minimal` strictement
+  minimal (RGPD, ADR-19 « rien d'autre ») : `lien` + `dureeValiditeHeures` uniquement.
+- **Aucun nouvel endpoint de « régénération »** : chaque appel à `POST /api/invitations` crée déjà
+  une `Invitation` neuve (`recipient_id = Invitation.id`), ce qui suffit à satisfaire le critère
+  GWT US-139 sur la régénération sans code supplémentaire — découverte faite en exploration,
+  validée par un test dédié (TC-141).
+- `NotificationDispatcher`, `ResendEmailProvider`, `NoopEmailProvider` : **aucune modification** —
+  déjà entièrement câblés pour la voie transactionnelle depuis le Sprint A.
+- Tests ajoutés : 3 tests d'intégration sur le **vrai** `InvitationService.inviter()` (pas de seed
+  JDBC) dans `InvitationGenerationIntegrationTest` — événement+ligne Outbox EMAIL créés dans la
+  même transaction que l'invitation (TC-130), deux invitations pour le même e-mail produisent deux
+  événements distincts sans doublon (TC-141), isolation RLS cross-tenant (TC-143). Panne
+  Resend/idempotence concurrente (TC-131/142) restent couvertes génériquement par les tests
+  Sprint A du dispatcher, inchangés.
+- `SchemaMigrationTest` : commentaire V31 ajouté, compteur lu depuis `production-state.env`
+  (inchangé dans son mécanisme).
+
+**Incident de compilation rencontré et corrigé** : Flyway scanne le texte brut de chaque fichier de
+migration (y compris les commentaires SQL) à la recherche de ses propres placeholders `${...}`,
+indépendamment du contexte SQL — les variables `${lien}`/`${dureeValiditeHeures}` du gabarit
+(destinées à `ResendEmailProvider`, jamais à Flyway) faisaient donc échouer la migration au
+démarrage. Corrigé en construisant ces accolades via `chr(36)` dans le corps du gabarit et en
+reformulant les commentaires sans jamais faire apparaître la séquence `${` littéralement dans le
+fichier.
+
+**Preuves d'exécution** (locale, avant CI) :
+- Suite ciblée (`SchemaMigrationTest`, `InvitationGenerationIntegrationTest`,
+  `InvitationAcceptationIntegrationTest`, `NotificationDispatchIntegrationTest`,
+  `NotificationFondationIntegrationTest`) : **53/53 PASS**.
+- **Suite backend complète : 237/237 PASS, 0 échec, `BUILD SUCCESS`** (234 Sprint A + 3 nouveaux),
+  aucune régression sur RGPD, invitations (génération/acceptation), quittances certifiées,
+  garanties, patrimoine, sécurité/RLS, alertes/audit, WhatsApp/SMS.
+- Aucun appel réseau réel vers Resend pendant les tests (grep des logs : aucune mention
+  `api.resend.com`). `RESEND_EMAIL_ENABLED=false` partout.
+
+**Documents modifiés** (additifs) : `ADR-19-notifications-email-resend.md` (statut Sprint A+B,
+§Modèle de données précisé, RSV-EP18-02 verrouillée), `addendum-backlog-ep18-notifications-email-
+resend.md` (statut US-139/US-140, RSV-EP18-02 verrouillée). Aucun document historique altéré.
+
+**Secret Resend** : `~/INFRASTRUCTURE/resend` toujours non lu, non exposé — conforme à la consigne
+PO (inerte jusqu'à un Gate Staging/Production réel d'EP-18).
+
+**Commit** : `db05eb9 feat(notifications): EP-18 Sprint B — invitation gestionnaire par e-mail
+(ADR-19 §2/§6, US-139)` sur `feat/ep18-notifications-email-resend` (branche déjà poussée, PR #368
+draft ouverte au Sprint A — non encore mise à jour/republiée sur cette branche distante).
+
+**Réserves explicites inchangées** : K1→K5 toujours en recommandations par défaut ; RSV-EP18-01
+(webhooks, Sprint C) et RSV-EP18-04 (budget dédié) toujours ouvertes/non implémentées, sans risque
+réel tant que `RESEND_EMAIL_ENABLED=false`.
+
+**Prochaine action autorisée** : aucune par défaut. Push de ce commit et mise à jour de la PR #368,
+Sprint C (webhooks), et toute revue/merge restent soumis à un GO/instruction distincte et explicite
+du PO.

@@ -3,7 +3,7 @@
 | Champ | Valeur |
 |-------|--------|
 | Document de référence | `product-backlog.md`, `addendum-backlog-ep16-notifications.md` — **non modifiés** |
-| Statut | **Sprint A fusionné sur branche dédiée (2026-08-04), GO explicite du PO reçu pour ce seul Sprint.** US-135/136/137/138 et le socle de US-140 sont codés et testés ; K1→K5 restent en recommandations par défaut, aucune décision PO formelle distincte. Sprint B/C non démarrés, soumis chacun à un GO distinct. |
+| Statut | **Sprint A et Sprint B implémentés sur branche dédiée (2026-08-05), GO explicite du PO reçu pour chaque sprint.** US-135/136/137/138 (Sprint A) et US-139 + le complément de US-140 (Sprint B) sont codés et testés ; K1→K5 restent en recommandations par défaut, aucune décision PO formelle distincte. Sprint C (webhooks) non démarré, soumis à un GO distinct. |
 | Date | 2026-08-04 |
 | Décision liée | `ADR-19-notifications-email-resend.md` |
 | Plan d'exécution | `docs/project-state.md` (entrée Phase 4, 2026-08-04) |
@@ -98,6 +98,7 @@ lien d'acceptation **afin de** ne plus avoir à transmettre ce lien manuellement
 | Risques | RSV-EP18-02 (isolation des deux voies de fan-out) |
 | Source | ADR-19 §2 ; EF-125/126/131 ; BF-113/114/115 |
 | Sprint cible | Sprint B — Invitation par e-mail |
+| Statut | **Implémentée (2026-08-05)** — `InvitationService.inviter(...)` émet l'événement/la ligne Outbox dans la même transaction (TC-130) ; « régénération » = nouvel appel à `POST /api/invitations`, aucun endpoint dédié nécessaire, `recipient_id = Invitation.id` garantit deux lignes distinctes sans doublon (TC-141) ; isolation cross-tenant vérifiée (TC-143). Panne Resend/idempotence concurrente (TC-131/142) déjà couvertes génériquement par les tests Sprint A du dispatcher, inchangés. |
 
 ### US-140 — Observabilité EMAIL et runbook
 
@@ -113,6 +114,7 @@ exploiter ce second fournisseur externe de façon sûre et supervisée, symétri
 | Risques | RSV-EP18-01 (webhooks non couverts, statut de livraison non confirmé) |
 | Source | ADR-19 §Observabilité ; ENF-98 |
 | Sprint cible | Sprint A (socle) / Sprint B (preuve invitation) |
+| Statut | Socle livré au Sprint A (métrique `Issue.PROVIDER_INDISPONIBLE`, générique par canal). Preuve d'usage réelle : l'émission `emettreTransactionnel` du Sprint B alimente désormais `notification.dispatch.total{canal="EMAIL", ...}` dès qu'une ligne d'invitation transite par le dispatcher — aucun code d'observabilité supplémentaire requis. Runbook (`runbook-resend.md`) inchangé, toujours applicable. |
 
 ---
 
@@ -133,8 +135,10 @@ exploiter ce second fournisseur externe de façon sûre et supervisée, symétri
 - **K1→K5 (ADR-19)** : recommandations par défaut documentées, **aucune confirmée par le PO**.
   Aucun GO sur le Plan d'Exécution n'est donné par ce document.
 - **RSV-EP18-01** (webhooks non couverts) : dépend d'un Sprint C non planifié dans ce périmètre.
-- **RSV-EP18-02** (isolation des deux voies de fan-out) : couverte par US-139, test dédié requis
-  avant tout Gate Staging.
+- **RSV-EP18-02** (isolation des deux voies de fan-out) : **verrouillée (2026-08-05, Sprint B)** —
+  `emettreTransactionnel` n'appelle jamais `NotificationPreferenceRepository` ; test dédié TC-130
+  (`InvitationGenerationIntegrationTest`) prouve qu'aucune préférence n'est requise/consultée pour
+  la voie transactionnelle, non-régression confirmée sur la voie préférence existante.
 - **RSV-EP18-03** (dette RGPD préexistante `RgpdService`) : héritée, non traitée par cet Epic.
 - **RSV-EP18-04** (isolation budgétaire EMAIL/WhatsApp-SMS) : couverte par US-138.
 - **RSV-EP18-05** / **RSV-MIG-611-04** : addendum DAT EP-18 distinct de la dette DAT EP-16 encore
