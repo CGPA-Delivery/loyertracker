@@ -1,5 +1,13 @@
 # Project State — LoyerTracker
 
+> **Préflight Production EP-18 — PASS (2026-08-05).** Après merge PR #372 et resync
+> hôte Production `901a861` → `a6c1c16`, le Préflight EP-18 est validé : `check-release-state.sh --host`
+> **COHÉRENT**, Production `1.15.0` healthy, Flyway 29/29, `/healthz` 200, backup base + globals créé
+> et vérifié (`pg_restore --list` via conteneur PostgreSQL, 852 entrées). Backup :
+> `/home/ubuntu/backups/loyertracker/preflight-ep18-20260805T183406Z/`. Resend reste désactivé
+> (`RESEND_EMAIL_ENABLED` absent). Cette décision autorise uniquement l'instruction distincte du
+> déploiement technique EP-18 ; aucun déploiement, aucune migration V30/V31, aucun `PRODUCTION_DEPLOYED`.
+
 > **Gate Production EP-18 — GO sous réserve / `PRODUCTION_READY` (2026-08-05).**
 > Après correction de la dérive Production `R-V54-2`, le Gate Production EP-18 a été réinstruit :
 > `check-release-state.sh --host` est **COHÉRENT**, Production est healthy (API/Web/PostgreSQL/Keycloak,

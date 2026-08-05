@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Production — Préflight EP-18 Resend
+
+- Préflight Production EP-18 **PASS** après merge PR #372 : hôte Production resynchronisé sur `a6c1c16`, `check-release-state.sh --host` cohérent, Production `1.15.0` healthy, Flyway `29/29`.
+- Backup base + globals créé et vérifié : `/home/ubuntu/backups/loyertracker/preflight-ep18-20260805T183406Z/`, dump SHA-256 `8f71bd15551a96af69e4328f8857336441fd3f6782f84dd3fa4b154bced9fb83`.
+- Resend reste désactivé (`RESEND_EMAIL_ENABLED` absent) ; aucun déploiement EP-18, aucune migration V30/V31 et aucun `PRODUCTION_DEPLOYED`.
+
 ### Gouvernance — Gate Production EP-18 réinstruit
 
 - Après correction `R-V54-2`, Gate Production EP-18 statué **GO sous réserve / `PRODUCTION_READY`** pour Préflight uniquement.
