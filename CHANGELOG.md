@@ -39,6 +39,15 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Webhook Resend/Svix non bloquant pour EP-18 : `RSV-EP18-06` clôturée comme réserve EP-18 et reclassée en amélioration future EP-19.
 - Staging remis en état sécurisé après test : `RESEND_EMAIL_ENABLED=false`.
 
+## [1.16.0] - 2026-08-05
+
+### Production — Déploiement technique EP-18 Resend
+
+- Déploiement technique Production EP-18 **PASS** : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359`, tag historique `sha-8c9f1e4a`.
+- Flyway Production passe de `29/29` à **`31/31`** avec V30 `ep18 sprint a email resend fondation` et V31 `ep18 sprint b invitation email`.
+- `check-release-state.sh --host` **COHÉRENT** après bascule ; `/healthz` et racine publique `200`, `api`/`nginx` healthy, PostgreSQL/Keycloak inchangés.
+- Resend reste désactivé (`RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent, `notification_outbox`/`notification_delivery` `0/0`) ; aucun `PRODUCTION_DEPLOYED`, validation finale Production distincte requise.
+
 ## [1.15.0] - 2026-07-30
 
 ### Ajouts — EP-16 Sprint N+2 Lot A : fallback SMS et garde-fous (US-124, US-126)
