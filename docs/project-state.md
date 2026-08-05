@@ -5993,3 +5993,28 @@ des deux voies) testée en Sprint A mais à re-vérifier en conditions Staging r
 (documentant périmètre/migration/secrets/tests/risques/éléments reportés) — **aucun push ni
 ouverture de PR sans instruction explicite distincte du PO**, conformément à CLAUDE.md/AGENTS.md.
 Sprint B (invitation par e-mail) reste soumis à un GO distinct, non inclus dans ce GO.
+
+## 2026-08-05 — Push branche EP-18 Sprint A et ouverture PR draft
+
+**Instruction PO explicite reçue** : « pousse la branche et ouvre une PR en draft ».
+
+- Branche `feat/ep18-notifications-email-resend` poussée sur `origin` (2 commits : `fa50cbd` docs,
+  `feeaee2` feat), tracking configuré (`-u`).
+- **Pull Request #368 ouverte en statut draft** :
+  `feat(notifications): EP-18 Sprint A — canal EMAIL via Resend (ADR-19)`,
+  base `main` ← `feat/ep18-notifications-email-resend`,
+  https://github.com/jptshilombo/loyertracker/pull/368
+- Corps de la PR documente : périmètre US-135→138 + socle US-140, architecture (voie
+  préférence/voie transactionnelle), migration V30, absence de tout secret exposé, preuves de
+  tests (234/234 PASS), correctif latent `NotificationDelivery.provider`, déviation ADR-19
+  (`email_opt_in`), réserves ouvertes (RSV-EP18-01→04, K1→K5 non tranchés), procédure de
+  rollback (`RESEND_EMAIL_ENABLED=false`), et rappel explicite de gouvernance CGPA.
+- **Aucune revue, aucun merge, aucun déploiement engagé par cette action** — le statut draft et le
+  corps de la PR excluent explicitement toute autorisation de promotion. La décision CGPA finale
+  reste réservée au CDO selon Gate applicable (hors périmètre de cette mission).
+- Secret Resend (`~/INFRASTRUCTURE/resend`) toujours non lu, non exposé, non committé — conforme
+  à la consigne PO (inerte jusqu'à un Gate Staging/Production réel d'EP-18).
+
+**Prochaine action autorisée** : aucune par défaut. Sprint B (US-139, invitation par e-mail),
+Sprint C (webhooks) et toute revue/merge de la PR #368 restent soumis à un GO/instruction distincte
+et explicite du PO.
