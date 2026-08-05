@@ -6094,3 +6094,70 @@ réel tant que `RESEND_EMAIL_ENABLED=false`.
 **Prochaine action autorisée** : aucune par défaut. Push de ce commit et mise à jour de la PR #368,
 Sprint C (webhooks), et toute revue/merge restent soumis à un GO/instruction distincte et explicite
 du PO.
+
+## 2026-08-05 — Plan d'Exécution Sprint C (approuvé) et EP-18 Sprint C implémenté sur branche dédiée
+
+**Instruction PO** : « Enchaîne sur le Plan d'Exécution du Sprint C (webhooks) » → mode plan
+(exploration du code réel : patron `TwilioCallbackController`, mécanique `NotificationDelivery`),
+Plan d'Exécution rédigé et **approuvé explicitement par le PO** (mécanisme d'approbation du mode
+plan), puis instruction explicite « commit et mets à jour la doc ».
+
+**Différence structurelle avec le Sprint B** : Sprint C ne disposait d'aucune documentation
+CDC/backlog pré-rédigée (contrairement à US-139/140). Le Plan a donc intégré une mini-Phase 3
+(numérotation additive EF-135/136, RM-128, TC-144→150, US-143, RSV-EP18-06) commitée avant le code
+(`71b6e7e`), conformément à CLAUDE.md.
+
+**Périmètre livré (US-143)** — confirmation de statut de livraison EMAIL via webhook Resend :
+
+- **Zéro migration de schéma** : `notification_delivery.statut`/`channel` acceptaient déjà les
+  valeurs nécessaires (V27/V30) ; la fonction `SECURITY DEFINER
+  notification_delivery_appliquer_statut` (V28) est générique (ne connaît ni Twilio ni Resend) et
+  a été réutilisée telle quelle.
+- `NotificationDeliveryService` : extraction d'un helper privé `appliquerStatut(...)` à partir du
+  corps existant d'`appliquerCallback` (refactor comportement identique, prouvé par les 20 tests
+  Twilio existants, inchangés) ; nouvelle méthode `appliquerCallbackResend(...)` avec sa propre
+  table de correspondance (`email.sent→SENT`, `delivered→DELIVERED`, `opened→READ`,
+  `bounced→UNDELIVERED/PERMANENT`, `complained→FAILED/PERMANENT`).
+- `ResendSignatureVerifier` (nouveau, `provider/resend`) : signature Svix (`svix-id`/
+  `svix-timestamp`/`svix-signature`, HMAC-SHA256, secret `RESEND_WEBHOOK_SECRET` déjà déclaré en
+  Sprint A mais jamais consommé jusqu'ici), fenêtre de fraîcheur ±5 min, échec fermé.
+- `ResendCallbackController` (nouveau, classe séparée de `TwilioCallbackController` — celui-ci
+  n'est jamais touché) : `POST /api/public/notifications/resend/callback`, corps JSON brut jamais
+  re-sérialisé avant vérification de signature, réponse toujours indifférenciée (204/403).
+- `SecurityConfig` : nouveau `permitAll()`, même patron que l'entrée Twilio existante.
+- **Aucune nouvelle table de déduplication** (K6, recommandation par défaut) : la progression par
+  rang (V28, inchangée) suffit, comme pour Twilio.
+
+**Réserve technique assumée et documentée** : le schéma exact de signature Resend (Svix) n'était
+documenté nulle part dans ce dépôt (contrairement à Twilio, entièrement spécifié) — implémenté par
+recommandation par défaut fondée sur la documentation publique Resend/Svix, **jamais vérifié
+contre un webhook réel**. Consigné comme nouvelle réserve **RSV-EP18-06**, vérification
+obligatoire avant tout Gate Staging (cf. `runbook-resend.md` §6, procédure d'activation détaillée).
+
+**Preuves d'exécution** (locale, avant CI) :
+- Suite ciblée (`ResendCallbackIntegrationTest`, `NotificationDispatchIntegrationTest`) :
+  **28/28 PASS** (8 nouveaux + 20 Twilio non régressés par le refactor).
+- **Suite backend complète : 245/245 PASS, 0 échec, `BUILD SUCCESS`** (237 Sprint A+B + 8
+  nouveaux), aucune régression.
+- Aucun appel réseau réel vers Resend pendant les tests (grep des logs : aucune mention
+  `api.resend.com`). Aucune activation côté dashboard Resend. Secret `RESEND_WEBHOOK_SECRET`
+  jamais lu ni exposé.
+
+**Documents modifiés** (additifs) : `addendum-notifications-email-resend.md` (CDC, EF-135/136,
+RM-128, matrice TC-144→150, endpoint marqué implémenté), `addendum-backlog-ep18-...md` (US-143,
+RSV-EP18-01 couverte, RSV-EP18-06 nouvelle), `runbook-resend.md` §6 (procédure d'activation
+concrète), `ADR-19-notifications-email-resend.md` (statut Sprint A+B+C, RSV-EP18-01
+couverte/RSV-EP18-06 ouverte, K1 implémenté). Aucun document historique altéré.
+
+**Commits** : `71b6e7e` (docs, cadrage préalable), `43cf82c feat(notifications): EP-18 Sprint C —
+webhooks Resend (ADR-19 §Sécurité, US-143)`, sur `feat/ep18-notifications-email-resend` (branche
+déjà poussée, PR #368 draft ouverte — non encore mise à jour/republiée avec ce Sprint C).
+
+**Réserves explicites inchangées ou nouvelles** : K1→K5 toujours en recommandations par défaut
+(K1 désormais implémenté, non confirmé formellement) ; RSV-EP18-04 (budget dédié) toujours
+ouverte/non implémentée, sans risque réel tant que `RESEND_EMAIL_ENABLED=false` ; **RSV-EP18-06
+(nouvelle)** ouverte, vérification obligatoire avant Gate Staging.
+
+**Prochaine action autorisée** : aucune par défaut. Push de ces commits et mise à jour de la
+PR #368, toute activation Staging/Production, et toute revue/merge restent soumis à un
+GO/instruction distincte et explicite du PO.

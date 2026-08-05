@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |-------|--------|
-| Statut | **Sprint A + Sprint B implémentés (2026-08-05, GO explicite du PO pour chaque sprint)** — kickoff K1→K5 toujours en recommandations par défaut, aucune décision PO formelle distincte. Socle EMAIL/Resend (Sprint A) et invitation gestionnaire par e-mail (Sprint B, US-139) codés et testés (suite complète 237/237 verte, non-régression WhatsApp/SMS/invitation confirmée), **`RESEND_EMAIL_ENABLED=false` partout, aucune activation, aucun déploiement**. Sprint C (webhooks, RSV-EP18-01) reste à instruire séparément. |
+| Statut | **Sprints A, B et C implémentés (2026-08-05, GO explicite du PO pour chaque sprint)** — kickoff K1→K5 toujours en recommandations par défaut, aucune décision PO formelle distincte. Socle EMAIL/Resend (Sprint A), invitation par e-mail (Sprint B, US-139) et webhooks de confirmation de livraison (Sprint C, US-143, RSV-EP18-01) codés et testés (suite complète 245/245 verte, non-régression WhatsApp/SMS/invitation/Twilio callback confirmée), **`RESEND_EMAIL_ENABLED=false` partout, aucune activation côté dashboard Resend, aucun déploiement**. Nouvelle réserve RSV-EP18-06 (schéma de signature Svix non vérifié contre trafic réel). |
 | Date | 2026-08-04 |
 | Origine | Instruction PO du 2026-08-04 (« intégrer Resend comme fournisseur d'e-mails transactionnels ») |
 | Décision | **D-NOTIF-002** |
@@ -252,17 +252,18 @@ WhatsApp/SMS. Aucun impact sur `Alerte`, `Paiement`, `Garantie`, `Quittance`,
 
 | # | Risque | Mitigation proposée | Statut |
 |---|--------|----------------------|--------|
-| RSV-EP18-01 | Webhooks Resend non couverts au Lot 1 : le statut `ACCEPTED` par Resend n'est jamais confirmé livré | Documenté comme dette explicite (K1), aucune prétention de statut final de livraison tant que non couvert | Accepté (en surveillance), Sprint C |
+| RSV-EP18-01 | Webhooks Resend non couverts au Lot 1 : le statut `ACCEPTED` par Resend n'est jamais confirmé livré | Documenté comme dette explicite (K1), aucune prétention de statut final de livraison tant que non couvert | **Couvert (2026-08-05, Sprint C)** — `ResendCallbackController`/`NotificationDeliveryService.appliquerCallbackResend` codés et testés ; reste ouverte l'activation réelle côté dashboard Resend (RSV-EP18-06), hors périmètre de cette mission |
 | RSV-EP18-02 | Confusion entre voie préférence et voie transactionnelle produisant un envoi non désiré (ex. un opt-out contourné) | La voie transactionnelle ne s'applique qu'à `TypeDestinataire.INVITATION`, jamais à `BAILLEUR`/`GESTIONNAIRE`/`LOCATAIRE` — vérification explicite par test dédié (isolation des deux voies) | **Verrouillé (2026-08-05, Sprint B)** — `emettreTransactionnel` n'appelle jamais `NotificationPreferenceRepository` (mécanisme structurel) ; test TC-130 prouve qu'une ligne Outbox transactionnelle passe `PENDING` sans aucune `NotificationPreference` créée ; non-régression `NotificationDispatchIntegrationTest` inchangée (voie préférence sans préférence ⇒ `DEAD`) |
 | RSV-EP18-03 | Dette RGPD préexistante (`RgpdService` sans couverture `notification_*`) étendue à EMAIL sans être comblée | Signalée, non aggravée — hors périmètre de ce Lot (aucune `NotificationPreference` créée pour l'invitation) | Accepté (en surveillance), sans échéance dans ce mandat |
 | RSV-EP18-04 | Budget EMAIL mal isolé du budget WhatsApp/SMS, un pic EMAIL bloquant les canaux existants | Plafond dédié (K3), fonction SQL paramétrée par canal | **Ouvert, non implémenté au Sprint A** — sans risque réel tant que `RESEND_EMAIL_ENABLED=false` (aucune ligne EMAIL possible) ; à résoudre avant toute activation Staging avec volume réel (avant Sprint B ou en tout début de Sprint B) |
 | RSV-EP18-05 | `RSV-MIG-611-04` (addendum DAT EP-16 encore ouvert) confondu avec le nouvel addendum DAT EP-18 | Addendum DAT §3.6 explicitement distinct, ne clôt pas RSV-MIG-611-04 | Ouvert (hérité, sans rapport direct) |
+| RSV-EP18-06 | Schéma de signature webhook Resend (Svix — en-têtes `svix-id`/`svix-timestamp`/`svix-signature`, HMAC-SHA256) implémenté par recommandation par défaut fondée sur la documentation publique Resend/Svix, jamais vérifié contre un webhook réel | Tests d'intégration prouvent la cohérence interne du vérificateur (accepte ce qu'il aurait lui-même signé), pas la conformité au service réel ; aucune activation dans cette mission, secret jamais lu | **Ouvert — vérification obligatoire avant tout Gate Staging** (déclencher un envoi de test depuis le dashboard Resend et confirmer la progression de `notification_delivery.statut`) |
 
 ## Kickoff K1→K5 — recommandations par défaut, PO à confirmer
 
 | # | Question | Recommandation | Statut |
 |---|----------|-----------------|--------|
-| K1 | Webhooks Resend inclus ce sprint ? | Reportés (Sprint C), dette tracée | Proposé |
+| K1 | Webhooks Resend inclus ce sprint ? | Reportés (Sprint C), dette tracée | **Implémenté (2026-08-05, Sprint C)** — code livré, jamais activé côté dashboard Resend |
 | K2 | Pièce jointe vs lien sécurisé pour documents futurs | Lien sécurisé par défaut | Proposé |
 | K3 | Budget EMAIL partagé ou dédié | Plafond dédié `RESEND_BUDGET_MENSUEL_MAX` | Proposé |
 | K4 | Source de vérité de l'adresse par catégorie | Voie transactionnelle (`Invitation.email`) pour l'invitation ; voie préférence (opt-in `NotificationPreference.email`) pour les lots optionnels futurs | Proposé |
