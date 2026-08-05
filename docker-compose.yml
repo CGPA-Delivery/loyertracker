@@ -137,7 +137,19 @@ services:
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
       TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM:-}
+      TWILIO_SMS_FROM: ${TWILIO_SMS_FROM:-}
       TWILIO_STATUS_CALLBACK_BASE_URL: ${TWILIO_STATUS_CALLBACK_BASE_URL:-https://localhost}
+      # EMAIL Resend (EP-18, ADR-19) : variables explicitement transmises au conteneur API.
+      # Valeurs sûres par défaut : EMAIL désactivé, aucun secret requis, NoopEmailProvider actif.
+      RESEND_EMAIL_ENABLED: ${RESEND_EMAIL_ENABLED:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME:-LoyerTracker}
+      RESEND_REPLY_TO: ${RESEND_REPLY_TO:-}
+      RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET:-}
+      RESEND_BASE_URL: ${RESEND_BASE_URL:-https://api.resend.com}
+      RESEND_CONNECT_TIMEOUT_MS: ${RESEND_CONNECT_TIMEOUT_MS:-3000}
+      RESEND_READ_TIMEOUT_MS: ${RESEND_READ_TIMEOUT_MS:-10000}
     depends_on:
       postgres:
         condition: service_healthy

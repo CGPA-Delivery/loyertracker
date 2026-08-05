@@ -167,6 +167,17 @@ services:
       NOTIFICATION_FALLBACK_ENABLED: ${NOTIFICATION_FALLBACK_ENABLED:-false}
       NOTIFICATION_BUDGET_MENSUEL_MAX: ${NOTIFICATION_BUDGET_MENSUEL_MAX:-0}
       NOTIFICATION_BUDGET_SEUIL_ALERTE: ${NOTIFICATION_BUDGET_SEUIL_ALERTE:-0.8}
+      # EMAIL Resend (EP-18, ADR-19) : activation Staging contrôlée par Gate, secrets hors dépôt.
+      # Valeurs sûres par défaut : EMAIL désactivé, aucun envoi externe si la variable n'est pas posée.
+      RESEND_EMAIL_ENABLED: ${RESEND_EMAIL_ENABLED:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME:-LoyerTracker}
+      RESEND_REPLY_TO: ${RESEND_REPLY_TO:-}
+      RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET:-}
+      RESEND_BASE_URL: ${RESEND_BASE_URL:-https://api.resend.com}
+      RESEND_CONNECT_TIMEOUT_MS: ${RESEND_CONNECT_TIMEOUT_MS:-3000}
+      RESEND_READ_TIMEOUT_MS: ${RESEND_READ_TIMEOUT_MS:-10000}
     depends_on:
       postgres:
         condition: service_healthy
