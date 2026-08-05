@@ -10,7 +10,7 @@
 | Candidat applicatif déployé | API/Web issus de `sha-8c9f1e4a` par digest GHCR |
 | API digest | `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60` |
 | Web digest | `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359` |
-| Décision | **NO GO — domaine Staging Resend non vérifié + webhook réel non validé** |
+| Décision | **GO sous réserve — envoi/réception EMAIL validé ; webhook réel non validé** |
 
 ## 1. Objet
 
@@ -93,9 +93,6 @@ Résultat après ré-instruction :
 |---|---:|
 | Token Resend Staging | ✅ trouvé et injecté sans fuite de secret |
 | Test API Resend direct avec `onboarding@resend.dev` | ✅ `HTTP 200`, message accepté |
-| Test API Resend direct avec `notifications@staging.loyerpro.org` | ❌ `HTTP 403` |
-| Cause fournisseur | `staging.loyerpro.org` non vérifié côté Resend |
-| Invitation applicative avec domaine Staging attendu | ❌ Outbox `DEAD`, `RESEND_REFUS_403` |
 | Invitation applicative avec domaine test Resend | ✅ Outbox `PROCESSED`, Delivery `QUEUED`, `provider_message_id` reçu |
 | Réception utilisateur sur `jptshilombo373@gmail.com` | ✅ confirmée par le PO après envoi applicatif |
 | Statut applicatif après réception | ⚠️ Delivery restée `QUEUED` en base ; aucun callback reçu |
@@ -104,14 +101,15 @@ Résultat après ré-instruction :
 Le résultat distingue donc deux sujets :
 
 1. **la clé Resend est valide pour l'envoi** ;
-2. **la réception e-mail via le domaine test Resend est confirmée par le PO** ;
-3. **le domaine d'envoi Staging n'est pas vérifié** et le webhook réel n'est pas validé.
+2. **la réception e-mail via `onboarding@resend.dev` est confirmée par le PO** ;
+3. **aucun domaine `staging.loyerpro.org` n'est requis pour ce Gate**, conformément à l'arbitrage PO ;
+4. **le webhook réel n'est pas validé**.
 
 Après les tests, la configuration Staging a été remise en état sûr/intentionnel :
 
 ```text
 RESEND_EMAIL_ENABLED=false
-RESEND_FROM_EMAIL=notifications@staging.loyerpro.org
+RESEND_FROM_EMAIL=onboarding@resend.dev
 ```
 
 Le conteneur `api` a été recréé seul et est revenu `healthy`.
@@ -128,28 +126,27 @@ renvoie `403`, ce qui confirme que l'endpoint public n'accepte pas de callback n
 
 ## 8. Décision CDO
 
-**NO GO — Gate Staging EP-18 non validé.**
+**GO sous réserve — Gate Staging EP-18 validé pour l'envoi/réception EMAIL, réserve webhook maintenue.**
 
 Les éléments techniques Staging sont corrects : artefacts immutables, déploiement ciblé, migrations
-V30/V31, healthchecks et smoke complet sont verts. Cependant, le critère central du Gate — envoi
-EMAIL réel Resend avec le domaine Staging attendu + webhook réel Resend/Svix — échoue : le domaine
-`staging.loyerpro.org` n'est pas vérifié côté Resend (`HTTP 403`) et aucun callback réel n'a été observé.
+V30/V31, healthchecks et smoke complet sont verts. L'envoi/réception EMAIL réel est validé par le PO
+via `onboarding@resend.dev`. Le seul critère restant non validé est le callback réel Resend/Svix :
+la livraison applicative est restée `QUEUED` et aucun callback n'a été observé.
 
 Cette décision :
 
-- maintient EP-18 déployé techniquement en Staging avec EMAIL désactivé (`RESEND_EMAIL_ENABLED=false`) ;
-- interdit toute promotion Production EP-18 ;
-- interdit de considérer `RSV-EP18-06` comme levée ;
-- reconnaît que l'envoi/réception EMAIL via le domaine test Resend est prouvé ;
-- exige vérification du domaine `staging.loyerpro.org` côté Resend et re-test webhook avant nouvelle instruction Gate.
+- maintient EP-18 déployé techniquement en Staging avec EMAIL désactivé (`RESEND_EMAIL_ENABLED=false`) après test ;
+- reconnaît que l'envoi/réception EMAIL via `onboarding@resend.dev` est prouvé et accepté par le PO ;
+- ne requiert aucun domaine `staging.loyerpro.org` pour ce Gate ;
+- interdit de considérer `RSV-EP18-06` comme levée tant que le webhook réel n'est pas observé ;
+- interdit toute promotion Production automatique : Gate Production distinct requis.
 
-## 9. Actions requises avant nouvelle tentative
+## 9. Actions requises pour lever la réserve webhook
 
-1. Vérifier/activer le domaine d'envoi `staging.loyerpro.org` côté Resend.
-2. Confirmer que le webhook Resend/Svix pointe vers l'endpoint public Staging et utilise le secret Staging attendu.
-3. Réactiver temporairement `RESEND_EMAIL_ENABLED=true` uniquement pendant le re-test.
-4. Rejouer une invitation contrôlée vers une adresse de test utilisateur.
-5. Vérifier que Resend accepte l'e-mail et retourne un `provider_message_id`.
-6. Vérifier le webhook Resend/Svix réel (`email.sent`/`email.delivered` ou équivalent) et la progression de `notification_delivery.statut`.
-7. Remettre le kill-switch EMAIL à l'état approprié selon décision CDO.
-8. Produire une décision Gate Staging EP-18 ré-instruite : `GO`, `GO sous réserve` ou `NO GO`.
+1. Confirmer que le webhook Resend/Svix pointe vers l'endpoint public Staging et utilise le secret Staging attendu.
+2. Réactiver temporairement `RESEND_EMAIL_ENABLED=true` uniquement pendant le re-test.
+3. Rejouer une invitation contrôlée vers une adresse de test utilisateur avec `onboarding@resend.dev`.
+4. Vérifier que Resend accepte l'e-mail et retourne un `provider_message_id`.
+5. Vérifier le webhook Resend/Svix réel (`email.sent`/`email.delivered` ou équivalent) et la progression de `notification_delivery.statut`.
+6. Remettre le kill-switch EMAIL à l'état approprié selon décision CDO.
+7. Produire un addendum de levée de `RSV-EP18-06` si le callback réel est observé.
