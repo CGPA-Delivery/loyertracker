@@ -1,5 +1,7 @@
 # Project State — LoyerTracker
 
+> **Déploiement technique Production EP-18 — PASS technique (2026-08-05).** Après merge PR #373 et resync hôte Production sur `c92fa07`, EP-18 a été basculé techniquement : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359`, `LOYERTRACKER_TAG=sha-8c9f1e4a`, Flyway **31/31** avec V30/V31 appliquées, `check-release-state.sh --host` **COHÉRENT**, `/healthz` et racine publique `200`. Recréation ciblée `api`+`nginx` uniquement ; PostgreSQL/Keycloak inchangés. Resend reste désactivé (`RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent, outbox/delivery `0/0`). **`PRODUCTION_DEPLOYED` non prononcé** : validation finale/smoke Production distinct requis. Rapport : `docs/cgpa/09-production/deploiement-technique-ep18-notifications-email-resend-report.md`.
+
 > **Préflight Production EP-18 — PASS (2026-08-05).** Après merge PR #372 et resync
 > hôte Production `901a861` → `a6c1c16`, le Préflight EP-18 est validé : `check-release-state.sh --host`
 > **COHÉRENT**, Production `1.15.0` healthy, Flyway 29/29, `/healthz` 200, backup base + globals créé

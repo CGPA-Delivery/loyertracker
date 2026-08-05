@@ -6,6 +6,12 @@
 
 
 
+## 0R. Déploiement Production `1.16.0` — 2026-08-05 (EP-18 Notifications EMAIL Resend) — **PASS technique, `PRODUCTION_DEPLOYED` non prononcé** ⚠️
+
+> **Déploiement technique réel le 2026-08-05 ~18:55 UTC** après Gate Production EP-18 GO sous réserve et Préflight PASS. Hôte resynchronisé sur `c92fa07`; bascule ciblée `api` + `nginx` vers les digests EP-18 : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359`. PostgreSQL et Keycloak inchangés. Flyway applique V30/V31 et atteint **31/31**. `check-release-state.sh --host` repasse **COHÉRENT**, `/healthz` et racine publique répondent `200`, API/Web healthy `RestartCount=0`.
+>
+> **Resend reste désactivé en Production** : `RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent, `notification_outbox`/`notification_delivery` à `0/0`; aucun envoi externe activé. Le déploiement technique ne prononce pas `PRODUCTION_DEPLOYED` : validation finale Production/smoke canonique distinct requis avant hypercare ou clôture. Rapport : `docs/cgpa/09-production/deploiement-technique-ep18-notifications-email-resend-report.md`.
+
 ## 0Q. Thème Keycloak — EP-17 Lot 4 (pilote) — **`KEYCLOAK_THEME_DEPLOYED` le 2026-08-04 ~17:00 UTC** ✅
 
 > **Changement infrastructure/config, pas une release applicative** — sans rapport avec le cycle
