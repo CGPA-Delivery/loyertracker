@@ -171,6 +171,34 @@ malgré la RLS `bailleur_isolation` sur `affectation`) : fonction `SECURITY DEFI
 Détail complet des colonnes et décisions : `adr/ADR-16-gestion-personnes.md` (D1-D8),
 `docs/cgpa/04-cahier-des-charges/addendum-personnes.md` (§4).
 
+### 3.6 Extension EP-16 → EP-18 — Canal EMAIL via Resend (cadrage 2026-08-04, additif)
+
+> Ajout additif post-Gate 4 (ADR-19/D-NOTIF-002, migration `V30` proposée additive) — les sections
+> 3.1→3.5 historiques sont conservées telles quelles. **Ne clôt pas** `RSV-MIG-611-04` (Enterprise
+> Architect, addendum DAT EP-16/V27/V28, toujours ouvert et distinct) : cette section documente
+> l'extension EP-18, pas le rattrapage EP-16 encore dû.
+
+```
+NotificationOutbox (event_id, recipient_id, channel) ── UNIQUE (event_id, recipient_id, notification_type, channel)
+        │
+        ├── recipient_address NULL      → voie préférence (NotificationPreference, patron EP-16 inchangé)
+        └── recipient_address NON NULL  → voie transactionnelle (nouvelle, résolue à l'émission — ex. Invitation.email)
+
+NotificationTemplate (code, channel, language, version)
+        └── subject / html_body / text_body  (colonnes additives, EMAIL uniquement)
+```
+
+| Élément | Rôle | Points structurants |
+|---------|------|----------------------|
+| `CanalNotification.EMAIL` | Nouvelle valeur d'énumération | 4 contraintes `CHECK` PostgreSQL étendues (`notification_outbox`/`notification_delivery`/`notification_template.channel`, `notification_preference.preferred_channel`) — additif, aucune donnée modifiée |
+| `notification_outbox.recipient_address` *(nouvelle colonne, V30)* | Adresse résolue à l'émission pour la voie transactionnelle | Nullable ; `NULL` = voie préférence inchangée (comportement WhatsApp/SMS identique à EP-16) ; non nul = dispatcher générique, aucune connaissance de l'agrégat d'origine |
+| `TypeDestinataire.INVITATION` *(nouvelle valeur)* | Catégorie de destinataire sans compte existant | Jamais de `NotificationPreference` associée — pas de consentement à recueillir pour l'exécution d'une action déjà demandée par le bailleur |
+| `ChannelNotificationProvider` *(généralisation)* | Remplace le bean unique `NotificationProvider` | `Map<CanalNotification, ChannelNotificationProvider>` construite au démarrage ; `TwilioNotificationProvider` non scindé (`canaux() = {WHATSAPP, SMS}`), `ResendEmailProvider`/`NoopEmailProvider` nouveaux, exclusion mutuelle par `app.notifications.email.enabled` |
+| `notification_template.subject/html_body/text_body` *(nouvelles colonnes, V30)* | Rendu EMAIL réel | Nullables, EMAIL uniquement ; `WHATSAPP`/`SMS` gardent le rendu `code+variables` existant (`TwilioNotificationProvider.rendre`, inchangé) |
+
+Détail complet des colonnes et décisions : `adr/ADR-19-notifications-email-resend.md`,
+`docs/cgpa/04-cahier-des-charges/addendum-notifications-email-resend.md` (§4).
+
 ---
 
 ## 4. Contrats d'API

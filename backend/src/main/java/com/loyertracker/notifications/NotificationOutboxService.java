@@ -23,6 +23,12 @@ import jakarta.persistence.EntityManager;
  * est active et opt-in pour son canal préféré (jamais {@code IN_APP}, qui ne passe pas par
  * l'Outbox) — l'absence de préférence équivaut à une absence de consentement (K3), jamais à un
  * envoi par défaut.</p>
+ *
+ * <p><strong>Deux voies distinctes</strong> (ADR-19 §2, EP-18) : {@link #emettre} est la voie
+ * préférence ci-dessus (BAILLEUR/GESTIONNAIRE/LOCATAIRE, gated par consentement) ;
+ * {@link #emettreTransactionnel} est la voie transactionnelle (ex. invitation) — adresse déjà
+ * résolue, aucune préférence consultée. Les deux voies ne se substituent jamais l'une à l'autre
+ * (RSV-EP18-02/RM-125) : cette méthode n'appelle jamais {@link NotificationPreferenceRepository}.</p>
  */
 @Service
 public class NotificationOutboxService {
@@ -57,6 +63,27 @@ public class NotificationOutboxService {
                     .ifPresent(pref -> outbox.save(new NotificationOutbox(bailleurId, eventId,
                             destinataire.id(), type, pref.getPreferredChannel())));
         }
+        return eventId;
+    }
+
+    /**
+     * Voie transactionnelle (ADR-19 §2, EP-18 Sprint B) : émet l'événement et écrit directement
+     * une ligne Outbox {@code EMAIL} avec une adresse déjà résolue — jamais de
+     * {@link NotificationPreference} consultée, ni ici ni au dispatch ({@link NotificationDispatcher}
+     * saute la résolution par préférence dès que {@code recipient_address} est renseignée).
+     * Réservée aux événements sans compte destinataire possible (ex. invitation) — l'appelant est
+     * seul responsable de ne jamais l'utiliser pour BAILLEUR/GESTIONNAIRE/LOCATAIRE, qui restent
+     * exclusivement sur {@link #emettre} (RSV-EP18-02/RM-125).
+     *
+     * @return l'identifiant de l'événement créé
+     */
+    @Transactional
+    public UUID emettreTransactionnel(UUID bailleurId, TypeEvenementNotification type,
+            TypeAgregatNotification aggregateType, UUID aggregateId,
+            Map<String, Object> payloadMinimal, UUID recipientId, String recipientAddress) {
+        UUID eventId = creerEvenement(bailleurId, type, aggregateType, aggregateId, payloadMinimal);
+        outbox.save(new NotificationOutbox(bailleurId, eventId, recipientId, type,
+                CanalNotification.EMAIL, recipientAddress));
         return eventId;
     }
 

@@ -89,7 +89,14 @@ public class NotificationDelivery {
         this.eventId = eventId;
         this.recipientId = recipientId;
         this.channel = channel;
-        this.provider = "TWILIO";
+        // ADR-19 (EP-18) : le nom du fournisseur suit le canal — un même canal a exactement un
+        // fournisseur actif à tout instant (ChannelNotificationProvider), jamais les deux à la fois.
+        this.provider = switch (channel) {
+            case WHATSAPP, SMS -> "TWILIO";
+            case EMAIL -> "RESEND";
+            case IN_APP -> throw new IllegalArgumentException(
+                    "IN_APP ne transite jamais par un fournisseur externe.");
+        };
         this.providerMessageId = providerMessageId;
         this.statut = StatutDelivery.QUEUED;
         this.attemptCount = 1;

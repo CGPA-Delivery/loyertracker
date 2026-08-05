@@ -5865,3 +5865,402 @@ aucune modification de realm, aucun déploiement.
 Keycloak — le cycle Gate Staging → Gate Production → Préflight → déploiement technique → réserves
 est intégralement clos. Suite possible sur instruction PO : Lot 5 plus large (a11y/responsive/tests
 Angular), Lot 6 (extension progressive), ou décision sur le fournisseur SMTP (`DD-EP17-14`).
+
+## 2026-08-04 — Cadrage documentaire EP-18 : canal EMAIL via Resend (Phases 1-3, aucun codage)
+
+**Instruction PO** : intégrer Resend comme fournisseur d'e-mails transactionnels, sans architecture
+parallèle au sous-système notifications EP-16 déjà livré, premier usage : e-mail d'invitation
+gestionnaire. Mission strictement documentaire à ce stade — **aucun code, aucune migration, aucun
+déploiement**.
+
+**Phase 1 — Audit** : CGPA v6.1.1 confirmé actif (pas d'hypothèse v5.4.1), phase 7 (développement
+contrôlé), Production `1.15.0` clôturée le 2026-08-04, `NoopNotificationProvider` seul actif en
+Production (aucun canal externe n'a jamais envoyé de message réel). Constats du prompt de mission
+vérifiés conformes au code réel (`CanalNotification` sans `EMAIL`, `NotificationProvider.DemandeEnvoi`
+couplé à `phoneE164`, `InvitationService.inviter` ne notifie personne). Écarts supplémentaires
+trouvés à l'audit, non anticipés par le prompt : `NotificationDispatcher` ne porte structurellement
+qu'un seul bean fournisseur actif à la fois (blocage mécanique pour un second fournisseur) ;
+`Invitation.email` existe déjà (source de vérité directe, sans duplication) ; le destinataire d'une
+invitation n'a aucun compte donc aucune `NotificationPreference` possible ; 4 contraintes `CHECK`
+PostgreSQL câblées en dur `('WHATSAPP','SMS')` (V27) ; `RgpdService` ne couvre déjà aucune entité
+`notification_*` (dette préexistante, non aggravée) ; aucune UI d'invitation n'existe (API-only).
+Prochaine numérotation libre vérifiée : `ADR-19`, `EP-18`, `US-135`, migration `V30`. Verdict : **GO
+DOCUMENTATION**.
+
+**Phase 2 — Proposition d'architecture** : extension du pipeline existant (Event → Outbox →
+Dispatcher → Provider), sans `EmailService` parallèle. Généralisation `NotificationProvider` en
+`ChannelNotificationProvider` (résolution par `Map<CanalNotification, Provider>`), `Twilio` non
+scindé (`canaux()={WHATSAPP,SMS}`). Nouvelle voie de fan-out « transactionnelle » (sans préférence,
+adresse résolue à l'émission) distincte de la voie préférence existante, pour couvrir le cas
+invitation (aucun compte, donc aucun opt-in à recueillir) — décision de conception non dictée
+littéralement par le prompt, présentée comme recommandation motivée. Cinq points ouverts (K1→K5,
+webhooks/pièce-jointe/budget/source de vérité e-mail/fallback) tranchés par recommandation par
+défaut sur instruction explicite du PO (« enchaîne avec tes recommandations par défaut »), à
+confirmer formellement au Plan d'Exécution.
+
+**Phase 3 — Documentation CGPA additive produite** (aucune modification de document historique) :
+
+- `docs/cgpa/05-architecture-conception/adr/ADR-19-notifications-email-resend.md` (Proposée,
+  D-NOTIF-002, kickoff K1→K5, registre RSV-EP18-01→05)
+- `docs/cgpa/02-expression-besoin/addendum-notifications-email-resend.md` (BF-112→BF-115)
+- `docs/cgpa/04-cahier-des-charges/addendum-notifications-email-resend.md` (EF-125→134, ENF-98/99,
+  RM-124→127, TC-130→143, matrice de traçabilité, maturité 14/20)
+- `docs/cgpa/05-architecture-conception/dossier-architecture.md` §3.6 (extension additive — ne clôt
+  **pas** `RSV-MIG-611-04`, addendum DAT EP-16 distinct toujours ouvert)
+- `docs/cgpa/06-planification-agile/analyse-impact-ep18-notifications-email-resend.md`
+- `docs/cgpa/06-planification-agile/addendum-backlog-ep18-notifications-email-resend.md` (Epic
+  EP-18, US-135→140, 49 points)
+- `docs/cgpa/07-devsecops/runbook-resend.md` (anticipé — aucun code livré à ce jour)
+- `docs/project-state.md` (cette entrée)
+
+Conformément au précédent déjà observé pour EP-16/`QUITTANCE_HMAC_SECRET`, **aucune variable
+`RESEND_*` n'est ajoutée à `.env.example`/Compose à ce stade** — uniquement au moment de
+l'implémentation réelle (Sprint A).
+
+**Prochaine action autorisée** : Phase 4 (Plan d'Exécution détaillé, découpage Sprint A/B/C,
+décision CDO GO/GO sous réserve/NO GO pour démarrer le codage) — aucun codage engagé avant GO
+explicite du PO sur ce plan, conformément aux verrous CLAUDE.md/AGENTS.md.
+
+## 2026-08-04 — Phase 4 (Plan d'Exécution) et Sprint A EP-18 implémenté sur branche dédiée
+
+**Phase 4** : Plan d'Exécution détaillé présenté (Sprint A socle / Sprint B invitation / Sprint C
+webhooks reporté), checklist des critères de GO (mission §16) vérifiée — K1→K5 restent des
+recommandations, non des décisions PO formelles. Décision CDO proposée : **GO SOUS RÉSERVE**
+(aucune activation possible dans aucun environnement tant que Sprint A/B ne dépassent pas
+`RESEND_EMAIL_ENABLED=false`). **Instruction PO explicite reçue : « GO, démarre le Sprint A »**
+(seul le Sprint A, pas B/C).
+
+**Sprint A implémenté** sur branche dédiée `feat/ep18-notifications-email-resend` (créée depuis
+`main` synchronisée, jamais d'écriture directe sur `main`) :
+
+- Migration `V30__ep18_sprint_a_email_resend_fondation.sql` : 4 contraintes `CHECK` élargies
+  (`notification_outbox`/`notification_delivery`/`notification_template.channel`,
+  `notification_preference.preferred_channel`) pour admettre `EMAIL` ; colonnes additives
+  `notification_outbox.recipient_address`, `notification_preference.email`/`email_opt_in`,
+  `notification_template.subject`/`html_body`/`text_body`. `FLYWAY_EXPECTED_REPO` porté à 30
+  (`infra/release/production-state.env`) — `FLYWAY_EXPECTED_PROD` inchangé (29, rien de déployé).
+- `CanalNotification.EMAIL` ajouté ; `ChannelNotificationProvider` (nouvelle interface,
+  `Set<CanalNotification> canaux()`) généralise l'ancien bean unique `NotificationProvider` du
+  dispatcher en `Map<CanalNotification, ChannelNotificationProvider>` — `TwilioNotificationProvider`
+  non scindé (`canaux()={WHATSAPP,SMS}`), changement mécanique uniquement
+  (`demande.phoneE164()` → `demande.destinataire().address()`).
+- `com.loyertracker.notifications.provider.resend` (nouveau package) : `ResendEmailProvider`
+  (API HTTPS Resend, `RestClient`, aucun SDK, classification 4xx/429/5xx identique au patron
+  Twilio, échappement HTML des variables, détection de variable manquante avant tout appel réseau)
+  et `NoopEmailProvider`, exclusion mutuelle par `app.notifications.email.enabled`
+  (`RESEND_EMAIL_ENABLED`, `false` par défaut).
+- `NotificationDispatcher` : résolution du fournisseur par canal (`indexerParCanal`, échec de
+  configuration détecté par exception si deux fournisseurs revendiquent le même canal) ; nouvelle
+  branche « voie transactionnelle » (`recipient_address` non nul → aucune `NotificationPreference`
+  consultée) coexistant avec la voie préférence existante, inchangée pour WhatsApp/SMS.
+- `NotificationOutbox`/`NotificationPreference`/`NotificationTemplate`/`NotificationDelivery` :
+  champs additifs correspondants ; `NotificationDelivery.provider` (corrigé d'un codage en dur
+  `"TWILIO"` vers une résolution par canal `WHATSAPP/SMS→TWILIO`, `EMAIL→RESEND`) — défaut latent
+  découvert et corrigé à l'implémentation, sans impact avant ce Sprint (aucune ligne EMAIL
+  n'existait).
+- **Écart documenté par rapport à l'ADR-19 initiale** : colonne `notification_preference.email_opt_in`
+  ajoutée (non explicitée dans la version initiale de l'ADR) — nécessaire par symétrie avec
+  `whatsapp_opt_in`/`sms_opt_in` pour que `estEligiblePour(EMAIL)` soit définissable ; ADR-19 et
+  addendum CDC mis à jour en conséquence (additif).
+- **RSV-EP18-04 (budget EMAIL dédié) non implémenté dans ce Sprint** — décision assumée : aucune
+  ligne EMAIL ne peut exister tant que `RESEND_EMAIL_ENABLED=false`, donc aucun risque réel de
+  dérive budgétaire à ce stade ; à résoudre avant toute activation Staging avec volume réel.
+  Consigné comme réserve ouverte, pas un oubli silencieux.
+- Tests ajoutés : `ResendEmailProviderTest` (9, serveur HTTP simulé `MockRestServiceServer` —
+  adresse invalide, gabarit vide, variable manquante, échappement HTML, 429/401/5xx, `canaux()`),
+  `NoopEmailProviderTest` (1), 4 tests EP-18 dans `NotificationDispatchIntegrationTest` (voie
+  transactionnelle sans préférence, voie préférence EMAIL symétrique WhatsApp/SMS, absence de
+  préférence ⇒ `DEAD`, canal sans fournisseur ⇒ `DEAD`/`PROVIDER_INDISPONIBLE`).
+  `NotificationFondationIntegrationTest` adapté (injection `List<ChannelNotificationProvider>` au
+  lieu d'un bean unique, ambigu depuis l'ajout des beans EMAIL) sans changer l'assertion de fond.
+
+**Preuves d'exécution** (locale, avant CI) :
+- Suite notifications ciblée : **57/57 PASS** (34 tests d'intégration notifications existants +
+  nouveaux, 13 `SchemaMigrationTest` avec `V30` appliquée et validée, 10 tests unitaires Resend/Noop).
+- **Suite backend complète : 234/234 PASS, 0 échec, `BUILD SUCCESS`** — aucune régression sur
+  RGPD, invitations (génération/acceptation), quittances certifiées, garanties, patrimoine,
+  sécurité/RLS, alertes/audit.
+
+**Documents modifiés** (Sprint A, additifs) : `ADR-19-notifications-email-resend.md` (statut mis à
+jour, §Modèle précisé, RSV-EP18-04 clarifiée), `addendum-backlog-ep18-notifications-email-resend.md`
+(statut Sprint A fusionné). Aucun document historique altéré.
+
+**Réserves explicites avant Sprint B/toute promotion** : K1→K5 à confirmer formellement par le PO ;
+RSV-EP18-04 (budget dédié) à implémenter avant tout volume réel en Staging ; RSV-EP18-02 (isolation
+des deux voies) testée en Sprint A mais à re-vérifier en conditions Staging réelles au Sprint B.
+
+**Prochaine action autorisée** : rester sur la branche dédiée, ouvrir une Pull Request en draft
+(documentant périmètre/migration/secrets/tests/risques/éléments reportés) — **aucun push ni
+ouverture de PR sans instruction explicite distincte du PO**, conformément à CLAUDE.md/AGENTS.md.
+Sprint B (invitation par e-mail) reste soumis à un GO distinct, non inclus dans ce GO.
+
+## 2026-08-05 — Push branche EP-18 Sprint A et ouverture PR draft
+
+**Instruction PO explicite reçue** : « pousse la branche et ouvre une PR en draft ».
+
+- Branche `feat/ep18-notifications-email-resend` poussée sur `origin` (2 commits : `fa50cbd` docs,
+  `feeaee2` feat), tracking configuré (`-u`).
+- **Pull Request #368 ouverte en statut draft** :
+  `feat(notifications): EP-18 Sprint A — canal EMAIL via Resend (ADR-19)`,
+  base `main` ← `feat/ep18-notifications-email-resend`,
+  https://github.com/jptshilombo/loyertracker/pull/368
+- Corps de la PR documente : périmètre US-135→138 + socle US-140, architecture (voie
+  préférence/voie transactionnelle), migration V30, absence de tout secret exposé, preuves de
+  tests (234/234 PASS), correctif latent `NotificationDelivery.provider`, déviation ADR-19
+  (`email_opt_in`), réserves ouvertes (RSV-EP18-01→04, K1→K5 non tranchés), procédure de
+  rollback (`RESEND_EMAIL_ENABLED=false`), et rappel explicite de gouvernance CGPA.
+- **Aucune revue, aucun merge, aucun déploiement engagé par cette action** — le statut draft et le
+  corps de la PR excluent explicitement toute autorisation de promotion. La décision CGPA finale
+  reste réservée au CDO selon Gate applicable (hors périmètre de cette mission).
+- Secret Resend (`~/INFRASTRUCTURE/resend`) toujours non lu, non exposé, non committé — conforme
+  à la consigne PO (inerte jusqu'à un Gate Staging/Production réel d'EP-18).
+
+**Prochaine action autorisée** : aucune par défaut. Sprint B (US-139, invitation par e-mail),
+Sprint C (webhooks) et toute revue/merge de la PR #368 restent soumis à un GO/instruction distincte
+et explicite du PO.
+
+## 2026-08-05 — Plan d'Exécution Sprint B (approuvé) et EP-18 Sprint B implémenté sur branche dédiée
+
+**Instruction PO** : demande de planification du Sprint B (mode plan), exploration du code réel
+(flux invitation, dispatcher/Sprint A), Plan d'Exécution rédigé et **approuvé explicitement par le
+PO** (mécanisme d'approbation du mode plan — équivalent du GO CGPA sur ce Plan d'Exécution précis),
+puis instruction explicite « commit et mets à jour la doc ».
+
+**Périmètre livré (US-139 + complément US-140)** — raccorde la voie transactionnelle EMAIL du
+Sprint A à la fonctionnalité métier réelle :
+
+- Migration `V31__ep18_sprint_b_invitation_email.sql` (additive) : élargit
+  `notification_event.event_type`/`aggregate_type` pour admettre `INVITATION_CREEE`/`INVITATION` ;
+  seed le gabarit EMAIL correspondant (sujet/HTML/texte, variables `lien`/`dureeValiditeHeures`).
+  `FLYWAY_EXPECTED_REPO` porté à 31 (`infra/release/production-state.env`) —
+  `FLYWAY_EXPECTED_PROD` inchangé (29, rien de déployé).
+- `TypeEvenementNotification.INVITATION_CREEE`, `TypeAgregatNotification.INVITATION`,
+  `TypeDestinataire.INVITATION` : trois enums additifs (une valeur en fin d'énumération).
+- `NotificationOutboxService.emettreTransactionnel(...)` (nouvelle méthode, sœur structurelle de
+  `emettre()`) : écrit directement une ligne Outbox EMAIL avec adresse déjà résolue, sans jamais
+  consulter `NotificationPreferenceRepository` — mécanisme concret garantissant RSV-EP18-02/RM-125
+  côté émission (verrouillage complet du risque, cf. mise à jour ADR-19 ci-dessous).
+- `InvitationService.inviter(...)` : appelle `emettreTransactionnel` juste après
+  `invitations.saveAndFlush(invitation)`, dans la même transaction. `payload_minimal` strictement
+  minimal (RGPD, ADR-19 « rien d'autre ») : `lien` + `dureeValiditeHeures` uniquement.
+- **Aucun nouvel endpoint de « régénération »** : chaque appel à `POST /api/invitations` crée déjà
+  une `Invitation` neuve (`recipient_id = Invitation.id`), ce qui suffit à satisfaire le critère
+  GWT US-139 sur la régénération sans code supplémentaire — découverte faite en exploration,
+  validée par un test dédié (TC-141).
+- `NotificationDispatcher`, `ResendEmailProvider`, `NoopEmailProvider` : **aucune modification** —
+  déjà entièrement câblés pour la voie transactionnelle depuis le Sprint A.
+- Tests ajoutés : 3 tests d'intégration sur le **vrai** `InvitationService.inviter()` (pas de seed
+  JDBC) dans `InvitationGenerationIntegrationTest` — événement+ligne Outbox EMAIL créés dans la
+  même transaction que l'invitation (TC-130), deux invitations pour le même e-mail produisent deux
+  événements distincts sans doublon (TC-141), isolation RLS cross-tenant (TC-143). Panne
+  Resend/idempotence concurrente (TC-131/142) restent couvertes génériquement par les tests
+  Sprint A du dispatcher, inchangés.
+- `SchemaMigrationTest` : commentaire V31 ajouté, compteur lu depuis `production-state.env`
+  (inchangé dans son mécanisme).
+
+**Incident de compilation rencontré et corrigé** : Flyway scanne le texte brut de chaque fichier de
+migration (y compris les commentaires SQL) à la recherche de ses propres placeholders `${...}`,
+indépendamment du contexte SQL — les variables `${lien}`/`${dureeValiditeHeures}` du gabarit
+(destinées à `ResendEmailProvider`, jamais à Flyway) faisaient donc échouer la migration au
+démarrage. Corrigé en construisant ces accolades via `chr(36)` dans le corps du gabarit et en
+reformulant les commentaires sans jamais faire apparaître la séquence `${` littéralement dans le
+fichier.
+
+**Preuves d'exécution** (locale, avant CI) :
+- Suite ciblée (`SchemaMigrationTest`, `InvitationGenerationIntegrationTest`,
+  `InvitationAcceptationIntegrationTest`, `NotificationDispatchIntegrationTest`,
+  `NotificationFondationIntegrationTest`) : **53/53 PASS**.
+- **Suite backend complète : 237/237 PASS, 0 échec, `BUILD SUCCESS`** (234 Sprint A + 3 nouveaux),
+  aucune régression sur RGPD, invitations (génération/acceptation), quittances certifiées,
+  garanties, patrimoine, sécurité/RLS, alertes/audit, WhatsApp/SMS.
+- Aucun appel réseau réel vers Resend pendant les tests (grep des logs : aucune mention
+  `api.resend.com`). `RESEND_EMAIL_ENABLED=false` partout.
+
+**Documents modifiés** (additifs) : `ADR-19-notifications-email-resend.md` (statut Sprint A+B,
+§Modèle de données précisé, RSV-EP18-02 verrouillée), `addendum-backlog-ep18-notifications-email-
+resend.md` (statut US-139/US-140, RSV-EP18-02 verrouillée). Aucun document historique altéré.
+
+**Secret Resend** : `~/INFRASTRUCTURE/resend` toujours non lu, non exposé — conforme à la consigne
+PO (inerte jusqu'à un Gate Staging/Production réel d'EP-18).
+
+**Commit** : `db05eb9 feat(notifications): EP-18 Sprint B — invitation gestionnaire par e-mail
+(ADR-19 §2/§6, US-139)` sur `feat/ep18-notifications-email-resend` (branche déjà poussée, PR #368
+draft ouverte au Sprint A — non encore mise à jour/republiée sur cette branche distante).
+
+**Réserves explicites inchangées** : K1→K5 toujours en recommandations par défaut ; RSV-EP18-01
+(webhooks, Sprint C) et RSV-EP18-04 (budget dédié) toujours ouvertes/non implémentées, sans risque
+réel tant que `RESEND_EMAIL_ENABLED=false`.
+
+**Prochaine action autorisée** : aucune par défaut. Push de ce commit et mise à jour de la PR #368,
+Sprint C (webhooks), et toute revue/merge restent soumis à un GO/instruction distincte et explicite
+du PO.
+
+## 2026-08-05 — Plan d'Exécution Sprint C (approuvé) et EP-18 Sprint C implémenté sur branche dédiée
+
+**Instruction PO** : « Enchaîne sur le Plan d'Exécution du Sprint C (webhooks) » → mode plan
+(exploration du code réel : patron `TwilioCallbackController`, mécanique `NotificationDelivery`),
+Plan d'Exécution rédigé et **approuvé explicitement par le PO** (mécanisme d'approbation du mode
+plan), puis instruction explicite « commit et mets à jour la doc ».
+
+**Différence structurelle avec le Sprint B** : Sprint C ne disposait d'aucune documentation
+CDC/backlog pré-rédigée (contrairement à US-139/140). Le Plan a donc intégré une mini-Phase 3
+(numérotation additive EF-135/136, RM-128, TC-144→150, US-143, RSV-EP18-06) commitée avant le code
+(`71b6e7e`), conformément à CLAUDE.md.
+
+**Périmètre livré (US-143)** — confirmation de statut de livraison EMAIL via webhook Resend :
+
+- **Zéro migration de schéma** : `notification_delivery.statut`/`channel` acceptaient déjà les
+  valeurs nécessaires (V27/V30) ; la fonction `SECURITY DEFINER
+  notification_delivery_appliquer_statut` (V28) est générique (ne connaît ni Twilio ni Resend) et
+  a été réutilisée telle quelle.
+- `NotificationDeliveryService` : extraction d'un helper privé `appliquerStatut(...)` à partir du
+  corps existant d'`appliquerCallback` (refactor comportement identique, prouvé par les 20 tests
+  Twilio existants, inchangés) ; nouvelle méthode `appliquerCallbackResend(...)` avec sa propre
+  table de correspondance (`email.sent→SENT`, `delivered→DELIVERED`, `opened→READ`,
+  `bounced→UNDELIVERED/PERMANENT`, `complained→FAILED/PERMANENT`).
+- `ResendSignatureVerifier` (nouveau, `provider/resend`) : signature Svix (`svix-id`/
+  `svix-timestamp`/`svix-signature`, HMAC-SHA256, secret `RESEND_WEBHOOK_SECRET` déjà déclaré en
+  Sprint A mais jamais consommé jusqu'ici), fenêtre de fraîcheur ±5 min, échec fermé.
+- `ResendCallbackController` (nouveau, classe séparée de `TwilioCallbackController` — celui-ci
+  n'est jamais touché) : `POST /api/public/notifications/resend/callback`, corps JSON brut jamais
+  re-sérialisé avant vérification de signature, réponse toujours indifférenciée (204/403).
+- `SecurityConfig` : nouveau `permitAll()`, même patron que l'entrée Twilio existante.
+- **Aucune nouvelle table de déduplication** (K6, recommandation par défaut) : la progression par
+  rang (V28, inchangée) suffit, comme pour Twilio.
+
+**Réserve technique assumée et documentée** : le schéma exact de signature Resend (Svix) n'était
+documenté nulle part dans ce dépôt (contrairement à Twilio, entièrement spécifié) — implémenté par
+recommandation par défaut fondée sur la documentation publique Resend/Svix, **jamais vérifié
+contre un webhook réel**. Consigné comme nouvelle réserve **RSV-EP18-06**, vérification
+obligatoire avant tout Gate Staging (cf. `runbook-resend.md` §6, procédure d'activation détaillée).
+
+**Preuves d'exécution** (locale, avant CI) :
+- Suite ciblée (`ResendCallbackIntegrationTest`, `NotificationDispatchIntegrationTest`) :
+  **28/28 PASS** (8 nouveaux + 20 Twilio non régressés par le refactor).
+- **Suite backend complète : 245/245 PASS, 0 échec, `BUILD SUCCESS`** (237 Sprint A+B + 8
+  nouveaux), aucune régression.
+- Aucun appel réseau réel vers Resend pendant les tests (grep des logs : aucune mention
+  `api.resend.com`). Aucune activation côté dashboard Resend. Secret `RESEND_WEBHOOK_SECRET`
+  jamais lu ni exposé.
+
+**Documents modifiés** (additifs) : `addendum-notifications-email-resend.md` (CDC, EF-135/136,
+RM-128, matrice TC-144→150, endpoint marqué implémenté), `addendum-backlog-ep18-...md` (US-143,
+RSV-EP18-01 couverte, RSV-EP18-06 nouvelle), `runbook-resend.md` §6 (procédure d'activation
+concrète), `ADR-19-notifications-email-resend.md` (statut Sprint A+B+C, RSV-EP18-01
+couverte/RSV-EP18-06 ouverte, K1 implémenté). Aucun document historique altéré.
+
+**Commits** : `71b6e7e` (docs, cadrage préalable), `43cf82c feat(notifications): EP-18 Sprint C —
+webhooks Resend (ADR-19 §Sécurité, US-143)`, sur `feat/ep18-notifications-email-resend` (branche
+déjà poussée, PR #368 draft ouverte — non encore mise à jour/republiée avec ce Sprint C).
+
+**Réserves explicites inchangées ou nouvelles** : K1→K5 toujours en recommandations par défaut
+(K1 désormais implémenté, non confirmé formellement) ; RSV-EP18-04 (budget dédié) toujours
+ouverte/non implémentée, sans risque réel tant que `RESEND_EMAIL_ENABLED=false` ; **RSV-EP18-06
+(nouvelle)** ouverte, vérification obligatoire avant Gate Staging.
+
+**Prochaine action autorisée** : aucune par défaut. Push de ces commits et mise à jour de la
+PR #368, toute activation Staging/Production, et toute revue/merge restent soumis à un
+GO/instruction distincte et explicite du PO.
+
+## 2026-08-05 — Correction du Quality Gate CI de la PR #368 préparée localement
+
+**Instruction PO explicite** : après inspection des logs CI/SonarQube et présentation du plan
+ciblé, instruction reçue : « execute ce plan ». Le périmètre autorisé couvre la correction des
+constats Sonar, les tests/couverture, la traçabilité, le commit, le push et la vérification de la
+nouvelle CI ; aucun merge ni déploiement n'est autorisé.
+
+**Preuve distante examinée** : PR draft #368, run GitHub Actions `31002014797`, job Backend
+`92292882258`, commit distant `77ad902`. Les tests CI étaient verts (**237/237**) et les seuils
+JaCoCo locaux satisfaits, mais le Quality Gate SonarQube échouait sur trois conditions : couverture
+du nouveau code **79,4 % < 80 %**, revue des hotspots **50 % < 100 %**, et **4 nouvelles
+violations > 0**.
+
+**Corrections préparées** :
+
+- `NotificationDispatcher` : résolution de la préférence rendue explicite sans accès
+  `Optional.get()` non prouvé (`java:S3655`) ; comportement métier inchangé ;
+- `ResendEmailProvider` : constructeur de production explicitement annoté `@Autowired`
+  (`java:S6829`), classe de caractères du placeholder normalisée en `\w` (`java:S6353`) et méthode
+  `envoyer` découpée en validation, recherche de variable, construction de requête et appel Resend
+  afin de ramener sa complexité sous le seuil (`java:S3776`) ;
+- quatre tests unitaires ajoutés : injection CRLF dans le sujet, variable manquante dans le corps
+  texte, réponse Resend sans identifiant avec `from`/`reply_to`, et construction du bean de
+  production sans appel réseau.
+
+**Preuves locales après correction** : suite ciblée `ResendEmailProviderTest` +
+`NotificationDispatchIntegrationTest` **33/33 PASS** ; suite backend complète `mvn -B verify`
+**249/249 PASS**, 0 échec/erreur/skipped ; artefact JAR et rapport JaCoCo produits ;
+`ResendEmailProvider` **85/85 lignes couvertes** ; `git diff --check` PASS. Aucun appel réel à
+Resend, aucune migration, aucune donnée financière et aucun environnement modifiés.
+
+**Avis IA significatif** — agent : Codex (Engineering/QA support) ; sujet : diagnostic et correction
+du Quality Gate de la PR #368 ; éléments examinés : logs GitHub Actions, conditions et issues
+SonarQube, diff A+B+C, tests Maven/JaCoCo ; avis : les quatre violations remontées sont traitées et
+la marge de couverture locale est renforcée ; réserve : le token Sonar local permet de lire le
+Gate et les issues mais renvoie `403 Insufficient privileges` sur l'API Security Hotspots. Le
+hotspot restant doit être examiné et statué par un humain disposant du droit Sonar adéquat ; aucun
+PASS Sonar ni GO CGPA n'est anticipé avant la nouvelle preuve distante.
+
+**Prochaine action autorisée** : committer et pousser ce lot avec les trois commits Sprint C déjà
+préparés, conformément à l'instruction PO courante, puis vérifier la nouvelle CI de la PR #368.
+Toute revue/merge, promotion Staging ou Production reste une décision distincte.
+
+### Addendum — première relance CI et corrections Sprint C
+
+Le commit correctif `b927ec7` a été poussé avec les trois commits Sprint C ; la CI
+`31006098326` confirme **249/249 tests PASS**, couverture JaCoCo PASS, Frontend PASS et Sécurité
+PASS. Les quatre violations initiales ont disparu et la couverture Sonar du nouveau code atteint
+**80,3 %** (seuil 80 %). Le Gate reste rouge sur le hotspot non revu (50 %) et deux nouvelles
+violations révélées par l'inclusion du Sprint C : `java:S2184` et `java:S1168` dans
+`ResendSignatureVerifier`.
+
+Corrections additionnelles préparées : multiplication de la fenêtre de fraîcheur effectuée en
+`long` (`5L * 60`) ; décodage Base64 invalide représenté par un tableau vide au lieu de `null`,
+avec garde `cle.length == 0` ; test unitaire dédié au secret Base64 invalide. Suite ciblée
+`ResendSignatureVerifierTest` + `ResendCallbackIntegrationTest` : **9/9 PASS**. La réserve sur la
+revue humaine du hotspot Sonar reste inchangée.
+
+**Prochaine action autorisée** : committer/pousser ce correctif additionnel et vérifier la CI ;
+aucun merge ni déploiement n'est autorisé.
+
+### Addendum — qualification des hotspots et second correctif Sonar
+
+Le commit additionnel `2029083` a été poussé ; la CI `31006564500` confirme **250/250 tests
+PASS**, couverture JaCoCo PASS, Frontend PASS et Sécurité PASS. Les violations sont ramenées à
+**0** et la couverture Sonar du nouveau code atteint **80,5 %**. Le seul échec restant est la
+condition de revue des Security Hotspots (**50 % < 100 %**) : un hotspot CSRF dans
+`SecurityConfig` et un hotspot de backtracking potentiel dans le placeholder de
+`ResendEmailProvider`.
+
+Le nouveau token Sonar fourni par le PO a été contrôlé sans exposition du secret : compte `admin`,
+groupes `sonar-administrators` et `sonar-users`, permissions globales d'administration, de gestion
+des Quality Gates/profils, de provisioning et d'analyse. Il permet la qualification tracée des
+hotspots.
+
+- Hotspot CSRF `4a526141-c7d7-4ad6-8977-2b3b16d1f20a` (`java:S4502`) : qualifié
+  **REVIEWED / SAFE** dans Sonar avec commentaire d'audit. Preuves examinées : API OAuth2 Resource
+  Server strictement stateless, authentification Bearer JWT uniquement, aucune session/cookie,
+  aucun `formLogin`/HTTP Basic, CORS limité à l'origine configurée, callbacks publics signés et
+  quittances publiques protégées par jeton. La désactivation CSRF n'expose donc pas ici de
+  credential ambiant exploitable par un navigateur.
+- Hotspot regex `5ad9c4e5-2061-4990-9bac-8d34abbe03c3` (`java:S5852`) : corrigé dans le code par
+  un quantificateur possessif (`\\w++`) qui supprime le backtracking inutile ; test de non-régression
+  ajouté pour un placeholder contenant un underscore. Il reste volontairement non statué dans
+  Sonar jusqu'à la nouvelle analyse, qui doit prouver sa disparition.
+
+**Preuves locales après correction** : suite ciblée `ResendEmailProviderTest` +
+`SecurityIntegrationTest` **20/20 PASS** ; suite backend complète `mvn -B verify` **251/251 PASS**,
+0 échec/erreur/skipped ; rapport JaCoCo et artefact JAR produits. Aucun appel réel à Resend, aucune
+migration, donnée financière ou infrastructure modifiée.
+
+**Avis IA significatif** — agent : Codex (Engineering/QA et DevSecOps support) ; sujet : revue et
+correction des deux hotspots bloquant la PR #368 ; éléments examinés : configuration Spring
+Security, mécanismes d'authentification et endpoints publics, règle Sonar `java:S5852`, tests et
+preuve CI ; avis : la qualification CSRF `SAFE` est justifiée et la regex est corrigée sans
+régression fonctionnelle ; réserve : le Quality Gate final reste à confirmer par une nouvelle
+analyse distante. Cette qualification spécialisée ne constitue ni un GO CGPA, ni une validation
+humaine de merge.
+
+**Prochaine action autorisée** : committer et pousser ce dernier correctif conformément à
+l'instruction PO « fix le problème du CI », puis suivre la nouvelle CI jusqu'au verdict. Aucun
+merge, Gate Staging/Production ou déploiement n'est autorisé.

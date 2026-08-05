@@ -9,8 +9,10 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.crypto.Mac;
@@ -37,6 +39,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loyertracker.notifications.provider.ChannelNotificationProvider;
 import com.loyertracker.notifications.provider.NotificationProvider;
 import com.loyertracker.notifications.provider.NotificationProvider.ResultatEnvoi;
 import com.loyertracker.securite.TenantContext;
@@ -259,6 +262,99 @@ class NotificationDispatchIntegrationTest {
         assertThat(deliveredAtApresSecond).isEqualTo(deliveredAtApresPremier);
     }
 
+    // =====================================================================================
+    // EP-18 Sprint A — canal EMAIL (ADR-19) : généralisation du contrat fournisseur, voie
+    // transactionnelle vs voie préférence (RSV-EP18-02)
+    // =====================================================================================
+
+    // --- Canal EMAIL, voie transactionnelle : aucune préférence consultée -----------------
+
+    @Test
+    void voieTransactionnelleEmailNeConsultePasNiNExigeAucunePreference() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "BAIL_CREE");
+        UUID recipientId = UUID.randomUUID();
+        seedTemplateEmail("BAIL_CREE");
+        // Volontairement AUCUNE NotificationPreference créée pour ce destinataire : la voie
+        // transactionnelle ne doit jamais en avoir besoin (ADR-19 §2).
+        UUID outboxId = seedOutboxPendingEmailTransactionnel(bailleurId, eventId, recipientId,
+                "BAIL_CREE", "invite@exemple.fr");
+
+        List<String> adressesRecues = new ArrayList<>();
+        NotificationDispatcher dispatcher = dispatcherAvecEmail(demande -> {
+            adressesRecues.add(demande.destinataire().address());
+            return ResultatEnvoi.accepte("RESEND-1");
+        });
+        int traites = dispatcher.traiterLot(50);
+
+        assertThat(traites).isEqualTo(1);
+        assertThat(statutOutbox(outboxId)).isEqualTo("PROCESSED");
+        assertThat(adressesRecues).containsExactly("invite@exemple.fr");
+        assertThat(compter("SELECT count(*) FROM notification_delivery WHERE provider_message_id = 'RESEND-1'"))
+                .isEqualTo(1);
+    }
+
+    // --- Canal EMAIL, voie préférence : comportement symétrique à WhatsApp/SMS -----------
+
+    @Test
+    void voiePreferenceEmailExigeUnePreferenceEligibleEtUneAdresse() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedTemplateEmail("QUITTANCE_DISPONIBLE");
+        seedPreferenceEmail(bailleurId, recipientId, "locataire@exemple.fr");
+        UUID outboxId = seedOutboxPendingEmailPreference(bailleurId, eventId, recipientId,
+                "QUITTANCE_DISPONIBLE");
+
+        List<String> adressesRecues = new ArrayList<>();
+        NotificationDispatcher dispatcher = dispatcherAvecEmail(demande -> {
+            adressesRecues.add(demande.destinataire().address());
+            return ResultatEnvoi.accepte("RESEND-2");
+        });
+        dispatcher.traiterLot(50);
+
+        assertThat(statutOutbox(outboxId)).isEqualTo("PROCESSED");
+        assertThat(adressesRecues).containsExactly("locataire@exemple.fr");
+    }
+
+    @Test
+    void voiePreferenceEmailSansPreferenceMarqueLaLigneDeadSansAucunEnvoi() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
+        UUID recipientId = UUID.randomUUID();
+        seedTemplateEmail("QUITTANCE_DISPONIBLE");
+        // Aucune préférence EMAIL créée : la voie préférence doit rester fermée par défaut (K3),
+        // exactement comme WhatsApp/SMS — jamais un envoi par défaut.
+        UUID outboxId = seedOutboxPendingEmailPreference(bailleurId, eventId, recipientId,
+                "QUITTANCE_DISPONIBLE");
+
+        NotificationDispatcher dispatcher = dispatcherAvecEmail(
+                demande -> { throw new AssertionError("le fournisseur ne doit jamais être appelé"); });
+        dispatcher.traiterLot(50);
+
+        assertThat(statutOutbox(outboxId)).isEqualTo("DEAD");
+        assertThat(compter("SELECT count(*) FROM notification_delivery")).isZero();
+    }
+
+    // --- Canal sans fournisseur enregistré : DEAD, jamais un succès silencieux -------------
+
+    @Test
+    void canalSansFournisseurEnregistreMarqueLaLigneDeadSansAucunEnvoi() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "BAIL_CREE");
+        UUID recipientId = UUID.randomUUID();
+        seedTemplateEmail("BAIL_CREE");
+        UUID outboxId = seedOutboxPendingEmailTransactionnel(bailleurId, eventId, recipientId,
+                "BAIL_CREE", "invite@exemple.fr");
+
+        NotificationDispatcher dispatcher = dispatcherSansAucunFournisseur();
+        dispatcher.traiterLot(50);
+
+        assertThat(statutOutbox(outboxId)).isEqualTo("DEAD");
+        assertThat(jdbc.queryForObject("SELECT last_error_code FROM notification_outbox WHERE id = ?",
+                String.class, outboxId)).isEqualTo("PROVIDER_INDISPONIBLE");
+    }
+
     // --- Helpers -----------------------------------------------------------------------------
 
     /** Reconstruit un Dispatcher avec un fournisseur de test contrôlable, mêmes collaborateurs réels. */
@@ -447,6 +543,12 @@ class NotificationDispatchIntegrationTest {
      * production — kill switch fermé, plafond budgétaire à 0, fallback désactivé — bloquent tout
      * envoi : chaque test doit donc ouvrir explicitement ce dont il a besoin, ce qui rend le
      * caractère « fermé par défaut » du socle vérifiable plutôt que supposé.
+     *
+     * <p>Le fournisseur de test (lambda {@link NotificationProvider}, canal unique WHATSAPP dans
+     * ces tests — {@link #seedOutboxPending} câble toujours {@code channel='WHATSAPP'}) est
+     * enveloppé dans un {@link ChannelNotificationProvider} couvrant WHATSAPP+SMS (ADR-19 §3,
+     * EP-18) pour rester compatible avec la résolution par canal du dispatcher, sans changer la
+     * syntaxe des tests existants.</p>
      */
     private NotificationDispatcher dispatcherAvec(NotificationProvider provider, int maxTentatives,
             boolean externeActive, long plafondMensuel, boolean fallbackActive) {
@@ -455,9 +557,55 @@ class NotificationDispatchIntegrationTest {
                 new NotificationBudgetService(em, metrics, plafondMensuel, 0.8d);
         NotificationFallbackService fallback = new NotificationFallbackService(outboxRepository,
                 preferenceRepository, metrics, fallbackActive);
+        ChannelNotificationProvider fournisseur = new ChannelNotificationProvider() {
+            @Override
+            public Set<CanalNotification> canaux() {
+                return EnumSet.of(CanalNotification.WHATSAPP, CanalNotification.SMS);
+            }
+
+            @Override
+            public ResultatEnvoi envoyer(DemandeEnvoi demande) {
+                return provider.envoyer(demande);
+            }
+        };
         return new NotificationDispatcher(em, tenant, txManager, outboxService, outboxRepository,
-                preferenceRepository, templateRepository, deliveryService, provider, json, metrics,
-                budget, fallback, externeActive, maxTentatives);
+                preferenceRepository, templateRepository, deliveryService, List.of(fournisseur), json,
+                metrics, budget, fallback, externeActive, maxTentatives);
+    }
+
+    /** Dispatcher n'enregistrant qu'un fournisseur EMAIL de test (EP-18, isolation des voies). */
+    private NotificationDispatcher dispatcherAvecEmail(NotificationProvider emailProvider) {
+        NotificationMetrics metrics = new NotificationMetrics(new SimpleMeterRegistry());
+        NotificationBudgetService budget =
+                new NotificationBudgetService(em, metrics, BUDGET_LARGE, 0.8d);
+        NotificationFallbackService fallback = new NotificationFallbackService(outboxRepository,
+                preferenceRepository, metrics, false);
+        ChannelNotificationProvider fournisseur = new ChannelNotificationProvider() {
+            @Override
+            public Set<CanalNotification> canaux() {
+                return EnumSet.of(CanalNotification.EMAIL);
+            }
+
+            @Override
+            public ResultatEnvoi envoyer(DemandeEnvoi demande) {
+                return emailProvider.envoyer(demande);
+            }
+        };
+        return new NotificationDispatcher(em, tenant, txManager, outboxService, outboxRepository,
+                preferenceRepository, templateRepository, deliveryService, List.of(fournisseur), json,
+                metrics, budget, fallback, true, 5);
+    }
+
+    /** Dispatcher sans aucun fournisseur enregistré — prouve {@code PROVIDER_INDISPONIBLE}. */
+    private NotificationDispatcher dispatcherSansAucunFournisseur() {
+        NotificationMetrics metrics = new NotificationMetrics(new SimpleMeterRegistry());
+        NotificationBudgetService budget =
+                new NotificationBudgetService(em, metrics, BUDGET_LARGE, 0.8d);
+        NotificationFallbackService fallback = new NotificationFallbackService(outboxRepository,
+                preferenceRepository, metrics, false);
+        return new NotificationDispatcher(em, tenant, txManager, outboxService, outboxRepository,
+                preferenceRepository, templateRepository, deliveryService, List.of(), json,
+                metrics, budget, fallback, true, 5);
     }
 
     private ResultActions appelerCallbackSigne(String sid, String messageStatus, String errorCode)
@@ -563,6 +711,49 @@ class NotificationDispatchIntegrationTest {
                 INSERT INTO notification_outbox
                     (id, bailleur_id, event_id, recipient_id, notification_type, channel)
                 VALUES (?, ?, ?, ?, ?, 'WHATSAPP')
+                """, id, bailleurId, eventId, recipientId, notificationType);
+        return id;
+    }
+
+    private void seedTemplateEmail(String code) {
+        jdbc.update("""
+                INSERT INTO notification_template
+                    (code, channel, language, version, approval_status, enabled, subject, html_body)
+                VALUES (?, 'EMAIL', 'fr', 1, 'APPROUVE', true, 'Sujet de test', '<p>Corps de test</p>')
+                """, code);
+    }
+
+    /** Préférence EMAIL à consentement (voie préférence, EP-18) — symétrique à {@link #seedPreference}. */
+    private void seedPreferenceEmail(UUID bailleurId, UUID recipientId, String email) {
+        jdbc.update("""
+                INSERT INTO notification_preference
+                    (id, bailleur_id, recipient_type, recipient_id, email, preferred_channel,
+                     email_opt_in, consent_at, consent_source, enabled)
+                VALUES (gen_random_uuid(), ?, 'LOCATAIRE', ?, ?, 'EMAIL', true,
+                        now(), 'FORMULAIRE_LOYERTRACKER', true)
+                """, bailleurId, recipientId, email);
+    }
+
+    /** Voie transactionnelle (ADR-19 §2) : adresse déjà résolue, aucune préférence à consulter. */
+    private UUID seedOutboxPendingEmailTransactionnel(UUID bailleurId, UUID eventId, UUID recipientId,
+            String notificationType, String recipientAddress) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO notification_outbox
+                    (id, bailleur_id, event_id, recipient_id, notification_type, channel, recipient_address)
+                VALUES (?, ?, ?, ?, ?, 'EMAIL', ?)
+                """, id, bailleurId, eventId, recipientId, notificationType, recipientAddress);
+        return id;
+    }
+
+    /** Voie préférence (ADR-19 §2) : {@code recipient_address} NULL, résolution via préférence. */
+    private UUID seedOutboxPendingEmailPreference(UUID bailleurId, UUID eventId, UUID recipientId,
+            String notificationType) {
+        UUID id = UUID.randomUUID();
+        jdbc.update("""
+                INSERT INTO notification_outbox
+                    (id, bailleur_id, event_id, recipient_id, notification_type, channel)
+                VALUES (?, ?, ?, ?, ?, 'EMAIL')
                 """, id, bailleurId, eventId, recipientId, notificationType);
         return id;
     }

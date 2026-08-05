@@ -5,6 +5,7 @@ package com.loyertracker.notifications;
  * {@link #LOYER_EN_RETARD}/{@link #FIN_BAIL}/{@link #PREAVIS}/{@link #GARANTIE_NON_RESTITUEE}.
  * Voie B (transactionnelle, écriture inline) : {@link #QUITTANCE_DISPONIBLE}/
  * {@link #GARANTIE_DEBITEE}/{@link #PAIEMENT_RECU}/{@link #BAIL_CREE}/{@link #BAIL_CLOS}.
+ * Voie transactionnelle sans préférence (ADR-19 §2, EP-18 Sprint B) : {@link #INVITATION_CREEE}.
  */
 public enum TypeEvenementNotification {
     QUITTANCE_DISPONIBLE,
@@ -15,5 +16,6 @@ public enum TypeEvenementNotification {
     GARANTIE_DEBITEE,
     PAIEMENT_RECU,
     BAIL_CREE,
-    BAIL_CLOS
+    BAIL_CLOS,
+    INVITATION_CREEE
 }

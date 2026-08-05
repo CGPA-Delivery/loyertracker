@@ -61,6 +61,9 @@ public class NotificationOutbox {
     @Column(name = "last_error_code")
     private String lastErrorCode;
 
+    @Column(name = "recipient_address")
+    private String recipientAddress;
+
     @Column(name = "date_creation", nullable = false, updatable = false, insertable = false)
     private OffsetDateTime dateCreation;
 
@@ -81,6 +84,18 @@ public class NotificationOutbox {
         this.nextAttemptAt = OffsetDateTime.now();
     }
 
+    /**
+     * Voie transactionnelle (ADR-19 §2, EP-18) : adresse résolue et figée à l'émission, dans la
+     * même transaction que l'opération métier (ex. invitation) — aucune {@link NotificationPreference}
+     * n'est consultée pour cette ligne, ni à l'émission ni au dispatch.
+     */
+    public NotificationOutbox(UUID bailleurId, UUID eventId, UUID recipientId,
+            TypeEvenementNotification notificationType, CanalNotification channel,
+            String recipientAddress) {
+        this(bailleurId, eventId, recipientId, notificationType, channel);
+        this.recipientAddress = recipientAddress;
+    }
+
     public UUID getId() { return id; }
     public UUID getBailleurId() { return bailleurId; }
     public UUID getEventId() { return eventId; }
@@ -93,5 +108,6 @@ public class NotificationOutbox {
     public OffsetDateTime getLockedAt() { return lockedAt; }
     public OffsetDateTime getProcessedAt() { return processedAt; }
     public String getLastErrorCode() { return lastErrorCode; }
+    public String getRecipientAddress() { return recipientAddress; }
     public OffsetDateTime getDateCreation() { return dateCreation; }
 }

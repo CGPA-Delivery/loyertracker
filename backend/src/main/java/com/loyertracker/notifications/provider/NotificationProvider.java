@@ -6,19 +6,43 @@ import com.loyertracker.notifications.CanalNotification;
 import com.loyertracker.notifications.CategorieErreurNotification;
 
 /**
- * Abstraction du transport externe (WhatsApp/SMS, US-121, ADR-18 §5). Le domaine métier
- * (paiements, garanties, alertes, quittances) ne connaît jamais le SDK Twilio, les credentials, les
- * numéros expéditeurs ni les Content SID — uniquement cette interface. Permet de remplacer Twilio,
- * ou d'ajouter un second fournisseur, sans réécrire les règles métier.
+ * Abstraction du transport externe (WhatsApp/SMS/EMAIL, US-121, ADR-18 §5 ; généralisée par canal
+ * en ADR-19 §3, EP-18). Le domaine métier (paiements, garanties, alertes, quittances, invitations)
+ * ne connaît jamais le SDK/l'API d'un fournisseur, les credentials, les numéros expéditeurs, les
+ * Content SID Twilio ni les DTO Resend — uniquement cette interface. Permet de remplacer un
+ * fournisseur, ou d'en ajouter un second pour un autre canal, sans réécrire les règles métier.
  */
 public interface NotificationProvider {
 
     /** Tente l'envoi d'une notification externe et retourne le résultat immédiat du fournisseur. */
     ResultatEnvoi envoyer(DemandeEnvoi demande);
 
-    /** Requête d'envoi minimale — jamais de texte codé en dur, toujours un template résolu en amont. */
-    record DemandeEnvoi(String phoneE164, CanalNotification canal, String templateCode,
-            Map<String, String> variables) {
+    /**
+     * Destinataire générique d'un envoi externe (ADR-19 §3, EP-18) : une adresse portée par un
+     * canal — numéro E.164 pour WHATSAPP/SMS, adresse e-mail validée pour EMAIL.
+     */
+    record NotificationRecipient(CanalNotification canal, String address) {
+    }
+
+    /**
+     * Requête d'envoi minimale — jamais de texte codé en dur, toujours un template résolu en amont.
+     * {@code subject}/{@code htmlBody}/{@code textBody} portent le contenu réel du gabarit
+     * uniquement pour EMAIL (ADR-19 §5) — {@code null} pour WHATSAPP/SMS, qui continuent le rendu
+     * {@code templateCode}+{@code variables} existant ({@link TwilioNotificationProvider#rendre}).
+     */
+    record DemandeEnvoi(NotificationRecipient destinataire, String templateCode,
+            Map<String, String> variables, String subject, String htmlBody, String textBody) {
+
+        /** Canal de cet envoi (raccourci vers {@code destinataire.canal()}). */
+        public CanalNotification canal() {
+            return destinataire.canal();
+        }
+
+        /** Demande sans contenu résolu (WhatsApp/SMS — rendu par code+variables, ADR-18). */
+        public static DemandeEnvoi sansContenuResolu(NotificationRecipient destinataire,
+                String templateCode, Map<String, String> variables) {
+            return new DemandeEnvoi(destinataire, templateCode, variables, null, null, null);
+        }
     }
 
     /**

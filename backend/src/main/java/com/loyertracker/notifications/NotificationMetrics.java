@@ -37,7 +37,9 @@ public class NotificationMetrics {
         /** Préférence absente, désactivée ou sans opt-in pour le canal (K3). */
         INELIGIBLE,
         /** Aucun template approuvé pour ce couple code/canal/langue. */
-        TEMPLATE_ABSENT
+        TEMPLATE_ABSENT,
+        /** Aucun {@code ChannelNotificationProvider} enregistré pour ce canal (ADR-19, EP-18). */
+        PROVIDER_INDISPONIBLE
     }
 
     /** Issue de l'évaluation d'un fallback SMS (US-124) — trace aussi les refus, jamais silencieux. */

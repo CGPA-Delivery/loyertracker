@@ -2,6 +2,7 @@ package com.loyertracker.notifications;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,21 +18,28 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loyertracker.notifications.provider.NotificationProvider;
+import com.loyertracker.notifications.provider.ChannelNotificationProvider;
 import com.loyertracker.notifications.provider.NotificationProvider.DemandeEnvoi;
+import com.loyertracker.notifications.provider.NotificationProvider.NotificationRecipient;
 import com.loyertracker.notifications.provider.NotificationProvider.ResultatEnvoi;
 import com.loyertracker.securite.TenantContext;
 
 import jakarta.persistence.EntityManager;
 
 /**
- * Consomme l'Outbox transactionnelle et invoque le {@link NotificationProvider} actif (US-122/123,
- * ADR-18). Le rôle applicatif {@code loyertracker_api} reste sous RLS {@code FORCE} : la
- * réclamation cross-tenant des bailleurs concernés passe par la fonction {@code SECURITY DEFINER
- * notification_bailleurs_en_attente()} (V28, lecture seule), puis chaque bailleur est traité dans
- * sa propre transaction avec le contexte tenant positionné ({@link TenantContext#positionner}) —
- * même patron que les tests de concurrence du Sprint N, jamais un contournement RLS générique pour
- * les données métier (préférences, payload).
+ * Consomme l'Outbox transactionnelle et invoque le {@link ChannelNotificationProvider} résolu par
+ * canal (US-122/123, ADR-18 ; généralisation par canal, ADR-19 §3, EP-18). Le rôle applicatif
+ * {@code loyertracker_api} reste sous RLS {@code FORCE} : la réclamation cross-tenant des bailleurs
+ * concernés passe par la fonction {@code SECURITY DEFINER notification_bailleurs_en_attente()}
+ * (V28, lecture seule), puis chaque bailleur est traité dans sa propre transaction avec le contexte
+ * tenant positionné ({@link TenantContext#positionner}) — même patron que les tests de concurrence
+ * du Sprint N, jamais un contournement RLS générique pour les données métier (préférences, payload).
+ *
+ * <p>Deux voies de résolution du destinataire (ADR-19 §2) : la voie préférence (inchangée depuis
+ * EP-16 — WHATSAPP/SMS/EMAIL à consentement, via {@link NotificationPreference}) et la voie
+ * transactionnelle (nouvelle, EP-18 — {@link NotificationOutbox#getRecipientAddress()} déjà résolue
+ * à l'émission, aucune préférence consultée, ex. invitation). Les deux voies ne se substituent
+ * jamais l'une à l'autre (RSV-EP18-02).</p>
  */
 @Service
 public class NotificationDispatcher {
@@ -46,7 +54,7 @@ public class NotificationDispatcher {
     private final NotificationPreferenceRepository preferences;
     private final NotificationTemplateRepository templates;
     private final NotificationDeliveryService deliveryService;
-    private final NotificationProvider provider;
+    private final Map<CanalNotification, ChannelNotificationProvider> providersParCanal;
     private final ObjectMapper json;
     private final int maxTentatives;
     private final NotificationMetrics metrics;
@@ -58,7 +66,7 @@ public class NotificationDispatcher {
             PlatformTransactionManager txManager, NotificationOutboxService outboxService,
             NotificationOutboxRepository outboxRepository,
             NotificationPreferenceRepository preferences, NotificationTemplateRepository templates,
-            NotificationDeliveryService deliveryService, NotificationProvider provider,
+            NotificationDeliveryService deliveryService, List<ChannelNotificationProvider> providers,
             ObjectMapper json, NotificationMetrics metrics,
             NotificationBudgetService budgetService, NotificationFallbackService fallbackService,
             @Value("${app.notifications.external.enabled:false}") boolean externeActive,
@@ -71,13 +79,35 @@ public class NotificationDispatcher {
         this.preferences = preferences;
         this.templates = templates;
         this.deliveryService = deliveryService;
-        this.provider = provider;
+        this.providersParCanal = indexerParCanal(providers);
         this.json = json;
         this.metrics = metrics;
         this.budgetService = budgetService;
         this.fallbackService = fallbackService;
         this.externeActive = externeActive;
         this.maxTentatives = maxTentatives;
+    }
+
+    /**
+     * Construit la résolution canal → fournisseur une seule fois au démarrage (ADR-19 §3) —
+     * jamais de {@code if/else} dispersé sur le nom d'un fournisseur au traitement d'une ligne.
+     * Deux fournisseurs actifs pour le même canal est une erreur de configuration détectée ici,
+     * pas silencieusement tolérée.
+     */
+    private static Map<CanalNotification, ChannelNotificationProvider> indexerParCanal(
+            List<ChannelNotificationProvider> providers) {
+        Map<CanalNotification, ChannelNotificationProvider> index = new EnumMap<>(CanalNotification.class);
+        for (ChannelNotificationProvider fournisseur : providers) {
+            for (CanalNotification canal : fournisseur.canaux()) {
+                ChannelNotificationProvider existant = index.put(canal, fournisseur);
+                if (existant != null) {
+                    throw new IllegalStateException("Plusieurs fournisseurs actifs pour le canal "
+                            + canal + " : " + existant.getClass().getSimpleName() + " et "
+                            + fournisseur.getClass().getSimpleName());
+                }
+            }
+        }
+        return index;
     }
 
     /** @return le nombre de lignes Outbox effectivement traitées (tout statut de sortie confondu) */
@@ -131,19 +161,40 @@ public class NotificationDispatcher {
     }
 
     private void traiterUneLigne(NotificationOutbox row) {
-        Optional<NotificationPreference> preference = preferences
-                .findFirstByBailleurIdAndRecipientId(row.getBailleurId(), row.getRecipientId());
-        if (preference.isEmpty() || !preference.get().estEligiblePour(row.getChannel())
-                || preference.get().getPhoneE164() == null) {
-            outboxService.marquerDead(row.getId(), "PREFERENCE_INTROUVABLE_OU_INELIGIBLE");
-            metrics.dispatch(row.getChannel(), NotificationMetrics.Issue.INELIGIBLE);
+        ChannelNotificationProvider fournisseur = providersParCanal.get(row.getChannel());
+        if (fournisseur == null) {
+            outboxService.marquerDead(row.getId(), "PROVIDER_INDISPONIBLE");
+            metrics.dispatch(row.getChannel(), NotificationMetrics.Issue.PROVIDER_INDISPONIBLE);
             return;
         }
-        NotificationPreference pref = preference.get();
+
+        String adresse;
+        String langue = "fr";
+        if (row.getRecipientAddress() != null) {
+            // Voie transactionnelle (ADR-19 §2, EP-18) : adresse déjà résolue à l'émission, aucune
+            // NotificationPreference à consulter — l'exécution d'une action déjà demandée par
+            // l'utilisateur (ex. invitation) n'est jamais soumise à un opt-in.
+            adresse = row.getRecipientAddress();
+        } else {
+            NotificationPreference preference = preferences
+                    .findFirstByBailleurIdAndRecipientId(row.getBailleurId(), row.getRecipientId())
+                    .filter(p -> p.estEligiblePour(row.getChannel()))
+                    .orElse(null);
+            String adressePreference = preference == null
+                    ? null
+                    : adresseDePreference(preference, row.getChannel());
+            if (adressePreference == null) {
+                outboxService.marquerDead(row.getId(), "PREFERENCE_INTROUVABLE_OU_INELIGIBLE");
+                metrics.dispatch(row.getChannel(), NotificationMetrics.Issue.INELIGIBLE);
+                return;
+            }
+            adresse = adressePreference;
+            langue = preference.getLanguage();
+        }
 
         Optional<NotificationTemplate> template = templates
                 .findByCodeAndChannelAndLanguageOrderByVersionDesc(row.getNotificationType().name(),
-                        row.getChannel(), pref.getLanguage())
+                        row.getChannel(), langue)
                 .stream()
                 .filter(NotificationTemplate::utilisablePourEnvoi)
                 .findFirst();
@@ -152,11 +203,15 @@ public class NotificationDispatcher {
             metrics.dispatch(row.getChannel(), NotificationMetrics.Issue.TEMPLATE_ABSENT);
             return;
         }
+        NotificationTemplate tpl = template.get();
 
         Map<String, String> variables = lireVariables(row.getEventId());
-        DemandeEnvoi demande = new DemandeEnvoi(pref.getPhoneE164(), row.getChannel(),
-                template.get().getCode(), variables);
-        ResultatEnvoi resultat = provider.envoyer(demande);
+        NotificationRecipient destinataire = new NotificationRecipient(row.getChannel(), adresse);
+        DemandeEnvoi demande = row.getChannel() == CanalNotification.EMAIL
+                ? new DemandeEnvoi(destinataire, tpl.getCode(), variables, tpl.getSubject(),
+                        tpl.getHtmlBody(), tpl.getTextBody())
+                : DemandeEnvoi.sansContenuResolu(destinataire, tpl.getCode(), variables);
+        ResultatEnvoi resultat = fournisseur.envoyer(demande);
 
         if (resultat.accepte()) {
             deliveryService.creer(row.getBailleurId(), row.getEventId(), row.getRecipientId(),
@@ -178,6 +233,15 @@ public class NotificationDispatcher {
             outboxService.marquerEchecTransitoire(row.getId(), resultat.errorCode(), maxTentatives);
             metrics.dispatch(row.getChannel(), NotificationMetrics.Issue.ECHEC_TEMPORAIRE);
         }
+    }
+
+    /** Adresse portée par la préférence pour le canal donné (voie préférence, ADR-19 §2). */
+    private String adresseDePreference(NotificationPreference pref, CanalNotification canal) {
+        return switch (canal) {
+            case WHATSAPP, SMS -> pref.getPhoneE164();
+            case EMAIL -> pref.getEmail();
+            case IN_APP -> null;
+        };
     }
 
     @SuppressWarnings("unchecked")

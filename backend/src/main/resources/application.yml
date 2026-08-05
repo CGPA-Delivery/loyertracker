@@ -116,6 +116,12 @@ app:
       enabled: ${TWILIO_WHATSAPP_ENABLED:false}
     sms:
       enabled: ${TWILIO_SMS_ENABLED:false}
+    # ADR-19/EP-18 : second fournisseur, canal indépendant de WhatsApp/SMS. Même patron
+    # d'exclusion mutuelle que `whatsapp.enabled` : ResendEmailProvider si true, NoopEmailProvider
+    # si false (défaut, tous environnements) — jamais les deux, désactivation/panne Resend sans
+    # aucun effet sur WhatsApp/SMS et réciproquement.
+    email:
+      enabled: ${RESEND_EMAIL_ENABLED:false}
     dry-run: ${NOTIFICATION_DRY_RUN:true}
     fallback:
       # EP-16 Sprint N+2 (US-124) : fallback SMS sur échec WhatsApp PERMANENT. Fermé par défaut —
@@ -132,6 +138,11 @@ app:
       mensuel-max: ${NOTIFICATION_BUDGET_MENSUEL_MAX:0}
       # Part du plafond à partir de laquelle l'alerte Alertmanager se déclenche (0,8 = 80 %).
       seuil-alerte: ${NOTIFICATION_BUDGET_SEUIL_ALERTE:0.8}
+      # RSV-EP18-04 (ADR-19 §Coûts) : un plafond DÉDIÉ Resend, isolé du plafond WhatsApp/SMS
+      # ci-dessus, reste à implémenter avant toute activation Production du canal EMAIL — non
+      # inclus dans ce Sprint A (aucune ligne EMAIL ne peut exister avant le Sprint B, donc aucun
+      # risque de dérive budgétaire réel tant que RESEND_EMAIL_ENABLED=false). Suivi explicite,
+      # pas un oubli silencieux.
     dispatch:
       # Sondage de l'Outbox (patron polling worker, distinct des crons quotidiens alertes/échéances).
       interval-ms: ${NOTIFICATION_DISPATCH_INTERVAL_MS:15000}
@@ -150,6 +161,18 @@ twilio:
   # sur un autre canal). Le provisionnement est un acte d'exploitation hors périmètre CGPA.
   sms-from: ${TWILIO_SMS_FROM:}
   status-callback-base-url: ${TWILIO_STATUS_CALLBACK_BASE_URL:https://loyertracker.loyerpro.org}
+
+resend:
+  # ADR-19/EP-18 : fournisseur EMAIL, API HTTPS (jamais SMTP). Vides par défaut : ResendEmailProvider
+  # n'est même pas instancié tant que app.notifications.email.enabled reste à false.
+  api-key: ${RESEND_API_KEY:}
+  from-email: ${RESEND_FROM_EMAIL:}
+  from-name: ${RESEND_FROM_NAME:LoyerTracker}
+  reply-to: ${RESEND_REPLY_TO:}
+  webhook-secret: ${RESEND_WEBHOOK_SECRET:}
+  base-url: ${RESEND_BASE_URL:https://api.resend.com}
+  connect-timeout-ms: ${RESEND_CONNECT_TIMEOUT_MS:3000}
+  read-timeout-ms: ${RESEND_READ_TIMEOUT_MS:10000}
 
 # Admin API Keycloak — création de compte gestionnaire (US-12, ADR-10, R6). Client confidentiel
 # dédié `loyertracker-admin` (service account, distinct du resource-server bearer-only

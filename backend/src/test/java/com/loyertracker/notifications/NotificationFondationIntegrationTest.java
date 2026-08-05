@@ -42,8 +42,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.jayway.jsonpath.JsonPath;
+import com.loyertracker.notifications.provider.ChannelNotificationProvider;
 import com.loyertracker.notifications.provider.NoopNotificationProvider;
-import com.loyertracker.notifications.provider.NotificationProvider;
 import com.loyertracker.securite.TenantContext;
 import com.loyertracker.testsupport.RlsTestDataSourceConfig;
 
@@ -77,7 +77,7 @@ class NotificationFondationIntegrationTest {
     @Autowired
     TenantContext tenant;
     @Autowired
-    NotificationProvider provider;
+    List<ChannelNotificationProvider> providers;
     @Value("${app.notifications.external.enabled}")
     boolean externalEnabled;
 
@@ -107,7 +107,10 @@ class NotificationFondationIntegrationTest {
 
     @Test
     void demarreSansConfigurationTwilioAvecLeFournisseurSandboxEtLesFlagsDesactives() {
-        assertThat(provider).as("seul fournisseur disponible en Sprint N")
+        assertThat(providers)
+                .filteredOn(p -> p.canaux().contains(CanalNotification.WHATSAPP))
+                .as("seul fournisseur WhatsApp/SMS disponible en Sprint N")
+                .singleElement()
                 .isInstanceOf(NoopNotificationProvider.class);
         assertThat(externalEnabled).as("NOTIFICATIONS_EXTERNAL_ENABLED par défaut (K8)").isFalse();
     }

@@ -1,7 +1,9 @@
 package com.loyertracker.notifications.provider;
 
 import java.util.Base64;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ import com.loyertracker.notifications.CanalNotification;
  */
 @Component
 @ConditionalOnProperty(prefix = "app.notifications", name = "whatsapp.enabled", havingValue = "true")
-public class TwilioNotificationProvider implements NotificationProvider {
+public class TwilioNotificationProvider implements ChannelNotificationProvider {
 
     private static final Logger log = LoggerFactory.getLogger(TwilioNotificationProvider.class);
     private static final String MESSAGES_URL_TEMPLATE =
@@ -68,11 +70,16 @@ public class TwilioNotificationProvider implements NotificationProvider {
     }
 
     @Override
+    public Set<CanalNotification> canaux() {
+        return EnumSet.of(CanalNotification.WHATSAPP, CanalNotification.SMS);
+    }
+
+    @Override
     public ResultatEnvoi envoyer(DemandeEnvoi demande) {
         String expediteur = switch (demande.canal()) {
             case WHATSAPP -> whatsappFrom;
             case SMS -> smsFrom;
-            case IN_APP -> null;
+            case EMAIL, IN_APP -> null;
         };
         if (expediteur == null || expediteur.isBlank()) {
             // Canal non provisionné (IN_APP ne transite jamais par un fournisseur ; SMS sans numéro
@@ -82,7 +89,7 @@ public class TwilioNotificationProvider implements NotificationProvider {
         }
         String prefixe = demande.canal() == CanalNotification.WHATSAPP ? "whatsapp:" : "";
         MultiValueMap<String, String> corps = new LinkedMultiValueMap<>();
-        corps.add("To", prefixe + demande.phoneE164());
+        corps.add("To", prefixe + demande.destinataire().address());
         corps.add("From", prefixe + expediteur);
         corps.add("Body", rendre(demande.templateCode(), demande.variables()));
         corps.add("StatusCallback", statusCallbackUrl);

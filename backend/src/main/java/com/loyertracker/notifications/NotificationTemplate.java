@@ -43,6 +43,16 @@ public class NotificationTemplate {
     @Column(name = "provider_template_id")
     private String providerTemplateId;
 
+    /** ADR-19 §5 (EP-18) : contenu réel du gabarit, utilisé uniquement pour {@code channel = EMAIL}. */
+    @Column
+    private String subject;
+
+    @Column(name = "html_body")
+    private String htmlBody;
+
+    @Column(name = "text_body")
+    private String textBody;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "approval_status", nullable = false, length = 20)
     private StatutApprobationTemplate approvalStatus;
@@ -57,9 +67,18 @@ public class NotificationTemplate {
         // requis par JPA
     }
 
-    /** Utilisable pour un envoi réel : actif et approuvé par le fournisseur. */
+    /**
+     * Utilisable pour un envoi réel : actif et approuvé par le fournisseur. Pour EMAIL (ADR-19
+     * §5), exige en plus un sujet et un corps HTML non vides — un template EMAIL sans contenu ne
+     * peut jamais servir à un envoi, même {@code APPROUVE}.
+     */
     public boolean utilisablePourEnvoi() {
-        return enabled && approvalStatus == StatutApprobationTemplate.APPROUVE;
+        boolean base = enabled && approvalStatus == StatutApprobationTemplate.APPROUVE;
+        if (channel != CanalNotification.EMAIL) {
+            return base;
+        }
+        return base && subject != null && !subject.isBlank()
+                && htmlBody != null && !htmlBody.isBlank();
     }
 
     public UUID getId() { return id; }
@@ -68,6 +87,9 @@ public class NotificationTemplate {
     public String getLanguage() { return language; }
     public int getVersion() { return version; }
     public String getProviderTemplateId() { return providerTemplateId; }
+    public String getSubject() { return subject; }
+    public String getHtmlBody() { return htmlBody; }
+    public String getTextBody() { return textBody; }
     public StatutApprobationTemplate getApprovalStatus() { return approvalStatus; }
     public boolean isEnabled() { return enabled; }
     public OffsetDateTime getDateCreation() { return dateCreation; }
