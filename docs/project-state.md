@@ -7,7 +7,8 @@
 > STG-ISOL-01 PASS avant/après, backup pré-déploiement vérifié, Flyway **31/31**, healthchecks UP,
 > smoke complet **63/0**. Le critère central du Gate reste non validé : token Resend retrouvé et valide, mais domaine
 > `staging.loyerpro.org` non vérifié côté Resend (`HTTP 403`, `RESEND_REFUS_403`) ; test domaine
-> `onboarding@resend.dev` accepté (`QUEUED` avec `provider_message_id`) sans callback réel observé. Kill-switch remis en sécurité : `RESEND_EMAIL_ENABLED=false`. Décision :
+> `onboarding@resend.dev` accepté (`QUEUED` avec `provider_message_id`) et réception PO confirmée
+> sur `jptshilombo373@gmail.com`, mais aucun callback réel observé. Kill-switch remis en sécurité : `RESEND_EMAIL_ENABLED=false`. Décision :
 > `docs/cgpa/07-devsecops/gate-staging-ep18-notifications-email-resend-decision.md`. Production
 > EP-18 interdite ; `RSV-EP18-06` maintenue ouverte jusqu'à clé Resend Staging valide + webhook réel.
 

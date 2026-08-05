@@ -97,12 +97,15 @@ Résultat après ré-instruction :
 | Cause fournisseur | `staging.loyerpro.org` non vérifié côté Resend |
 | Invitation applicative avec domaine Staging attendu | ❌ Outbox `DEAD`, `RESEND_REFUS_403` |
 | Invitation applicative avec domaine test Resend | ✅ Outbox `PROCESSED`, Delivery `QUEUED`, `provider_message_id` reçu |
-| Webhook Resend/Svix réel | ❌ aucune progression après 60 polls ; delivery restée `QUEUED` |
+| Réception utilisateur sur `jptshilombo373@gmail.com` | ✅ confirmée par le PO après envoi applicatif |
+| Statut applicatif après réception | ⚠️ Delivery restée `QUEUED` en base ; aucun callback reçu |
+| Webhook Resend/Svix réel | ❌ aucun callback observé ; delivery restée `QUEUED` |
 
 Le résultat distingue donc deux sujets :
 
 1. **la clé Resend est valide pour l'envoi** ;
-2. **le domaine d'envoi Staging n'est pas vérifié** et le webhook réel n'est pas validé.
+2. **la réception e-mail via le domaine test Resend est confirmée par le PO** ;
+3. **le domaine d'envoi Staging n'est pas vérifié** et le webhook réel n'est pas validé.
 
 Après les tests, la configuration Staging a été remise en état sûr/intentionnel :
 
@@ -116,9 +119,9 @@ Le conteneur `api` a été recréé seul et est revenu `healthy`.
 ## 7. Webhook Resend/Svix — réserve maintenue
 
 Le webhook Resend/Svix n'a pas été validé : après acceptation d'un e-mail par Resend via le domaine
-de test `onboarding@resend.dev`, la livraison applicative est restée `QUEUED` pendant 60 polls et
-aucun callback réel n'a fait progresser `notification_delivery.statut`. La réserve `RSV-EP18-06`
-reste donc ouverte.
+de test `onboarding@resend.dev` et confirmation de réception par le PO sur `jptshilombo373@gmail.com`,
+la livraison applicative est restée `QUEUED` en base et aucun callback réel n'a fait progresser
+`notification_delivery.statut`. La réserve `RSV-EP18-06` reste donc ouverte.
 
 Contrôle négatif de surface : `POST /api/public/notifications/resend/callback` sans signature
 renvoie `403`, ce qui confirme que l'endpoint public n'accepte pas de callback non signé.
@@ -137,6 +140,7 @@ Cette décision :
 - maintient EP-18 déployé techniquement en Staging avec EMAIL désactivé (`RESEND_EMAIL_ENABLED=false`) ;
 - interdit toute promotion Production EP-18 ;
 - interdit de considérer `RSV-EP18-06` comme levée ;
+- reconnaît que l'envoi/réception EMAIL via le domaine test Resend est prouvé ;
 - exige vérification du domaine `staging.loyerpro.org` côté Resend et re-test webhook avant nouvelle instruction Gate.
 
 ## 9. Actions requises avant nouvelle tentative
@@ -144,7 +148,7 @@ Cette décision :
 1. Vérifier/activer le domaine d'envoi `staging.loyerpro.org` côté Resend.
 2. Confirmer que le webhook Resend/Svix pointe vers l'endpoint public Staging et utilise le secret Staging attendu.
 3. Réactiver temporairement `RESEND_EMAIL_ENABLED=true` uniquement pendant le re-test.
-4. Rejouer une invitation contrôlée vers une adresse de test fournisseur.
+4. Rejouer une invitation contrôlée vers une adresse de test utilisateur.
 5. Vérifier que Resend accepte l'e-mail et retourne un `provider_message_id`.
 6. Vérifier le webhook Resend/Svix réel (`email.sent`/`email.delivered` ou équivalent) et la progression de `notification_delivery.statut`.
 7. Remettre le kill-switch EMAIL à l'état approprié selon décision CDO.
