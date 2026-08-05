@@ -50,6 +50,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Validation finale Production EP-18 **PASS** : smoke canonique RUN_ID `1785957904` **65 PASS / 0 FAIL**, nettoyage complet des résidus smoke, `directAccessGrants=false`, `bailleur-test=false`, `PRODUCTION_DEPLOYED` confirmé pour `1.16.0`.
 - Hypercare EP-18 T0 **PASS** : release lock cohérent, stack healthy, Flyway `31/31`, baseline inchangée, Resend désactivé ; alertes `NotificationKillSwitchFerme`/`BackupHeartbeatMissing` qualifiées non bloquantes.
 - Pré-check Hypercare EP-18 T+12 anticipé **PASS technique / WARN fenêtre** : release lock cohérent, stack healthy, Flyway `31/31`, `notification_outbox`/`delivery=0/0`, Resend toujours désactivé ; alertes `NotificationKillSwitchFerme`/`BackupHeartbeatMissing` requalifiées non bloquantes au moment du contrôle.
+- Pré-check Hypercare EP-18 T+24 anticipé **PASS technique / WARN fenêtre** : release lock cohérent, stack healthy, Flyway `31/31`, baseline inchangée, `notification_outbox`/`delivery=0/0`, Resend toujours désactivé ; alertes requalifiées non bloquantes au moment du contrôle.
 
 ## [1.15.0] - 2026-07-30
 
