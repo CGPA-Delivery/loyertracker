@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |-------|--------|
-| Statut | **Anticipé — aucun code livré à ce jour.** Ce runbook documente la procédure cible pour EP-18 (Sprint A/B), à valider/ajuster une fois le code réellement livré et déployé. Ne pas exécuter avant `RESEND_EMAIL_ENABLED` disponible en configuration. |
+| Statut | **Code EP-18 livré sur `main` — activation Staging uniquement sur Gate explicite.** Ce runbook décrit la procédure d'exploitation du canal EMAIL Resend. Ne pas activer hors Gate Staging/Production distinct ; les secrets restent hors dépôt. |
 | Date | 2026-08-04 |
 | Documents liés | `ADR-19-notifications-email-resend.md`, `runbook-exploitation.md` (runbook général, non modifié) |
 | Portée | Canal `EMAIL` uniquement — le runbook Twilio (WhatsApp/SMS) reste couvert par les sections notifications de `runbook-exploitation.md` et par ADR-18, non dupliquées ici |
@@ -30,9 +30,12 @@
    ```
 4. Restreindre les destinataires de test à une allowlist explicite (adresses de test du PO/QA) —
    **aucun utilisateur réel ne doit recevoir d'e-mail de test**.
-5. Redéployer ciblé (`api` uniquement si aucune migration Web) — patron `docker-compose.staging.yml`
+5. Vérifier que le Compose cible transmet bien `RESEND_EMAIL_ENABLED`, `RESEND_API_KEY`,
+   `RESEND_FROM_EMAIL` et `RESEND_WEBHOOK_SECRET` au conteneur `api` — prérequis bloquant découvert
+   lors de l'instruction Gate Staging EP-18.
+6. Redéployer ciblé (`api` uniquement si aucune migration Web) — patron `docker-compose.staging.yml`
    déjà en place.
-6. Vérifier `notification.dispatch.total{canal="EMAIL", issue="ACCEPTE"}` après un envoi de test.
+7. Vérifier `notification.dispatch.total{canal="EMAIL", issue="ACCEPTE"}` après un envoi de test.
 
 ## 2. Désactivation (urgence, sans redéploiement)
 
