@@ -50,7 +50,9 @@ public class ResendEmailProvider implements ChannelNotificationProvider {
     // Validation grossière (format), pas d'existence réelle : suffisante pour rejeter localement
     // une adresse manifestement invalide avant tout appel réseau (ADR-19 §Sécurité).
     private static final Pattern ADRESSE_VALIDE = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
-    private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{(\\w+)\\}");
+    // Quantificateur possessif : le nom d'une variable n'a jamais besoin de backtracking avant
+    // l'accolade fermante ; évite un coût polynomial sur un gabarit hostile ou mal formé.
+    private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{(\\w++)\\}");
 
     private final RestClient restClient;
     private final String fromEmail;

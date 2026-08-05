@@ -158,6 +158,25 @@ class ResendEmailProviderTest {
     }
 
     @Test
+    void placeholderAvecUnderscoreEstSubstitueSansBacktracking() {
+        RestClient.Builder builder = builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        ResendEmailProvider provider =
+                new ResendEmailProvider(builder.build(), "from@loyertracker.test", "LoyerTracker", "");
+
+        server.expect(requestTo("/emails"))
+                .andExpect(content().string(containsString("Bonjour Alice")))
+                .andRespond(withSuccess("{\"id\":\"resend-underscore\"}", MediaType.APPLICATION_JSON));
+
+        DemandeEnvoi demande = new DemandeEnvoi(DESTINATAIRE, "CODE",
+                Map.of("nom_utilisateur", "Alice"), "Sujet",
+                "<p>Bonjour ${nom_utilisateur}</p>", null);
+
+        assertThat(provider.envoyer(demande).accepte()).isTrue();
+        server.verify();
+    }
+
+    @Test
     void throttle429RetourneUnEchecTemporaire() {
         RestClient.Builder builder = builder();
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
