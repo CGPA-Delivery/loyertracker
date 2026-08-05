@@ -46,7 +46,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Déploiement technique Production EP-18 **PASS** : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359`, tag historique `sha-8c9f1e4a`.
 - Flyway Production passe de `29/29` à **`31/31`** avec V30 `ep18 sprint a email resend fondation` et V31 `ep18 sprint b invitation email`.
 - `check-release-state.sh --host` **COHÉRENT** après bascule ; `/healthz` et racine publique `200`, `api`/`nginx` healthy, PostgreSQL/Keycloak inchangés.
-- Resend reste désactivé (`RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent, `notification_outbox`/`notification_delivery` `0/0`) ; aucun `PRODUCTION_DEPLOYED`, validation finale Production distincte requise.
+- Resend reste désactivé (`RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent, `notification_outbox`/`notification_delivery` `0/0`) ; validation finale Production ensuite exécutée et verte.
+- Validation finale Production EP-18 **PASS** : smoke canonique RUN_ID `1785957904` **65 PASS / 0 FAIL**, nettoyage complet des résidus smoke, `directAccessGrants=false`, `bailleur-test=false`, `PRODUCTION_DEPLOYED` confirmé pour `1.16.0`.
 
 ## [1.15.0] - 2026-07-30
 
