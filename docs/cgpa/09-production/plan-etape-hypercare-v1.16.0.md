@@ -4,8 +4,8 @@
 |---|---|
 | `PRODUCTION_DEPLOYED` | 2026-08-05T19:25:04Z (`validation-finale-ep18-notifications-email-resend-report.md`) |
 | T0 | 2026-08-05T19:57:29Z — **PASS** |
-| T+12 | cible 2026-08-06T07:25:04Z ± 30 min — pré-check anticipé 2026-08-05T21:05:52Z **PASS technique / WARN fenêtre** |
-| T+24 | cible 2026-08-06T19:25:04Z ± 30 min — pré-check anticipé 2026-08-05T21:57:20Z **PASS technique / WARN fenêtre** |
+| T+12 | cible 2026-08-06T07:25:04Z ± 30 min — pré-check anticipé 2026-08-05T21:05:52Z **ACCEPTÉ PO / PASS hypercare** |
+| T+24 | cible 2026-08-06T19:25:04Z ± 30 min — pré-check anticipé 2026-08-05T21:57:20Z **ACCEPTÉ PO / PASS hypercare** |
 | Tag surveillé | `sha-8c9f1e4a` |
 | Rollback applicatif | `sha-ac374193` (`1.15.0`) — backup Préflight disponible |
 
@@ -167,3 +167,28 @@ Conclusion : **non bloquant pour ce pré-check**, mais à requalifier dans la vr
 ## Décision pré-check T+24
 
 **Aucun critère technique de suspension n'est atteint.** Décision opérationnelle : **PASS technique / WARN fenêtre** car l'exécution a eu lieu avant la cible T+24 officielle. Resend reste désactivé ; aucune migration, aucun smoke destructif, aucune suppression de données et aucune activation externe n'ont été effectués.
+
+
+## Décision PO — acceptation des checkpoints anticipés comme valeur probante suffisante (2026-08-05T22:10:00Z)
+
+Le PO a statué explicitement le `2026-08-05T22:10:00Z` :
+
+> « J'accepte. Le checkpoint T+24, ce fait now. »
+
+Interprétation CGPA : les deux pré-checks anticipés T+12 et T+24 sont **acceptés comme valeur probante suffisante** pour ce cycle d'hypercare EP-18, malgré leur exécution hors fenêtres cibles initiales. Les avertissements de fenêtre restent conservés comme historique de méthode, mais ne bloquent plus la conclusion d'hypercare.
+
+| Checkpoint | Preuve technique | Statut gouvernance après acceptation PO |
+|---|---|---:|
+| T0 | 2026-08-05T19:57:29Z — PASS | ✅ PASS |
+| T+12 | 2026-08-05T21:05:52Z — PASS technique / WARN fenêtre | ✅ **ACCEPTÉ PO / PASS hypercare** |
+| T+24 | 2026-08-05T21:57:20Z — PASS technique / WARN fenêtre | ✅ **ACCEPTÉ PO / PASS hypercare** |
+
+Décision : **Hypercare EP-18 considéré terminé sans incident bloquant**.
+
+Limites explicitement préservées :
+
+- cette acceptation **n'active pas Resend** ;
+- elle **n'autorise pas** de migration, smoke destructif, suppression de données ou activation externe ;
+- elle ne remplace pas une future décision distincte de **clôture CDO** de la release `1.16.0`.
+
+État final accepté : release lock cohérent, stack Production healthy, Flyway `31/31`, baseline métier inchangée, `notification_outbox=0`, `notification_delivery=0`, `directAccessGrants=false`, `bailleur-test=false`, Resend fermé.
