@@ -1,5 +1,13 @@
 # Project State — LoyerTracker
 
+> **Gate Production EP-18 — GO sous réserve / `PRODUCTION_READY` (2026-08-05).**
+> Après correction de la dérive Production `R-V54-2`, le Gate Production EP-18 a été réinstruit :
+> `check-release-state.sh --host` est **COHÉRENT**, Production est healthy (API/Web/PostgreSQL/Keycloak,
+> `/healthz` 200, racine publique 200), Flyway Production reste 29/29, et Resend reste désactivé
+> (`RESEND_EMAIL_ENABLED` absent, `RESEND_FROM_EMAIL` absent). Décision : **GO sous réserve** autorisant
+> uniquement le **Préflight Production EP-18**. Aucun déploiement EP-18, aucune migration V30/V31,
+> aucune activation Resend, aucun `PRODUCTION_DEPLOYED`.
+
 > **Correction dérive Production `R-V54-2` — PASS (2026-08-05).** Sur instruction PO,
 > la dérive identifiée au Gate Production EP-18 a été traitée sans promotion EP-18 : backup `.env`,
 > resync fast-forward de l'hôte Production `5eb5187` → `901a861`, alignement

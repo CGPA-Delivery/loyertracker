@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Gate Production EP-18 réinstruit
+
+- Après correction `R-V54-2`, Gate Production EP-18 statué **GO sous réserve / `PRODUCTION_READY`** pour Préflight uniquement.
+- Contrôles live Production verts : `check-release-state.sh --host` cohérent, API/Web par digest attendu, Flyway `29/29`, `/healthz` et racine publique `200`.
+- Aucun déploiement EP-18, aucune migration V30/V31 et aucune activation Resend ; `RESEND_EMAIL_ENABLED` reste absent donc désactivé par défaut.
+
 ### Exploitation Production — correction dérive `R-V54-2`
 
 - Dérive Production traitée sans promotion EP-18 : `loyertracker-nginx-1` recréé uniquement pour passer de la référence tag `sha-27dce09d` au digest `PRODUCTION_WEB_IMAGE_REF` attendu.

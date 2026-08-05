@@ -148,3 +148,80 @@ Rapport : `docs/cgpa/09-production/correction-derive-production-ep18-rv542-repor
 La décision historique **NO GO technique temporaire** reste tracée comme constat initial ; son
 bloqueur unique est désormais résolu. Le Gate Production EP-18 peut être réinstruit sur une base
 Production cohérente.
+
+## Addendum 2026-08-05 — Réinstruction Gate Production EP-18 après correction `R-V54-2`
+
+Après correction documentée de la dérive Production `R-V54-2`, le Gate Production EP-18 est
+réinstruit sans déploiement, sans migration et sans activation Resend.
+
+### Contrôles d'entrée Production réexécutés
+
+| Contrôle | Résultat | Preuve |
+|---|---:|---|
+| Hôte Production | ✅ accessible | `ip-172-31-22-90`, contrôle UTC `2026-08-05T17:55:17Z` |
+| Dépôt hôte Production | ✅ aligné | `901a861`, `main...origin/main` |
+| `check-release-state.sh --host` | ✅ **COHÉRENT** | API/Web par digests attendus, Flyway `29 == FLYWAY_EXPECTED_PROD` |
+| API Production | ✅ running / healthy | digest `sha256:9603330...` |
+| Web/Nginx Production | ✅ running / healthy | digest `sha256:7dbc551...` |
+| PostgreSQL / Keycloak | ✅ running / healthy | inchangés depuis correction ciblée |
+| `/healthz` public | ✅ `200` | `https://loyertracker.loyerpro.org/healthz` |
+| Racine publique | ✅ `200` | `https://loyertracker.loyerpro.org/` |
+| Flyway réel Production | ✅ `29` | aucune migration EP-18 exécutée |
+| Tables notification EP-18 | ✅ présentes au socle existant | `notification_outbox` / `notification_delivery` détectées ; aucune preuve d'activation Resend Production |
+| `RESEND_EMAIL_ENABLED` | ✅ absent | valeur Compose sûre par défaut : `false` |
+| `RESEND_FROM_EMAIL` | ✅ absent | aucun expéditeur Resend Production configuré |
+| Secrets Resend | ℹ️ présence possible hors dépôt | métadonnée uniquement, valeurs jamais affichées ; inertes tant que `RESEND_EMAIL_ENABLED=false` |
+
+### Contrôles de traçabilité Staging / candidat
+
+| Contrôle | Résultat |
+|---|---:|
+| Gate Staging EP-18 | ✅ **GO** |
+| Envoi/réception EMAIL Resend | ✅ validé par le PO via `onboarding@resend.dev` |
+| Provider Message ID | ✅ `fdac0ef4-a19f-4893-9f89-abe55b1f25c8` |
+| Webhook Resend/Svix réel | ✅ hors périmètre EP-18, reclassé EP-19 |
+| Domaine `staging.loyerpro.org` | ✅ sans objet |
+| Kill-switch Staging post-test | ✅ `RESEND_EMAIL_ENABLED=false` |
+| Migrations candidat | ✅ V30/V31 strictement additives selon instruction Staging ; non appliquées en Production à ce stade |
+
+### Réserves Production EP-18
+
+| ID | Statut | Traitement |
+|---|---|---|
+| `RSV-PROD-EP18-01` — dérive Production image Web tag vs digest | ✅ **LEVÉE** | Correction ciblée exécutée, `check-release-state.sh --host` cohérent |
+| `RSV-PROD-EP18-02` — repo hôte Production en retard | ✅ **LEVÉE** | Fast-forward `5eb5187` → `901a861` exécuté pendant la correction préalable |
+| Webhook Resend/Svix réel | Hors périmètre EP-18 | Reclassé EP-19, non bloquant |
+| Activation Resend Production | **Interdite par ce Gate** | Les flags restent sûrs ; toute activation future nécessite décision distincte |
+| Backup pré-Production EP-18 | Condition du Préflight | À produire et vérifier avant toute migration V30/V31 |
+| Smoke Production EP-18 | Condition post-déploiement | À exécuter uniquement après Préflight + décision de déploiement distincte |
+
+### Avis consolidés
+
+| Rôle | Avis |
+|---|---|
+| Governance Officer | **GO sous réserve** — le bloqueur `R-V54-2` est levé, historique préservé, aucune Production EP-18 exécutée |
+| Enterprise Architect | **GO sous réserve** — V30/V31 sont additives ; webhook avancé correctement séparé en EP-19 |
+| DevSecOps Lead | **GO sous réserve** — CI/CodeQL/Registry/CGPA verts sur PR #372, Production live cohérente par digest |
+| Release Manager | **GO sous réserve** — autorise uniquement le Préflight Production EP-18, pas le déploiement |
+| Product Owner | **GO de réinstruction** — instruction « Allons sur Gate Production EP-18 » après correction dérive |
+| Chief Delivery Officer | **GO sous réserve — `PRODUCTION_READY` EP-18 atteint pour Préflight uniquement** |
+
+### Décision CDO actualisée
+
+**GO sous réserve — `PRODUCTION_READY` EP-18 atteint le 2026-08-05 après correction de la dérive
+Production `R-V54-2`.**
+
+Cette décision autorise uniquement la prochaine étape CGPA : **Préflight Production EP-18**.
+
+Elle n'autorise pas :
+
+- le déploiement EP-18 ;
+- l'application des migrations V30/V31 en Production ;
+- l'activation de `RESEND_EMAIL_ENABLED=true` ;
+- l'envoi réel d'e-mails Resend en Production ;
+- la clôture de release ou `PRODUCTION_DEPLOYED`.
+
+Le Préflight Production EP-18 devra au minimum produire un backup base + globals, vérifier le
+rollback vers `1.15.0`/`sha-ac374193`, confirmer les digests candidats API/Web EP-18, confirmer les
+flags Resend sûrs, et préparer un smoke Production post-déploiement avant toute décision distincte
+de déploiement technique.
