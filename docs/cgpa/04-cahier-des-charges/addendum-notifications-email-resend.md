@@ -44,6 +44,13 @@
 | EF-133 | Feature flags et kill switch dédiés EMAIL | ED un environnement sans configuration Resend explicite · Q l'application démarre · A `RESEND_EMAIL_ENABLED=false` par défaut, aucune erreur au démarrage, `NoopEmailProvider` seul actif ; une désactivation EMAIL n'affecte jamais WhatsApp/SMS et réciproquement. | Must | ADR-19 §Coûts |
 | EF-134 | Plafond budgétaire mensuel dédié Resend | ED un volume d'envois EMAIL approchant `RESEND_BUDGET_MENSUEL_MAX` · Q le compteur est évalué · A les envois EMAIL sont limités/arrêtés automatiquement sans jamais consommer ni bloquer le plafond WhatsApp/SMS existant. | Must | ADR-19 §Coûts, K3 — proposition à confirmer |
 
+### 1.5 Confirmation de statut de livraison EMAIL *(Sprint C, EP-18)*
+
+| ID | Exigence | Critère d'acceptation | Priorité | Source |
+|----|----------|------------------------|----------|--------|
+| EF-135 | Callback webhook Resend applique le statut de livraison | ED un `notification_delivery` EMAIL en statut non terminal · Q un callback webhook Resend signé valide arrive (`email.sent`/`email.delivered`/`email.opened`/`email.bounced`/`email.complained`) · A `NotificationDeliveryService.appliquerCallbackResend` fait progresser `statut` via la fonction `SECURITY DEFINER notification_delivery_appliquer_statut` (réutilisée telle quelle, aucune migration) ; `bounced`/`complained` sont classés `errorCategory=PERMANENT`. | Must | ADR-19 §Sécurité, RSV-EP18-01 |
+| EF-136 | Idempotence et rejet des callbacks hors ordre/dupliqués | ED un callback dupliqué ou portant un statut de rang inférieur/égal au statut courant · Q traité par la fonction SQL réutilisée (V28) · A aucune transition supplémentaire, réponse HTTP toujours indifférenciée (204) — même garantie que le patron Twilio, sans nouvelle table de déduplication. | Must | ADR-19 §Sécurité, RM-128 |
+
 ---
 
 ## 2. Exigences non fonctionnelles (addendum)
@@ -63,6 +70,7 @@
 | RM-125 | La voie transactionnelle (sans préférence) ne s'applique jamais à `BAILLEUR`/`GESTIONNAIRE`/`LOCATAIRE` ; la voie préférence ne s'applique jamais à `INVITATION`. | EF-126 |
 | RM-126 | Un template EMAIL non approuvé, désactivé, ou sans sujet/corps HTML ne peut jamais servir à un envoi réel. | EF-128 |
 | RM-127 | Aucun fallback automatique n'est jamais déclenché depuis un échec EMAIL vers un autre canal. | EF-130 |
+| RM-128 | Aucune mutation de `notification_delivery` n'est jamais appliquée sans signature Resend (Svix) valide — un endpoint public sans preuve d'origine ne peut jamais écrire d'état de livraison. | EF-135, EF-136 |
 
 ---
 
@@ -102,9 +110,9 @@ d'Exécution en cas de migration intercurrente. Rollback applicatif trivial.
 Aucun endpoint public nouveau requis pour le Lot 1 (invitation). Endpoints proposés pour les lots
 futurs (webhook Resend, préférences EMAIL) documentés mais non codés :
 
-| Endpoint (proposé) | Méthode | Description | Sécurité | Statut |
+| Endpoint | Méthode | Description | Sécurité | Statut |
 |---------------------|---------|--------------|----------|--------|
-| `/api/public/notifications/resend/callback` | POST | Callback webhook Resend (delivered/bounced/complained/failed) | Non authentifié JWT — vérification de signature HMAC du secret obligatoire, patron `TwilioCallbackController` | Hors périmètre Lot 1/2 (K1, Sprint C) |
+| `/api/public/notifications/resend/callback` | POST | Callback webhook Resend (`email.sent`/`email.delivered`/`email.opened`/`email.bounced`/`email.complained`) | Non authentifié JWT — signature Svix (`svix-id`/`svix-timestamp`/`svix-signature`, HMAC-SHA256, secret `RESEND_WEBHOOK_SECRET`), patron `TwilioCallbackController` | **Sprint C implémenté** — jamais activé côté dashboard Resend dans cette mission (RSV-EP18-06) |
 
 ---
 
@@ -122,6 +130,11 @@ futurs (webhook Resend, préférences EMAIL) documentés mais non codés :
 | BF-113 | EF-125 | — | TC-141 régénération d'invitation ⇒ nouvel événement/nouvel e-mail lié au nouveau token |
 | BF-115 | EF-125 | — | TC-142 deux traitements concurrents de la même invitation ⇒ un seul envoi logique (idempotence héritée d'ADR-18 §4) |
 | — | EF-125 | — | TC-143 invitation d'un autre bailleur ⇒ aucun accès cross-tenant à l'Outbox/Delivery correspondante |
+| — | EF-135, EF-136 | RM-128 | TC-144 signature Svix invalide ⇒ 403, aucune mutation ; TC-145 horodatage hors fenêtre ⇒ rejeté comme signature invalide |
+| — | EF-135 | RM-128 | TC-146 `email.sent`/`email.delivered`/`email.opened` valides ⇒ 204, statut progresse dans l'ordre |
+| — | EF-135 | RM-128 | TC-147 `email.bounced` ⇒ `UNDELIVERED`/`PERMANENT` ; TC-148 `email.complained` ⇒ `FAILED`/`PERMANENT` |
+| — | EF-136 | RM-128 | TC-149 callback dupliqué ⇒ 204 les deux fois, aucune transition supplémentaire (idempotence) |
+| — | EF-135, EF-136 | — | TC-150 type inconnu ou `provider_message_id` introuvable ⇒ 204 indifférencié, aucune mutation |
 
 ---
 

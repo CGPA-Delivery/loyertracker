@@ -68,13 +68,38 @@ Plafond mensuel dédié (`RESEND_BUDGET_MENSUEL_MAX`, défaut `0` = aucun envoi 
 dispatch EMAIL s'arrête (lignes restent `PENDING`, aucune perte) sans affecter le budget WhatsApp/SMS.
 Ajustement = décision d'exploitation tracée, jamais un défaut de configuration silencieux.
 
-## 6. Bounce / plainte (dette explicite tant que le Sprint C webhook n'est pas livré)
+## 6. Bounce / plainte — webhook Resend (Sprint C, implémenté 2026-08-05, jamais activé)
 
-Sans webhook Resend actif, `NotificationDelivery` ne reflète que l'acceptation initiale par le
-fournisseur (`ACCEPTED`), **jamais** une preuve de livraison finale. Ne jamais communiquer un
-« e-mail livré » sur cette seule base. À l'activation du webhook (Sprint C) : mêmes statuts que le
-patron Twilio (`delivered`/`bounced`/`complained`/`failed`), signature HMAC vérifiée, idempotence
-par `provider_message_id`.
+Le code est livré (`ResendCallbackController`, `ResendSignatureVerifier`,
+`NotificationDeliveryService.appliquerCallbackResend`) mais **rien n'est activé côté dashboard
+Resend** dans cette mission — sans configuration côté fournisseur, aucun webhook réel n'arrive
+jamais, `NotificationDelivery` continue de refléter uniquement l'acceptation initiale
+(`QUEUED`/`SENT` selon transition). Ne jamais communiquer un « e-mail livré » sans confirmation
+webhook réelle.
+
+**Activation (Staging/Production uniquement, hors périmètre de cette mission)** :
+1. Configurer un endpoint webhook dans le dashboard Resend pointant vers
+   `https://<domaine>/api/public/notifications/resend/callback`, événements
+   `email.sent`/`email.delivered`/`email.opened`/`email.bounced`/`email.complained`.
+   `email.delivery_delayed`/`email.clicked` et tout autre type sont reçus (204) mais ignorés
+   (aucune mutation) — comportement volontaire, pas une lacune.
+2. Copier le secret de signature généré par Resend dans `RESEND_WEBHOOK_SECRET` (format
+   `whsec_<base64>`, jamais journalisé, jamais commité).
+3. **Vérification obligatoire avant tout Gate Staging (RSV-EP18-06)** : le schéma de signature
+   implémenté (Svix — en-têtes `svix-id`/`svix-timestamp`/`svix-signature`, HMAC-SHA256 sur
+   `{svix-id}.{svix-timestamp}.{corps brut}`, secret préfixé `whsec_` puis décodé en base64,
+   fenêtre de fraîcheur ±5 min) a été implémenté par recommandation par défaut, **jamais vérifié
+   contre un webhook réel envoyé par Resend**. Déclencher un envoi de test depuis le dashboard
+   Resend et confirmer en base que `notification_delivery.statut` progresse correctement avant de
+   considérer ce risque clos.
+4. Correlation : `provider_message_id` (capturé à l'émission, `ResendEmailProvider`) =
+   `data.email_id` du payload webhook — aucune configuration supplémentaire requise.
+5. Idempotence : callback dupliqué/hors ordre → aucune transition supplémentaire (fonction
+   `SECURITY DEFINER notification_delivery_appliquer_statut`, V28, réutilisée sans modification).
+
+**Désactivation d'urgence** : retirer/désactiver l'endpoint côté dashboard Resend (aucun
+redéploiement applicatif requis — l'endpoint reste en écoute mais ne reçoit plus rien) ; en dernier
+recours, retirer l'entrée `permitAll()` de `SecurityConfig` (redéploiement).
 
 ## 7. Rollback
 
