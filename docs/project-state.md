@@ -1,16 +1,16 @@
 # Project State — LoyerTracker
 
-> **Gate Staging EP-18 — GO sous réserve (2026-08-05).** EP-18 a été déployé techniquement sur
+> **Gate Staging EP-18 — GO (2026-08-05).** EP-18 a été déployé techniquement sur
 > `ai-test-server` après fusion de la PR #370 (`dbded12`) corrigeant le câblage Compose Resend.
 > Artefacts Staging : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web
 > `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359`.
 > STG-ISOL-01 PASS avant/après, backup pré-déploiement vérifié, Flyway **31/31**, healthchecks UP,
 > smoke complet **63/0**. L'envoi/réception EMAIL est validé : token Resend retrouvé et valide, `onboarding@resend.dev`
 > accepté (`QUEUED` avec `provider_message_id`) et réception PO confirmée sur
-> `jptshilombo373@gmail.com`. Aucun domaine `staging.loyerpro.org` n'est requis pour ce Gate.
-> Réserve maintenue : aucun callback Resend/Svix réel observé. Kill-switch remis en sécurité : `RESEND_EMAIL_ENABLED=false`. Décision :
+> `jptshilombo373@gmail.com`. Provider Message ID : `fdac0ef4-a19f-4893-9f89-abe55b1f25c8`. L'hypothèse de domaine `staging.loyerpro.org` est **sans objet**.
+> Webhook Resend/Svix : non bloquant, clôturé comme réserve EP-18 et reclassé en EP-19. Kill-switch remis en sécurité : `RESEND_EMAIL_ENABLED=false`. Décision :
 > `docs/cgpa/07-devsecops/gate-staging-ep18-notifications-email-resend-decision.md`. Production
-> EP-18 non automatique ; Gate Production distinct requis. `RSV-EP18-06` maintenue ouverte jusqu'au webhook réel.
+> EP-18 non automatique ; Gate Production distinct requis.
 
 ```yaml
 framework:
@@ -21,21 +21,18 @@ framework:
   # Lignee de migration : 3.0.1 -> 5.0.1 (2026-06-13) -> 5.2 (2026-06-16, additive, sans rejeu de gate) -> 5.3 (2026-06-23, additive, Release Management + UX/UI Governance) -> 5.4 (2026-06-24, additive, gouvernance Staging partagee + STG-ISOL-01) -> 5.4.1 (2026-06-24, normalisation des preuves STG-ISOL-01)
 ```
 
-> **Mise à jour 2026-08-05 — Clôture d’intégration repository EP-18 — GO sous réserve.**
+> **Mise à jour 2026-08-05 — Clôture d’intégration repository EP-18 — historique, ensuite supplantée par le Gate Staging GO.**
 > La PR #368 (branche `feat/ep18-notifications-email-resend`) est **MERGÉE** sur `main` via le
 > merge commit `8c9f1e4aaa2a57946af841bbccd052f38fd471be` (head intégré
 > `e3f9d294a41113dd6b4ec1cbfc06b839ed92b7e2`). Les contrôles PR et post-merge `main` sont verts :
 > CI, CodeQL Java/Kotlin, CodeQL JavaScript/TypeScript, sécurité Gitleaks/SCA/Trivy, build/scan/SBOM
 > Docker, Registry Policy et CGPA Framework Audit. Décision dédiée :
 > `docs/cgpa/06-planification-agile/cloture-integration-ep18-notifications-email-resend.md`.
-> Cette décision clôt **uniquement l’intégration repository** d’EP-18 (Sprint A socle EMAIL/Resend,
-> Sprint B invitation par e-mail, Sprint C webhooks Resend). Elle n’autorise **ni Staging, ni
-> Production, ni activation Resend**. Production inchangée : `1.15.0`, `sha-ac374193`, Flyway
-> Production 29/29 ; dépôt à 31 migrations (`FLYWAY_EXPECTED_REPO=31`, `FLYWAY_EXPECTED_PROD=29`).
-> Réserve maintenue : `RSV-EP18-06` — signature webhook Resend/Svix non vérifiée contre trafic réel,
-> obligatoire avant tout Gate Staging EP-18. Prochaine décision logique : instruire un Gate Staging
-> EP-18 distinct, avec `CHECK-CICD-01`, `STG-ISOL-01`, smoke complet, test EMAIL Resend contrôlé et
-> vérification réelle du webhook.
+> Cette décision clôtait **uniquement l’intégration repository** d’EP-18 et n’autorisait alors ni
+> Staging, ni Production, ni activation Resend. Elle a été suivie le même jour par le Gate Staging
+> EP-18 **GO** : envoi/réception EMAIL validé par le PO, domaine `staging.loyerpro.org` classé
+> **Sans objet**, et `RSV-EP18-06` clôturée pour EP-18 puis reclassée EP-19. Production inchangée :
+> `1.15.0`, `sha-ac374193`, Flyway Production 29/29 ; Gate Production distinct requis.
 
 > **RELEASE `1.9.0` CLÔTURÉE — CDO GO (2026-07-08 ~14:36 UTC).** Hypercare T0 PASS
 > (2026-07-06 ~17:58 UTC) + checkpoint combiné **T+12/T+24 en rattrapage PASS sous
@@ -830,7 +827,7 @@ framework:
 * Version actuelle : 1.15.0 (SemVer) — **EN PRODUCTION** depuis le 2026-07-30 (`PRODUCTION_DEPLOYED` ~13:20 UTC, `sha-ac374193`, `https://loyertracker.loyerpro.org`) — cf. `docs/prod-state.md` §0P pour l'historique complet des releases jusqu'ici.
 * Depot : `/home/ubuntu/loyertracker`
 * Branche stable de référence : `main` alignée sur `origin/main` (`8c9f1e4`, merge PR #368). Production courante : **`sha-ac374193`** (Release `1.15.0`, `PRODUCTION_DEPLOYED` le 2026-07-30 ~13:20 UTC, migration V29 additive). EP-18 est intégré à `main` mais **non promu Staging/Production** ; la dernière release Production clôturée reste `1.15.0`, base de rollback applicatif documentée.
-* Derniere mise a jour : 2026-08-05 (**Clôture d’intégration repository EP-18 — GO sous réserve, PR #368 mergée sur `main` via `8c9f1e4`, CI/CodeQL/Sécurité/Registry/CGPA Audit verts sur le merge commit. Décision : `docs/cgpa/06-planification-agile/cloture-integration-ep18-notifications-email-resend.md`. EP-18 est intégré au dépôt (`main`) avec Sprints A+B+C, migrations V30/V31 et `FLYWAY_EXPECTED_REPO=31`, mais Staging/Production restent non instruits ; Production inchangée `1.15.0`/`sha-ac374193`/Flyway 29/29. `RSV-EP18-06` maintenue : webhook Resend/Svix à vérifier contre trafic réel avant Gate Staging. Prochaine décision distincte : Gate Staging EP-18, sans activation Production.)
+* Derniere mise a jour : 2026-08-05 (**Gate Staging EP-18 — GO, PR #371 mergeable, CI/CodeQL/Registry/CGPA Audit verts.** L'envoi/réception EMAIL via Resend est validé par API authentifiée, Provider Message ID `fdac0ef4-a19f-4893-9f89-abe55b1f25c8` et réception confirmée par le Product Owner sur `jptshilombo373@gmail.com`. L'hypothèse de domaine `staging.loyerpro.org` est sans objet. `RSV-EP18-06` est clôturée comme réserve EP-18 et reclassée EP-19 ; le webhook Resend/Svix n'est plus bloquant. Staging remis en état sûr : `RESEND_EMAIL_ENABLED=false`. Production inchangée `1.15.0`/`sha-ac374193`/Flyway 29/29 ; Gate Production distinct requis.)
 * Mise a jour precedente : 2026-07-30 (**Désignation de Claude Code comme sous-agent UX/UI Design Lead et Design Architect (EP-16/US-125, EP-17) — deux avis proposés rendus, aucune décision de Gate prononcée.** Sur instruction explicite du Product Owner (« désigne-toi UX/UI Design Lead et Design Architect »), désignation tracée dans `docs/cgpa/agents/agent-designations-loyertracker.md` (nouvelle instance projet, `agent-registry.md` générique non modifié) — conforme à `agent-operating-model.md` §2 (« agents IA et humains ») ; **Frontend Architect et DevSecOps Lead restent à désigner**, hors périmètre de cette instruction. **Avis UX/UI Design Lead rendu** (`UXR-001.md`, nouvelle section) : les points de contrôle Gate 02A sont majoritairement couverts (personas, journeys, IA, design system minimal, maquettes, accessibilité minimale) ; **proposition GO sous réserve**, la réserve bloquante étant l'absence de validation Product Owner elle-même (critère non substituable par un avis de sous-agent). **Avis Design Architect rendu** (`DSG-001.md`, nouvelle section) : fondations documentaires jugées suffisantes pour autoriser le Lot 0/1 du Plan d'Exécution, mais **proposition NO GO en l'état pour le Gate 04A** faute de toute preuve d'implémentation (cohérent avec `CHECK-UX-01-ep17-ui-foundation.md`, résultat agrégé inchangé NON EXÉCUTÉ). **Limite d'indépendance tracée explicitement dans les deux avis** : Claude Code est l'auteur des artefacts qu'il revoit ici, une revue humaine indépendante reste recommandée avant toute décision réelle de Gate. **Aucune décision GO/GO sous réserve/NO GO n'est prononcée par ce travail** : ces deux avis sont des propositions de sous-agent, la décision reste au Chief Delivery Officer (Product Owner) conformément à `chief-delivery-officer.md` (« il ne délègue jamais la décision finale à un sous-agent ») et à `CLAUDE.md` (autorité). Aucun code, aucune dépendance, aucun déploiement produits. Prochaine étape inchangée : validation explicite du Product Owner sur le dossier EP-17/US-125.)
 * Mise a jour precedente : 2026-07-30 (**Décision de socle UX/UI PrimeNG + Design Tokens LoyerTracker + thème Keycloak — `DDS-LT-001` Acceptée ; mise en œuvre non autorisée.** Le Product Owner a validé le socle Frontend : PrimeNG comme moteur de composants Angular, Design System propre à LoyerTracker comme source de vérité visuelle (tokens sémantiques `--lt-*`), continuité visuelle avec un futur thème Keycloak (sans dépendance technique). Angular Material et Tailwind global explicitement écartés. Documents produits : `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md`, `docs/cgpa/05-architecture-conception/adr/ADR-UI-001-socle-frontend-primeng-design-tokens-keycloak.md`, `DSG-001.md` (instancié v0.1.0 Proposé), extension de `UXR-001.md` (recherche produit globale), `component-inventory-loyertracker.md`, `screen-inventory-loyertracker.md`, `traceability-ui-loyertracker.md`, mise à jour de `design-decision-register.md`/`design-debt-register-loyertracker.md` (DD-611-01→03 passées à Préparé/En traitement, jamais Clos ; 7 nouvelles dettes DD-EP17-01→07 ajoutées), `plan-execution-ux-ui-primeng-keycloak.md` (**PROPOSÉ — NON APPROUVÉ — CODE INTERDIT**), nouvel Epic **EP-17** (`addendum-backlog-ep17-ui-foundation-primeng-keycloak.md`, US-127→142, 68 pts), instance `CHECK-UX-01-ep17-ui-foundation.md` (résultat agrégé **NON EXÉCUTÉ**, 0 PASS/6 Préparation en cours/7 Non exécuté), rapport final `docs/cgpa/reports/preparation-chantier-ui-primeng-keycloak-report.md`. **Aucune installation de PrimeNG, aucune modification Angular applicative, aucun thème Keycloak, aucune dépendance ajoutée** (`package.json`/`package-lock.json` non modifiés) — strictement documentaire. Dette UX concernée : `DD-611-01→04` (héritées) et `DD-EP17-01→07` (nouvelles, dont absence de thème Keycloak, aucun état accès-refusé/404, aucune source de tokens partagée tranchée, premier modal du produit sans précédent d'accessibilité). Gates requis avant tout code : Gate 02A (US-125, en cours), Phase 04A puis Gate 04A (Design Readiness) pour EP-17, Gate DevSecOps pour la future dépendance PrimeNG, Gate Staging (`STG-ISOL-01`) pour tout pilote Keycloak. **Action autorisée suivante : soumettre ce dossier et le Plan d'Exécution au Product Owner et aux rôles CGPA requis (UX/UI Design Lead, Design Architect, Frontend Architect, DevSecOps Lead — tous à désigner).** **Aucune installation PrimeNG, aucune modification Angular et aucun thème Keycloak ne sont autorisés tant que le Plan d'Exécution et le Gate Design Readiness ne sont pas approuvés.** Détail complet en §12.)
 * Mise a jour precedente : 2026-07-30 (**Cadrage documentaire Gate 02A pour US-125 — quatre livrables Phase 02 produits + `UXR-001` renseigné, aucune décision de Gate rendue.** Chantier distinct du suivi hypercare `1.15.0` ci-dessous : `phase-02-user-journeys.md`, `phase-02-information-architecture.md`, `phase-02-design-system.md`, `phase-02-ui-mockups.md` (tous rédigés par lecture directe du code existant, aucune donnée inventée) et `docs/cgpa/design/UXR-001.md` rempli à partir de ces quatre documents. Quatre DDS candidates identifiées (emplacement des préférences côté Gestionnaire, filtre/pagination de l'historique, mapping des statuts de notification, premier composant modal du produit) — aucune encore créée formellement. **Aucune décision GO/GO sous réserve/NO GO n'est prononcée** : conformément à l'autorité CGPA, elle reste au Chief Delivery Officer après avis d'un UX/UI Design Lead humain désigné et validation explicite du PO, ni l'un ni l'autre n'ayant encore eu lieu. Détail complet en §12. Prochaine étape : désigner UX/UI Design Lead et Design Architect, puis validation PO/Design Lead des cinq documents, avant toute instruction formelle du Gate 02A.)
@@ -6334,3 +6331,17 @@ PR/intégration uniquement. Elle ne vaut ni Gate Staging, ni Gate Production, ni
 `STG-ISOL-01`, vérification de l’artefact immutable, application V30/V31 en Staging, smoke complet,
 parcours EMAIL Resend contrôlé et vérification réelle du webhook Resend/Svix. Aucun déploiement
 Production n’est autorisé par cette clôture.
+
+
+## 2026-08-05 — Mise à jour des réserves Gate EP-18 Resend — GO officiel
+
+**Décision PO** : la confirmation de réception de l'e-mail par le Product Owner remplace le simple accusé technique. Le Gate EP-18 est désormais **GO**.
+
+**Preuves conservées** : API Resend authentifiée, e-mail envoyé et reçu, Provider Message ID `fdac0ef4-a19f-4893-9f89-abe55b1f25c8`, PR #371 mergeable, contrôles CI verts, état Staging sécurisé restauré (`RESEND_EMAIL_ENABLED=false`).
+
+**Réserves** :
+
+- Domaine `staging.loyerpro.org` : **Sans objet (Not Applicable)** — le projet n'utilise pas ce domaine pour Resend ; les essais officiels utilisent `onboarding@resend.dev`.
+- `RSV-EP18-06` webhook Resend/Svix : **clôturée comme réserve EP-18** et **reclassée EP-19** ; le suivi asynchrone `DELIVERED` / `BOUNCED` / `FAILED` / `COMPLAINED` devient un Epic futur.
+
+**Backlog** : création de `EP-19 — Suivi avancé de délivrabilité des e-mails via Webhooks Resend`.

@@ -19,12 +19,12 @@
 
 1. Provisionner une clé Resend **Staging**, distincte de toute clé Production (même principe que
    `KEYCLOAK_API_CLIENT_SECRET`, secrets distincts par environnement).
-2. Vérifier le domaine d'envoi Staging (SPF/DKIM/DMARC) — prérequis externe, non codé.
+2. Utiliser l'expéditeur validé pour les essais officiels EP-18 : `onboarding@resend.dev`. L'hypothèse d'un domaine `staging.loyerpro.org` est **sans objet** et n'est pas un prérequis du Gate EP-18.
 3. Renseigner sur l'hôte Staging (jamais versionné) :
    ```
    RESEND_EMAIL_ENABLED=true
    RESEND_API_KEY=<clé Staging>
-   RESEND_FROM_EMAIL=<expéditeur Staging identifiable, ex. notifications@staging.loyerpro.org>
+   RESEND_FROM_EMAIL=onboarding@resend.dev
    RESEND_FROM_NAME=LoyerTracker (Staging)
    RESEND_WEBHOOK_SECRET=<si Sprint C livré>
    ```
@@ -71,7 +71,7 @@ Plafond mensuel dédié (`RESEND_BUDGET_MENSUEL_MAX`, défaut `0` = aucun envoi 
 dispatch EMAIL s'arrête (lignes restent `PENDING`, aucune perte) sans affecter le budget WhatsApp/SMS.
 Ajustement = décision d'exploitation tracée, jamais un défaut de configuration silencieux.
 
-## 6. Bounce / plainte — webhook Resend (Sprint C, implémenté 2026-08-05, jamais activé)
+## 6. Bounce / plainte — webhook Resend (hors périmètre EP-18, reporté EP-19)
 
 Le code est livré (`ResendCallbackController`, `ResendSignatureVerifier`,
 `NotificationDeliveryService.appliquerCallbackResend`) mais **rien n'est activé côté dashboard
@@ -88,7 +88,7 @@ webhook réelle.
    (aucune mutation) — comportement volontaire, pas une lacune.
 2. Copier le secret de signature généré par Resend dans `RESEND_WEBHOOK_SECRET` (format
    `whsec_<base64>`, jamais journalisé, jamais commité).
-3. **Vérification obligatoire avant tout Gate Staging (RSV-EP18-06)** : le schéma de signature
+3. **Vérification EP-19 (non bloquante pour EP-18)** : le schéma de signature
    implémenté (Svix — en-têtes `svix-id`/`svix-timestamp`/`svix-signature`, HMAC-SHA256 sur
    `{svix-id}.{svix-timestamp}.{corps brut}`, secret préfixé `whsec_` puis décodé en base64,
    fenêtre de fraîcheur ±5 min) a été implémenté par recommandation par défaut, **jamais vérifié

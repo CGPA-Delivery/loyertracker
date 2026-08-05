@@ -8,6 +8,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Gate EP-18 Resend
+
+- Gate Staging EP-18 reclassé en **GO** : API Resend authentifiée, e-mail envoyé et réception confirmée par le Product Owner, Provider Message ID `fdac0ef4-a19f-4893-9f89-abe55b1f25c8`, PR #371 mergeable et contrôles CI verts.
+- Réserve domaine `staging.loyerpro.org` supprimée comme **Sans objet (Not Applicable)** ; les essais officiels EP-18 utilisent `onboarding@resend.dev`.
+- Webhook Resend/Svix non bloquant pour EP-18 : `RSV-EP18-06` clôturée comme réserve EP-18 et reclassée en amélioration future EP-19.
+- Staging remis en état sécurisé après test : `RESEND_EMAIL_ENABLED=false`.
+
 ## [1.15.0] - 2026-07-30
 
 ### Ajouts — EP-16 Sprint N+2 Lot A : fallback SMS et garde-fous (US-124, US-126)

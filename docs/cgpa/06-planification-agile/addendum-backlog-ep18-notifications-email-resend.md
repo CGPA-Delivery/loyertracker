@@ -3,7 +3,7 @@
 | Champ | Valeur |
 |-------|--------|
 | Document de référence | `product-backlog.md`, `addendum-backlog-ep16-notifications.md` — **non modifiés** |
-| Statut | **Sprints A, B et C implémentés sur branche dédiée (2026-08-05), GO explicite du PO reçu pour chaque sprint.** US-135/136/137/138 (Sprint A), US-139 + le complément de US-140 (Sprint B), US-143 (Sprint C, webhooks) sont codés et testés ; K1→K5 restent en recommandations par défaut, aucune décision PO formelle distincte. Aucune activation Staging/Production dans cette mission. |
+| Statut | **EP-18 validé en Gate Staging GO (2026-08-05) pour l'émission/réception EMAIL via Resend.** US-135/136/137/138 (Sprint A), US-139 + le complément de US-140 (Sprint B) sont dans le périmètre GO. Le suivi asynchrone par webhooks, bien que du code de fondation existe (US-143), est explicitement hors périmètre bloquant EP-18 et reclassé dans EP-19. Aucune activation Production dans cette mission. |
 | Date | 2026-08-04 |
 | Décision liée | `ADR-19-notifications-email-resend.md` |
 | Plan d'exécution | `docs/project-state.md` (entrée Phase 4, 2026-08-04) |
@@ -116,7 +116,7 @@ exploiter ce second fournisseur externe de façon sûre et supervisée, symétri
 | Sprint cible | Sprint A (socle) / Sprint B (preuve invitation) |
 | Statut | Socle livré au Sprint A (métrique `Issue.PROVIDER_INDISPONIBLE`, générique par canal). Preuve d'usage réelle : l'émission `emettreTransactionnel` du Sprint B alimente désormais `notification.dispatch.total{canal="EMAIL", ...}` dès qu'une ligne d'invitation transite par le dispatcher — aucun code d'observabilité supplémentaire requis. Runbook (`runbook-resend.md`) inchangé, toujours applicable. |
 
-### US-143 — Confirmation de livraison EMAIL par webhook Resend
+### US-143 — Fondation technique webhook Resend *(reclassée hors périmètre Gate EP-18)*
 
 **En tant que** DevSecOps Lead, **je veux** que les callbacks Resend confirment le statut réel de
 livraison (envoyé/livré/ouvert/rebond/plainte) **afin de** ne plus laisser une ligne
@@ -128,10 +128,10 @@ livraison (envoyé/livré/ouvert/rebond/plainte) **afin de** ne plus laisser une
 | Dépendances | US-137 (adresse/`providerMessageId` déjà capturé à l'émission) |
 | Priorité | Must |
 | Points | 8 |
-| Risques | RSV-EP18-01 (couvert par cette US), RSV-EP18-06 (schéma de signature non vérifié contre trafic réel) |
+| Risques | RSV-EP18-01 couverte techniquement ; RSV-EP18-06 clôturée comme réserve EP-18 et reclassée EP-19 |
 | Source | ADR-19 §Sécurité ; EF-135/136 ; RM-128 |
-| Sprint cible | Sprint C — Webhooks Resend |
-| Statut | **Implémentée (2026-08-05)** — `ResendSignatureVerifier` (Svix HMAC-SHA256), `ResendCallbackController`, `NotificationDeliveryService.appliquerCallbackResend` (réutilise la fonction SQL V28 sans migration). Jamais activé côté dashboard Resend, secret jamais lu (RSV-EP18-06 ouverte jusqu'à vérification Staging). |
+| Sprint cible | Sprint C — fondation technique ; validation opérationnelle reportée EP-19 |
+| Statut | **Implémentée techniquement (2026-08-05), non bloquante pour EP-18** — `ResendSignatureVerifier` (Svix HMAC-SHA256), `ResendCallbackController`, `NotificationDeliveryService.appliquerCallbackResend` (réutilise la fonction SQL V28 sans migration). Jamais activé côté dashboard Resend, secret jamais lu. La validation contre trafic réel et les statuts avancés de délivrabilité relèvent d'EP-19. |
 
 ---
 
@@ -146,14 +146,13 @@ livraison (envoyé/livré/ouvert/rebond/plainte) **afin de** ne plus laisser une
 | US-139 — Invitation gestionnaire par e-mail | 13 | Must | B |
 | US-140 — Observabilité EMAIL et runbook | 5 | Must | A/B |
 | US-143 — Confirmation de livraison EMAIL par webhook Resend | 8 | Must | C |
-| **Total EP-18** | **57** | — | — |
+| **Total EP-18** | **49** périmètre GO + **8** fondation webhook reportée EP-19 | — | — |
 
 ## Dépendances & risques (synthèse)
 
 - **K1→K5 (ADR-19)** : recommandations par défaut documentées, **aucune confirmée par le PO**.
   Aucun GO sur le Plan d'Exécution n'est donné par ce document.
-- **RSV-EP18-01** (webhooks non couverts) : **couverte (2026-08-05, Sprint C)** — voir US-143.
-  Reste ouverte l'activation réelle côté dashboard Resend, hors périmètre de cette mission.
+- **RSV-EP18-01** (webhooks non couverts) : **couverte techniquement (2026-08-05, Sprint C)** — voir US-143 ; la validation opérationnelle réelle est hors périmètre EP-18 et reportée en EP-19.
 - **RSV-EP18-02** (isolation des deux voies de fan-out) : **verrouillée (2026-08-05, Sprint B)** —
   `emettreTransactionnel` n'appelle jamais `NotificationPreferenceRepository` ; test dédié TC-130
   (`InvitationGenerationIntegrationTest`) prouve qu'aucune préférence n'est requise/consultée pour
@@ -162,9 +161,5 @@ livraison (envoyé/livré/ouvert/rebond/plainte) **afin de** ne plus laisser une
 - **RSV-EP18-04** (isolation budgétaire EMAIL/WhatsApp-SMS) : couverte par US-138.
 - **RSV-EP18-05** / **RSV-MIG-611-04** : addendum DAT EP-18 distinct de la dette DAT EP-16 encore
   ouverte — aucune confusion, aucune clôture croisée.
-- **RSV-EP18-06** *(nouvelle, Sprint C)* : le schéma de signature webhook Resend (Svix,
-  HMAC-SHA256, en-têtes `svix-id`/`svix-timestamp`/`svix-signature`) est implémenté par
-  recommandation par défaut fondée sur la documentation publique Resend/Svix — **jamais vérifié
-  contre un webhook réel** (aucune activation dans cette mission, secret jamais lu). Vérification
-  obligatoire avant tout Gate Staging.
+- **RSV-EP18-06** *(Sprint C)* : **clôturée comme réserve EP-18 par décision PO du 2026-08-05** et reclassée en amélioration future EP-19. Le schéma de signature webhook Resend/Svix n'a pas été vérifié contre trafic réel, mais cette vérification n'est plus une condition de GO EP-18.
 - Aucun Sprint ne démarre avant Plan d'Exécution approuvé et GO explicite du PO (Phase 4).

@@ -112,7 +112,7 @@ futurs (webhook Resend, préférences EMAIL) documentés mais non codés :
 
 | Endpoint | Méthode | Description | Sécurité | Statut |
 |---------------------|---------|--------------|----------|--------|
-| `/api/public/notifications/resend/callback` | POST | Callback webhook Resend (`email.sent`/`email.delivered`/`email.opened`/`email.bounced`/`email.complained`) | Non authentifié JWT — signature Svix (`svix-id`/`svix-timestamp`/`svix-signature`, HMAC-SHA256, secret `RESEND_WEBHOOK_SECRET`), patron `TwilioCallbackController` | **Sprint C implémenté** — jamais activé côté dashboard Resend dans cette mission (RSV-EP18-06) |
+| `/api/public/notifications/resend/callback` | POST | Callback webhook Resend (`email.sent`/`email.delivered`/`email.opened`/`email.bounced`/`email.complained`) | Non authentifié JWT — signature Svix (`svix-id`/`svix-timestamp`/`svix-signature`, HMAC-SHA256, secret `RESEND_WEBHOOK_SECRET`), patron `TwilioCallbackController` | **Fondation technique implémentée ; validation opérationnelle reclassée EP-19** — non bloquant pour le Gate EP-18 |
 
 ---
 

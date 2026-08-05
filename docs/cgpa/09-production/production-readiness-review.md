@@ -105,3 +105,13 @@ Partiel (< 2,5) · Solide (2,5–3,4) · Excellent (≥ 3,5).
 ---
 *Livrable CGPA v5.2 — Production Readiness Review. Réf. : `setup-cgpa/docs/cgpa/assessments/production-readiness-review.md`,
 `setup-cgpa/docs/cgpa/workflows/workflow-preparation-production.md`. Alimente `docs/cgpa/09-production/gate-09-decision.md`.*
+
+
+## Addendum 2026-08-05 — EP-18 Resend
+
+Cet addendum ne modifie pas le verdict historique de la review Production Readiness `1.0.0`. Il trace l'impact du Gate Staging EP-18 :
+
+- EP-18 est **GO en Staging** pour l'émission/réception EMAIL via Resend, avec réception PO confirmée et Provider Message ID `fdac0ef4-a19f-4893-9f89-abe55b1f25c8`.
+- Le domaine `staging.loyerpro.org` est **Sans objet** pour Resend ; l'expéditeur officiel de test est `onboarding@resend.dev`.
+- Le webhook Resend/Svix et la délivrabilité avancée sont **hors périmètre Production Readiness EP-18** et reportés en EP-19.
+- Aucune activation Production n'est autorisée par ce Gate ; un Gate Production distinct reste requis.

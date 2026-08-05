@@ -4,21 +4,23 @@
 |---|---|
 | Date d'exécution | 2026-08-05 |
 | Cadre | CGPA v6.1.1 — Enterprise Delivery Governance |
-| Périmètre | EP-18 — Canal EMAIL via Resend, invitation gestionnaire par e-mail, webhook Resend/Svix |
+| Périmètre | EP-18 — Canal EMAIL via Resend, invitation gestionnaire par e-mail, émission transactionnelle et preuve de réception PO |
 | Hôte Staging | `ai-test-server` (`172.31.11.102`) |
 | Candidat dépôt | `dbded12c00065bf757da68e59aff35710f952a1b` — PR #370 incluse |
 | Candidat applicatif déployé | API/Web issus de `sha-8c9f1e4a` par digest GHCR |
 | API digest | `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60` |
 | Web digest | `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359` |
-| Décision | **GO sous réserve — envoi/réception EMAIL validé ; webhook réel non validé** |
+| Décision | **GO — envoi/réception EMAIL validé par le Product Owner** |
 
 ## 1. Objet
 
 Ce document statue le Gate Staging EP-18 après fusion de l'intégration repository EP-18 (#368),
 clôture de gouvernance (#369), puis correction du câblage Compose Resend (#370).
 
-Le Gate vérifie si EP-18 peut être considéré validé en Staging avec envoi EMAIL Resend réel et
-webhook Resend/Svix réel. Il n'autorise aucune Production.
+Le Gate vérifie si EP-18 peut être considéré validé en Staging avec envoi EMAIL Resend réel,
+Provider Message ID persistant et preuve de réception Product Owner. Le suivi asynchrone de
+délivrabilité par webhooks Resend/Svix est explicitement hors périmètre du verdict EP-18 et reporté
+à EP-19. Ce Gate n'autorise aucune Production.
 
 ## 2. Préconditions CI/CD
 
@@ -95,15 +97,15 @@ Résultat après ré-instruction :
 | Test API Resend direct avec `onboarding@resend.dev` | ✅ `HTTP 200`, message accepté |
 | Invitation applicative avec domaine test Resend | ✅ Outbox `PROCESSED`, Delivery `QUEUED`, `provider_message_id` reçu |
 | Réception utilisateur sur `jptshilombo373@gmail.com` | ✅ confirmée par le PO après envoi applicatif |
-| Statut applicatif après réception | ⚠️ Delivery restée `QUEUED` en base ; aucun callback reçu |
-| Webhook Resend/Svix réel | ❌ aucun callback observé ; delivery restée `QUEUED` |
+| Statut applicatif après réception | ℹ️ Delivery restée `QUEUED` en base ; suivi asynchrone hors périmètre EP-18 |
+| Webhook Resend/Svix réel | ➡️ Non bloquant ; reclassé amélioration future EP-19 |
 
 Le résultat distingue donc deux sujets :
 
 1. **la clé Resend est valide pour l'envoi** ;
 2. **la réception e-mail via `onboarding@resend.dev` est confirmée par le PO** ;
-3. **aucun domaine `staging.loyerpro.org` n'est requis pour ce Gate**, conformément à l'arbitrage PO ;
-4. **le webhook réel n'est pas validé**.
+3. **l'hypothèse de domaine `staging.loyerpro.org` est sans objet (Not Applicable)**, conformément à l'arbitrage PO ;
+4. **le webhook réel est hors périmètre bloquant EP-18 et reclassé en EP-19**.
 
 Après les tests, la configuration Staging a été remise en état sûr/intentionnel :
 
@@ -114,39 +116,44 @@ RESEND_FROM_EMAIL=onboarding@resend.dev
 
 Le conteneur `api` a été recréé seul et est revenu `healthy`.
 
-## 7. Webhook Resend/Svix — réserve maintenue
+## 7. Webhook Resend/Svix — réserve clôturée et reclassée EP-19
 
-Le webhook Resend/Svix n'a pas été validé : après acceptation d'un e-mail par Resend via le domaine
-de test `onboarding@resend.dev` et confirmation de réception par le PO sur `jptshilombo373@gmail.com`,
-la livraison applicative est restée `QUEUED` en base et aucun callback réel n'a fait progresser
-`notification_delivery.statut`. La réserve `RSV-EP18-06` reste donc ouverte.
+Décision Product Owner du 2026-08-05 : le webhook Resend/Svix n'est plus une condition de GO pour
+EP-18. Le périmètre EP-18 couvre l'émission transactionnelle, l'intégration API Resend, le Provider
+Message ID, la gestion des erreurs immédiates, les retries, l'idempotence et l'Outbox.
 
-Contrôle négatif de surface : `POST /api/public/notifications/resend/callback` sans signature
+Constat conservé pour historique : après acceptation d'un e-mail par Resend via le domaine de test
+`onboarding@resend.dev` et confirmation de réception par le PO sur `jptshilombo373@gmail.com`, la
+livraison applicative est restée `QUEUED` en base et aucun callback réel n'a fait progresser
+`notification_delivery.statut`. Ce constat ne bloque plus EP-18 ; il alimente l'Epic séparé
+**EP-19 — Suivi avancé de délivrabilité des e-mails via Webhooks Resend**.
+
+Contrôle négatif de surface conservé : `POST /api/public/notifications/resend/callback` sans signature
 renvoie `403`, ce qui confirme que l'endpoint public n'accepte pas de callback non signé.
 
 ## 8. Décision CDO
 
-**GO sous réserve — Gate Staging EP-18 validé pour l'envoi/réception EMAIL, réserve webhook maintenue.**
+**GO — Gate Staging EP-18 validé pour l'envoi/réception EMAIL.**
 
 Les éléments techniques Staging sont corrects : artefacts immutables, déploiement ciblé, migrations
 V30/V31, healthchecks et smoke complet sont verts. L'envoi/réception EMAIL réel est validé par le PO
-via `onboarding@resend.dev`. Le seul critère restant non validé est le callback réel Resend/Svix :
-la livraison applicative est restée `QUEUED` et aucun callback n'a été observé.
+via `onboarding@resend.dev`, avec Provider Message ID enregistré. Le callback réel Resend/Svix est
+reclassé hors périmètre EP-18 et reporté à EP-19.
 
 Cette décision :
 
 - maintient EP-18 déployé techniquement en Staging avec EMAIL désactivé (`RESEND_EMAIL_ENABLED=false`) après test ;
 - reconnaît que l'envoi/réception EMAIL via `onboarding@resend.dev` est prouvé et accepté par le PO ;
-- ne requiert aucun domaine `staging.loyerpro.org` pour ce Gate ;
-- interdit de considérer `RSV-EP18-06` comme levée tant que le webhook réel n'est pas observé ;
+- classe l'hypothèse de domaine `staging.loyerpro.org` comme **sans objet (Not Applicable)** pour ce Gate ;
+- clôture `RSV-EP18-06` comme réserve EP-18 et la reclasse en amélioration future EP-19 ;
 - interdit toute promotion Production automatique : Gate Production distinct requis.
 
-## 9. Actions requises pour lever la réserve webhook
+## 9. Éléments reportés — EP-19
 
-1. Confirmer que le webhook Resend/Svix pointe vers l'endpoint public Staging et utilise le secret Staging attendu.
-2. Réactiver temporairement `RESEND_EMAIL_ENABLED=true` uniquement pendant le re-test.
-3. Rejouer une invitation contrôlée vers une adresse de test utilisateur avec `onboarding@resend.dev`.
-4. Vérifier que Resend accepte l'e-mail et retourne un `provider_message_id`.
-5. Vérifier le webhook Resend/Svix réel (`email.sent`/`email.delivered` ou équivalent) et la progression de `notification_delivery.statut`.
-6. Remettre le kill-switch EMAIL à l'état approprié selon décision CDO.
-7. Produire un addendum de levée de `RSV-EP18-06` si le callback réel est observé.
+Les actions ci-dessous ne sont plus requises pour le GO EP-18. Elles sont reportées dans le backlog
+EP-19 :
+
+1. Valider les signatures Svix contre un webhook Resend réel.
+2. Configurer les callbacks Resend pour `DELIVERED` / `BOUNCED` / `FAILED` / `COMPLAINED`.
+3. Mettre à jour automatiquement `NotificationDelivery` depuis les callbacks.
+4. Ajouter les métriques de délivrabilité, la gestion des bounces et un tableau de bord de suivi.
