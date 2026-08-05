@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Gate Production EP-18 Resend
+
+- Gate Production EP-18 instruit après merge de la PR #371 : **NO GO technique temporaire**.
+- Motif : contrôle `R-V54-2` Production `check-release-state.sh --host` en échec — conteneur Web/Nginx courant encore référencé par tag `sha-27dce09d` au lieu du digest `PRODUCTION_WEB_IMAGE_REF`, malgré une Production healthy.
+- Aucun déploiement, aucune migration et aucune activation Resend effectués ; prochaine action CGPA = correction préalable de dérive Production puis réinstruction du Gate.
+
 ### Gouvernance — Gate EP-18 Resend
 
 - Gate Staging EP-18 reclassé en **GO** : API Resend authentifiée, e-mail envoyé et réception confirmée par le Product Owner, Provider Message ID `fdac0ef4-a19f-4893-9f89-abe55b1f25c8`, PR #371 mergeable et contrôles CI verts.

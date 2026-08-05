@@ -1,5 +1,15 @@
 # Project State — LoyerTracker
 
+> **Gate Production EP-18 — NO GO technique temporaire (2026-08-05).** Après merge PR #371
+> (`901a861`) et contrôles post-merge `main` verts (CI, CodeQL, Registry Policy, CGPA Audit),
+> l'instruction Gate Production EP-18 a découvert un bloqueur d'entrée `R-V54-2` sur la Production :
+> `check-release-state.sh --host` échoue car `loyertracker-nginx-1` exécute encore l'image Web via
+> le tag `sha-27dce09d` au lieu du digest déclaré `PRODUCTION_WEB_IMAGE_REF`. Production reste
+> healthy (`/healthz` 200, API/Nginx/Postgres/Keycloak healthy, Flyway 29/29), mais `PRODUCTION_READY`
+> EP-18 n'est pas atteint. Prochaine action CGPA : corriger cette dérive d'exploitation sans
+> promotion EP-18, puis réinstruire le Gate Production. Décision :
+> `docs/cgpa/09-production/gate-production-ep18-resend-decision.md`.
+
 > **Gate Staging EP-18 — GO (2026-08-05).** EP-18 a été déployé techniquement sur
 > `ai-test-server` après fusion de la PR #370 (`dbded12`) corrigeant le câblage Compose Resend.
 > Artefacts Staging : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web
