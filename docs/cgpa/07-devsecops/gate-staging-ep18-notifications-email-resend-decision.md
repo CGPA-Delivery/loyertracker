@@ -10,7 +10,7 @@
 | Candidat applicatif déployé | API/Web issus de `sha-8c9f1e4a` par digest GHCR |
 | API digest | `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60` |
 | Web digest | `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359` |
-| Décision | **NO GO — validation Resend réelle refusée par le fournisseur (`HTTP 401`)** |
+| Décision | **NO GO — domaine Staging Resend non vérifié + webhook réel non validé** |
 
 ## 1. Objet
 
@@ -83,33 +83,42 @@ Résultat technique :
 
 ## 6. Validation Resend réelle
 
-Un test contrôlé d'invitation EMAIL a été exécuté en Staging avec destinataire de test fournisseur
-`delivered@resend.dev`.
+Une première tentative avec la clé initialement présente sur l'hôte Staging avait échoué en
+`HTTP 401`. Après indication PO, le token Resend a été retrouvé dans `INFRASTRUCTURE/resend/` et
+injecté sans exposition de valeur secrète (`RESEND_API_KEY=SET len=36`).
 
-Résultat :
+Résultat après ré-instruction :
 
 | Élément | Résultat |
 |---|---:|
-| Création invitation | ✅ `201` |
-| Création Outbox EMAIL | ✅ présente |
-| Tentative fournisseur Resend | ❌ refusée |
-| Code fournisseur | `HTTP 401` |
-| Statut Outbox EMAIL | `DEAD` |
-| `last_error_code` | `RESEND_REFUS_401` |
-| Logs API | `Envoi EMAIL refusé définitivement par Resend (HTTP 401)` |
+| Token Resend Staging | ✅ trouvé et injecté sans fuite de secret |
+| Test API Resend direct avec `onboarding@resend.dev` | ✅ `HTTP 200`, message accepté |
+| Test API Resend direct avec `notifications@staging.loyerpro.org` | ❌ `HTTP 403` |
+| Cause fournisseur | `staging.loyerpro.org` non vérifié côté Resend |
+| Invitation applicative avec domaine Staging attendu | ❌ Outbox `DEAD`, `RESEND_REFUS_403` |
+| Invitation applicative avec domaine test Resend | ✅ Outbox `PROCESSED`, Delivery `QUEUED`, `provider_message_id` reçu |
+| Webhook Resend/Svix réel | ❌ aucune progression après 60 polls ; delivery restée `QUEUED` |
 
-Après ce refus fournisseur, le kill-switch EMAIL a été remis à l'état sûr :
+Le résultat distingue donc deux sujets :
+
+1. **la clé Resend est valide pour l'envoi** ;
+2. **le domaine d'envoi Staging n'est pas vérifié** et le webhook réel n'est pas validé.
+
+Après les tests, la configuration Staging a été remise en état sûr/intentionnel :
 
 ```text
 RESEND_EMAIL_ENABLED=false
+RESEND_FROM_EMAIL=notifications@staging.loyerpro.org
 ```
 
 Le conteneur `api` a été recréé seul et est revenu `healthy`.
 
 ## 7. Webhook Resend/Svix — réserve maintenue
 
-Le webhook Resend/Svix n'a pas pu être validé contre trafic réel car aucun e-mail Resend n'a été
-accepté par le fournisseur. La réserve `RSV-EP18-06` reste donc ouverte.
+Le webhook Resend/Svix n'a pas été validé : après acceptation d'un e-mail par Resend via le domaine
+de test `onboarding@resend.dev`, la livraison applicative est restée `QUEUED` pendant 60 polls et
+aucun callback réel n'a fait progresser `notification_delivery.statut`. La réserve `RSV-EP18-06`
+reste donc ouverte.
 
 Contrôle négatif de surface : `POST /api/public/notifications/resend/callback` sans signature
 renvoie `403`, ce qui confirme que l'endpoint public n'accepte pas de callback non signé.
@@ -120,19 +129,20 @@ renvoie `403`, ce qui confirme que l'endpoint public n'accepte pas de callback n
 
 Les éléments techniques Staging sont corrects : artefacts immutables, déploiement ciblé, migrations
 V30/V31, healthchecks et smoke complet sont verts. Cependant, le critère central du Gate — envoi
-EMAIL réel Resend + webhook réel Resend/Svix — échoue au niveau fournisseur avec `HTTP 401`.
+EMAIL réel Resend avec le domaine Staging attendu + webhook réel Resend/Svix — échoue : le domaine
+`staging.loyerpro.org` n'est pas vérifié côté Resend (`HTTP 403`) et aucun callback réel n'a été observé.
 
 Cette décision :
 
 - maintient EP-18 déployé techniquement en Staging avec EMAIL désactivé (`RESEND_EMAIL_ENABLED=false`) ;
 - interdit toute promotion Production EP-18 ;
 - interdit de considérer `RSV-EP18-06` comme levée ;
-- exige rotation/correction de la clé Resend Staging et re-test fournisseur avant nouvelle instruction Gate.
+- exige vérification du domaine `staging.loyerpro.org` côté Resend et re-test webhook avant nouvelle instruction Gate.
 
 ## 9. Actions requises avant nouvelle tentative
 
-1. Provisionner ou corriger une clé Resend **Staging** valide, distincte de toute clé Production.
-2. Vérifier le domaine d'envoi Staging côté Resend.
+1. Vérifier/activer le domaine d'envoi `staging.loyerpro.org` côté Resend.
+2. Confirmer que le webhook Resend/Svix pointe vers l'endpoint public Staging et utilise le secret Staging attendu.
 3. Réactiver temporairement `RESEND_EMAIL_ENABLED=true` uniquement pendant le re-test.
 4. Rejouer une invitation contrôlée vers une adresse de test fournisseur.
 5. Vérifier que Resend accepte l'e-mail et retourne un `provider_message_id`.

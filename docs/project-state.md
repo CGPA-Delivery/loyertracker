@@ -5,9 +5,9 @@
 > Artefacts Staging : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web
 > `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359`.
 > STG-ISOL-01 PASS avant/après, backup pré-déploiement vérifié, Flyway **31/31**, healthchecks UP,
-> smoke complet **63/0**. Le critère central du Gate échoue : envoi EMAIL Resend réel refusé par le
-> fournisseur (`HTTP 401`, Outbox `DEAD`, `RESEND_REFUS_401`) ; aucun webhook Resend/Svix réel n'a
-> donc pu être validé. Kill-switch remis en sécurité : `RESEND_EMAIL_ENABLED=false`. Décision :
+> smoke complet **63/0**. Le critère central du Gate reste non validé : token Resend retrouvé et valide, mais domaine
+> `staging.loyerpro.org` non vérifié côté Resend (`HTTP 403`, `RESEND_REFUS_403`) ; test domaine
+> `onboarding@resend.dev` accepté (`QUEUED` avec `provider_message_id`) sans callback réel observé. Kill-switch remis en sécurité : `RESEND_EMAIL_ENABLED=false`. Décision :
 > `docs/cgpa/07-devsecops/gate-staging-ep18-notifications-email-resend-decision.md`. Production
 > EP-18 interdite ; `RSV-EP18-06` maintenue ouverte jusqu'à clé Resend Staging valide + webhook réel.
 
