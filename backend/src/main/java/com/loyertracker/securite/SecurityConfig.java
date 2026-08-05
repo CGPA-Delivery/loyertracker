@@ -64,6 +64,11 @@ public class SecurityConfig {
                 // applicativement, TwilioCallbackController). Rate-limité par le préfixe
                 // /api/public/ existant (infra/nginx/nginx.conf).
                 .requestMatchers(HttpMethod.POST, "/api/public/notifications/callback").permitAll()
+                // Callback webhook Resend (US-143, EP-18 Sprint C, ADR-19 §Sécurité) : aucun
+                // compte, aucun Bearer — seule la signature Svix (svix-id/svix-timestamp/
+                // svix-signature) fait foi (vérifiée applicativement, ResendCallbackController).
+                // Rate-limité par le préfixe /api/public/ existant (infra/nginx/nginx.conf).
+                .requestMatchers(HttpMethod.POST, "/api/public/notifications/resend/callback").permitAll()
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
