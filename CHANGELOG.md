@@ -48,6 +48,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - `check-release-state.sh --host` **COHÉRENT** après bascule ; `/healthz` et racine publique `200`, `api`/`nginx` healthy, PostgreSQL/Keycloak inchangés.
 - Resend reste désactivé (`RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent, `notification_outbox`/`notification_delivery` `0/0`) ; validation finale Production ensuite exécutée et verte.
 - Validation finale Production EP-18 **PASS** : smoke canonique RUN_ID `1785957904` **65 PASS / 0 FAIL**, nettoyage complet des résidus smoke, `directAccessGrants=false`, `bailleur-test=false`, `PRODUCTION_DEPLOYED` confirmé pour `1.16.0`.
+- Hypercare EP-18 T0 **PASS** : release lock cohérent, stack healthy, Flyway `31/31`, baseline inchangée, Resend désactivé ; alertes `NotificationKillSwitchFerme`/`BackupHeartbeatMissing` qualifiées non bloquantes.
 
 ## [1.15.0] - 2026-07-30
 
