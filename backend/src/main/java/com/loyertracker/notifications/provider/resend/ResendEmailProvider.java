@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
@@ -49,13 +50,14 @@ public class ResendEmailProvider implements ChannelNotificationProvider {
     // Validation grossière (format), pas d'existence réelle : suffisante pour rejeter localement
     // une adresse manifestement invalide avant tout appel réseau (ADR-19 §Sécurité).
     private static final Pattern ADRESSE_VALIDE = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
-    private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{([a-zA-Z0-9_]+)\\}");
+    private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{(\\w+)\\}");
 
     private final RestClient restClient;
     private final String fromEmail;
     private final String fromName;
     private final String replyTo;
 
+    @Autowired
     public ResendEmailProvider(
             @Value("${resend.api-key:}") String apiKey,
             @Value("${resend.from-email:}") String fromEmail,
@@ -95,41 +97,60 @@ public class ResendEmailProvider implements ChannelNotificationProvider {
 
     @Override
     public ResultatEnvoi envoyer(DemandeEnvoi demande) {
-        String adresse = demande.destinataire().address();
-        if (adresse == null || contientCaractereDeControle(adresse) || !ADRESSE_VALIDE.matcher(adresse).matches()) {
-            return ResultatEnvoi.echecPermanent("ADRESSE_INVALIDE");
-        }
-        String sujet = demande.subject();
-        String html = demande.htmlBody();
-        if (sujet == null || sujet.isBlank() || html == null || html.isBlank()) {
-            // Ne devrait jamais arriver (NotificationTemplate.utilisablePourEnvoi() filtre déjà ce
-            // cas côté dispatcher) — filet de sécurité si ce fournisseur est appelé autrement.
-            return ResultatEnvoi.echecPermanent("GABARIT_VIDE");
-        }
-        if (contientCaractereDeControle(sujet)) {
-            return ResultatEnvoi.echecPermanent("SUJET_INVALIDE");
+        String erreurValidation = valider(demande);
+        if (erreurValidation != null) {
+            return ResultatEnvoi.echecPermanent(erreurValidation);
         }
 
         Map<String, String> variables = demande.variables() == null ? Map.of() : demande.variables();
-        Optional<String> manquante = variableManquante(sujet, variables)
-                .or(() -> variableManquante(html, variables))
-                .or(() -> demande.textBody() == null ? Optional.empty()
-                        : variableManquante(demande.textBody(), variables));
+        Optional<String> manquante = premiereVariableManquante(demande, variables);
         if (manquante.isPresent()) {
             log.warn("Variable de template manquante ({}) pour l'envoi EMAIL — aucun envoi tenté.",
                     manquante.get());
             return ResultatEnvoi.echecPermanent("VARIABLE_MANQUANTE");
         }
 
-        String corpsHtml = substituer(html, variables);
+        return appelerResend(construireCorps(demande, variables));
+    }
+
+    private static String valider(DemandeEnvoi demande) {
+        String adresse = demande.destinataire().address();
+        if (adresse == null || contientCaractereDeControle(adresse) || !ADRESSE_VALIDE.matcher(adresse).matches()) {
+            return "ADRESSE_INVALIDE";
+        }
+        String sujet = demande.subject();
+        String html = demande.htmlBody();
+        if (sujet == null || sujet.isBlank() || html == null || html.isBlank()) {
+            // Ne devrait jamais arriver (NotificationTemplate.utilisablePourEnvoi() filtre déjà ce
+            // cas côté dispatcher) — filet de sécurité si ce fournisseur est appelé autrement.
+            return "GABARIT_VIDE";
+        }
+        if (contientCaractereDeControle(sujet)) {
+            return "SUJET_INVALIDE";
+        }
+        return null;
+    }
+
+    private static Optional<String> premiereVariableManquante(DemandeEnvoi demande,
+            Map<String, String> variables) {
+        return variableManquante(demande.subject(), variables)
+                .or(() -> variableManquante(demande.htmlBody(), variables))
+                .or(() -> demande.textBody() == null ? Optional.empty()
+                        : variableManquante(demande.textBody(), variables));
+    }
+
+    private ResendEmailRequest construireCorps(DemandeEnvoi demande, Map<String, String> variables) {
+        String corpsHtml = substituer(demande.htmlBody(), variables);
         String corpsTexte = demande.textBody() != null ? substituer(demande.textBody(), variables) : null;
-        String sujetRendu = substituer(sujet, variables);
+        String sujetRendu = substituer(demande.subject(), variables);
 
-        ResendEmailRequest corps = new ResendEmailRequest(
+        return new ResendEmailRequest(
                 (fromName == null || fromName.isBlank()) ? fromEmail : fromName + " <" + fromEmail + ">",
-                List.of(adresse), sujetRendu, corpsHtml, corpsTexte,
+                List.of(demande.destinataire().address()), sujetRendu, corpsHtml, corpsTexte,
                 (replyTo == null || replyTo.isBlank()) ? null : List.of(replyTo));
+    }
 
+    private ResultatEnvoi appelerResend(ResendEmailRequest corps) {
         try {
             ResendEmailResponse reponse = restClient.post()
                     .uri(EMAILS_PATH)

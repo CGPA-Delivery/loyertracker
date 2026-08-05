@@ -176,19 +176,20 @@ public class NotificationDispatcher {
             // l'utilisateur (ex. invitation) n'est jamais soumise à un opt-in.
             adresse = row.getRecipientAddress();
         } else {
-            Optional<NotificationPreference> preference = preferences
-                    .findFirstByBailleurIdAndRecipientId(row.getBailleurId(), row.getRecipientId());
-            String adressePreference = preference
+            NotificationPreference preference = preferences
+                    .findFirstByBailleurIdAndRecipientId(row.getBailleurId(), row.getRecipientId())
                     .filter(p -> p.estEligiblePour(row.getChannel()))
-                    .map(p -> adresseDePreference(p, row.getChannel()))
                     .orElse(null);
+            String adressePreference = preference == null
+                    ? null
+                    : adresseDePreference(preference, row.getChannel());
             if (adressePreference == null) {
                 outboxService.marquerDead(row.getId(), "PREFERENCE_INTROUVABLE_OU_INELIGIBLE");
                 metrics.dispatch(row.getChannel(), NotificationMetrics.Issue.INELIGIBLE);
                 return;
             }
             adresse = adressePreference;
-            langue = preference.get().getLanguage();
+            langue = preference.getLanguage();
         }
 
         Optional<NotificationTemplate> template = templates

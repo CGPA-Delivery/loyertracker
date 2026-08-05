@@ -6161,3 +6161,46 @@ ouverte/non implémentée, sans risque réel tant que `RESEND_EMAIL_ENABLED=fals
 **Prochaine action autorisée** : aucune par défaut. Push de ces commits et mise à jour de la
 PR #368, toute activation Staging/Production, et toute revue/merge restent soumis à un
 GO/instruction distincte et explicite du PO.
+
+## 2026-08-05 — Correction du Quality Gate CI de la PR #368 préparée localement
+
+**Instruction PO explicite** : après inspection des logs CI/SonarQube et présentation du plan
+ciblé, instruction reçue : « execute ce plan ». Le périmètre autorisé couvre la correction des
+constats Sonar, les tests/couverture, la traçabilité, le commit, le push et la vérification de la
+nouvelle CI ; aucun merge ni déploiement n'est autorisé.
+
+**Preuve distante examinée** : PR draft #368, run GitHub Actions `31002014797`, job Backend
+`92292882258`, commit distant `77ad902`. Les tests CI étaient verts (**237/237**) et les seuils
+JaCoCo locaux satisfaits, mais le Quality Gate SonarQube échouait sur trois conditions : couverture
+du nouveau code **79,4 % < 80 %**, revue des hotspots **50 % < 100 %**, et **4 nouvelles
+violations > 0**.
+
+**Corrections préparées** :
+
+- `NotificationDispatcher` : résolution de la préférence rendue explicite sans accès
+  `Optional.get()` non prouvé (`java:S3655`) ; comportement métier inchangé ;
+- `ResendEmailProvider` : constructeur de production explicitement annoté `@Autowired`
+  (`java:S6829`), classe de caractères du placeholder normalisée en `\w` (`java:S6353`) et méthode
+  `envoyer` découpée en validation, recherche de variable, construction de requête et appel Resend
+  afin de ramener sa complexité sous le seuil (`java:S3776`) ;
+- quatre tests unitaires ajoutés : injection CRLF dans le sujet, variable manquante dans le corps
+  texte, réponse Resend sans identifiant avec `from`/`reply_to`, et construction du bean de
+  production sans appel réseau.
+
+**Preuves locales après correction** : suite ciblée `ResendEmailProviderTest` +
+`NotificationDispatchIntegrationTest` **33/33 PASS** ; suite backend complète `mvn -B verify`
+**249/249 PASS**, 0 échec/erreur/skipped ; artefact JAR et rapport JaCoCo produits ;
+`ResendEmailProvider` **85/85 lignes couvertes** ; `git diff --check` PASS. Aucun appel réel à
+Resend, aucune migration, aucune donnée financière et aucun environnement modifiés.
+
+**Avis IA significatif** — agent : Codex (Engineering/QA support) ; sujet : diagnostic et correction
+du Quality Gate de la PR #368 ; éléments examinés : logs GitHub Actions, conditions et issues
+SonarQube, diff A+B+C, tests Maven/JaCoCo ; avis : les quatre violations remontées sont traitées et
+la marge de couverture locale est renforcée ; réserve : le token Sonar local permet de lire le
+Gate et les issues mais renvoie `403 Insufficient privileges` sur l'API Security Hotspots. Le
+hotspot restant doit être examiné et statué par un humain disposant du droit Sonar adéquat ; aucun
+PASS Sonar ni GO CGPA n'est anticipé avant la nouvelle preuve distante.
+
+**Prochaine action autorisée** : committer et pousser ce lot avec les trois commits Sprint C déjà
+préparés, conformément à l'instruction PO courante, puis vérifier la nouvelle CI de la PR #368.
+Toute revue/merge, promotion Staging ou Production reste une décision distincte.

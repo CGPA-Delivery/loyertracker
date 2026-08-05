@@ -93,6 +93,21 @@ class ResendEmailProviderTest {
     }
 
     @Test
+    void sujetAvecRetourLigneRejeteSansAucunAppelReseau() {
+        RestClient.Builder builder = builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        ResendEmailProvider provider =
+                new ResendEmailProvider(builder.build(), "from@loyertracker.test", "LoyerTracker", "");
+
+        DemandeEnvoi demande = new DemandeEnvoi(DESTINATAIRE, "CODE", Map.of(),
+                "Sujet\r\nBcc: tiers@exemple.fr", "<p>Corps</p>", null);
+        ResultatEnvoi resultat = provider.envoyer(demande);
+
+        assertThat(resultat.errorCode()).isEqualTo("SUJET_INVALIDE");
+        server.verify();
+    }
+
+    @Test
     void variableManquanteRejeteeSansAucunAppelReseau() {
         RestClient.Builder builder = builder();
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
@@ -104,6 +119,21 @@ class ResendEmailProviderTest {
         ResultatEnvoi resultat = provider.envoyer(demande);
 
         assertThat(resultat.accepte()).isFalse();
+        assertThat(resultat.errorCode()).isEqualTo("VARIABLE_MANQUANTE");
+        server.verify();
+    }
+
+    @Test
+    void variableManquanteDansLeCorpsTexteEstRejeteeSansAppelReseau() {
+        RestClient.Builder builder = builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        ResendEmailProvider provider =
+                new ResendEmailProvider(builder.build(), "from@loyertracker.test", "LoyerTracker", "");
+
+        DemandeEnvoi demande = new DemandeEnvoi(DESTINATAIRE, "CODE", Map.of(),
+                "Sujet", "<p>Corps</p>", "Bonjour ${prenom}");
+        ResultatEnvoi resultat = provider.envoyer(demande);
+
         assertThat(resultat.errorCode()).isEqualTo("VARIABLE_MANQUANTE");
         server.verify();
     }
@@ -174,6 +204,35 @@ class ResendEmailProviderTest {
 
         assertThat(resultat.accepte()).isFalse();
         assertThat(resultat.errorCode()).isEqualTo("ERREUR_TRANSPORT_RESEND");
+    }
+
+    @Test
+    void reponseSansIdentifiantRetourneUnEchecTemporaire() {
+        RestClient.Builder builder = builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        ResendEmailProvider provider =
+                new ResendEmailProvider(builder.build(), "from@loyertracker.test", "", "reply@loyertracker.test");
+
+        server.expect(requestTo("/emails"))
+                .andExpect(content().string(containsString("\"from\":\"from@loyertracker.test\"")))
+                .andExpect(content().string(containsString("\"reply_to\":[\"reply@loyertracker.test\"]")))
+                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON));
+
+        DemandeEnvoi demande = new DemandeEnvoi(DESTINATAIRE, "CODE", null,
+                "Sujet", "<p>Corps</p>", "Corps");
+        ResultatEnvoi resultat = provider.envoyer(demande);
+
+        assertThat(resultat.errorCode()).isEqualTo("REPONSE_RESEND_VIDE");
+        server.verify();
+    }
+
+    @Test
+    void constructeurSpringConfigureLeProviderSansAppelReseau() {
+        ResendEmailProvider provider = new ResendEmailProvider(
+                "test-key", "from@loyertracker.test", "LoyerTracker", "",
+                "https://api.resend.invalid", 100, 100);
+
+        assertThat(provider.canaux()).containsExactly(CanalNotification.EMAIL);
     }
 
     @Test
