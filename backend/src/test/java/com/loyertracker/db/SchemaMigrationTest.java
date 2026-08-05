@@ -77,6 +77,8 @@ class SchemaMigrationTest {
         // + V30 (canal EMAIL : CHECK élargis, notification_outbox.recipient_address,
         //   notification_preference.email/email_opt_in, notification_template.subject/html_body/
         //   text_body — EP-18 Sprint A, ADR-19).
+        // + V31 (invitation par e-mail : notification_event.event_type/aggregate_type élargis
+        //   pour INVITATION_CREEE/INVITATION, gabarit EMAIL seedé — EP-18 Sprint B, ADR-19).
         //
         // Le compteur attendu n'est PAS codé en dur ici : il est lu depuis FLYWAY_EXPECTED_REPO
         // dans la source de vérité versionnée infra/release/production-state.env (R-V54-2).
