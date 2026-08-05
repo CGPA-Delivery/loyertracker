@@ -86,9 +86,9 @@ Le fichier `infra/release/production-state.env` reste cohérent :
 
 | Réserve | Statut | Effet |
 |---|---|---|
-| `RSV-EP18-06` — signature webhook Resend/Svix non vérifiée contre trafic réel | **Ouverte** | Vérification obligatoire avant tout Gate Staging EP-18 |
-| Activation Resend réelle | **Non autorisée** | Nécessite Gate Staging puis décisions distinctes |
-| Promotion Staging EP-18 | **Non instruite** | Nécessite Gate Staging EP-18 + STG-ISOL-01 |
+| `RSV-EP18-06` — signature webhook Resend/Svix non vérifiée contre trafic réel | **Clôturée pour EP-18 / reclassée EP-19 (décision PO 2026-08-05)** | Non bloquante pour le Gate Staging EP-18 |
+| Activation Resend réelle | **Exécutée temporairement en Staging pendant le Gate, puis désactivée** | `RESEND_EMAIL_ENABLED=false` restauré après test ; Production toujours soumise à Gate distinct |
+| Promotion Staging EP-18 | **Staging GO le 2026-08-05** | Décision ultérieure : `gate-staging-ep18-notifications-email-resend-decision.md` |
 | Production EP-18 | **Interdite à ce stade** | Nécessite Gate Production distinct après Staging validé |
 
 ## 6. Décision CDO
@@ -111,5 +111,16 @@ Prérequis minimaux du Gate Staging EP-18 :
 4. appliquer V30/V31 en Staging ;
 5. exécuter le smoke complet ;
 6. vérifier un parcours EMAIL Resend contrôlé en Staging ;
-7. vérifier réellement le webhook Resend/Svix (`RSV-EP18-06`) ;
+7. conserver le webhook Resend/Svix comme sujet EP-19 non bloquant ;
 8. confirmer qu’aucune Production n’est autorisée par ce Gate Staging.
+
+
+## 8. Addendum 2026-08-05 — décision PO post-Gate Staging
+
+Après la clôture d'intégration repository, le Gate Staging EP-18 a été instruit et statué **GO**.
+La réception Product Owner de l'e-mail envoyé via `onboarding@resend.dev` constitue la preuve
+fonctionnelle officielle. L'hypothèse de domaine `staging.loyerpro.org` est **Sans objet** et
+`RSV-EP18-06` est **clôturée comme réserve EP-18**, reclassée en EP-19 pour délivrabilité avancée.
+
+Cet addendum ne supprime pas l'historique de la décision repository ; il trace sa supersession par
+la décision Gate Staging EP-18.
