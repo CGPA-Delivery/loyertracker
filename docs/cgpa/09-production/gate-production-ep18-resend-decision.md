@@ -123,3 +123,28 @@ Préparer une correction préalable de dérive Production **sans promotion EP-18
 3. rejouer `infra/release/check-release-state.sh --host` jusqu'à PASS ;
 4. documenter la correction ;
 5. seulement ensuite réinstruire le Gate Production EP-18.
+
+## Addendum 2026-08-05 — dérive Production traitée
+
+Après instruction PO (« Avançons »), la correction préalable `R-V54-2` a été exécutée sans promotion
+EP-18 : backup `.env`, resynchronisation fast-forward du dépôt hôte Production (`5eb5187` →
+`901a861`), alignement de la métadonnée `LOYERTRACKER_TAG=sha-ac374193`, puis recréation ciblée du
+seul conteneur `nginx` avec le digest `PRODUCTION_WEB_IMAGE_REF` attendu.
+
+Résultat post-correction :
+
+- `check-release-state.sh --host` : **COHÉRENT** ;
+- API inchangée ;
+- PostgreSQL inchangé ;
+- Keycloak inchangé ;
+- Flyway Production toujours `29/29` ;
+- `/healthz` public `200` ;
+- racine publique `200` ;
+- `RESEND_EMAIL_ENABLED` absent, donc Resend reste désactivé par défaut ;
+- aucune migration, aucun déploiement EP-18, aucune activation e-mail Production.
+
+Rapport : `docs/cgpa/09-production/correction-derive-production-ep18-rv542-report.md`.
+
+La décision historique **NO GO technique temporaire** reste tracée comme constat initial ; son
+bloqueur unique est désormais résolu. Le Gate Production EP-18 peut être réinstruit sur une base
+Production cohérente.

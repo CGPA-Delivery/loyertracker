@@ -1,5 +1,14 @@
 # Project State — LoyerTracker
 
+> **Correction dérive Production `R-V54-2` — PASS (2026-08-05).** Sur instruction PO,
+> la dérive identifiée au Gate Production EP-18 a été traitée sans promotion EP-18 : backup `.env`,
+> resync fast-forward de l'hôte Production `5eb5187` → `901a861`, alignement
+> `LOYERTRACKER_TAG=sha-ac374193`, recréation ciblée de `loyertracker-nginx-1` uniquement avec le
+> digest `PRODUCTION_WEB_IMAGE_REF`. Invariants : API/PostgreSQL/Keycloak inchangés, Flyway 29/29,
+> `/healthz` 200, racine publique 200, `check-release-state.sh --host` **COHÉRENT**. Resend reste
+> désactivé (`RESEND_EMAIL_ENABLED` absent). Rapport :
+> `docs/cgpa/09-production/correction-derive-production-ep18-rv542-report.md`.
+
 > **Gate Production EP-18 — NO GO technique temporaire (2026-08-05).** Après merge PR #371
 > (`901a861`) et contrôles post-merge `main` verts (CI, CodeQL, Registry Policy, CGPA Audit),
 > l'instruction Gate Production EP-18 a découvert un bloqueur d'entrée `R-V54-2` sur la Production :

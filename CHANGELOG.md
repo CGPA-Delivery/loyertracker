@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Exploitation Production — correction dérive `R-V54-2`
+
+- Dérive Production traitée sans promotion EP-18 : `loyertracker-nginx-1` recréé uniquement pour passer de la référence tag `sha-27dce09d` au digest `PRODUCTION_WEB_IMAGE_REF` attendu.
+- `check-release-state.sh --host` repasse **COHÉRENT** ; API/PostgreSQL/Keycloak inchangés, Flyway Production `29/29`, `/healthz` et racine publique `200`.
+- Resend reste désactivé en Production (`RESEND_EMAIL_ENABLED` absent) ; aucune migration et aucun déploiement EP-18 effectués.
+
 ### Gouvernance — Gate Production EP-18 Resend
 
 - Gate Production EP-18 instruit après merge de la PR #371 : **NO GO technique temporaire**.
