@@ -5,7 +5,7 @@
 | `PRODUCTION_DEPLOYED` | 2026-08-05T19:25:04Z (`validation-finale-ep18-notifications-email-resend-report.md`) |
 | T0 | 2026-08-05T19:57:29Z — **PASS** |
 | T+12 | cible 2026-08-06T07:25:04Z ± 30 min — pré-check anticipé 2026-08-05T21:05:52Z **PASS technique / WARN fenêtre** |
-| T+24 | cible 2026-08-06T19:25:04Z ± 30 min — à exécuter |
+| T+24 | cible 2026-08-06T19:25:04Z ± 30 min — pré-check anticipé 2026-08-05T21:57:20Z **PASS technique / WARN fenêtre** |
 | Tag surveillé | `sha-8c9f1e4a` |
 | Rollback applicatif | `sha-ac374193` (`1.15.0`) — backup Préflight disponible |
 
@@ -122,3 +122,48 @@ Conclusion : **non bloquant pour ce pré-check**, à requalifier dans la fenêtr
 ## Décision pré-check T+12
 
 **Aucun critère technique de suspension n'est atteint.** Décision opérationnelle : **PASS technique / WARN fenêtre** car l'exécution a eu lieu avant la cible T+12. Resend reste désactivé ; aucune migration, aucun smoke destructif, aucune suppression de données et aucune activation externe n'ont été effectués.
+
+
+## Pré-check T+24 — 2026-08-05T21:57:20Z
+
+**Statut : PASS technique / WARN fenêtre.** Contrôles exécutés immédiatement sur instruction PO explicite, **~21h27m44 avant la cible** (`2026-08-06T19:25:04Z ± 30 min`). Les preuves ci-dessous ne montrent aucun critère de suspension Production, mais ne remplacent pas une observation dans la fenêtre T+24 officielle sauf acceptation PO/CDO de ce compromis de gouvernance.
+
+| Contrôle | Résultat |
+|---|---:|
+| Dépôt local / hôte | ✅ `main` à jour `origin/main` ; hôte Production resynchronisé sur `21b7e4d` |
+| `check-release-state.sh --host` | ✅ **COHÉRENT** — release `1.16.0`, tag `sha-8c9f1e4a`, Flyway réel `31` |
+| API | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T18:55:22Z`, digest EP-18 attendu |
+| Web/Nginx | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T18:55:22Z`, digest EP-18 attendu |
+| PostgreSQL | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T14:13:21Z` |
+| Keycloak | ✅ healthy, `RestartCount=0`, `StartedAt=2026-08-05T14:13:21Z` |
+| `/healthz` / racine publique | ✅ `200 / 200` |
+| Flyway | ✅ `31/31` ; dernières migrations V31 `ep18 sprint b invitation email`, V30 `ep18 sprint a email resend fondation`, V29 `ep16 sprint n2 budget notifications` |
+| `notification_event/outbox/delivery/template/preference` | ✅ `34 / 0 / 0 / 4 / 0` |
+| Baseline métier | ✅ `3 bailleurs, 2 patrimoines, 8 biens, 8 baux, 8 garanties, 1 gestionnaire, 8 locataires, 7 quittances` |
+| `directAccessGrantsEnabled` | ✅ `false` |
+| `bailleur-test@test.local` | ✅ `enabled=false` |
+| Resend | ✅ `RESEND_EMAIL_ENABLED=false`, `RESEND_FROM_EMAIL` absent ; secrets présents uniquement comme métadonnée redacted par le terminal, valeurs non lues/non exposées |
+| Prometheus | ✅ `5/5` cibles `up` |
+| Hikari pending | ✅ `0` |
+| Nginx 5xx 24 h | ✅ `0` |
+| API `ERROR` 24 h | ⚠️ 1 ligne qualifiée : `duplicate key value violates unique constraint "bailleur_keycloak_id_key"` à `2026-08-05T19:25:14Z`, pattern du smoke Production final déjà qualifié, sans résidu ni outbox/delivery |
+| Backups | ⚠️ dernier dump listé `2026-08-04T17:52:00Z` ; cron `15 2 * * * ... backup-postgres.sh` présent ; prochain cron quotidien non encore rejoué depuis le redémarrage/Pushgateway volatil |
+| Disque / mémoire / charge | ✅ `/` 24 % utilisé, 29 Gio libres ; ~1,8 Gio mémoire disponible ; load 0.09/0.03/0.01 |
+
+## Alertes qualifiées au pré-check T+24
+
+### `NotificationKillSwitchFerme` — warning, non bloquante
+
+Alerte active depuis `2026-08-05T14:20:05Z`. Qualification inchangée : le kill-switch est volontairement fermé, `RESEND_EMAIL_ENABLED=false`, `notification_outbox=0`, `notification_delivery=0`, aucun canal externe activé.
+
+Conclusion : **non bloquant**, attendu tant que Resend et les canaux externes restent fermés.
+
+### `BackupHeartbeatMissing` — critical, non bloquante qualifiée au moment du pré-check
+
+Alerte active depuis `2026-08-05T14:14:35Z`. Preuves relevées : cron hôte présent (`15 2 * * * ... backup-postgres.sh`), historique `backup.log` avec heartbeats réussis jusqu'au `2026-07-30`, dernier dump listé `2026-08-04T17:52:00Z`, Pushgateway volatil redémarré/purgé depuis la dernière fenêtre de backup. Au moment de ce pré-check (`2026-08-05T21:57Z`), le cron quotidien `02:15 UTC` suivant le redémarrage n'avait pas encore rejoué.
+
+Conclusion : **non bloquant pour ce pré-check**, mais à requalifier dans la vraie fenêtre T+24 si le PO/CDO exige une mesure à `2026-08-06T19:25:04Z ± 30 min`.
+
+## Décision pré-check T+24
+
+**Aucun critère technique de suspension n'est atteint.** Décision opérationnelle : **PASS technique / WARN fenêtre** car l'exécution a eu lieu avant la cible T+24 officielle. Resend reste désactivé ; aucune migration, aucun smoke destructif, aucune suppression de données et aucune activation externe n'ont été effectués.
