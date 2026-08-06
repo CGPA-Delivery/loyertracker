@@ -113,6 +113,8 @@ public class NotificationPreference {
         this.consentSource = consentSource;
         this.language = language != null ? language : "fr";
         this.consentAt = OffsetDateTime.now();
+        this.enabled = true;
+        this.dateDesactivation = null;
     }
 
     /** Désinscription immédiate (US-119) : aucun envoi externe n'est plus tenté pour ce destinataire. */

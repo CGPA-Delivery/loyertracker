@@ -3,6 +3,9 @@ package com.loyertracker.notifications;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -67,6 +70,25 @@ public class GestionnaireNotificationPreference {
         this.preferredChannel = CanalNotification.IN_APP;
         this.language = "fr";
         this.enabled = true;
+    }
+
+    public void definir(String phoneE164, CanalNotification preferredChannel,
+            CanalNotification fallbackChannel, boolean whatsappOptIn, boolean smsOptIn,
+            String consentSource, String language) {
+        if (fallbackChannel != null && fallbackChannel != CanalNotification.SMS) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Seul SMS peut être un canal de secours (K5).");
+        }
+        this.phoneE164 = phoneE164;
+        this.preferredChannel = preferredChannel;
+        this.fallbackChannel = fallbackChannel;
+        this.whatsappOptIn = whatsappOptIn;
+        this.smsOptIn = smsOptIn;
+        this.consentSource = consentSource;
+        this.language = language != null ? language : "fr";
+        this.consentAt = OffsetDateTime.now();
+        this.enabled = true;
+        this.dateDesactivation = null;
     }
 
     public void desinscrire() {
