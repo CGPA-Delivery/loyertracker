@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Gate 04A US-125
+
+- Gate 04A **US-125** instruit et statué **GO sous réserve documentaire** : UI specs, responsive, accessibilité, revue design, tokens, inventaire composants, dette design et architecture Frontend consolidés.
+- Réserves transférées comme critères bloquants de la future PR Frontend : `RSV-US125-A11Y-01`, `RSV-US125-RESP-01`, `RSV-US125-FE-01`.
+- Portée autorisée uniquement après merge de la PR documentaire : démarrer le développement **Frontend US-125** sur branche dédiée ; backend, migration, Staging, Production, secrets, activation Twilio/SMS/WhatsApp et EP-19 restent interdits.
+
 ### Gouvernance — Cadrage US-125
 
 - GO PO/CDO de cadrage **US-125 / Gates 02A-04A**, sans codage : prochain sprint backlog produit retenu après clôture `1.16.0`, Gate 02A déjà GO sous réserve, Gate 04A à instruire avant tout développement Frontend ; aucune activation Twilio/SMS/WhatsApp ni EP-19 autorisée.
