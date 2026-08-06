@@ -8,6 +8,10 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Cadrage US-125
+
+- GO PO/CDO de cadrage **US-125 / Gates 02A-04A**, sans codage : prochain sprint backlog produit retenu après clôture `1.16.0`, Gate 02A déjà GO sous réserve, Gate 04A à instruire avant tout développement Frontend ; aucune activation Twilio/SMS/WhatsApp ni EP-19 autorisée.
+
 ### Production — Préflight EP-18 Resend
 
 - Préflight Production EP-18 **PASS** après merge PR #372 : hôte Production resynchronisé sur `a6c1c16`, `check-release-state.sh --host` cohérent, Production `1.15.0` healthy, Flyway `29/29`.

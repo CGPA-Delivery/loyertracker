@@ -123,6 +123,21 @@ PO du 2026-07-28.
 | Prérequis | Phase 04A instruite (UXR-001, DDS-001, DSG-001, inventaire de composants, UI specifications, responsive, accessibilité, Design Debt Register), puis **Gate 02A** puis **Gate 04A** statués |
 | Action autorisée | **Aucun codage Frontend.** Instruction de la Phase 04A sur décision PO distincte |
 
+### Addendum 2026-08-06 — reprise US-125 après clôture `1.16.0`
+
+Après clôture CDO de la release `1.16.0`, le Product Owner choisit le **sprint backlog produit
+suivant** et valide la reprise de **US-125** en mode cadrage uniquement. L'observation historique
+ci-dessus (« UXR-001, DDS-001 et DSG-001 sont des gabarits vides ») n'est plus l'état courant :
+
+- `UXR-001` est renseigné et Gate 02A US-125 est statué **GO sous réserve** ;
+- `DDS-LT-002` à `DDS-LT-005` sont formalisées et acceptées ;
+- `DSG-001` est instancié et versionné `0.2.0 — Proposé`.
+
+Le verrou opérationnel restant est donc **Gate 04A non instruit**. Action autorisée : cadrage
+UX/UI, compléments de preuves et préparation de la décision Gate 04A. Action interdite : tout
+codage Frontend, changement backend, migration, Staging, Production, secret ou activation de canal
+externe. Décision : `cadrage-us125-gates-02a-04a.md`.
+
 ### Points de vigilance ouverts
 
 1. **Cohérence K5 / US-124.** L'arbitrage K5 du 2026-07-19 a tranché « **pas de fallback
