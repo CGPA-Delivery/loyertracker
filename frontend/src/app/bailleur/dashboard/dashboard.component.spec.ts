@@ -46,8 +46,9 @@ describe('BailleurDashboardComponent', () => {
     http.expectOne('/api/locataires').flush([]);
     // Affectations patrimoine chargées après listerPatrimoines (Sprint 4 E2).
     http.expectOne('/api/patrimoines/patrimoine-1/affectations').flush([]);
-    // Composants enfants toujours rendus dans le tableau de bord (alertes, audit).
+    // Composants enfants toujours rendus dans le tableau de bord (alertes, historique notifications, audit).
     http.expectOne('/api/alertes').flush([]);
+    http.expectOne('/api/notifications/history').flush([]);
     http.expectOne('/api/audit').flush([]);
   });
 

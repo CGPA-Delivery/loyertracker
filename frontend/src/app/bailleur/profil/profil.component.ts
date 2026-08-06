@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { NotificationsPreferencesComponent } from '../../notifications/notifications-preferences.component';
 import { ProfilBailleur, ProfilService } from './profil.service';
 
 /**
@@ -12,7 +13,7 @@ import { ProfilBailleur, ProfilService } from './profil.service';
 @Component({
   selector: 'app-profil',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, NotificationsPreferencesComponent],
   template: `
     <section class="profil">
       <header>
@@ -41,6 +42,8 @@ import { ProfilBailleur, ProfilService } from './profil.service';
           </label>
           <button type="submit" [disabled]="form.invalid || enregistrement()">Enregistrer</button>
         </form>
+
+        <app-notifications-preferences contexte="bailleur" />
       } @else {
         <p>Chargement…</p>
       }
