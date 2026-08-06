@@ -157,6 +157,14 @@ activation Twilio/SMS/WhatsApp/Resend, contournement de kill-switch et EP-19. Le
 `RSV-US125-FE-01`, `RSV-US125-A11Y-01` et `RSV-US125-RESP-01` restent ouvertes jusqu'à réception
 de leurs preuves respectives.
 
+### Addendum 2026-08-06 — option S1 sécurité US-125
+
+Après instruction complémentaire, le PO/CDO autorise exclusivement la migration additive décrite
+au §10 de `gate-05-us125-backend-planification.md` : préférence globale du Gestionnaire,
+provenance `bien_id` fail-closed et fonction PostgreSQL `SECURITY DEFINER` ReBAC pour l'historique.
+Cette exception est requise pour éviter tout filtrage client ou ambiguïté multi-bailleur. Les autres
+interdictions ci-dessus demeurent intégralement en vigueur.
+
 ### Points de vigilance ouverts
 
 1. **Cohérence K5 / US-124.** L'arbitrage K5 du 2026-07-19 a tranché « **pas de fallback

@@ -8,11 +8,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Addendum Gate 05 US-125 sécurité
+
+- Décision PO/CDO : option S1 autorisée pour l'implémentation Backend US-125 — préférence globale du Gestionnaire, provenance `bien_id` des événements et fonction ReBAC PostgreSQL `SECURITY DEFINER` fail-closed.
+- Exception strictement bornée : migration Flyway additive + API/services/tests US-125 autorisés ; Staging, Production, secrets, providers/kill-switches et EP-19 restent exclus.
+
 ### Gouvernance — Gate 05 US-125 Backend
 
 - Après merge de la PR #385 (`b54303d`), régularisation de l'état fonctionnel US-125 : l'interface Frontend est intégrée, mais les endpoints de préférences, désinscription et historique ne sont pas encore livrés côté Backend.
 - Planification Gate 05 ajoutée : contrat API minimal, autorisation serveur, RLS/ReBAC, masquage, tests 401/403/cross-tenant/périmètre Gestionnaire et validation d'intégration Frontend.
-- Cette proposition ne vaut pas autorisation de coder le Backend : un GO humain PO/CDO distinct reste requis. Migration, Staging, Production, secrets, activation provider et EP-19 restent exclus.
+- Plan approuvé par merge humain de la PR #386 (`a3354c1`) ; la migration de sécurité est ensuite autorisée par addendum PO/CDO borné.
 
 ### Gouvernance — Gate 04A US-125
 

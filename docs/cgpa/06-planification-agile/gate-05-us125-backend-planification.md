@@ -44,7 +44,7 @@ Ce Gate ne rejoue ni Gate 02A ni Gate 04A. Il régularise l'état post-merge et 
 
 ### Explicitement exclu
 
-- migration Flyway, sauf nouvelle décision/plan distinct démontrant qu'elle est indispensable ;
+- migration Flyway, **sauf l'addendum de sécurité §10 autorisé explicitement** ;
 - Staging, Production, smoke destructif ou promotion de release ;
 - modification Docker/infrastructure ou manipulation de secrets ;
 - activation ou changement des canaux Twilio, SMS, WhatsApp, Resend ou de leurs kill-switches ;
@@ -123,9 +123,54 @@ Le plan est suffisamment complet pour soumettre une décision PO/CDO de lancemen
 - déployer ou promouvoir vers Staging/Production ;
 - modifier secrets, providers, flags d'activation ou EP-19.
 
-## 10. Traçabilité
+## 10. Addendum sécurité — option S1 approuvée
 
-- `docs/project-state.md` : état post-merge #385 et Gate 05 ajouté.
+### Décision PO/CDO
+
+Le PO/CDO valide l'option S1 le 2026-08-06 : une préférence de notification du Gestionnaire est
+**globale à son identité**, tandis que l'historique qui lui est visible reste borné côté base aux
+biens de ses affectations actives. Cette décision lève l'exclusion générale de migration du §3
+uniquement pour les objets ci-dessous.
+
+### Migration Flyway additive autorisée
+
+1. Créer `gestionnaire_notification_preference`, une ligne au plus par `gestionnaire_id`, avec les
+   champs de consentement requis par le contrat US-125. La table est protégée par RLS fondée sur un
+   contexte de Gestionnaire positionné depuis le JWT ; aucune préférence ne porte un `bailleur_id`
+   artificiel.
+2. Ajouter `bien_id` nullable et indexé à `notification_event`. Les événements non rattachables à un
+   bien restent hors historique Gestionnaire : comportement fail-closed.
+3. Créer une fonction `SECURITY DEFINER` bornée, dédiée à l'historique Gestionnaire. Elle exige une
+   affectation ACTIVE couvrant le `bien_id` et ne retourne aucun élément hors périmètre ; les
+   destinataires y sont déjà masqués avant sérialisation API.
+4. Accorder le minimum de privilèges à `loyertracker_api` ; révoquer les accès publics implicites et
+   documenter propriétaire, signature, recherche d'absence de fuite et plan de rollback applicatif.
+
+### Contrat et règles d'implémentation
+
+- Les routes `/api/notifications/**/current` résolvent le seul sujet depuis le JWT : aucun
+  identifiant de Bailleur, Gestionnaire ou destinataire ne vient du client.
+- Le rôle `BAILLEUR` conserve les préférences existantes tenant-scopées dans
+  `notification_preference`.
+- Le rôle `GESTIONNAIRE` lit/écrit uniquement sa préférence globale et consulte l'historique issu de
+  la fonction ReBAC bornée.
+- Le dispatcher doit rechercher la préférence Gestionnaire globale sans modifier les providers,
+  flags, secrets ou règles d'activation externe.
+
+### Preuves bloquantes avant merge Backend
+
+- migration fraîche, RLS et droits SQL testés sur PostgreSQL réel ;
+- 401/403 et absence de paramètre de scope client ;
+- cross-tenant, affectation active puis révoquée et événements sans `bien_id` ;
+- masquage systématique de l'adresse dans l'historique ;
+- non-régression Bailleur, dispatcher et tests Frontend contractuels.
+
+Staging, Production, smoke destructif, secrets, activation de provider et EP-19 restent hors
+périmètre.
+
+## 11. Traçabilité
+
+- `docs/project-state.md` : état post-merge #385, Gate 05 et addendum sécurité ajoutés.
 - `docs/cgpa/06-planification-agile/plan-execution-ep16-notifications.md` : addendum de régularisation et plan Backend.
 - `CHANGELOG.md` : évolution documentaire ajoutée sous `[Non publié]`.
-- Validation humaine finale : Product Owner / CGPA Chief Delivery Officer requise via cette PR.
+- Validation humaine finale : Product Owner / CGPA Chief Delivery Officer reçue le 2026-08-06 ; mise en œuvre bornée à cet addendum.
