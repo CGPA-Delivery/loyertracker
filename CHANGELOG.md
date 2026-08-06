@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Gate 05 US-125 Backend
+
+- Après merge de la PR #385 (`b54303d`), régularisation de l'état fonctionnel US-125 : l'interface Frontend est intégrée, mais les endpoints de préférences, désinscription et historique ne sont pas encore livrés côté Backend.
+- Planification Gate 05 ajoutée : contrat API minimal, autorisation serveur, RLS/ReBAC, masquage, tests 401/403/cross-tenant/périmètre Gestionnaire et validation d'intégration Frontend.
+- Cette proposition ne vaut pas autorisation de coder le Backend : un GO humain PO/CDO distinct reste requis. Migration, Staging, Production, secrets, activation provider et EP-19 restent exclus.
+
 ### Gouvernance — Gate 04A US-125
 
 - Gate 04A **US-125** instruit et statué **GO sous réserve documentaire** : UI specs, responsive, accessibilité, revue design, tokens, inventaire composants, dette design et architecture Frontend consolidés.

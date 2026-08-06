@@ -138,6 +138,25 @@ UX/UI, compléments de preuves et préparation de la décision Gate 04A. Action 
 codage Frontend, changement backend, migration, Staging, Production, secret ou activation de canal
 externe. Décision : `cadrage-us125-gates-02a-04a.md`.
 
+### Addendum 2026-08-06 — post-merge PR #385 et planification Backend US-125
+
+La décision Gate 04A a ensuite autorisé le seul lot Frontend. La PR #385
+(`feat/us125-notifications-frontend`, merge commit `b54303d`) a intégré cette interface sur
+`main` avec CI verte. Elle introduit le client Angular visant les opérations de préférences,
+désinscription et historique, mais elle ne livre pas les endpoints HTTP correspondants.
+
+L'état courant est donc : **Frontend intégré ; complément Backend non livré ; aucun environnement
+promu.** Le plan de ce complément est consigné dans
+`gate-05-us125-backend-planification.md`. Son périmètre proposé est strictement serveur : contrat
+HTTP minimal, autorisation issue de l'identité serveur, RLS/ReBAC, masquage des données et preuves
+d'intégration/cross-tenant. Ce document prépare une décision PO/CDO distincte ; il **n'autorise
+pas le codage Backend** tant que le GO humain explicite n'est pas tracé.
+
+Restent interdits par cet addendum : migration Flyway, Staging, Production, secrets, changement ou
+activation Twilio/SMS/WhatsApp/Resend, contournement de kill-switch et EP-19. Les réserves
+`RSV-US125-FE-01`, `RSV-US125-A11Y-01` et `RSV-US125-RESP-01` restent ouvertes jusqu'à réception
+de leurs preuves respectives.
+
 ### Points de vigilance ouverts
 
 1. **Cohérence K5 / US-124.** L'arbitrage K5 du 2026-07-19 a tranché « **pas de fallback
