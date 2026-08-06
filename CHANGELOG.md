@@ -43,6 +43,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ### Production — Déploiement technique EP-18 Resend
 
+- Clôture CDO Release `1.16.0` **GO** après merge PR #381 (`52683c5`) et resync hôte Production : EP-18 livré, `PRODUCTION_DEPLOYED` confirmé, hypercare accepté PO, Resend activé, release lock cohérent, `notification_outbox`/`notification_delivery=0/0`.
 - Activation Production Resend **RESEND_PRODUCTION_ENABLED** : `RESEND_EMAIL_ENABLED=true`, `NOTIFICATIONS_EXTERNAL_ENABLED=true`, `NOTIFICATION_DRY_RUN=false`, budget conservateur `NOTIFICATION_BUDGET_MENSUEL_MAX=100`, `RESEND_FROM_EMAIL=onboarding@resend.dev`; correction Compose de propagation budget, recréation ciblée `api` uniquement, release lock et santé publics verts, outbox/delivery `0/0`.
 - Déploiement technique Production EP-18 **PASS** : API `ghcr.io/jptshilombo/loyertracker-api@sha256:2522ae210603cb94efc03ce5f8053a0c20b2c10e81ff6c48cde62b3c53232d60`, Web `ghcr.io/jptshilombo/loyertracker-web@sha256:9be1a4cd8b0b27d3b868e69481e7255ecbd1c3c47251875136d1ea897727c359`, tag historique `sha-8c9f1e4a`.
 - Flyway Production passe de `29/29` à **`31/31`** avec V30 `ep18 sprint a email resend fondation` et V31 `ep18 sprint b invitation email`.
