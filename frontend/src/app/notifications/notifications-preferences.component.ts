@@ -81,11 +81,35 @@ import {
           <button type="submit" [disabled]="chargement() || form.invalid">
             Enregistrer les préférences
           </button>
-          <button type="button" class="danger" (click)="confirmerDesinscription()" [disabled]="chargement()">
+          <button type="button" class="danger" (click)="demanderDesinscription()" [disabled]="chargement()">
             Se désinscrire des canaux externes
           </button>
         </div>
       </form>
+
+      @if (confirmationDesinscription()) {
+        <div class="modal-backdrop">
+          <section
+            class="confirm-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="notifications-unsubscribe-title"
+            aria-describedby="notifications-unsubscribe-description"
+          >
+            <h3 id="notifications-unsubscribe-title">Confirmer la désinscription ?</h3>
+            <p id="notifications-unsubscribe-description">
+              Vous ne recevrez plus aucun message WhatsApp ni SMS dès maintenant.
+              Vos alertes dans l’application restent actives sans changement.
+            </p>
+            <div class="actions">
+              <button type="button" (click)="annulerDesinscription()">Annuler</button>
+              <button type="button" class="danger" (click)="confirmerDesinscription()">
+                Confirmer la désinscription
+              </button>
+            </div>
+          </section>
+        </div>
+      }
 
       @if (preferences()?.consentAt) {
         <p class="muted">Consentement recueilli le {{ preferences()?.consentAt }} via formulaire LoyerTracker.</p>
@@ -128,6 +152,7 @@ import {
       input,
       select,
       button {
+        min-height: 44px;
         border: 1px solid var(--lt-border-default, #64748b);
         border-radius: 6px;
         padding: 0.5rem 0.75rem;
@@ -157,6 +182,27 @@ import {
       .message {
         color: var(--lt-state-info, #bae6fd);
       }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        background: rgb(15 23 42 / 0.72);
+        z-index: var(--lt-z-modal-backdrop, 1200);
+      }
+      .confirm-modal {
+        width: min(100%, 34rem);
+        border: 1px solid var(--lt-border-default, #64748b);
+        border-radius: 6px;
+        padding: 1rem;
+        background: var(--lt-surface-card, #111827);
+        color: var(--lt-text-primary, #e2e8f0);
+        z-index: var(--lt-z-modal, 1300);
+      }
+      .confirm-modal .actions {
+        margin-top: 1rem;
+      }
       @media (max-width: 640px) {
         .panel-head,
         .actions {
@@ -172,8 +218,10 @@ export class NotificationsPreferencesComponent implements OnInit {
 
   readonly contexte = input<'bailleur' | 'gestionnaire'>('bailleur');
   readonly preferences = signal<NotificationPreference | null>(null);
+  readonly confirmationDesinscription = signal(false);
   readonly chargement = signal(false);
   readonly message = signal<string | null>(null);
+  private declencheurDesinscription: HTMLElement | null = null;
 
   readonly form = new FormGroup({
     phoneE164: new FormControl('', {
@@ -242,11 +290,22 @@ export class NotificationsPreferencesComponent implements OnInit {
       });
   }
 
+  demanderDesinscription(): void {
+    this.declencheurDesinscription = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    this.confirmationDesinscription.set(true);
+  }
+
+  annulerDesinscription(): void {
+    this.confirmationDesinscription.set(false);
+    setTimeout(() => this.declencheurDesinscription?.focus());
+  }
+
   confirmerDesinscription(): void {
     this.chargement.set(true);
     this.api.desinscrire().subscribe({
       next: (preferences) => {
         this.preferences.set(preferences);
+        this.confirmationDesinscription.set(false);
         this.message.set(
           'Désinscription effective — aucun envoi externe ne sera plus tenté. Vos alertes dans l’application restent actives.',
         );

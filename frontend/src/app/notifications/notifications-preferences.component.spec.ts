@@ -95,15 +95,61 @@ describe('NotificationsPreferencesComponent', () => {
     expect(cmp.message()).toBe('Préférences enregistrées.');
   });
 
-  it('désinscrit avec confirmation explicite et conserve les alertes in-app', () => {
+  it('ouvre un dialogue avant désinscription sans appeler immédiatement l API', () => {
+    const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance;
+
+    cmp.demanderDesinscription();
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('[role="alertdialog"]') as HTMLElement;
+    expect(api.desinscrire).not.toHaveBeenCalled();
+    expect(cmp.confirmationDesinscription()).toBeTrue();
+    expect(dialog).not.toBeNull();
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.getAttribute('aria-labelledby')).toBe('notifications-unsubscribe-title');
+    expect(dialog.textContent).toContain('Vos alertes dans l’application restent actives');
+  });
+
+  it('désinscrit après confirmation explicite et conserve les alertes in-app', () => {
     const cmp = creer();
     api.desinscrire.and.returnValue(of({ ...preferenceInitiale, enabled: false }));
 
+    cmp.demanderDesinscription();
     cmp.confirmerDesinscription();
 
     expect(api.desinscrire).toHaveBeenCalled();
     expect(cmp.message()).toBe('Désinscription effective — aucun envoi externe ne sera plus tenté. Vos alertes dans l’application restent actives.');
     expect(cmp.preferences()?.enabled).toBeFalse();
+    expect(cmp.confirmationDesinscription()).toBeFalse();
+  });
+
+  it('annule la désinscription et restitue le focus au bouton déclencheur', async () => {
+    const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance;
+    const bouton = fixture.nativeElement.querySelector('.danger') as HTMLButtonElement;
+    bouton.focus();
+
+    cmp.demanderDesinscription();
+    fixture.detectChanges();
+    cmp.annulerDesinscription();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(cmp.confirmationDesinscription()).toBeFalse();
+    expect(document.activeElement).toBe(bouton);
+  });
+
+  it('respecte les touch targets mobiles documentées par le DSG', () => {
+    const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
+    fixture.detectChanges();
+
+    const bouton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLElement;
+    const input = fixture.nativeElement.querySelector('input[type="tel"]') as HTMLElement;
+
+    expect(getComputedStyle(bouton).minHeight).toBe('44px');
+    expect(getComputedStyle(input).minHeight).toBe('44px');
   });
 
   it('signale les erreurs de chargement', () => {
