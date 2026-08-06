@@ -120,8 +120,9 @@ class SchemaMigrationTest {
             "bailleur", "gestionnaire", "invitation", "bien", "bail", "affectation",
             "paiement", "garantie", "honoraire", "alerte", "audit_log", "patrimoine", "type_bien",
             "quittance", "quittance_numerotation", "quittance_verification_log",
-            "locataire", "notification_preference", "notification_event", "notification_outbox",
-            "notification_delivery", "notification_template", "flyway_schema_history"
+            "locataire", "notification_preference", "gestionnaire_notification_preference",
+            "notification_event", "notification_outbox", "notification_delivery", "notification_template",
+            "flyway_schema_history"
         };
         try (Connection c = connect()) {
             for (String table : tables) {
