@@ -8,6 +8,8 @@ import { AlertesListeComponent } from '../../alertes/alertes-liste.component';
 import { GarantiesBailComponent } from '../../garanties/garanties-bail.component';
 import { HonorairesBienComponent } from '../../honoraires/honoraires-bien.component';
 import { PaiementsBienComponent } from '../../paiements/paiements-bien.component';
+import { NotificationsHistoriqueComponent } from '../../notifications/notifications-historique.component';
+import { NotificationsPreferencesComponent } from '../../notifications/notifications-preferences.component';
 import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
 
 @Component({
@@ -18,6 +20,8 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
     GarantiesBailComponent,
     HonorairesBienComponent,
     AlertesListeComponent,
+    NotificationsPreferencesComponent,
+    NotificationsHistoriqueComponent,
     MoneyFormatPipe,
   ],
   template: `
@@ -144,6 +148,11 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
 
     <section class="detail">
       <app-alertes-liste [peutGenerer]="false" />
+    </section>
+
+    <section class="grid two detail">
+      <app-notifications-preferences contexte="gestionnaire" />
+      <app-notifications-historique contexte="gestionnaire" />
     </section>
   `,
   styles: [

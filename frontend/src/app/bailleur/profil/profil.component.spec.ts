@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 
 import { ProfilComponent } from './profil.component';
 import { ProfilBailleur, ProfilService } from './profil.service';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 const profilSansAdresse: ProfilBailleur = {
   id: 'b-1',
@@ -15,17 +16,30 @@ const profilSansAdresse: ProfilBailleur = {
 
 describe('ProfilComponent', () => {
   let api: jasmine.SpyObj<ProfilService>;
+  let notifications: jasmine.SpyObj<NotificationsService>;
 
   beforeEach(() => {
     api = jasmine.createSpyObj<ProfilService>('ProfilService', [
       'consulter',
       'mettreAJourAdresse',
     ]);
+    notifications = jasmine.createSpyObj<NotificationsService>('NotificationsService', [
+      'consulterPreferences',
+      'enregistrerPreferences',
+      'desinscrire',
+    ]);
     api.consulter.and.returnValue(of(profilSansAdresse));
+    notifications.consulterPreferences.and.returnValue(
+      of({ enabled: true, preferredChannel: 'IN_APP', whatsappOptIn: false, smsOptIn: false, language: 'fr' }),
+    );
 
     TestBed.configureTestingModule({
       imports: [ProfilComponent],
-      providers: [provideRouter([]), { provide: ProfilService, useValue: api }],
+      providers: [
+        provideRouter([]),
+        { provide: ProfilService, useValue: api },
+        { provide: NotificationsService, useValue: notifications },
+      ],
     });
   });
 

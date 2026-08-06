@@ -26,6 +26,7 @@ import { AuditJournalComponent } from '../../audit/audit-journal.component';
 import { GarantiesBailComponent } from '../../garanties/garanties-bail.component';
 import { HonorairesBienComponent } from '../../honoraires/honoraires-bien.component';
 import { PaiementsBienComponent } from '../../paiements/paiements-bien.component';
+import { NotificationsHistoriqueComponent } from '../../notifications/notifications-historique.component';
 import { DataTableComponent, LtDataTableColumn } from '../../shared/data-table/data-table.component';
 import { FormFieldComponent } from '../../shared/form-field/form-field.component';
 import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
@@ -40,6 +41,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
     GarantiesBailComponent,
     HonorairesBienComponent,
     AlertesListeComponent,
+    NotificationsHistoriqueComponent,
     AuditJournalComponent,
     MoneyFormatPipe,
     DataTableComponent,
@@ -528,6 +530,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
 
     <section class="grid two detail">
       <app-alertes-liste [peutGenerer]="true" />
+      <app-notifications-historique contexte="bailleur" />
       <app-audit-journal />
     </section>
   `,
