@@ -202,7 +202,7 @@ public class NotificationApiService {
 
     private static String masquer(String adresse) {
         if (adresse == null || adresse.isBlank()) {
-            return "********";
+            return ADRESSE_MASQUEE_GESTIONNAIRE;
         }
         int arobase = adresse.indexOf('@');
         if (arobase > 1) {
