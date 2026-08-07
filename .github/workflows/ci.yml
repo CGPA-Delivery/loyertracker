@@ -192,10 +192,15 @@ jobs:
           fetch-depth: 0 # historique complet : gitleaks scanne aussi les commits passés
 
       # 1. Secrets versionnés (dépôt + historique git).
+      # Requiert le secret GITLEAKS_LICENSE depuis le transfert d'ownership vers
+      # l'organisation CGPA-Delivery : gitleaks-action exige une licence (gratuite,
+      # à obtenir sur gitleaks.io) pour tout repo appartenant à une organisation,
+      # même public — gratuit et non requis restait le cas sous un compte personnel.
       - name: Gitleaks (scan de secrets)
         uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
       # 2. SCA agrégé — informatif (continue-on-error) : sans clé NVD, le téléchargement de
       #    la base est lent et soumis au rate-limiting. Les gates SCA *bloquants* sont portés
