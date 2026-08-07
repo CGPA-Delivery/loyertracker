@@ -126,6 +126,18 @@ class NotificationPreferenceTest {
                                 .isEqualTo(HttpStatus.CONFLICT));
     }
 
+    @Test
+    void estEligiblePourEmailRetourneFalseCarEmailOptInNonActive() {
+        NotificationPreference preference = nouvellePreference();
+        assertThat(preference.estEligiblePour(CanalNotification.EMAIL)).isFalse();
+    }
+
+    @Test
+    void isEmailOptInRefleteLaValeurParDefaut() {
+        NotificationPreference preference = nouvellePreference();
+        assertThat(preference.isEmailOptIn()).isFalse();
+    }
+
     private static NotificationPreference nouvellePreference() {
         return new NotificationPreference(UUID.randomUUID(), TypeDestinataire.LOCATAIRE,
                 UUID.randomUUID());

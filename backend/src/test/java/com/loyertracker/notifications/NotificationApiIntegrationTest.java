@@ -194,6 +194,91 @@ class NotificationApiIntegrationTest {
                 .andExpect(jsonPath("$[1]").doesNotExist());
     }
 
+    @Test
+    void gestionnaireSansCompteEnBaseRecoit403SurPreferences() throws Exception {
+        String keycloakId = "gestionnaire-inconnu-" + UUID.randomUUID();
+        mockMvc.perform(get("/api/notifications/preferences/current")
+                        .with(gestionnaireJwt(keycloakId)))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(put("/api/notifications/preferences/current")
+                        .with(gestionnaireJwt(keycloakId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"phoneE164":"+337****0000","preferredChannel":"SMS",
+                                 "fallbackChannel":null,"whatsappOptIn":false,"smsOptIn":true,
+                                 "consentSource":"FORMULAIRE_LOYERTRACKER","language":"fr"}
+                                """))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/notifications/preferences/current/unsubscribe")
+                        .with(gestionnaireJwt(keycloakId)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void gestionnairePeutConsulterPreferenceParDefautQuandAucuneExiste() throws Exception {
+        String keycloakId = "gestionnaire-defaut-" + UUID.randomUUID();
+        seedGestionnaire(keycloakId);
+
+        mockMvc.perform(get("/api/notifications/preferences/current")
+                        .with(gestionnaireJwt(keycloakId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.enabled").value(false))
+                .andExpect(jsonPath("$.preferredChannel").value("IN_APP"))
+                .andExpect(jsonPath("$.language").value("fr"))
+                .andExpect(jsonPath("$.phoneE164").doesNotExist());
+    }
+
+    @Test
+    void gestionnairePeutModifierEtDesinscrireSaPreferenceGlobale() throws Exception {
+        String keycloakId = "gestionnaire-lifecycle-" + UUID.randomUUID();
+        UUID gestionnaireId = seedGestionnaire(keycloakId);
+
+        mockMvc.perform(put("/api/notifications/preferences/current")
+                        .with(gestionnaireJwt(keycloakId))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"phoneE164":"+337****4444","preferredChannel":"WHATSAPP",
+                                 "fallbackChannel":"SMS","whatsappOptIn":true,"smsOptIn":true,
+                                 "consentSource":"FORMULAIRE_LOYERTRACKER","language":"en"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.enabled").value(true))
+                .andExpect(jsonPath("$.phoneE164").value("+337****4444"));
+
+        mockMvc.perform(post("/api/notifications/preferences/current/unsubscribe")
+                        .with(gestionnaireJwt(keycloakId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.enabled").value(false))
+                .andExpect(jsonPath("$.phoneE164").value("+337****4444"));
+
+        assertThat(compter("""
+                SELECT count(*) FROM gestionnaire_notification_preference
+                WHERE gestionnaire_id = ? AND enabled = false
+                """, gestionnaireId)).isEqualTo(1);
+    }
+
+    @Test
+    void gestionnaireDesinscrireSansPreferenceRenvoie404() throws Exception {
+        String keycloakId = "gestionnaire-no-pref-" + UUID.randomUUID();
+        seedGestionnaire(keycloakId);
+
+        mockMvc.perform(post("/api/notifications/preferences/current/unsubscribe")
+                        .with(gestionnaireJwt(keycloakId)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void historiqueGestionnaireSansCompteRenvoieListeVide() throws Exception {
+        String keycloakId = "gestionnaire-empty-" + UUID.randomUUID();
+
+        mockMvc.perform(get("/api/notifications/history")
+                        .with(gestionnaireJwt(keycloakId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
     private int compter(String sql, Object... params) {
         return jdbc.queryForObject(sql, Integer.class, params);
     }
