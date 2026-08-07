@@ -1,5 +1,29 @@
 # Project State — LoyerTracker
 
+> **Transfert d'ownership du repository GitHub — organisation CGPA-Delivery (2026-08-08).** Le
+> repository GitHub a été transféré du compte personnel `jptshilombo` vers l'organisation
+> `CGPA-Delivery` ; nouvelle URL canonique `https://github.com/CGPA-Delivery/loyertracker.git`
+> (l'ancienne URL `https://github.com/jptshilombo/loyertracker.git` reste résolue par la
+> redirection automatique GitHub, vérifié par `git ls-remote` — historique identique, `HEAD`
+> `dfe1d8d`). Le remote `origin` local a été mis à jour en conséquence. Le workflow CI
+> (`.github/workflows/ci.yml`) résout déjà le namespace de publication GHCR via
+> `ghcr.io/${{ github.repository_owner }}` : aucune modification de pipeline n'était nécessaire.
+> Point vérifié avec le PO : les images GHCR déjà publiées et actuellement déployées
+> (`ghcr.io/jptshilombo/loyertracker-api`, `ghcr.io/jptshilombo/loyertracker-web`, cf.
+> `infra/release/production-state.env`) restent sous l'espace de noms `jptshilombo` — aucun
+> transfert de package associé ; les scripts de garde (`infra/ci/legacy-latest-guard.sh`,
+> `infra/ci/test-legacy-latest-guard.sh`, `infra/ci/test-supply-chain.sh`,
+> `infra/release/check-release-state.sh`) et le checklist de provisioning
+> (`docs/cgpa/10-mise-en-production/checklist-provisioning-hote-prod.md`,
+> `REGISTRY_BASE=ghcr.io/jptshilombo`) restent donc inchangés. Conformément à la préservation de
+> l'historique CGPA, les entrées antérieures de ce document, `CHANGELOG.md`,
+> `docs/release-notes-*.md` et les rapports/décisions déjà actés sous
+> `docs/cgpa/09-production/`, `docs/cgpa/07-devsecops/` et `docs/cgpa/06-planification-agile/` ne
+> sont **pas** réécrits et continuent de citer l'ancienne URL `jptshilombo/loyertracker` telle
+> qu'elle était au moment des faits. Aucun Staging, Production, secret, provider, kill-switch,
+> migration ou EP-19 n'a été modifié par cette synchronisation ; réouverture requise si le
+> namespace GHCR venait à être transféré ultérieurement.
+
 > **Synchronisation post-merge US-125 Backend — intégration repository confirmée, clôture fonctionnelle non prononcée (2026-08-07).** La PR #389 (`agent/us125-notifications-backend` → `main`) est fusionnée via le merge commit `fdf160f0a5222f51611f25c1add468e1f1f423c3`; son SHA de tête final est `51801f324c02533b59c4aa2430f1874ab5fbccb3` (le SHA `94b3b8bbc4df0335aa3f929f2dc2279f8e27f86e` correspondait au point initial de régularisation, avant les compléments intégrés à la branche). Les quatre contrôles PR sont verts : CI, CodeQL, Registry Policy et CGPA Framework Audit. Les preuves Actions incluent l'artefact `supply-chain-build-31222679090` (digest `sha256:c1fafe47e4be075f881961e4c8ebd6d9bbf1d03ff2e1c39f7f770e42f3202e6a`), JaCoCo, Dependency Check, Gitleaks et l'audit CGPA ; la publication d'images GHCR post-merge n'est pas déclarée comme prouvée par ce contrôle. L'intégration Frontend + Backend US-125 est donc clôturée côté repository, sans autoriser de promotion. La clôture fonctionnelle US-125 et l'instruction Gate Staging restent bloquées par les preuves `RSV-US125-A11Y-01`, `RSV-US125-RESP-01` et l'instruction `RSV-MIG-611-04`; `STG-ISOL-01` devra être recontrôlé au Gate Staging. Aucun Staging, Production, secret, provider, kill-switch ou EP-19 n'a été modifié par cette synchronisation.
 
 > **US-125 Backend — candidat local validé, PR à ouvrir (2026-08-06).** Sur `feat/us125-notifications-backend`, le complément serveur autorisé par Gate 05/Addendum S1 est implémenté : préférences Bailleur tenant-scopées, préférence Gestionnaire globale sous RLS, endpoints `/api/notifications/preferences/current`, désinscription et historique, masquage des adresses et fonction ReBAC `notifications_gestionnaire(...)` fail-closed. Migration Flyway V32 additive ; `FLYWAY_EXPECTED_REPO=32`, Production demeure à `31` sans dérive déclarée. Tests ciblés et `mvn verify` complets verts localement. Aucun Staging, Production, secret, provider, kill-switch ou EP-19 n'a été modifié. La livraison reste conditionnée à une PR, CI distante et validation humaine.
