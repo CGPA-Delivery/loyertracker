@@ -137,7 +137,7 @@ public class NotificationApiService {
                     .getResultList();
             return lignes.stream()
                     .map(l -> new HistoriqueItem((UUID) l[0], dateCreation(l[1]), (String) l[2],
-                            CanalNotification.valueOf((String) l[3]), adresseMasqueeGestionnaire(),
+                            CanalNotification.valueOf((String) l[3]), ADRESSE_MASQUEE_GESTIONNAIRE,
                             (String) l[4], (String) l[5]))
                     .toList();
         }
@@ -214,7 +214,5 @@ public class NotificationApiService {
         return adresse.substring(0, 4) + "******" + adresse.substring(adresse.length() - 2);
     }
 
-    private static String adresseMasqueeGestionnaire() {
-        return "********";
-    }
+    private static final String ADRESSE_MASQUEE_GESTIONNAIRE = "********";
 }
