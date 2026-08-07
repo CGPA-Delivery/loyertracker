@@ -8,6 +8,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Ajouts — US-125 Backend notifications
+
+- API authentifiée de préférences, désinscription et historique, avec résolution du sujet uniquement depuis le JWT.
+- Préférence Bailleur tenant-scopée ; préférence Gestionnaire globale isolée par RLS.
+- Migration V32 additive : provenance `notification_event.bien_id` et fonction ReBAC `notifications_gestionnaire(...)` fail-closed ; historique masqué côté API.
+- Aucun environnement, provider, secret, flag d'activation ou EP-19 modifié.
+
 ### Gouvernance — Addendum Gate 05 US-125 sécurité
 
 - Décision PO/CDO : option S1 autorisée pour l'implémentation Backend US-125 — préférence globale du Gestionnaire, provenance `bien_id` des événements et fonction ReBAC PostgreSQL `SECURITY DEFINER` fail-closed.

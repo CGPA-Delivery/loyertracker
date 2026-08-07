@@ -14,38 +14,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * Préférences, coordonnées et consentement d'un destinataire de notification externe (US-119,
- * ADR-18 §Consentement). Recueil du consentement tranché par le PO le 2026-07-19 (K3) : formulaire
- * natif LoyerTracker, opt-in explicite — la seule présence d'un numéro n'est jamais un consentement.
- * Isolée par RLS sur {@code bailleur_id} même quand le destinataire réel est un gestionnaire ou un
- * locataire de ce bailleur (patron polymorphe {@code Alerte.destinataireId}/{@code AuditLog.acteurId}).
+ * Préférences globales d'un Gestionnaire multi-bailleur (US-125). La préférence appartient à
+ * l'identité Gestionnaire, jamais à un tenant Bailleur arbitraire.
  */
 @Entity
-@Table(name = "notification_preference")
-public class NotificationPreference {
+@Table(name = "gestionnaire_notification_preference")
+public class GestionnaireNotificationPreference {
 
     @Id
     @Column(nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "bailleur_id", nullable = false, updatable = false)
-    private UUID bailleurId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "recipient_type", nullable = false, updatable = false, length = 20)
-    private TypeDestinataire recipientType;
-
-    @Column(name = "recipient_id", nullable = false, updatable = false)
-    private UUID recipientId;
+    @Column(name = "gestionnaire_id", nullable = false, unique = true, updatable = false)
+    private UUID gestionnaireId;
 
     @Column(name = "phone_e164")
     private String phoneE164;
-
-    @Column
-    private String email;
-
-    @Column(name = "email_opt_in", nullable = false)
-    private boolean emailOptIn;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "preferred_channel", nullable = false, length = 20)
@@ -73,31 +57,21 @@ public class NotificationPreference {
     @Column(nullable = false)
     private boolean enabled;
 
-    @Column(name = "date_creation", nullable = false, updatable = false, insertable = false)
-    private OffsetDateTime dateCreation;
-
     @Column(name = "date_desactivation")
     private OffsetDateTime dateDesactivation;
 
-    protected NotificationPreference() {
+    protected GestionnaireNotificationPreference() {
         // requis par JPA
     }
 
-    public NotificationPreference(UUID bailleurId, TypeDestinataire recipientType, UUID recipientId) {
+    public GestionnaireNotificationPreference(UUID gestionnaireId) {
         this.id = UUID.randomUUID();
-        this.bailleurId = bailleurId;
-        this.recipientType = recipientType;
-        this.recipientId = recipientId;
+        this.gestionnaireId = gestionnaireId;
         this.preferredChannel = CanalNotification.IN_APP;
         this.language = "fr";
         this.enabled = true;
     }
 
-    /**
-     * Recueil du consentement (K3, formulaire LoyerTracker) : (re)définit coordonnées, canaux et
-     * opt-in en un seul appel, horodaté. Remplacement complet des champs mutables (même patron PUT
-     * que {@code Locataire.modifier}).
-     */
     public void definir(String phoneE164, CanalNotification preferredChannel,
             CanalNotification fallbackChannel, boolean whatsappOptIn, boolean smsOptIn,
             String consentSource, String language) {
@@ -117,47 +91,14 @@ public class NotificationPreference {
         this.dateDesactivation = null;
     }
 
-    /** Désinscription immédiate (US-119) : aucun envoi externe n'est plus tenté pour ce destinataire. */
     public void desinscrire() {
-        if (!this.enabled) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà désinscrit.");
-        }
         this.enabled = false;
         this.dateDesactivation = OffsetDateTime.now();
     }
 
-    public void reactiver() {
-        if (this.enabled) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà actif.");
-        }
-        this.enabled = true;
-        this.dateDesactivation = null;
-    }
-
-    /**
-     * Éligibilité d'un envoi externe (ADR-18 §Consentement, étendu EMAIL par ADR-19 §2.6) : actif
-     * et opt-in pour ce canal précis. Ne s'applique jamais à la voie transactionnelle (ADR-19 §2,
-     * ex. invitation), qui ne consulte aucune préférence.
-     */
-    public boolean estEligiblePour(CanalNotification canal) {
-        if (!enabled || canal == CanalNotification.IN_APP) {
-            return false;
-        }
-        return switch (canal) {
-            case WHATSAPP -> whatsappOptIn;
-            case SMS -> smsOptIn;
-            case EMAIL -> emailOptIn;
-            case IN_APP -> false;
-        };
-    }
-
     public UUID getId() { return id; }
-    public UUID getBailleurId() { return bailleurId; }
-    public TypeDestinataire getRecipientType() { return recipientType; }
-    public UUID getRecipientId() { return recipientId; }
+    public UUID getGestionnaireId() { return gestionnaireId; }
     public String getPhoneE164() { return phoneE164; }
-    public String getEmail() { return email; }
-    public boolean isEmailOptIn() { return emailOptIn; }
     public CanalNotification getPreferredChannel() { return preferredChannel; }
     public CanalNotification getFallbackChannel() { return fallbackChannel; }
     public boolean isWhatsappOptIn() { return whatsappOptIn; }
@@ -166,6 +107,5 @@ public class NotificationPreference {
     public String getConsentSource() { return consentSource; }
     public String getLanguage() { return language; }
     public boolean isEnabled() { return enabled; }
-    public OffsetDateTime getDateCreation() { return dateCreation; }
     public OffsetDateTime getDateDesactivation() { return dateDesactivation; }
 }
