@@ -325,9 +325,8 @@ jobs:
     name: Publication, signatures et attestations
     needs: [detect-images, docker-build]
     if: >-
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/main' &&
-      needs.detect-images.outputs.images_changed == 'true'
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       contents: read
