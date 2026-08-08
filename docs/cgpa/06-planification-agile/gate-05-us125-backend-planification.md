@@ -174,3 +174,43 @@ périmètre.
 - `docs/cgpa/06-planification-agile/plan-execution-ep16-notifications.md` : addendum de régularisation et plan Backend.
 - `CHANGELOG.md` : évolution documentaire ajoutée sous `[Non publié]`.
 - Validation humaine finale : Product Owner / CGPA Chief Delivery Officer reçue le 2026-08-06 ; mise en œuvre bornée à cet addendum.
+
+## 12. Levée technique des réserves US-125 — 2026-08-08
+
+### `RSV-MIG-611-04` — levée documentaire proposée
+
+L'addendum DAT/OpenAPI est produit dans `docs/cgpa/05-architecture-conception/addendum-dat-openapi-us125-notifications.md`.
+Il fige les quatre routes, les schémas de requête/réponse, les rôles, la résolution du sujet depuis
+le JWT, le périmètre RLS/ReBAC et le masquage des adresses. La réserve est donc **techniquement
+traitée**, sous réserve de validation humaine Enterprise Architect / CDO.
+
+### `RSV-US125-FE-01` — preuve serveur disponible
+
+Le contrôleur `NotificationController`, `NotificationApiService`, V32 et
+`NotificationFondationIntegrationTest` démontrent le contrat serveur, l'authentification, les rôles,
+le périmètre tenant/Gestionnaire et la protection fail-closed. La réserve est **techniquement
+traitée**, sous réserve de la CI distante et de la revue humaine.
+
+### `RSV-US125-A11Y-01` — preuve ChromeHeadless disponible
+
+La suite ChromeHeadless ciblée passe **10/10** et couvre : `aria-modal`, `aria-labelledby`, focus
+initial dans le dialogue, fermeture `Escape`, restitution du focus au déclencheur, boucle Tab et
+cibles tactiles de 44 px. La réserve est **techniquement traitée**, sous réserve de la validation
+humaine de la preuve.
+
+### `RSV-US125-RESP-01` — traitement technique, preuve visuelle restante
+
+La grille responsive utilise `auto-fit/minmax` et empile les actions à `max-width: 640px`. Le lint et
+le build Angular passent. La preuve visuelle réelle aux quatre largeurs CGPA (`360px`, `390px`,
+`640px`, `1024px`) reste obligatoire avant le Gate Staging ; la réserve est donc **non clôturée
+formellement** à ce stade.
+
+### Validation exécutée
+
+- Frontend ciblé ChromeHeadless : **10/10 PASS**.
+- Frontend lint : **PASS**.
+- Frontend build : **PASS**.
+- Backend compile : **PASS**.
+- `NotificationFondationIntegrationTest` avec PostgreSQL Testcontainers et Flyway V1→V32 : **PASS**.
+- Aucun Staging, Production, secret, provider ou migration supplémentaire exécuté.
+

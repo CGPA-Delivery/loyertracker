@@ -1,5 +1,7 @@
 # Project State — LoyerTracker
 
+> **Levée technique des réserves US-125 — en attente de validation humaine et Gate Staging (2026-08-08).** `RSV-MIG-611-04` est documentée par l'addendum DAT/OpenAPI `docs/cgpa/05-architecture-conception/addendum-dat-openapi-us125-notifications.md`. `RSV-US125-FE-01` est couverte par le contrôleur/API intégré, les règles JWT/RLS/ReBAC et le test d'intégration `NotificationFondationIntegrationTest`. `RSV-US125-A11Y-01` est couverte techniquement par les preuves ChromeHeadless US-125 : focus initial dans le dialogue, fermeture `Escape`, restitution du focus, boucle Tab, `aria-modal`/labels et touch targets 44 px. `RSV-US125-RESP-01` est couverte par la grille CSS responsive (`auto-fit`, empilement à `max-width: 640px`) et la preuve de build/lint ; la vérification visuelle multi-largeurs doit encore être confirmée dans le Gate Staging avant clôture formelle. Aucun Staging, Production, secret, provider ou migration supplémentaire n'a été exécuté.
+
 > **Transfert d'ownership du repository GitHub — organisation CGPA-Delivery (2026-08-08).** Le
 > repository GitHub a été transféré du compte personnel `jptshilombo` vers l'organisation
 > `CGPA-Delivery` ; nouvelle URL canonique `https://github.com/CGPA-Delivery/loyertracker.git`
