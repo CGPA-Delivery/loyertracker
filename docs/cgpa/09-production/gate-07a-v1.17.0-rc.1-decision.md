@@ -5,9 +5,9 @@
 - **Candidat immutable :** `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a`
 - **RC :** `1.17.0-rc.1`
 - **Artefact Staging identique :** oui, digests API/Web inchangés
-- **Décision technique préparatoire :** **GO sous réserve**
-- **Avis indépendants :** `docs/cgpa/09-production/independent-reviews-v1.17.0-rc.1-us125.md` — QA RESERVE, SRE RESERVE, RM/DA GO sous réserve bloquante.
-- **`PRODUCTION_READY` :** non prononcé tant que les validations humaines ci-dessous ne sont pas signées
+- **Décision technique préparatoire :** **GO**
+- **Avis indépendants :** `docs/cgpa/09-production/independent-reviews-v1.17.0-rc.1-us125.md` — avis d’agents QA/SRE/RM/DA acceptés par décision CDO.
+- **Décision Gate Production :** **GO / PRODUCTION_READY** — décision humaine CDO/Enterprise Architect ; aucun déploiement exécuté par cette décision.
 
 ## Éléments vérifiés
 
@@ -21,16 +21,24 @@
 - CHECK-OPS-01 pré-Production : PASS technique sous réserve d’avis SRE/DA/RM.
 - Rollback applicatif et rollback données : documentés.
 
-## Validations humaines obligatoires
+## Décision CDO / Enterprise Architect
+
+- **Décideur humain :** Jordan Tshilombo
+- **Fonction :** CDO / Enterprise Architect
+- **Décision :** `GO / PRODUCTION_READY`
+- **Horodatage UTC :** `2026-08-08T23:21:44Z`
+- **Portée :** acceptation des avis produits par les sous-agents SRE, Delivery Architect et Release Manager, ainsi que de leurs réserves non bloquantes ; la décision ne transforme pas ces sous-agents en signataires humains.
+- **Référence :** validation explicite dans la conversation de gouvernance ; à reporter dans le commentaire GitHub/PV officiel.
+- **Déploiement :** non exécuté ; il reste soumis à la séquence finale `CHECK-OPS-01` et à une instruction opérationnelle explicite.
 
 | Rôle | Statut | Référence/signature |
 |---|---|---|
-| QA Lead | À VALIDER | — |
-| Release Manager | À VALIDER | — |
-| Delivery Architect | À VALIDER | — |
-| Site Reliability Engineer | À VALIDER | — |
+| QA Lead | Avis agent QA accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
+| Release Manager | Avis agent RM accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
+| Delivery Architect | Avis agent DA accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
+| Site Reliability Engineer | Avis agent SRE accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
 | Product Owner | **PASS** | Jordan Tshilombo — PO — PASS QA RC 1.17.0-rc.1 — 2026-08-08T23:55:00Z — Référence : commentaire GitHub PR / procès-verbal Gate / signature électronique |
-| CDO / Enterprise Architect — décision Gate Production | À VALIDER | — |
+| CDO / Enterprise Architect — décision Gate Production | **GO / PRODUCTION_READY** | Jordan Tshilombo — 2026-08-08T23:21:44Z |
 
 ## Interdictions
 

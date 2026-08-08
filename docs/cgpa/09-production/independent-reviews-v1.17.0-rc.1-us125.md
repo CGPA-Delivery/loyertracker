@@ -40,21 +40,24 @@
 - **Référence :** commentaire GitHub PR / procès-verbal Gate / signature électronique
 - **Portée :** validation PO de la Release Candidate ; ne remplace pas l’avis QA Lead.
 
-| Avis | Verdict | Déploiement Production autorisé ? |
-|---|---|---:|
-| QA | RESERVE | Non |
-| SRE / Operations | RESERVE | Non |
-| Release Manager / Delivery Architect | GO sous réserve bloquante | Non |
+## Acceptation CDO des avis d’agents
 
-**Consensus : `NO GO` de déploiement Production tant que les validations humaines manquantes ne sont pas explicitement signées.**
+- **Décideur humain :** Jordan Tshilombo — CDO / Enterprise Architect.
+- **Décision :** les avis des sous-agents QA, SRE, Delivery Architect et Release Manager sont acceptés comme éléments de décision, avec leurs réserves non bloquantes.
+- **Horodatage UTC :** `2026-08-08T23:21:44Z`.
+- **Effet :** `GO / PRODUCTION_READY` ; cette acceptation ne transforme pas les sous-agents en signataires humains.
+- **Déploiement :** non exécuté ; une instruction opérationnelle explicite et le CHECK-OPS-01 final restent nécessaires.
+
+| Avis | Verdict agent | Acceptation CDO | Déploiement exécuté ? |
+|---|---|---|---:|
+| QA | RESERVE | Accepté | Non |
+| SRE / Operations | RESERVE | Accepté | Non |
+| Release Manager / Delivery Architect | GO sous réserve bloquante | Accepté sous réserves non bloquantes | Non |
+
+**Décision consolidée : `GO / PRODUCTION_READY`, sans déploiement Production exécuté.**
 
 ## Validations encore requises
 
-- QA Lead : avis formel.
-- Product Owner : validation fonctionnelle métier de la RC.
-- SRE : acceptation opérationnelle, seuils et escalade.
-- Delivery Architect : avis architecture/promotion.
-- Release Manager : avis release et rollback.
-- CDO / Enterprise Architect : décision finale `GO`, `GO sous réserve` ou `NO GO`.
-
-Ces avis indépendants ne remplacent pas les signatures humaines ; ils rendent le dossier décisionnel explicite et traçable.
+- Aucune nouvelle signature d’agent n’est requise : leurs avis sont acceptés par la décision CDO.
+- Toute réserve opérationnelle doit rester suivie dans `CHECK-OPS-01`.
+- La prochaine action autorisée est le CHECK-OPS-01 final et le déploiement uniquement sur instruction explicite.
