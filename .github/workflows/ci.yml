@@ -11,6 +11,7 @@ name: CI
 # (branch protection avec enforce_admins actif — constaté PR #132, 2026-07-01) : la suppression
 # du déclenchement en double à la source est la correction retenue.
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
