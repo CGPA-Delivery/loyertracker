@@ -8,6 +8,15 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Release Candidate `1.17.0-rc.1` — US-125 Notifications
+
+- Candidat immutable rattaché au commit `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a`.
+- API/Web promus en Staging avec les mêmes digests ; aucun rebuild prévu pour la RC.
+- Gate Staging US-125 GO, `STG-ISOL-01` PASS, smoke réel **63 PASS / 0 FAIL**.
+- Préflight Production technique PASS : R-V54-2 cohérent, santé/observabilité PASS, backup custom vérifié.
+- `CHECK-REL-01`, `CHECK-OPS-01` et Gate 07A préparés ; avis humains QA/RM/DA/SRE/PO/CDO encore requis.
+- **Aucun déploiement Production** et aucune migration V32 Production exécutés.
+
 ### Gouvernance — Levée technique des réserves US-125
 
 - Addendum DAT/OpenAPI US-125 ajouté : quatre routes, schémas, sécurité JWT, RLS/ReBAC et masquage PII.
