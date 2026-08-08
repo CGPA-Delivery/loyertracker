@@ -1,5 +1,7 @@
 # État Staging — LoyerTracker
 
+> **Gate Staging US-125 — GO / STAGING_DEPLOYED (2026-08-08T22:09:25Z).** Validation humaine explicite reçue. Candidat `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a` promu sur `ai-test-server` avec API `ghcr.io/cgpa-delivery/loyertracker-api@sha256:8e94c002a65bff590c9694b1dd79ca2eb9ab04639f9f59ddb5b735afe001a30d` et Web `ghcr.io/cgpa-delivery/loyertracker-web@sha256:18ade4b483955691fedd7d46a2c893ff27facd9d6dcf5249350005080d679d67`. STG-ISOL-01 PASS avant/après : NPM `restart=0`, stacks voisines inchangées, seuls `api`/`nginx` recréés. Backup PostgreSQL vérifié : `loyertracker-staging-20260808-220627.dump` SHA-256 `7445b35bd5f1ccac2530ade5785aba136928eaa9330fac7c23757f60c1c378dc` + globals SHA-256 `ac79437acbb67a3bbc251f73924290380abd66427e6e0aad88b2d1201c0137da`. Flyway 32/32. Smoke réel **63 PASS / 0 FAIL**, health 200, Actuator interne 200/public 404, isolation cross-tenant et ports internes non publiés PASS. Décision détaillée : `docs/cgpa/07-devsecops/gate-staging-us125-decision.md`. Production non autorisée ; CHECK-REL-01 et Gate Production distincts requis.
+
 > Rapport de déploiement staging réel et de smoke test contre staging (plan Production
 > Readiness, lot 4b). Document vivant : à mettre à jour à chaque déploiement staging.
 > Cadre : CGPA v5.0.1 — clôture de la réserve **R-4** (jalon Gate Staging Readiness v4.0).
