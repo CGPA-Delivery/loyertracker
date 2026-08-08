@@ -326,7 +326,7 @@ export class NotificationsPreferencesComponent implements OnInit {
     }
 
     const first = focusables[0];
-    const last = focusables[focusables.length - 1];
+    const last = focusables.at(-1)!;
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();
