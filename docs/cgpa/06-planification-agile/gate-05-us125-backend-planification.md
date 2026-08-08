@@ -226,7 +226,7 @@ traitée**, avec CI distante verte et validation humaine de la preuve encore req
 ### Statut et prochaine Gate
 
 **Décision technique : GO pour instruction du Gate Staging US-125, sous réserve de validation humaine
-Enterprise Architect / CDO et de l'approbation/merge de la PR #398.** Aucun déploiement Staging n'est
-autorisé par cette décision seule. Après merge, exécuter le Gate Staging contrôlé, la recette/smoke,
-puis le parcours RC immutable → `CHECK-REL-01` → Gate Production distinct.
+Enterprise Architect / CDO. La PR #398 est fusionnée dans `main` (`e27034a2b0496b894d1e404567303ba77b88656a`).** Aucun déploiement Staging n'est
+autorisé par cette décision seule. Exécuter le Gate Staging contrôlé, la recette/smoke, puis le parcours
+RC immutable → `CHECK-REL-01` → Gate Production distinct.
 
