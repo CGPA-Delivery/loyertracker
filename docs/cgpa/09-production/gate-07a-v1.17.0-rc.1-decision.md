@@ -29,7 +29,7 @@
 | Release Manager | À VALIDER | — |
 | Delivery Architect | À VALIDER | — |
 | Site Reliability Engineer | À VALIDER | — |
-| Product Owner | À VALIDER | — |
+| Product Owner | **PASS** | Jordan Tshilombo — PO — PASS QA RC 1.17.0-rc.1 — 2026-08-08T23:55:00Z — Référence : commentaire GitHub PR / procès-verbal Gate / signature électronique |
 | CDO / Enterprise Architect — décision Gate Production | À VALIDER | — |
 
 ## Interdictions
