@@ -14,7 +14,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - API/Web promus en Staging avec les mêmes digests ; aucun rebuild prévu pour la RC.
 - Gate Staging US-125 GO, `STG-ISOL-01` PASS, smoke réel **63 PASS / 0 FAIL**.
 - Préflight Production technique PASS : R-V54-2 cohérent, santé/observabilité PASS, backup custom vérifié.
-- `CHECK-REL-01`, `CHECK-OPS-01` et Gate 07A préparés ; avis humains QA/RM/DA/SRE/PO/CDO encore requis.
+- `CHECK-REL-01`, `CHECK-OPS-01` et Gate 07A préparés ; avis des sous-agents QA/RM/DA/SRE acceptés par le CDO, validation PO tracée ; CHECK-OPS-01 final et instruction opérationnelle encore requis avant Production.
 - **Aucun déploiement Production** et aucune migration V32 Production exécutés.
 
 ### Gouvernance — Levée technique des réserves US-125
