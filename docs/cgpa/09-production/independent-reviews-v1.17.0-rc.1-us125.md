@@ -69,6 +69,6 @@ Les avis sont favorables pour la préparation et la promotion contrôlée. L’e
 
 ## Validations encore requises
 
-- Reporter la référence exacte de la PR documentaire dans le dossier après sa création.
+- Reporter la référence exacte : [PR #410](https://github.com/CGPA-Delivery/loyertracker/pull/410).
 - Exécuter le CHECK-OPS-01 final immédiatement avant toute bascule.
 - Obtenir l’instruction opérationnelle explicite de déploiement Production.

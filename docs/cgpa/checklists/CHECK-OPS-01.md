@@ -48,5 +48,5 @@ Un `FAIL` critique suspend les promotions suivantes jusqu'a decision tracee.
 - **Avis Release Manager Agent :** PASS ; plan dans `docs/cgpa/09-production/release-execution-plan-v1.17.0-rc.1.md`.
 - **Avis QA Agent :** PASS ; rapport QA mis à jour.
 - **Résultat pré-Production :** PASS sous réserve non bloquante.
-- **Réserves avant exécution :** référence exacte de la PR documentaire, CHECK-OPS-01 final et instruction opérationnelle explicite.
+- **Réserves avant exécution :** CHECK-OPS-01 final et instruction opérationnelle explicite ; référence documentaire [PR #410](https://github.com/CGPA-Delivery/loyertracker/pull/410).
 - **Production :** aucun déploiement exécuté.

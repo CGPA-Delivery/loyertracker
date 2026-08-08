@@ -106,6 +106,6 @@ Critères de passage : health API/Web `200`, Actuator interne `200`, Actuator pu
 - fenêtre UTC : `2026-08-09T01:00:00Z` → `2026-08-09T02:00:00Z` ;
 - canal officiel d’escalade et de communication : GitHub PR de release + Telegram CDO ;
 - fenêtres hypercare : T0 + 15 minutes, T+12 ± 30 minutes, T+24 ± 30 minutes ;
-- les références exactes de publication seront ajoutées après création de la PR documentaire.
+- les références exactes de publication : [PR #410](https://github.com/CGPA-Delivery/loyertracker/pull/410) ;
 
 **Conclusion SRE Agent : PASS ; aucun déploiement Production exécuté.**

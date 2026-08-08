@@ -64,7 +64,7 @@
 - **SEV-1 :** escalade immédiate CDO + Release Manager ; décision rollback sous 15 minutes.
 - **SEV-2 :** SRE → Release Manager → CDO sous 30 minutes.
 - **SEV-3 :** suivi hypercare/backlog sans rollback automatique.
-- **Référence de communication officielle :** GitHub PR de release + Telegram CDO.
+- **Référence PR documentaire :** [PR #410](https://github.com/CGPA-Delivery/loyertracker/pull/410).
 
 ## Verdict Release Manager Agent
 
