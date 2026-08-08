@@ -8,6 +8,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — Levée technique des réserves US-125
+
+- Addendum DAT/OpenAPI US-125 ajouté : quatre routes, schémas, sécurité JWT, RLS/ReBAC et masquage PII.
+- Dialogue de désinscription renforcé : focus initial, boucle Tab, fermeture `Escape` et restitution du focus.
+- Preuves locales : ChromeHeadless ciblé 10/10, responsive 44/44 aux quatre largeurs, suite complète 167/167,
+  lint/build Frontend PASS, compilation Backend PASS, `NotificationFondationIntegrationTest` PASS avec Flyway V1→V32.
+- `RSV-MIG-611-04`, `RSV-US125-FE-01`, `RSV-US125-A11Y-01` et `RSV-US125-RESP-01` techniquement traitées, sous réserve de validation humaine et CI distante.
+- Aucun Staging, Production, secret, provider ou migration supplémentaire exécuté.
+
+
 ### Ajouts — US-125 Backend notifications
 
 - API authentifiée de préférences, désinscription et historique, avec résolution du sujet uniquement depuis le JWT.

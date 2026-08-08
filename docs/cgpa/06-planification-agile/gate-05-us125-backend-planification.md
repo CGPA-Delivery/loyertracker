@@ -174,3 +174,59 @@ périmètre.
 - `docs/cgpa/06-planification-agile/plan-execution-ep16-notifications.md` : addendum de régularisation et plan Backend.
 - `CHANGELOG.md` : évolution documentaire ajoutée sous `[Non publié]`.
 - Validation humaine finale : Product Owner / CGPA Chief Delivery Officer reçue le 2026-08-06 ; mise en œuvre bornée à cet addendum.
+
+## 12. Levée technique des réserves US-125 — 2026-08-08
+
+### `RSV-MIG-611-04` — levée documentaire proposée
+
+L'addendum DAT/OpenAPI est produit dans `docs/cgpa/05-architecture-conception/addendum-dat-openapi-us125-notifications.md`.
+Il fige les quatre routes, les schémas de requête/réponse, les rôles, la résolution du sujet depuis
+le JWT, le périmètre RLS/ReBAC et le masquage des adresses. La réserve est **techniquement traitée**,
+avec validation CI verte ; validation humaine Enterprise Architect / CDO encore requise.
+
+### `RSV-US125-FE-01` — preuve serveur disponible
+
+Le contrôleur `NotificationController`, `NotificationApiService`, V32 et
+`NotificationFondationIntegrationTest` démontrent le contrat serveur, l'authentification, les rôles,
+le périmètre tenant/Gestionnaire et la protection fail-closed. La réserve est **techniquement
+traitée**, avec CI distante verte et revue humaine encore requise.
+
+### `RSV-US125-A11Y-01` — preuve ChromeHeadless disponible
+
+La suite ChromeHeadless ciblée passe **10/10** et couvre : `aria-modal`, `aria-labelledby`, focus
+initial dans le dialogue, fermeture `Escape`, restitution du focus au déclencheur, boucle Tab et
+cibles tactiles de 44 px. La réserve est **techniquement traitée**, avec CI distante verte et
+validation humaine de la preuve encore requise.
+
+### `RSV-US125-RESP-01` — levée technique
+
+La grille responsive utilise `auto-fit/minmax` et empile les actions à `max-width: 640px`. L'exécution
+ChromeHeadless aux largeurs `360px`, `390px`, `640px` et `1024px` passe **44/44 assertions**,
+sans débordement horizontal et avec l'empilement mobile confirmé. La réserve est **techniquement
+traitée**, avec CI distante verte et validation humaine de la preuve encore requise.
+
+### Validation exécutée
+
+- Frontend ciblé ChromeHeadless : **10/10 PASS**.
+- Frontend responsive multi-largeurs (`360/390/640/1024px`) : **44/44 PASS**.
+- Frontend suite complète ChromeHeadless : **167/167 PASS**.
+- Frontend lint : **PASS**.
+- Frontend build : **PASS**.
+- Backend compile : **PASS**.
+- `NotificationFondationIntegrationTest` avec PostgreSQL Testcontainers et Flyway V1→V32 : **PASS**.
+- Aucun Staging, Production, secret, provider ou migration supplémentaire exécuté.
+
+### Validation CI distante — PR #398
+
+- Head validé : `9c42aaaa59ee5561b8bce339271545c6e90dadac`.
+- CI Backend, Frontend, Sécurité, CodeQL, Registry Policy, SBOM Docker : **PASS**.
+- Audit structurel CGPA : **PASS**.
+- Publication/signatures/attestations : **SKIPPED** conformément au périmètre PR sans promotion.
+
+### Statut et prochaine Gate
+
+**Décision technique : GO pour instruction du Gate Staging US-125, sous réserve de validation humaine
+Enterprise Architect / CDO et de l'approbation/merge de la PR #398.** Aucun déploiement Staging n'est
+autorisé par cette décision seule. Après merge, exécuter le Gate Staging contrôlé, la recette/smoke,
+puis le parcours RC immutable → `CHECK-REL-01` → Gate Production distinct.
+

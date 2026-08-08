@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, HostListener, OnInit, inject, input, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import {
@@ -293,6 +293,47 @@ export class NotificationsPreferencesComponent implements OnInit {
   demanderDesinscription(): void {
     this.declencheurDesinscription = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     this.confirmationDesinscription.set(true);
+    setTimeout(() => {
+      const premierBouton = document.querySelector<HTMLElement>('[role="alertdialog"] button');
+      premierBouton?.focus();
+    });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  gererClavier(event: KeyboardEvent): void {
+    const dialog = document.querySelector<HTMLElement>('[role="alertdialog"]');
+    if (!dialog || !this.confirmationDesinscription()) {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.annulerDesinscription();
+      return;
+    }
+
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const focusables = Array.from(
+      dialog.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+    ).filter((element) => !element.hasAttribute('disabled'));
+    if (focusables.length === 0) {
+      event.preventDefault();
+      dialog.focus();
+      return;
+    }
+
+    const first = focusables[0];
+    const last = focusables.at(-1)!;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   annulerDesinscription(): void {

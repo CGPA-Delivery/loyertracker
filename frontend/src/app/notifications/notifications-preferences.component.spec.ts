@@ -125,6 +125,45 @@ describe('NotificationsPreferencesComponent', () => {
     expect(cmp.confirmationDesinscription()).toBeFalse();
   });
 
+  it('place le focus dans le dialogue, ferme avec Escape et restitue le focus', async () => {
+    const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance;
+    const bouton = fixture.nativeElement.querySelector('.danger') as HTMLButtonElement;
+    bouton.focus();
+
+    cmp.demanderDesinscription();
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    const dialog = fixture.nativeElement.querySelector('[role="alertdialog"]') as HTMLElement;
+    expect(document.activeElement).toBe(dialog.querySelector('button'));
+
+    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(cmp.confirmationDesinscription()).toBeFalse();
+    expect(document.activeElement).toBe(bouton);
+  });
+
+  it('retient la tabulation dans le dialogue de confirmation', async () => {
+    const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance;
+
+    cmp.demanderDesinscription();
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    const dialog = fixture.nativeElement.querySelector('[role="alertdialog"]') as HTMLElement;
+    const boutons = dialog.querySelectorAll('button');
+    (boutons[1] as HTMLButtonElement).focus();
+    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+
+    expect(document.activeElement).toBe(boutons[0]);
+  });
+
   it('annule la désinscription et restitue le focus au bouton déclencheur', async () => {
     const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
     fixture.detectChanges();
@@ -150,6 +189,17 @@ describe('NotificationsPreferencesComponent', () => {
 
     expect(getComputedStyle(bouton).minHeight).toBe('44px');
     expect(getComputedStyle(input).minHeight).toBe('44px');
+  });
+
+  it('respecte la mise en page responsive et n introduit pas de débordement horizontal', () => {
+    const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
+    fixture.detectChanges();
+
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
+    const actions = fixture.nativeElement.querySelector('.actions') as HTMLElement;
+    if (window.innerWidth <= 640) {
+      expect(getComputedStyle(actions).flexDirection).toBe('column');
+    }
   });
 
   it('signale les erreurs de chargement', () => {
