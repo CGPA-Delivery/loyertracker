@@ -31,7 +31,14 @@
 - **Réserves bloquantes :** `CHECK-REL-01` et `CHECK-OPS-01` ne comportent pas encore les signatures QA/RM/DA/SRE/PO ; la décision CDO/Enterprise Architect finale de Gate Production reste à signer.
 - **Signatures proposées :** `Release Manager — À VALIDER`, `Delivery Architect — À VALIDER`.
 
-## Consensus indépendant
+## Validation Product Owner reçue
+
+- **Signataire :** Jordan Tshilombo
+- **Fonction :** Product Owner
+- **Décision fournie :** `PASS QA RC 1.17.0-rc.1`
+- **Horodatage :** `2026-08-08T23:55:00Z`
+- **Référence :** commentaire GitHub PR / procès-verbal Gate / signature électronique
+- **Portée :** validation PO de la Release Candidate ; ne remplace pas l’avis QA Lead.
 
 | Avis | Verdict | Déploiement Production autorisé ? |
 |---|---|---:|
