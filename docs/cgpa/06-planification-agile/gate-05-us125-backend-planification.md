@@ -209,6 +209,7 @@ traitée**, sous réserve de la validation humaine de la preuve.
 
 - Frontend ciblé ChromeHeadless : **10/10 PASS**.
 - Frontend responsive multi-largeurs (`360/390/640/1024px`) : **44/44 PASS**.
+- Frontend suite complète ChromeHeadless : **167/167 PASS**.
 - Frontend lint : **PASS**.
 - Frontend build : **PASS**.
 - Backend compile : **PASS**.
