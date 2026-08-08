@@ -40,3 +40,13 @@ Un `FAIL` critique bloque Gate Production.
 * [ ] FAIL, incident ouvert et decision de rollback ou remediations tracee.
 
 Un `FAIL` critique suspend les promotions suivantes jusqu'a decision tracee.
+
+## Annexe d’exécution RC `1.17.0-rc.1`
+
+- **Avis SRE Agent :** PASS ; seuils, rollback, escalade et hypercare définis et confirmés par CDO dans `docs/cgpa/09-production/check-ops-01-v1.17.0-rc.1.md`.
+- **Avis Delivery Architect Agent :** PASS ; mêmes digests obligatoires, aucun rebuild.
+- **Avis Release Manager Agent :** PASS ; plan dans `docs/cgpa/09-production/release-execution-plan-v1.17.0-rc.1.md`.
+- **Avis QA Agent :** PASS ; rapport QA mis à jour.
+- **Résultat pré-Production :** PASS sous réserve non bloquante.
+- **Réserves avant exécution :** référence exacte de la PR documentaire, CHECK-OPS-01 final et instruction opérationnelle explicite.
+- **Production :** aucun déploiement exécuté.

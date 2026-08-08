@@ -8,7 +8,7 @@
 - **Périmètre :** revue indépendante avant Gate Production
 - **Méthode :** trois analyses parallèles, strictement documentaires et sans modification d’environnement
 
-## 1. Avis QA indépendant
+## 1. Avis QA indépendant initial — avant corrections
 
 - **Verdict :** **RESERVE**.
 - **Constat :** aucun défaut technique bloquant identifié dans les preuves CI/Staging examinées.
@@ -16,7 +16,7 @@
 - **Réserves :** l’avis QA Lead humain et la validation métier PO ne sont pas signés ; l’analyse est fondée sur les documents disponibles et non sur une nouvelle exécution GitHub indépendante.
 - **Signature proposée :** `QA Lead — À VALIDER`.
 
-## 2. Avis SRE / Operations indépendant
+## 2. Avis SRE / Operations indépendant initial — avant corrections
 
 - **Verdict :** **RESERVE**.
 - **Constat :** readiness technique favorable : Production cohérente, santé et observabilité disponibles, backup custom + globals vérifiés, rollback applicatif documenté, V32 additive.
@@ -24,7 +24,7 @@
 - **Réserves :** escalade nominative, seuils d’incident quantifiés et responsabilité SRE doivent être explicitement assignés ; les preuves post-déploiement US-125 ne peuvent pas être inventées avant un déploiement autorisé.
 - **Signature proposée :** `SRE — À VALIDER`.
 
-## 3. Avis Release Manager / Delivery Architect indépendant
+## 3. Avis Release Manager / Delivery Architect indépendant initial — avant corrections
 
 - **Verdict :** **GO sous réserve bloquante / NO GO Production**.
 - **Constat :** RC pre-release existante, artefacts immuables cohérents entre Staging et dossier RC, séparation Gate Staging/Gate Production respectée, rollback documenté.
@@ -56,8 +56,19 @@
 
 **Décision consolidée : `GO / PRODUCTION_READY`, sans déploiement Production exécuté.**
 
+## Revalidation des solutions par les sous-agents
+
+| Rôle agent | Verdict après correction | Réserve restante |
+|---|---|---|
+| QA Lead Agent | **PASS** | Avis non humain, accepté par CDO |
+| SRE Agent | **PASS** | Seuils, rollback, escalade, fenêtre et hypercare confirmés par CDO |
+| Delivery Architect Agent | **PASS** | Réutilisation stricte des mêmes digests et CHECK-OPS-01 final |
+| Release Manager Agent | **PASS** | Fenêtre UTC, responsables, hypercare et canal confirmés par CDO |
+
+Les avis sont favorables pour la préparation et la promotion contrôlée. L’exécution reste soumise au CHECK-OPS-01 final et à l’instruction opérationnelle explicite.
+
 ## Validations encore requises
 
-- Aucune nouvelle signature d’agent n’est requise : leurs avis sont acceptés par la décision CDO.
-- Toute réserve opérationnelle doit rester suivie dans `CHECK-OPS-01`.
-- La prochaine action autorisée est le CHECK-OPS-01 final et le déploiement uniquement sur instruction explicite.
+- Reporter la référence exacte de la PR documentaire dans le dossier après sa création.
+- Exécuter le CHECK-OPS-01 final immédiatement avant toute bascule.
+- Obtenir l’instruction opérationnelle explicite de déploiement Production.

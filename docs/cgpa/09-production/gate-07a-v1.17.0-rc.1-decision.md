@@ -18,7 +18,8 @@
 - Artefacts API/Web, SBOM, signatures et attestations : vérifiés.
 - R-V54-2 Production : cohérent.
 - Préflight Production et backup : PASS.
-- CHECK-OPS-01 pré-Production : PASS technique sous réserve d’avis SRE/DA/RM.
+- CHECK-OPS-01 pré-Production : PASS technique sous réserve des seuils et du plan d’escalade désormais documentés.
+- Plan Release Manager : `docs/cgpa/09-production/release-execution-plan-v1.17.0-rc.1.md`.
 - Rollback applicatif et rollback données : documentés.
 
 ## Décision CDO / Enterprise Architect
@@ -33,10 +34,10 @@
 
 | Rôle | Statut | Référence/signature |
 |---|---|---|
-| QA Lead | Avis agent QA accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
-| Release Manager | Avis agent RM accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
-| Delivery Architect | Avis agent DA accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
-| Site Reliability Engineer | Avis agent SRE accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
+| QA Lead | Avis agent QA **PASS**, accepté par CDO | Jordan Tshilombo — CDO/EA — 2026-08-08T23:21:44Z |
+| Release Manager | Avis agent **PASS documentaire sous réserve**, accepté par CDO | Plan de release RC |
+| Delivery Architect | Avis agent **PASS**, accepté par CDO | Revalidation agent + Gate 07A |
+| Site Reliability Engineer | Avis agent **PASS sous réserve documentaire**, accepté par CDO | CHECK-OPS-01 spécifique |
 | Product Owner | **PASS** | Jordan Tshilombo — PO — PASS QA RC 1.17.0-rc.1 — 2026-08-08T23:55:00Z — Référence : commentaire GitHub PR / procès-verbal Gate / signature électronique |
 | CDO / Enterprise Architect — décision Gate Production | **GO / PRODUCTION_READY** | Jordan Tshilombo — 2026-08-08T23:21:44Z |
 
