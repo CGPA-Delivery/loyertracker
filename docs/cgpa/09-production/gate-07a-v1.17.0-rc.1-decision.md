@@ -6,6 +6,7 @@
 - **RC :** `1.17.0-rc.1`
 - **Artefact Staging identique :** oui, digests API/Web inchangés
 - **Décision technique préparatoire :** **GO sous réserve**
+- **Avis indépendants :** `docs/cgpa/09-production/independent-reviews-v1.17.0-rc.1-us125.md` — QA RESERVE, SRE RESERVE, RM/DA GO sous réserve bloquante.
 - **`PRODUCTION_READY` :** non prononcé tant que les validations humaines ci-dessous ne sont pas signées
 
 ## Éléments vérifiés
