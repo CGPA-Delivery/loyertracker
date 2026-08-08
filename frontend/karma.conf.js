@@ -28,6 +28,22 @@ module.exports = function (config) {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
       },
+      ChromeHeadless360: {
+        base: 'ChromeHeadlessNoSandbox',
+        flags: ['--window-size=360,900'],
+      },
+      ChromeHeadless390: {
+        base: 'ChromeHeadlessNoSandbox',
+        flags: ['--window-size=390,900'],
+      },
+      ChromeHeadless640: {
+        base: 'ChromeHeadlessNoSandbox',
+        flags: ['--window-size=640,900'],
+      },
+      ChromeHeadless1024: {
+        base: 'ChromeHeadlessNoSandbox',
+        flags: ['--window-size=1024,900'],
+      },
     },
     restartOnFileChange: true,
   });

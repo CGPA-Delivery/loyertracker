@@ -14,8 +14,7 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Dialogue de désinscription renforcé : focus initial, boucle Tab, fermeture `Escape` et restitution du focus.
 - Preuves locales : ChromeHeadless ciblé 10/10, lint/build Frontend PASS, compilation Backend PASS,
   `NotificationFondationIntegrationTest` PASS avec Flyway V1→V32.
-- `RSV-MIG-611-04`, `RSV-US125-FE-01` et `RSV-US125-A11Y-01` techniquement traitées, sous réserve de validation humaine et CI distante.
-- `RSV-US125-RESP-01` reste ouverte jusqu'à la preuve visuelle réelle aux largeurs 360/390/640/1024 px.
+- `RSV-MIG-611-04`, `RSV-US125-FE-01`, `RSV-US125-A11Y-01` et `RSV-US125-RESP-01` techniquement traitées, sous réserve de validation humaine et CI distante.
 - Aucun Staging, Production, secret, provider ou migration supplémentaire exécuté.
 
 

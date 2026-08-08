@@ -191,6 +191,17 @@ describe('NotificationsPreferencesComponent', () => {
     expect(getComputedStyle(input).minHeight).toBe('44px');
   });
 
+  it('respecte la mise en page responsive et n introduit pas de débordement horizontal', () => {
+    const fixture = TestBed.createComponent(NotificationsPreferencesComponent);
+    fixture.detectChanges();
+
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
+    const actions = fixture.nativeElement.querySelector('.actions') as HTMLElement;
+    if (window.innerWidth <= 640) {
+      expect(getComputedStyle(actions).flexDirection).toBe('column');
+    }
+  });
+
   it('signale les erreurs de chargement', () => {
     api.consulterPreferences.and.returnValue(throwError(() => new Error('boom')));
 

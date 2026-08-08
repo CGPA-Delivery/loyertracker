@@ -198,16 +198,17 @@ initial dans le dialogue, fermeture `Escape`, restitution du focus au déclenche
 cibles tactiles de 44 px. La réserve est **techniquement traitée**, sous réserve de la validation
 humaine de la preuve.
 
-### `RSV-US125-RESP-01` — traitement technique, preuve visuelle restante
+### `RSV-US125-RESP-01` — levée technique
 
-La grille responsive utilise `auto-fit/minmax` et empile les actions à `max-width: 640px`. Le lint et
-le build Angular passent. La preuve visuelle réelle aux quatre largeurs CGPA (`360px`, `390px`,
-`640px`, `1024px`) reste obligatoire avant le Gate Staging ; la réserve est donc **non clôturée
-formellement** à ce stade.
+La grille responsive utilise `auto-fit/minmax` et empile les actions à `max-width: 640px`. L'exécution
+ChromeHeadless aux largeurs `360px`, `390px`, `640px` et `1024px` passe **44/44 assertions**,
+sans débordement horizontal et avec l'empilement mobile confirmé. La réserve est **techniquement
+traitée**, sous réserve de la validation humaine de la preuve.
 
 ### Validation exécutée
 
 - Frontend ciblé ChromeHeadless : **10/10 PASS**.
+- Frontend responsive multi-largeurs (`360/390/640/1024px`) : **44/44 PASS**.
 - Frontend lint : **PASS**.
 - Frontend build : **PASS**.
 - Backend compile : **PASS**.
