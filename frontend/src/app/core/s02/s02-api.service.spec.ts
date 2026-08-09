@@ -106,6 +106,23 @@ describe('S02ApiService', () => {
     req.flush([]);
   });
 
+  it('cloture et rouvre un bail avec les contrats Backend dédiés', () => {
+    service.cloturerBail('bien-1', 'bail-1', { dateClotureEffective: '2026-08-10' }).subscribe();
+    let req = http.expectOne('/api/biens/bien-1/baux/bail-1/cloture');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ dateClotureEffective: '2026-08-10' });
+    req.flush({
+      bail: { id: 'bail-1', bienId: 'bien-1', statut: 'CLOS' },
+      avertissements: ['Échéances futures supprimées'],
+    });
+
+    service.rouvrirBail('bien-1', 'bail-1').subscribe();
+    req = http.expectOne('/api/biens/bien-1/baux/bail-1/reouverture');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toBeNull();
+    req.flush({ id: 'bail-1', bienId: 'bien-1', statut: 'ACTIF' });
+  });
+
   it('cree un locataire et liste les locataires actifs d’un bien', () => {
     const payload: LocataireQuickAddPayload = { nom: 'Dupont', prenom: 'Marie', email: null };
 

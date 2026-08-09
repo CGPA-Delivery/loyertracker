@@ -95,6 +95,52 @@ describe('BailleurDashboardComponent', () => {
     });
   });
 
+  describe('EP-13 — cycle de vie du bail', () => {
+    it('clôture le bail sélectionné après confirmation et recharge le détail du bien', () => {
+      const cmp = fixture.componentInstance;
+      const bail = {
+        id: 'bail-1',
+        bienId: 'bien-1',
+        locataireNom: 'Locataire',
+        locataireEmail: null,
+        loyerHc: 800,
+        provisionCharges: 0,
+        loyerCc: 800,
+        depotGarantie: 0,
+        dateDebut: '2026-01-01',
+        dateFin: null,
+        statut: 'ACTIF',
+        devise: 'EUR' as const,
+      };
+      cmp.bienSelectionne.set({ id: 'bien-1', adresse: '1 rue Test', type: 'APPARTEMENT', statut: 'LOUE', patrimoineId: 'patrimoine-1' });
+      cmp.bailSelectionne.set(bail);
+
+      cmp.cloturerBail();
+
+      const req = http.expectOne('/api/biens/bien-1/baux/bail-1/cloture');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ dateClotureEffective: null });
+      req.flush({ bail: { ...bail, statut: 'CLOS' }, avertissements: [] });
+      http.expectOne('/api/biens/bien-1/baux').flush([]);
+      http.expectOne('/api/biens/bien-1/affectations').flush([]);
+
+      expect(cmp.message()).toBe('Bail clôturé');
+      expect(cmp.bailSelectionne()?.statut).toBe('CLOS');
+    });
+
+    it('refuse la réouverture avant confirmation', () => {
+      const cmp = fixture.componentInstance;
+      confirmSpy.and.returnValue(false);
+      cmp.bienSelectionne.set({ id: 'bien-1', adresse: '1 rue Test', type: 'APPARTEMENT', statut: 'LOUE', patrimoineId: 'patrimoine-1' });
+      cmp.bailSelectionne.set({ id: 'bail-1', bienId: 'bien-1', locataireNom: 'Locataire', locataireEmail: null, loyerHc: 800, provisionCharges: 0, loyerCc: 800, depotGarantie: 0, dateDebut: '2026-01-01', dateFin: null, statut: 'CLOS', devise: 'EUR' });
+
+      cmp.rouvrirBail();
+
+      expect(confirmSpy).toHaveBeenCalled();
+      http.expectNone('/api/biens/bien-1/baux/bail-1/reouverture');
+    });
+  });
+
   describe('EP-17 Lot 3 — liste des patrimoines via lt-data-table', () => {
     it('affiche nom/adresse/statut (badge coloré) du patrimoine chargé au démarrage', () => {
       fixture.detectChanges();

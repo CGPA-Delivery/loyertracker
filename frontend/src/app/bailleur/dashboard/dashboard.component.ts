@@ -271,6 +271,11 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
               <span>{{ bail.loyerCc | moneyFormat: bail.devise }} · {{ bail.dateDebut }} → {{ bail.dateFin || 'en cours' }}</span>
               <span class="badge">{{ bail.statut }}</span>
               <button type="button" (click)="selectionnerBail(bail)">Garanties</button>
+              @if (bail.statut === 'ACTIF') {
+                <button type="button" class="danger" (click)="cloturerBail()">Clôturer</button>
+              } @else if (bail.statut === 'CLOS') {
+                <button type="button" (click)="rouvrirBail()">Rouvrir</button>
+              }
             </div>
           } @empty {
             <p class="muted">Aucun bail.</p>
@@ -684,6 +689,48 @@ export class BailleurDashboardComponent implements OnInit {
 
   selectionnerBail(bail: Bail): void {
     this.bailSelectionne.set(bail);
+  }
+
+  cloturerBail(): void {
+    const bienId = this.bienSelectionneId();
+    const bail = this.bailSelectionne();
+    const bailId = bail?.id;
+    if (!bienId || !bailId || bail?.statut !== 'ACTIF' || !this.confirmerAction('Clôturer ce bail ? Les échéances futures pourront être supprimées.')) {
+      return;
+    }
+
+    this.executer('Clôture du bail', () =>
+      this.api.cloturerBail(bienId, bailId, { dateClotureEffective: null }).subscribe({
+        next: (resultat) => {
+          this.bailSelectionne.set(resultat.bail);
+          this.message.set(resultat.avertissements.length ? `Bail clôturé — ${resultat.avertissements.join(' ')}` : 'Bail clôturé');
+          this.chargerDetails(bienId);
+        },
+        error: (err: unknown) => this.signalerErreur(err),
+        complete: () => this.chargement.set(false),
+      }),
+    );
+  }
+
+  rouvrirBail(): void {
+    const bienId = this.bienSelectionneId();
+    const bail = this.bailSelectionne();
+    const bailId = bail?.id;
+    if (!bienId || !bailId || bail?.statut !== 'CLOS' || !this.confirmerAction('Rouvrir ce bail ?')) {
+      return;
+    }
+
+    this.executer('Réouverture du bail', () =>
+      this.api.rouvrirBail(bienId, bailId).subscribe({
+        next: (rouvert) => {
+          this.bailSelectionne.set(rouvert);
+          this.message.set('Bail rouvert');
+          this.chargerDetails(bienId);
+        },
+        error: (err: unknown) => this.signalerErreur(err),
+        complete: () => this.chargement.set(false),
+      }),
+    );
   }
 
   readonly bienForm = new FormGroup({
