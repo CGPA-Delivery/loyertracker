@@ -694,12 +694,13 @@ export class BailleurDashboardComponent implements OnInit {
   cloturerBail(): void {
     const bienId = this.bienSelectionneId();
     const bail = this.bailSelectionne();
-    if (!bienId || !bail || bail.statut !== 'ACTIF' || !this.confirmerAction('Clôturer ce bail ? Les échéances futures pourront être supprimées.')) {
+    const bailId = bail?.id;
+    if (!bienId || !bailId || bail?.statut !== 'ACTIF' || !this.confirmerAction('Clôturer ce bail ? Les échéances futures pourront être supprimées.')) {
       return;
     }
 
     this.executer('Clôture du bail', () =>
-      this.api.cloturerBail(bienId, bail.id, { dateClotureEffective: null }).subscribe({
+      this.api.cloturerBail(bienId, bailId, { dateClotureEffective: null }).subscribe({
         next: (resultat) => {
           this.bailSelectionne.set(resultat.bail);
           this.message.set(resultat.avertissements.length ? `Bail clôturé — ${resultat.avertissements.join(' ')}` : 'Bail clôturé');
@@ -714,12 +715,13 @@ export class BailleurDashboardComponent implements OnInit {
   rouvrirBail(): void {
     const bienId = this.bienSelectionneId();
     const bail = this.bailSelectionne();
-    if (!bienId || !bail || bail.statut !== 'CLOS' || !this.confirmerAction('Rouvrir ce bail ?')) {
+    const bailId = bail?.id;
+    if (!bienId || !bailId || bail?.statut !== 'CLOS' || !this.confirmerAction('Rouvrir ce bail ?')) {
       return;
     }
 
     this.executer('Réouverture du bail', () =>
-      this.api.rouvrirBail(bienId, bail.id).subscribe({
+      this.api.rouvrirBail(bienId, bailId).subscribe({
         next: (rouvert) => {
           this.bailSelectionne.set(rouvert);
           this.message.set('Bail rouvert');
