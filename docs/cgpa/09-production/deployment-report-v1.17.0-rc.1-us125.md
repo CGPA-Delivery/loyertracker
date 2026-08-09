@@ -1,8 +1,7 @@
 # Rapport de déploiement Production — v1.17.0-rc.1 / US-125
 
 **Gouvernance :** CGPA v6.1.1  
-**Statut technique :** `PRODUCTION_DEPLOYED`  
-**Statut métier :** en hypercare, acceptation CDO de l’écart de fenêtre requise  
+**Statut de clôture :** écart de fenêtre accepté par le CDO le `2026-08-09T05:45:17Z` ; release maintenue en Production sous hypercare. La clôture finale reste conditionnée aux checkpoints T+12/T+24.
 **Exécution :** 2026-08-09T00:24:03Z
 
 ## 1. Autorisation et identité
@@ -78,7 +77,7 @@ Le premier passage a été interrompu avant le parcours métier car la fixture `
 - Écart : exécution environ 36 minutes avant le début de la fenêtre UTC documentée.
 - Cause : l’instruction CDO explicite a été exécutée immédiatement ; la fenêtre précédemment documentée n’a pas été requalifiée avant la bascule.
 - Impact technique observé : aucun ; tous les contrôles critiques et le smoke sont PASS.
-- Action de gouvernance : acceptation explicite de cet écart par le CDO requise avant clôture formelle de la release.
+- **Action de gouvernance :** écart accepté explicitement par le CDO le `2026-08-09T05:45:17Z` ; hypercare T+12/T+24 reste obligatoire avant clôture finale.
 
 ## 7. Décision technique
 

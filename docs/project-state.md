@@ -1,4 +1,4 @@
-> **Revalidation des avis agents après corrections (2026-08-09).** QA Agent : PASS ; SRE Agent : PASS ; Delivery Architect Agent : PASS ; Release Manager Agent : PASS. Les seuils, rollback, escalade, fenêtre UTC et hypercare sont documentés et confirmés par le CDO.
+> **Clôture CDO de l’écart de fenêtre UTC — ACCEPTÉE (2026-08-09T05:45:17Z).** Jordan Tshilombo accepte l’exécution à `2026-08-09T00:24:03Z`, antérieure de 36 minutes à la fenêtre documentée `01:00–02:00Z`. L’écart est accepté comme exception de gouvernance sans impact technique observé. La RC reste en Production sous hypercare ; T+12 et T+24 restent les prochains checkpoints.
 
 > **Gate Production US-125 — GO / PRODUCTION_DEPLOYED (2026-08-09T00:24:03Z).** Jordan Tshilombo, CDO / Enterprise Architect, a donné le GO explicite de déploiement. La RC `v1.17.0-rc.1` du commit `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a` est déployée sur Production avec les digests API/Web exacts. CHECK-OPS-01 final PASS ; Flyway 32/32 ; smoke réel **63 PASS / 0 FAIL** ; API/Web healthy ; healthz/racine publiques 200 ; RestartCount API/Web 0 ; rollback et backup vérifiés.
 
