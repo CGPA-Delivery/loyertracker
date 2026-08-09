@@ -108,4 +108,4 @@ Critères de passage : health API/Web `200`, Actuator interne `200`, Actuator pu
 - fenêtres hypercare : T0 + 15 minutes, T+12 ± 30 minutes, T+24 ± 30 minutes ;
 - les références exactes de publication : [PR #410](https://github.com/CGPA-Delivery/loyertracker/pull/410) ;
 
-**Conclusion SRE Agent : PASS ; aucun déploiement Production exécuté.**
+**Conclusion SRE Agent : PASS technique ; déploiement exécuté le 2026-08-09T00:24:03Z, smoke 63/0. Écart de fenêtre UTC documenté dans `deployment-report-v1.17.0-rc.1-us125.md` ; acceptation CDO requise pour la clôture formelle.**

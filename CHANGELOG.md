@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+## [1.17.0-rc.1] - 2026-08-09
+
 ### Release Candidate `1.17.0-rc.1` — US-125 Notifications
 
 - Candidat immutable rattaché au commit `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a`.
