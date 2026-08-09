@@ -42,7 +42,7 @@
 
 L’audit ne trouve pas une seule liste fiable permettant de dire « tout le backlog est clôturé ». Il révèle cependant les écarts suivants :
 
-1. **US-73 à US-89 sont absentes de toutes les sources de backlog identifiées.** Le backlog canonique s’arrête à US-72 et la documentation reprend à US-90. Il peut s’agir d’une plage volontairement réservée, d’un ancien Epic supprimé ou de User Stories oubliées ; aucune décision de classement n’est tracée.
+1. **US-73 à US-79 et US-86 à US-89 sont absentes de toutes les sources de backlog identifiées.** EP-09 utilise bien `US-80→US-85` dans `addendum-patrimoine-backlog.md`. Le backlog canonique s’arrête à US-72 puis la documentation reprend avec EP-09 à US-80 et EP-10 à US-90. Les deux plages absentes peuvent correspondre à des stories annulées, réservées ou oubliées ; aucune décision de classement n’est tracée.
 2. **US-135 à US-140 sont en collision d’identifiants** entre EP-17 et EP-18. Cette collision rend impossible une traçabilité fiable par ID seul.
 3. **EP-17 est seulement partiellement livré.** Les Lots 1 à 3 sont couverts, mais les Lots 4 à 6 et plusieurs sections métier restent explicitement hors périmètre ou sous réserves. La correspondance exacte entre `US-135→US-142` et ces Lots n’est pas maintenue.
 4. **EP-18 A+B est intégré et promu**, mais la preuve de livraison de Sprint C/US-143 dans `main` et en Production n’est pas établie par l’historique Git actuel. Le code webhook observé dans la branche dédiée ne suffit pas à déclarer US-143 livrée.
@@ -77,7 +77,7 @@ Le fichier canonique contient les stories `US-01→04`, `US-10→13`, `US-20→2
 
 | Constat | Risque | Classification | Action obligatoire |
 |---|---|---|---|
-| Aucun fichier de backlog, Epic ou addendum identifié pour US-73→US-89 ; EP-10/12 démarre à US-90 | Stories historiques supprimées ou oubliées ; rupture de séquence | **À requalifier — priorité haute** | Décider explicitement : plage réservée, stories annulées, ou reconstituer les stories à partir du CDC/PR/issues |
+| Aucun fichier de backlog, Epic ou addendum identifié pour US-73→US-79 et US-86→US-89 ; EP-09 occupe US-80→US-85 et EP-10/12 démarre à US-90 | Stories historiques supprimées ou oubliées ; rupture de séquence | **À requalifier — priorité haute** | Décider explicitement : plages réservées, stories annulées, ou reconstituer les stories à partir du CDC/PR/issues |
 
 Aucune implémentation ne doit être attribuée à cette plage avant décision Product Owner/CDO.
 
@@ -160,9 +160,9 @@ EP-19 est créé comme futur Epic de suivi avancé de délivrabilité : statuts 
 
 **Décision requise :** choisir une stratégie unique : renumérotation additive d’EP-18/EP-19, namespace Epic obligatoire, ou annulation formelle des anciens IDs EP-17 non utilisés. Tant que ce point n’est pas décidé, un ID seul ne peut pas servir de référence CGPA.
 
-### B. Rupture US-73→US-89
+### B. Ruptures US-73→US-79 et US-86→US-89
 
-Aucune source actuelle ne définit ces IDs. Le projet doit conserver une décision écrite, même si la conclusion est « plage réservée/non utilisée ».
+Aucune source actuelle ne définit ces IDs. Le projet doit conserver une décision écrite, même si la conclusion est « plages réservées/non utilisées ».
 
 ### C. Absence de matrice de clôture unifiée
 
