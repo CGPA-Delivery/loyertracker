@@ -8,6 +8,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — audit Backend ↔ Frontend des endpoints
+
+- Audit statique : 75 endpoints Backend recensés, 44 usages API Angular, 0 appel Frontend orphelin et 27 endpoints non trouvés directement dans Angular.
+- Aucun endpoint n’est déclaré inutilisé ou supprimable sur cette seule base.
+- Règle PO/CDO validée : neuf contrôles obligatoires avant toute suppression/dépréciation, dont vérification runtime si logs disponibles, décision humaine, PR de non-régression et rollback.
+- Référence : `docs/cgpa/06-planification-agile/audit-backend-frontend-api-2026-08-09.md`.
+
 ### Gouvernance — registre Bugs et matrice de traçabilité — décision PO/CDO validée
 
 - Jordan Tshilombo approuve le registre Bugs normatif, la matrice Story/Bug→preuves et le triage P0/P1/P2.
