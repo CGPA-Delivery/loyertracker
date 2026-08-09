@@ -33,10 +33,10 @@ La classification affinée est la suivante :
 | EP-18 US-135→138 | Livrées dans `1.16.0`, mais collision d’identifiants avec EP-17 |
 | EP-18 US-139 | Livrée dans `1.16.0`, mais collision d’identifiant |
 | EP-18 US-140 | Livrée fonctionnellement, mais collision d’identifiant |
-| EP-18 US-143 | Fondation technique implémentée, non livrée opérationnellement ; reclassée EP-19 |
+| EP-18 US-143 | Fondation technique implémentée et mergée dans PR #368/`8c9f1e4`, non livrée opérationnellement ; validation reclassée EP-19 |
 | EP-19 US-144→147 | Non livrées, Epic futur |
 
-`US-143` ne doit donc ni être déclarée absente, ni être déclarée livrée : la signature et le contrôleur webhook existent, mais aucun webhook Resend/Svix réel n’a validé la chaîne de délivrabilité.
+`US-143` ne doit donc ni être déclarée absente, ni être déclarée entièrement livrée : la signature et le contrôleur webhook existent et sont mergés, mais aucun webhook Resend/Svix réel n’a validé la chaîne de délivrabilité.
 
 ## 2. User Stories / bugs fonctionnels oubliés ou insuffisamment backlogués
 

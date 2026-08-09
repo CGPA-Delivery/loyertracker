@@ -45,7 +45,7 @@ L’audit ne trouve pas une seule liste fiable permettant de dire « tout le bac
 1. **US-73 à US-79 et US-86 à US-89 sont absentes de toutes les sources de backlog identifiées.** EP-09 utilise bien `US-80→US-85` dans `addendum-patrimoine-backlog.md`. Le backlog canonique s’arrête à US-72 puis la documentation reprend avec EP-09 à US-80 et EP-10 à US-90. Les deux plages absentes peuvent correspondre à des stories annulées, réservées ou oubliées ; aucune décision de classement n’est tracée.
 2. **US-135 à US-140 sont en collision d’identifiants** entre EP-17 et EP-18. Cette collision rend impossible une traçabilité fiable par ID seul.
 3. **EP-17 est seulement partiellement livré.** Les Lots 1 à 3 sont couverts, mais les Lots 4 à 6 et plusieurs sections métier restent explicitement hors périmètre ou sous réserves. La correspondance exacte entre `US-135→US-142` et ces Lots n’est pas maintenue.
-4. **EP-18 A+B est intégré et promu**, mais la preuve de livraison de Sprint C/US-143 dans `main` et en Production n’est pas établie par l’historique Git actuel. Le code webhook observé dans la branche dédiée ne suffit pas à déclarer US-143 livrée.
+4. **EP-18 A+B+C est intégré et promu**, avec une fondation technique US-143 mergée dans PR #368/merge `8c9f1e4`, mais la validation opérationnelle par webhook Resend/Svix réel n’est pas acquise ; cette validation est reclassée vers EP-19.
 5. **EP-19 est bien identifié comme futur**, mais ses US-144→147 n’ont ni implémentation ni Gate de livraison. Elles ne sont pas oubliées ; elles sont non livrées et doivent rester dans le backlog actif.
 6. Plusieurs documents de référence sont contradictoires avec l’état réel : `CHANGELOG.md` indique encore que `1.17.0-rc.1` n’est pas déployée, et `docs/prod-state.md` conserve un état historique `1.16.0`/EP-18.
 7. Les dettes de conception et réserves ouvertes ne sont pas toutes reliées à une User Story. Certaines peuvent masquer des travaux oubliés : `DD-EP17-04`, `DD-EP17-06`, `DD-EP17-10`, `DD-EP17-11`, `DD-EP17-14`, `DD-611-02`, `DD-611-03`, budget Resend et validation réelle webhook.
@@ -138,9 +138,9 @@ Périmètres explicitement différés dans EP-17 et donc à ne pas considérer c
 | US-135→US-138 | Sprint A Resend intégré dans PR #368 et promu via `1.16.0` | Livré, mais IDs en collision avec EP-17 |
 | US-139 | Invitation Gestionnaire par e-mail, Sprint B, intégré et promu | Livré, mais ID en collision |
 | US-140 | Socle/complément de voie transactionnelle e-mail, intégré et promu | Livré, mais ID en collision |
-| US-143 | Webhook Resend/Svix documenté et présent sur la branche dédiée ; l’historique `main` audité ne contient pas le commit de webhook Sprint C comme preuve d’intégration finale incontestable | **Non livré / preuve de merge à rétablir** |
+| US-143 | Fondation webhook Resend/Svix mergée dans PR #368/`8c9f1e4` ; aucun webhook réel Resend/Svix validé en environnement | **Fondation technique livrée, validation opérationnelle reclassée EP-19** |
 
-**Point critique :** `project-state.md` affirme à un endroit que Sprint C est intégré dans PR #368, alors que l’historique Git de `main` montre le merge `8c9f1e4` correspondant au socle A+B. Cette contradiction doit être résolue par lecture de la PR et du diff final avant toute déclaration de US-143.
+**Point critique résolu par la revue PR :** le titre de PR #368 mentionne A+B, mais son head final `e3f9d294` et son merge `8c9f1e4` contiennent également la fondation Sprint C (`ResendCallbackController`, `ResendSignatureVerifier`, tests). La livraison opérationnelle du webhook réel reste toutefois reclassée vers EP-19.
 
 ### 3.10 EP-19 — US-144 à US-147
 
