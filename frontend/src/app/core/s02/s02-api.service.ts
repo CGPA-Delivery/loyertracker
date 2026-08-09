@@ -72,6 +72,15 @@ export interface Bail {
   devise: Devise;
 }
 
+export interface ClotureRequest {
+  dateClotureEffective: string | null;
+}
+
+export interface ClotureBailResponse {
+  bail: Bail;
+  avertissements: string[];
+}
+
 /**
  * `depotGarantie` n'est plus saisi à la création du bail (ADR-14 §8, Sprint 9) : aucune
  * `Garantie` n'existe encore à cet instant. Le dépôt se déclare via le flux « Ajouter garantie »
@@ -165,6 +174,20 @@ export class S02ApiService {
 
   listerBaux(bienId: string): Observable<Bail[]> {
     return this.http.get<Bail[]>(`${API_BASE_URL}/biens/${bienId}/baux`);
+  }
+
+  cloturerBail(bienId: string, bailId: string, payload: ClotureRequest): Observable<ClotureBailResponse> {
+    return this.http.post<ClotureBailResponse>(
+      `${API_BASE_URL}/biens/${bienId}/baux/${bailId}/cloture`,
+      payload,
+    );
+  }
+
+  rouvrirBail(bienId: string, bailId: string): Observable<Bail> {
+    return this.http.post<Bail>(
+      `${API_BASE_URL}/biens/${bienId}/baux/${bailId}/reouverture`,
+      null,
+    );
   }
 
   /** Locataires du bailleur (BAILLEUR uniquement) — sélecteur de création de bail. */
