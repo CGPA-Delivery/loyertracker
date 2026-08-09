@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { BailPayload, LocataireQuickAddPayload, S02ApiService } from './s02-api.service';
+import { BailPayload, LocataireQuickAddPayload, PatrimoinePayload, S02ApiService } from './s02-api.service';
 
 describe('S02ApiService', () => {
   let service: S02ApiService;
@@ -45,6 +45,23 @@ describe('S02ApiService', () => {
     req = http.expectOne('/api/types-biens');
     expect(req.request.method).toBe('GET');
     req.flush([{ code: 'APPARTEMENT', libelle: 'Appartement', actif: true }]);
+  });
+
+  it('crée et archive logiquement un patrimoine', () => {
+    const payload: PatrimoinePayload = {
+      nom: 'Patrimoine Sud', adresse: '12 rue des Lilas', ville: 'Paris', commune: null,
+      quartier: null, provinceEtat: null, pays: 'France', description: null, referenceInterne: 'PAT-SUD',
+    };
+    service.creerPatrimoine(payload).subscribe();
+    let req = http.expectOne('/api/patrimoines');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(payload);
+    req.flush({ id: 'patrimoine-2', ...payload, statut: 'ACTIF' });
+
+    service.archiverPatrimoine('patrimoine-2').subscribe();
+    req = http.expectOne('/api/patrimoines/patrimoine-2');
+    expect(req.request.method).toBe('DELETE');
+    req.flush({ id: 'patrimoine-2', ...payload, statut: 'ARCHIVE' });
   });
 
   it('cree modifie et archive un bien', () => {

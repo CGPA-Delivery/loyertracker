@@ -315,6 +315,37 @@ describe('BailleurDashboardComponent', () => {
     http.expectNone('/api/biens/bien-1/archivage');
   });
 
+  describe('EP-17 Lot 3 — création et archivage du patrimoine', () => {
+    it('crée un patrimoine via le formulaire puis recharge les référentiels', () => {
+      const cmp = fixture.componentInstance;
+      cmp.preparerNouveauPatrimoine();
+      cmp.patrimoineForm.setValue({
+        nom: 'Patrimoine Sud', adresse: '12 rue des Lilas', ville: 'Paris', commune: null,
+        quartier: null, provinceEtat: null, pays: 'France', description: null, referenceInterne: 'PAT-SUD',
+      });
+      cmp.enregistrerPatrimoine();
+      const req = http.expectOne('/api/patrimoines');
+      expect(req.request.method).toBe('POST');
+      req.flush({ id: 'patrimoine-2', nom: 'Patrimoine Sud', adresse: '12 rue des Lilas', statut: 'ACTIF' });
+      http.expectOne('/api/patrimoines').flush([]);
+      http.expectOne('/api/types-biens').flush([]);
+      http.expectOne('/api/locataires').flush([]);
+    });
+
+    it('archive le patrimoine sélectionné après confirmation', () => {
+      const cmp = fixture.componentInstance;
+      cmp.selectionnerPatrimoineModif('patrimoine-1');
+      cmp.archiverPatrimoine();
+      expect(confirmSpy).toHaveBeenCalledWith('Archiver ce patrimoine ?');
+      const req = http.expectOne('/api/patrimoines/patrimoine-1');
+      expect(req.request.method).toBe('DELETE');
+      req.flush({ id: 'patrimoine-1', nom: 'Patrimoine principal', statut: 'ARCHIVE' });
+      http.expectOne('/api/patrimoines').flush([]);
+      http.expectOne('/api/types-biens').flush([]);
+      http.expectOne('/api/locataires').flush([]);
+    });
+  });
+
   describe('Sprint 5 B2 / Sprint 7 — modification patrimoine (nom + adresse + champs enrichis)', () => {
     it('selectionnerPatrimoineModif peuple le formulaire depuis le signal patrimoines', () => {
       const cmp = fixture.componentInstance;

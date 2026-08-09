@@ -152,6 +152,14 @@ export class S02ApiService {
     return this.http.get<Patrimoine[]>(`${API_BASE_URL}/patrimoines`);
   }
 
+  creerPatrimoine(payload: PatrimoinePayload): Observable<Patrimoine> {
+    return this.http.post<Patrimoine>(`${API_BASE_URL}/patrimoines`, payload);
+  }
+
+  archiverPatrimoine(id: string): Observable<Patrimoine> {
+    return this.http.delete<Patrimoine>(`${API_BASE_URL}/patrimoines/${id}`);
+  }
+
   listerTypesBiens(): Observable<TypeBien[]> {
     return this.http.get<TypeBien[]>(`${API_BASE_URL}/types-biens`);
   }

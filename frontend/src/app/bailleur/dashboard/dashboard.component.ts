@@ -15,7 +15,6 @@ import {
   Devise,
   Locataire,
   Patrimoine,
-  PatrimoinePayload,
   S02ApiService,
   StatutBien,
   TypeBien,
@@ -119,8 +118,8 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
     </section>
 
     <section class="grid two detail mobile-list-first">
-      <form [formGroup]="patrimoineForm" (ngSubmit)="modifierPatrimoine()" class="panel">
-        <h2>Modifier un patrimoine</h2>
+      <form [formGroup]="patrimoineForm" (ngSubmit)="enregistrerPatrimoine()" class="panel">
+        <h2>{{ creationPatrimoine() ? 'Nouveau patrimoine' : 'Modifier un patrimoine' }}</h2>
         <lt-form-field #fSelect="ltFormField" inputId="patrimoine-select" label="Patrimoine">
           <select
             id="patrimoine-select"
@@ -134,7 +133,8 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
             }
           </select>
         </lt-form-field>
-        @if (patrimoineModifId()) {
+        <button type="button" (click)="preparerNouveauPatrimoine()">Créer un patrimoine</button>
+        @if (patrimoineModifId() || creationPatrimoine()) {
           <lt-form-field #fNom="ltFormField" inputId="patrimoine-nom" label="Nom">
             <input id="patrimoine-nom" type="text" formControlName="nom" [attr.aria-describedby]="fNom.describedBy()" />
           </lt-form-field>
@@ -182,7 +182,9 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
               [attr.aria-describedby]="fDescription.describedBy()"
             ></textarea>
           </lt-form-field>
-          <button type="submit" [disabled]="patrimoineForm.invalid || chargement()">Modifier</button>
+          <button type="submit" [disabled]="patrimoineForm.invalid || chargement()">
+            {{ creationPatrimoine() ? 'Créer' : 'Modifier' }}
+          </button>
         }
       </form>
       <div class="panel">
@@ -194,6 +196,9 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
           [error]="patrimoinesErreur()"
           emptyMessage="Aucun patrimoine."
         />
+        @if (patrimoineModifId() && !creationPatrimoine()) {
+          <button type="button" class="danger" (click)="archiverPatrimoine()">Archiver</button>
+        }
       </div>
     </section>
 
@@ -778,6 +783,7 @@ export class BailleurDashboardComponent implements OnInit {
   });
 
   readonly patrimoineModifId = signal('');
+  readonly creationPatrimoine = signal(false);
 
   readonly patrimoineForm = new FormGroup({
     nom: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -1145,7 +1151,17 @@ export class BailleurDashboardComponent implements OnInit {
     );
   }
 
+  preparerNouveauPatrimoine(): void {
+    this.patrimoineModifId.set('');
+    this.creationPatrimoine.set(true);
+    this.patrimoineForm.reset({
+      nom: '', adresse: '', ville: null, commune: null, quartier: null,
+      provinceEtat: null, pays: null, description: null, referenceInterne: null,
+    });
+  }
+
   selectionnerPatrimoineModif(patrimoineId: string): void {
+    this.creationPatrimoine.set(false);
     this.patrimoineModifId.set(patrimoineId);
     const p = this.patrimoines().find(pat => pat.id === patrimoineId);
     if (p) {
@@ -1163,27 +1179,41 @@ export class BailleurDashboardComponent implements OnInit {
     }
   }
 
-  modifierPatrimoine(): void {
-    const id = this.patrimoineModifId();
-    if (!id || this.patrimoineForm.invalid) {
+  enregistrerPatrimoine(): void {
+    if (this.patrimoineForm.invalid) {
       return;
     }
-    const valeurs = this.patrimoineForm.getRawValue();
-    const payload: PatrimoinePayload = {
-      nom: valeurs.nom,
-      adresse: valeurs.adresse,
-      ville: valeurs.ville,
-      commune: valeurs.commune,
-      quartier: valeurs.quartier,
-      provinceEtat: valeurs.provinceEtat,
-      pays: valeurs.pays,
-      description: valeurs.description,
-      referenceInterne: valeurs.referenceInterne,
-    };
-    this.executer('Modification du patrimoine', () =>
-      this.api.modifierPatrimoine(id, payload).subscribe({
+    const payload = this.patrimoineForm.getRawValue();
+    const id = this.patrimoineModifId();
+    this.executer(id ? 'Modification du patrimoine' : 'Création du patrimoine', () =>
+      (id ? this.api.modifierPatrimoine(id, payload) : this.api.creerPatrimoine(payload)).subscribe({
         next: (p) => {
-          this.message.set(`Patrimoine « ${p.nom} » modifié`);
+          this.message.set(`Patrimoine « ${p.nom} » ${id ? 'modifié' : 'créé'}`);
+          this.creationPatrimoine.set(false);
+          this.patrimoineModifId.set(id);
+          this.chargerReferentielsBien();
+        },
+        error: (err: unknown) => this.signalerErreur(err),
+        complete: () => this.chargement.set(false),
+      }),
+    );
+  }
+
+  modifierPatrimoine(): void {
+    this.enregistrerPatrimoine();
+  }
+
+  archiverPatrimoine(): void {
+    const id = this.patrimoineModifId();
+    if (!id || !this.confirmerAction('Archiver ce patrimoine ?')) {
+      return;
+    }
+    this.executer('Archivage du patrimoine', () =>
+      this.api.archiverPatrimoine(id).subscribe({
+        next: (p) => {
+          this.message.set(`Patrimoine « ${p.nom} » archivé`);
+          this.patrimoineModifId.set('');
+          this.patrimoineForm.reset();
           this.chargerReferentielsBien();
         },
         error: (err: unknown) => this.signalerErreur(err),
