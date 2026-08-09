@@ -29,6 +29,14 @@ Toute user story est **Terminée** uniquement si **tous** les critères suivants
 
 > **ENF transverses** (sécurité, RGPD, cloisonnement) : intégrées à la DoD — elles ne constituent pas des stories séparées sauf quand elles représentent un livrable autonome (US-71, US-72, US-73).
 
+### Addendum de namespace et réconciliation — validé PO/CDO le 2026-08-09
+
+- Les anciens IDs source Patrimoine `US-73`, `US-74`, `US-75` sont absorbés respectivement par les IDs canoniques `US-83`, `US-84`, `US-85`.
+- Les plages `US-76→US-79` et `US-86→US-89` sont non attribuées/réservées ou annulées avant attribution. Aucun contenu ne doit être inventé sur ces plages sans nouveau cadrage PO/CDO.
+- Les références non qualifiées `US-135→US-140` sont ambiguës entre EP-17 et EP-18 et ne doivent plus être utilisées seules dans les nouveaux documents.
+- Référence normative obligatoire : `EP-17/US-xxx` ou `EP-18/US-xxx`, avec alias historiques conservés dans la matrice de réconciliation.
+- Cet addendum est documentaire et ne constitue pas une autorisation de développement, migration, promotion, déploiement ou activation fournisseur.
+
 ---
 
 ## 2. Epics
