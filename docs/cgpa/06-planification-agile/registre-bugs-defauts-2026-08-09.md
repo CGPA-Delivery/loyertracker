@@ -3,11 +3,11 @@
 **Date d’audit :** 2026-08-09  
 **Cadre :** CGPA v6.1.1  
 **Release protégée :** `v1.17.0-rc.1` sous hypercare  
-**Statut :** proposition documentaire — validation PO/CDO requise
+**Statut :** **VALIDÉ PO/CDO — Jordan Tshilombo, 2026-08-09**
 
 ## 1. Règles de lecture
 
-Ce registre sépare les bugs produits des réserves, dettes, observations et dérives documentaires. Les éléments issus de l’audit sont des **candidats à qualifier** tant qu’une décision PO/CDO n’est pas enregistrée. L’absence d’issue GitHub ne vaut pas absence de défaut : le projet trace historiquement les écarts dans les documents CGPA, Gates, PR et rapports d’environnement.
+Ce registre sépare les bugs produits des réserves, dettes, observations et dérives documentaires. Les éléments issus de l’audit restent des **candidats à qualifier bug par bug** ; l’approbation du registre ne transforme pas automatiquement chaque candidat en bug accepté. L’absence d’issue GitHub ne vaut pas absence de défaut : le projet trace historiquement les écarts dans les documents CGPA, Gates, PR et rapports d’environnement.
 
 Criticité CGPA : `Bloquant`, `Majeur`, `Mineur`, `Observation`. Priorité proposée : `P0`, `P1`, `P2`.
 

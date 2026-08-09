@@ -1,7 +1,7 @@
 # Décision proposée — Bugs et matrice de traçabilité
 
 **Date :** 2026-08-09  
-**Statut :** proposition PO/CDO — validation humaine requise  
+**Statut :** **VALIDÉE PO/CDO — Jordan Tshilombo, 2026-08-09**
 **Cadre :** CGPA v6.1.1  
 **Release protégée :** `v1.17.0-rc.1` sous hypercare
 
@@ -62,13 +62,13 @@ Interdits par cette décision seule :
 - lancement EP-19 ;
 - renumérotation destructive.
 
-## 5. Validation attendue
+## 5. Validation humaine enregistrée
 
-Jordan Tshilombo, PO/CDO, est invité à valider ou amender :
+Jordan Tshilombo, PO/CDO, approuve la décision proposée :
 
-1. la création du registre Bugs normatif ;
-2. la matrice normative unique ;
-3. le triage initial P0/P1/P2 ;
-4. le statut `GO documentaire / NO GO fonctionnel` pendant l’hypercare.
+1. création du registre Bugs normatif ;
+2. matrice normative unique ;
+3. triage initial P0/P1/P2 ;
+4. statut `GO documentaire / NO GO fonctionnel` pendant l’hypercare.
 
-Les avis des sous-agents restent des avis techniques et ne constituent pas la validation humaine.
+Les avis des sous-agents restent des avis techniques ; la présente approbation constitue la validation humaine PO/CDO. Elle n’autorise aucun code, migration, environnement, provider, secret, EP-19 ou observabilité critique.

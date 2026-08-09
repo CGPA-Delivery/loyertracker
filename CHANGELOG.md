@@ -8,6 +8,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — registre Bugs et matrice de traçabilité — décision PO/CDO validée
+
+- Jordan Tshilombo approuve le registre Bugs normatif, la matrice Story/Bug→preuves et le triage P0/P1/P2.
+- Statut adopté : `GO documentaire sous gel applicatif / NO GO fonctionnel` pendant l’hypercare `v1.17.0-rc.1`.
+- Les candidats Bugs/Dettes/Dérives restent à qualifier individuellement ; aucun correctif applicatif n’est autorisé par cette décision seule.
+- Aucune migration, promotion, déploiement, activation provider, secret, EP-19 ou observabilité critique autorisé.
+- Référence : `docs/cgpa/06-planification-agile/decision-proposee-bugs-matrice-2026-08-09.md`.
+
 ### Gouvernance — réconciliation backlog points 1 et 2 — décision PO/CDO validée
 
 - Jordan Tshilombo valide la requalification des IDs Patrimoine `US-73→US-75` vers `US-83→US-85` ; `US-76→US-79` et `US-86→US-89` sont non attribuées/réservées ou annulées avant attribution.

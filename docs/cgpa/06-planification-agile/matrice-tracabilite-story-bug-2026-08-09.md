@@ -3,7 +3,7 @@
 **Date :** 2026-08-09  
 **Cadre :** CGPA v6.1.1  
 **Release protégée :** `v1.17.0-rc.1` sous hypercare  
-**Statut :** proposition documentaire — validation PO/CDO requise
+**Statut :** **VALIDÉE PO/CDO — Jordan Tshilombo, 2026-08-09**
 
 ## 1. Clé et règles
 
