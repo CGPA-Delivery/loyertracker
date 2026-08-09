@@ -8,6 +8,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — réconciliation backlog points 1 et 2 — décision PO/CDO validée
+
+- Jordan Tshilombo valide la requalification des IDs Patrimoine `US-73→US-75` vers `US-83→US-85` ; `US-76→US-79` et `US-86→US-89` sont non attribuées/réservées ou annulées avant attribution.
+- La collision EP-17/EP-18 `US-135→US-140` est résolue par migration documentaire additive avec alias historiques et identifiants qualifiés obligatoires `EP-17/US-xxx` et `EP-18/US-xxx`.
+- Historique des releases, Gates, commits et PR préservé ; aucun GO de développement, migration, environnement, provider ou EP-19 accordé.
+- Référence : `docs/cgpa/06-planification-agile/decision-proposee-reconciliation-backlog-points-1-2-2026-08-09.md`.
+
 ## [1.17.0-rc.1] - 2026-08-09
 
 ### Release Candidate `1.17.0-rc.1` — US-125 Notifications
