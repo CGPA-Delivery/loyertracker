@@ -1,6 +1,6 @@
 > **Revalidation des avis agents après corrections (2026-08-09).** QA Agent : PASS ; SRE Agent : PASS ; Delivery Architect Agent : PASS ; Release Manager Agent : PASS. Les seuils, rollback, escalade, fenêtre UTC et hypercare sont documentés et confirmés par le CDO.
 
-> **Gate Production US-125 — GO / PRODUCTION_READY (2026-08-08T23:21:44Z).** Jordan Tshilombo, CDO / Enterprise Architect, accepte les avis des sous-agents QA, SRE, Delivery Architect et Release Manager ainsi que leurs réserves non bloquantes. La décision Gate est `GO / PRODUCTION_READY`. Aucun déploiement Production n’a été exécuté ; CHECK-OPS-01 final et instruction opérationnelle explicite restent requis.
+> **Gate Production US-125 — GO / PRODUCTION_DEPLOYED (2026-08-09T00:24:03Z).** Jordan Tshilombo, CDO / Enterprise Architect, a donné le GO explicite de déploiement. La RC `v1.17.0-rc.1` du commit `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a` est déployée sur Production avec les digests API/Web exacts. CHECK-OPS-01 final PASS ; Flyway 32/32 ; smoke réel **63 PASS / 0 FAIL** ; API/Web healthy ; healthz/racine publiques 200 ; RestartCount API/Web 0 ; rollback et backup vérifiés.
 
 > **Validation Product Owner RC `1.17.0-rc.1` — PASS (2026-08-08T23:55:00Z).** Jordan Tshilombo, en qualité de Product Owner, a fourni la validation `PASS QA RC 1.17.0-rc.1`, référencée par commentaire GitHub PR / procès-verbal Gate / signature électronique. Cette validation couvre l’acceptation PO de la RC et ne remplace pas l’avis QA Lead.
 

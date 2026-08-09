@@ -5,7 +5,7 @@
 - **Source immutable :** `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a`
 - **API digest :** `sha256:8e94c002a65bff590c9694b1dd79ca2eb9ab04639f9f59ddb5b735afe001a30d`
 - **Web digest :** `sha256:18ade4b483955691fedd7d46a2c893ff27facd9d6dcf5249350005080d679d67`
-- **Déploiement actuel :** aucun déploiement Production exécuté
+- **Déploiement actuel :** Production déployée le `2026-08-09T00:24:03Z` ; hypercare active
 - **Auteur :** sous-agent Release Manager, non humain
 - **Statut :** PASS documentaire.
 
