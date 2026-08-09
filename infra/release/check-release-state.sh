@@ -76,7 +76,7 @@ check_ci() {
   local changelog="$REPO_ROOT/CHANGELOG.md"
   if [[ -f "$changelog" ]]; then
     local top
-    top=$(grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' "$changelog" | head -1 | tr -d '#[] ')
+    top=$(grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+(-[^]]+)?\]' "$changelog" | head -1 | tr -d '#[] ')
     if [[ -z "$top" ]]; then
       ko "aucune version SemVer trouvée dans $changelog"
     elif [[ "$top" == "$RELEASE_VERSION" ]]; then
@@ -98,7 +98,7 @@ check_ci() {
   # Le tag est conservé pour la lisibilité historique ; les digests font autorité.
   local ref
   for ref in "$PRODUCTION_API_IMAGE_REF" "$PRODUCTION_WEB_IMAGE_REF"; do
-    if [[ "$ref" =~ ^ghcr\.io/jptshilombo/loyertracker-(api|web)@sha256:[0-9a-f]{64}$ ]]; then
+    if [[ "$ref" =~ ^ghcr\.io/(jptshilombo|cgpa-delivery)/loyertracker-(api|web)@sha256:[0-9a-f]{64}$ ]]; then
       ok "référence digest Production valide : $ref"
     else
       ko "référence digest Production invalide : $ref"
