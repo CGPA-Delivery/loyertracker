@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { BailPayload, LocataireQuickAddPayload, PatrimoinePayload, S02ApiService } from './s02-api.service';
+import { BailPayload, LocataireDetail, LocataireHistorique, LocatairePayload, LocataireQuickAddPayload, PatrimoinePayload, S02ApiService } from './s02-api.service';
 
 describe('S02ApiService', () => {
   let service: S02ApiService;
@@ -180,5 +180,64 @@ describe('S02ApiService', () => {
     req = http.expectOne('/api/biens/bien-1/affectations');
     expect(req.request.method).toBe('GET');
     req.flush([]);
+  });
+
+  // --- Locataire endpoints (EP-15) ---
+
+  it('verificationDoublonLocataire', () => {
+    service.verificationDoublonLocataire('a@b.com', '+33', 'CNI-123').subscribe();
+    const req = http.expectOne('/api/locataires/verification-doublon?email=a@b.com&telephone=%2B33&piece=CNI-123');
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
+  it('consulterLocataire', () => {
+    const detail: LocataireDetail = {
+      id: 'loc-1', nom: 'Dupont', prenom: 'Jean', telephone: '+33', email: 'j@d.com',
+      profession: null, dateNaissance: null, typePieceIdentite: null, numeroPieceIdentite: null,
+      photoPresente: false, contactUrgence: null, observations: null, statut: 'ACTIVE',
+      dateCreation: '2026-01-01T00:00:00Z', dateArchivage: null,
+    };
+    service.consulterLocataire('loc-1').subscribe((r) => expect(r).toEqual(detail));
+    const req = http.expectOne('/api/locataires/loc-1');
+    expect(req.request.method).toBe('GET');
+    req.flush(detail);
+  });
+
+  it('modifierLocataire', () => {
+    const payload: LocatairePayload = { nom: 'Dupont', prenom: 'Jean', telephone: '+33' };
+    service.modifierLocataire('loc-1', payload).subscribe();
+    const req = http.expectOne('/api/locataires/loc-1');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(payload);
+    req.flush({ id: 'loc-1', ...payload, statut: 'ACTIVE' });
+  });
+
+  it('archiverLocataire', () => {
+    service.archiverLocataire('loc-1').subscribe();
+    const req = http.expectOne('/api/locataires/loc-1/archivage');
+    expect(req.request.method).toBe('POST');
+    req.flush({ id: 'loc-1', statut: 'ARCHIVE' });
+  });
+
+  it('restaurerLocataire', () => {
+    service.restaurerLocataire('loc-1').subscribe();
+    const req = http.expectOne('/api/locataires/loc-1/restauration');
+    expect(req.request.method).toBe('POST');
+    req.flush({ id: 'loc-1', statut: 'ACTIVE' });
+  });
+
+  it('historiqueLocataire', () => {
+    const historique: LocataireHistorique = {
+      locataire: { id: 'loc-1', nom: 'Dupont', prenom: null, telephone: null, email: null,
+        profession: null, dateNaissance: null, typePieceIdentite: null, numeroPieceIdentite: null,
+        photoPresente: false, contactUrgence: null, observations: null, statut: 'ACTIVE',
+        dateCreation: '2026-01-01T00:00:00Z', dateArchivage: null },
+      audit: [],
+    };
+    service.historiqueLocataire('loc-1').subscribe((r) => expect(r).toEqual(historique));
+    const req = http.expectOne('/api/locataires/loc-1/historique');
+    expect(req.request.method).toBe('GET');
+    req.flush(historique);
   });
 });

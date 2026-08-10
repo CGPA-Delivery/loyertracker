@@ -33,6 +33,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'bailleur/locataires/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./locataire/locataire-detail.component').then(
+        (m) => m.LocataireDetailComponent,
+      ),
+  },
+  {
     path: 'gestionnaire',
     canActivate: [authGuard],
     loadComponent: () =>
