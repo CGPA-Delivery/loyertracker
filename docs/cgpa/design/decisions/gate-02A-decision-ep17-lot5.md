@@ -78,13 +78,33 @@
 
 ## 6. Décision finale
 
-**Décision** : **EN ATTENTE** — à renseigner par le Product Owner / CGPA Chief Delivery Officer.
+**Décision** : **GO sous réserve**.
 
-**Portée de la décision** : [à compléter par le PO]
+**Instruction reçue (2026-08-10)** : « Je valide aussi la prochaine étape », du Product Owner /
+CGPA Chief Delivery Officer, en réponse à la soumission de cette instance et de
+`gate-04A-decision-ep17-lot5.md`.
 
-**Réserves qui subsistent après ce GO** : [à compléter par le PO]
+**Portée de la décision** : ce GO sous réserve couvre le périmètre de ce Gate 02A tel qu'instruit
+(§1-§5) — validation UX des écrans déjà livrés par les Lots 1 à 4, sans nouvelle production de
+parcours ni de maquettes. Le Lot 5 (US-136 à US-141) est autorisé à démarrer.
 
-**Ce que ce GO n'autorise pas** : [à compléter par le PO]
+**Réserves qui subsistent après ce GO** :
+* Preuves US-136 (accessibilité WCAG 2.2 AA) à produire pendant le Lot 5 — `CHECK-ACCESSIBILITY-01`
+  PASS ou PASS sous réserve requis avant clôture du Lot.
+* Preuves US-137 (responsive, breakpoint 640px) à produire pendant le Lot 5 — `CHECK-RESPONSIVE-01`
+  PASS requis avant clôture du Lot.
+* Preuves US-138 (régression visuelle) à produire pendant le Lot 5 — rapport de Visual Review requis
+  avant clôture du Lot.
+* US-139 (documentation) — `DSG-001.md`, `component-inventory-loyertracker.md`,
+  `traceability-ui-loyertracker.md` à mettre à jour avant clôture du Lot.
+* `DD-EP17-14` (SMTP cassé) — suivi propre, ne bloque pas le Lot 5.
+* `DD-EP17-13` (langue Keycloak) — close pour l'écran de connexion, vérification des 5 autres
+  écrans à produire pendant le Lot 5.
+
+**Ce que ce GO n'autorise pas** : conformément à `CLAUDE.md` (« aucun code applicatif sans Plan
+d'Exécution approuvé »), ce GO sous réserve de Gate 02A ne vaut à lui seul ni extension du Plan
+d'Exécution au Lot 5, ni autorisation de développement. L'extension du Plan d'Exécution reste une
+action Product Owner distincte, préalable à tout travail du Lot 5.
 
 ## 7. Traçabilité
 
