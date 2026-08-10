@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "a11y:e2e": "playwright test -c playwright.a11y.config.ts"
+    "a11y:e2e": "playwright test -c playwright.a11y.config.ts",
+    "verify:security-dependencies": "node scripts/verify-security-dependencies.cjs"
   },
   "private": true,
   "dependencies": {
@@ -36,7 +37,7 @@
     "@angular/compiler-cli": "22.1.0",
     "@axe-core/playwright": "4.10.2",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "1.54.2",
+    "@playwright/test": "1.55.1",
     "@types/jasmine": "~6.0.0",
     "@types/node": "24.13.3",
     "angular-eslint": "^22.1.0",
@@ -47,7 +48,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.2.0",
-    "playwright-core": "1.54.2",
+    "playwright": "1.55.1",
+    "playwright-core": "1.55.1",
     "typescript": "6.0.3",
     "typescript-eslint": "^8.65.0"
   },
@@ -55,6 +57,7 @@
     "@angular-devkit/build-angular": {
       "http-proxy-middleware": "3.0.7"
     },
-    "esbuild": "0.28.1"
+    "esbuild": "0.28.1",
+    "ip-address": "10.3.1"
   }
 }
