@@ -215,8 +215,8 @@ describe('S02ApiService', () => {
 
   it('archiverLocataire', () => {
     service.archiverLocataire('loc-1').subscribe();
-    const req = http.expectOne('/api/locataires/loc-1/archivage');
-    expect(req.request.method).toBe('POST');
+    const req = http.expectOne('/api/locataires/loc-1');
+    expect(req.request.method).toBe('DELETE');
     req.flush({ id: 'loc-1', statut: 'ARCHIVE' });
   });
 

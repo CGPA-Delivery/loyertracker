@@ -304,7 +304,7 @@ export class S02ApiService {
   }
 
   archiverLocataire(id: string): Observable<LocataireDetail> {
-    return this.http.post<LocataireDetail>(`${API_BASE_URL}/locataires/${id}/archivage`, null);
+    return this.http.delete<LocataireDetail>(`${API_BASE_URL}/locataires/${id}`);
   }
 
   restaurerLocataire(id: string): Observable<LocataireDetail> {
