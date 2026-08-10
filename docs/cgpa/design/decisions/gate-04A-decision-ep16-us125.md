@@ -1,5 +1,7 @@
 # Décision GO / NO GO CGPA v6.1.1 — Gate 04A, US-125 (EP-16 Sprint N+2 Lot B)
 
+> **⚠️ SUPERSEDED — 2026-08-10 :** Cette décision Gate 04A a été rendue le 2026-08-06 (GO sous réserve documentaire). Les réserves `RSV-US125-A11Y-01`, `RSV-US125-RESP-01`, `RSV-US125-FE-01` et `RSV-MIG-611-04` ont été techniquement levées. US-125 est livrée : Gate Staging GO (2026-08-08), Gate Production GO (2026-08-09). `1.17.0-rc.1` est `PRODUCTION_DEPLOYED`. Ce bandeau est additif ; le contenu historique ci-dessous est préservé.
+
 ## 1. Identification
 
 * ID décision : `GATE-04A-EP16-US125-2026-08-06`

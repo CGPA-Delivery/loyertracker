@@ -1,5 +1,7 @@
 # Cadrage PO/CDO — US-125, Gates 02A/04A (EP-16 Sprint N+2 Lot B)
 
+> **⚠️ SUPERSEDED — 2026-08-10 :** Ce cadrage a été rédigé le 2026-08-06. US-125 a été livrée : Gate 04A GO sous réserve, Gate 05 planifié/exécuté, Gate Staging GO (2026-08-08), Gate Production GO (2026-08-09). `1.17.0-rc.1` est `PRODUCTION_DEPLOYED`. Ce bandeau est additif ; le contenu historique ci-dessous est préservé.
+
 | Champ | Valeur |
 |---|---|
 | Décision | **GO PO/CDO — instruire le cadrage US-125 / Gate 04A, sans codage** |

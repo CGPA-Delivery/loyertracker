@@ -6,6 +6,24 @@
 
 
 
+## 0S. Déploiement Production `1.17.0-rc.1` — 2026-08-09 (US-125 Notifications) — **`PRODUCTION_DEPLOYED` confirmé** ✅
+
+> **Gate Production US-125 — GO / PRODUCTION_DEPLOYED (2026-08-09T00:24:03Z).** Jordan Tshilombo, CDO / Enterprise Architect, a donné le GO explicite de déploiement. La RC `v1.17.0-rc.1` du commit `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a` est déployée sur Production avec les digests API/Web exacts. CHECK-OPS-01 final PASS ; Flyway 32/32 ; smoke réel **63 PASS / 0 FAIL** ; API/Web healthy ; healthz/racine publiques 200 ; RestartCount API/Web 0 ; rollback et backup vérifiés. Validation PO RC PASS (2026-08-08T23:55:00Z). Gate Staging US-125 GO / STAGING_DEPLOYED (2026-08-08T22:09:25Z) avec STG-ISOL-01 PASS, Flyway 32/32, smoke 63 PASS / 0 FAIL. Hypercare T0 PASS (2026-08-09T00:24:03Z) ; T+12 et T+24 restent les prochains checkpoints. Décision : `docs/cgpa/09-production/gate-production-us125-decision.md`.
+
+| Contrôle | Résultat |
+|---|---|
+| Release | `1.17.0-rc.1` — US-125 Notifications (préférences, désinscription, historique) |
+| Tag / digests | `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a` ; digests API/Web conformes au Gate |
+| Rollback | V32 additive, backup Préflight vérifié |
+| Déploiement | `api` + `nginx` recréés ciblés ; PostgreSQL, Keycloak et monitoring inchangés |
+| Flyway | V32 appliquée, **32/32** ; fonction ReBAC `notifications_gestionnaire(...)` + provenance `bien_id` |
+| Smoke | **63 PASS / 0 FAIL** au premier passage, nettoyage transactionnel sans résidu |
+| Services | 8/8 actifs, 4/4 healthy, `RestartCount=0` |
+| Observabilité | Prometheus 5/5 ; `/healthz` et racine publique 200 |
+| État CGPA | **`PRODUCTION_DEPLOYED` — 2026-08-09** ; hypercare en cours (T+12, T+24) |
+
+Rapports : `docs/cgpa/09-production/gate-production-us125-decision.md`.
+
 ## 0R. Déploiement Production `1.16.0` — 2026-08-05 (EP-18 Notifications EMAIL Resend) — **`PRODUCTION_DEPLOYED` confirmé** ✅
 
 > **Clôture Release `1.16.0` — CDO GO (2026-08-06T05:59:59Z)** : après merge PR #381 (`52683c5`) et resynchronisation de l'hôte Production sur `main`, la release EP-18 est clôturée sans réserve bloquante. Contrôles de clôture : `check-release-state.sh --host` cohérent, Flyway `31/31`, API/Web/PostgreSQL/Keycloak healthy, `/healthz` et racine publique `200`, Resend actif (`RESEND_EMAIL_ENABLED=true`, `NOTIFICATIONS_EXTERNAL_ENABLED=true`, `NOTIFICATION_DRY_RUN=false`, budget `100`), Twilio SMS/WhatsApp fermés, `notification_outbox=0`, `notification_delivery=0`, `notification_event=34`. Cette clôture ne démarre pas EP-19 et n'autorise aucune nouvelle opération Production. Décision : `docs/cgpa/09-production/cloture-release-v1.16.0.md`.
