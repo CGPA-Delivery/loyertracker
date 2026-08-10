@@ -221,6 +221,9 @@ jobs:
             -out infra/nginx/certs/localhost.pem \
             -subj '/CN=localhost' \
             -addext 'subjectAltName=DNS:localhost'
+          # Le worker Nginx s'exécute sous UID 101 : fichiers montés en lecture seule mais
+          # lisibles dans le runner CI éphémère uniquement, puis supprimés au teardown.
+          chmod 0644 infra/nginx/certs/localhost.pem infra/nginx/certs/localhost-key.pem
           sudo apt-get update -qq
           sudo apt-get install -y -qq libnss3-tools
           mkdir -p "$HOME/.pki/nssdb"
