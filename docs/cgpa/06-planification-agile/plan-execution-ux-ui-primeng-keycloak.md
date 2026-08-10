@@ -486,3 +486,27 @@ sprint actif sans décision explicite du Product Owner.**
 * **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT),
   LOT 4 (PILOTE KEYCLOAK) ET LOT 5 (VALIDATION) » (§ en-tête). Le travail de validation du
   Lot 5 (US-136 à US-141) peut démarrer, sous réserve continue des points ci-dessus.
+
+### Extension ciblée US-136 — Levée des réserves WCAG (2026-08-10)
+
+* **Autorisation explicite reçue** : « GO explicite d’extension de périmètre US-136 », du Product
+  Owner / CGPA Chief Delivery Officer, après consolidation de trois revues indépendantes
+  (Keycloak/OIDC, outillage E2E, matrice clavier/reflow).
+* **Périmètre additionnel autorisé, strictement borné** :
+  1. corriger le contraste Keycloak `.instruction` par le token existant `--lt-text-muted` ;
+  2. surcharger le template login FreeMarker Keycloak **24.0.5** uniquement pour rendre
+     `#kc-content` sémantiquement principal (`main`, `role="main"`, `aria-labelledby="kc-page-title"`) ;
+  3. ajouter une preuve E2E versionnée, avec Playwright et axe à versions fixes, exécutée contre
+     la stack Compose réelle via `https://localhost` et le flux Authorization Code + PKCE ;
+  4. exécuter la matrice clavier/focus/zoom/reflow/reduced-motion et consigner ses résultats.
+* **Interdictions non négociables** : aucun JavaScript de manipulation DOM dans le thème ; aucune
+  modification des fichiers realm, redirect URI, web origins, PKCE, Direct Access Grant, cookies,
+  CSRF, actions de formulaire ou secrets ; aucun `ignoreHTTPSErrors` / `-k` comme preuve navigateur ;
+  aucun Staging, Production, provider, migration ou changement de contrat.
+* **Traçabilité de la surcharge** : le template local doit provenir du template `theme/base/login/template.ftl`
+  de l’image Keycloak 24.0.5 et son diff doit être limité au tag ouvrant/fermant de `#kc-content`.
+  Toute montée de version Keycloak impose une revue comparative au template upstream avant promotion.
+* **Critères de sortie technique** : contraste ≥ 4,5:1 ; un seul landmark principal ; absence de
+  violations axe `serious`/`critical` sur les routes Angular pilote et les six flux Keycloak ;
+  preuves d’authentification PKCE/TLS de confiance ; matrice clavier/reflow complète. La levée
+  formelle des réserves reste soumise à validation humaine CGPA après CI du SHA courant.
