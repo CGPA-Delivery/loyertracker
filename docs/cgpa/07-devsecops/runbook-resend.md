@@ -118,3 +118,74 @@ s'accumulent en `PENDING`/`RETRY` et seront rejouées automatiquement au rétabl
 fournisseur (backoff exponentiel existant, hérité d'ADR-18). Aucune action manuelle requise sauf
 dépassement du nombre maximal de tentatives (`DEAD`), auquel cas une reprise manuelle ciblée est
 possible après diagnostic.
+
+## 9. Domaine d'envoi vérifié `loyertracker.org` — capacité disponible (2026-08-10)
+
+**Ce que cette section ajoute** : jusqu'ici le canal EMAIL ne disposait d'aucun domaine d'envoi
+propriété du projet ; l'expéditeur retenu pour EP-18 était le domaine partagé du fournisseur,
+`onboarding@resend.dev` (cf. §1.2, arbitrage PO maintenu et non réécrit). Le projet dispose
+désormais d'un domaine d'envoi vérifié, ce qui rend **techniquement possible** l'envoi de
+notifications depuis une adresse portant le nom du produit.
+
+### 9.1 État établi
+
+| Élément | Valeur | Nature de la preuve |
+|---|---|---|
+| Domaine | `loyertracker.org` | Enregistré le 2026-08-10, compte AWS `381492172662`, registrar Route 53 |
+| Zone DNS | `Z0352366IY9T9FQ9R2JD` (publique) | Délégation registrar alignée sur les NS de la zone |
+| DKIM | `resend._domainkey` TXT, clé RSA 1024 bits en une seule chaîne | Vérifié par résolution publique |
+| SPF | `send` MX `10 feedback-smtp.eu-west-1.amazonses.com` + TXT `v=spf1 include:amazonses.com ~all` | Vérifié par résolution publique |
+| DMARC | `_dmarc` TXT `v=DMARC1; p=none; rua=mailto:dmarc@loyertracker.org;` | Vérifié par résolution publique |
+| TTL | `3600` s sur les quatre enregistrements | Lu depuis la zone autoritaire |
+| Statut Resend | **Verified** | **Déclaré par le PO** depuis l'interface Resend le 2026-08-10 — non rejoué par contrôle automatisé |
+
+Le domaine est **distinct de `loyerpro.org`** (zone `Z073040513ST6OIJ46NHK`), qui porte le produit
+lui-même (`loyertracker.loyerpro.org` en Production, `loyertracker.staging.loyerpro.org` en
+Staging, URI de redirection Keycloak). Toute intervention DNS ultérieure doit viser la bonne zone.
+
+### 9.2 Capacité ouverte
+
+L'expéditeur peut désormais être une adresse `@loyertracker.org` authentifiée par DKIM et SPF
+alignés, avec une politique DMARC publiée. Cela lève la cause « domaine d'envoi non vérifié »
+listée en §4 comme motif d'`ECHEC_PERMANENT`, et supprime la dépendance au domaine partagé du
+fournisseur pour tout envoi futur vers des destinataires réels.
+
+**Adresse expéditrice retenue (décision PO, 2026-08-10)** : `noreply@loyertracker.org`.
+
+```
+RESEND_FROM_EMAIL=noreply@loyertracker.org
+```
+
+Cette valeur est **arrêtée mais non déployée** : elle ne devient effective qu'au terme du Gate
+mentionné en §9.3. La partie locale est consignée en minuscules — la casse d'une partie locale
+n'est pas significative pour les principaux fournisseurs, mais une écriture unique évite toute
+divergence entre documentation, configuration et gabarits.
+
+### 9.3 Ce que cette capacité n'autorise pas
+
+- **Aucune modification de la Production.** `RESEND_FROM_EMAIL=onboarding@resend.dev` reste la
+  valeur en vigueur (activation du 2026-08-06T00:21:46Z). Tout changement d'expéditeur est une
+  modification de configuration Production et exige un Gate distinct, conformément à §0.
+- **Aucun envoi vers des utilisateurs réels** n'est autorisé par le seul fait de cette
+  vérification : l'allowlist de destinataires de test (§1.4) et le budget mensuel (§5) restent
+  applicables.
+- **L'adresse `noreply@loyertracker.org` est arrêtée, pas mise en service.** La consigner ici ne
+  vaut ni déploiement, ni autorisation d'envoi. Le nom affiché (`RESEND_FROM_NAME`) et la
+  cohérence de marque entre `loyertracker.org` et `loyerpro.org` restent à trancher.
+
+### 9.4 Réserves ouvertes
+
+- `RSV-DMARC-01` — les rapports agrégés DMARC **ne sont pas délivrés** : `rua=` pointe vers
+  `dmarc@loyertracker.org` alors qu'aucun MX racine ni boîte n'existe sur ce domaine. La directive
+  est syntaxiquement valide mais sans effet opérationnel tant que la réception n'est pas montée.
+- `RSV-DMARC-02` — la politique est `p=none`, purement observatoire : elle n'impose ni mise en
+  quarantaine ni rejet des messages usurpant le domaine. Le durcissement vers `quarantine` puis
+  `reject` suppose l'analyse de rapports réels, donc la levée préalable de `RSV-DMARC-01`.
+- `RSV-EMAIL-NOREPLY-01` — `noreply@loyertracker.org` n'est pas une boîte : faute de MX racine,
+  toute réponse d'un destinataire est perdue **sans notification à l'expéditeur ni à
+  l'utilisateur**. Le canal reste donc unidirectionnel par construction ; tout message envoyé
+  depuis cette adresse doit porter un chemin de contact alternatif exploitable. À cumuler avec
+  §6 : les webhooks Resend n'étant pas activés (reportés EP-19), ni les réponses ni les rebonds
+  ne sont observables aujourd'hui.
+- Le TTL de `3600` s implique jusqu'à une heure de propagation avant qu'une correction DNS ne
+  prenne effet — à intégrer à toute fenêtre d'intervention.
