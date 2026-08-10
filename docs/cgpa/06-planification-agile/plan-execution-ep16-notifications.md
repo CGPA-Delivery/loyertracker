@@ -1,5 +1,11 @@
 # Plan d’Exécution CGPA (approuvé) — EP-16 : Notifications multicanales via Twilio
 
+> **⚠️ SUPERSEDED — 2026-08-10 :** Ce plan a été rédigé le 2026-07-19 et enrichi d'addenda jusqu'au 2026-08-06. Depuis, **l'intégralité d'EP-16 est livrée et déployée en Production** :
+> - US-124/126 (Lot A) : release `1.15.0`, clôturée.
+> - US-125 (Lot B) : release `1.17.0-rc.1`, **PRODUCTION_DEPLOYED** le 2026-08-09 (Gate 04A GO, Gate 05 planification approuvée, Gate Staging GO, Gate Production GO, smoke 63/0, Flyway 32/32).
+>
+> Les sections ci-dessous décrivant US-125 comme « bloquée par les Gates 02A/04A », « UXR-001/DDS-001/DSG-001 vides » ou « Backend US-125 non livré » sont **historiques** et reflètent l'état aux dates de leurs addenda respectifs. Elles sont conservées comme trace de gouvernance. L'état courant est documenté dans `docs/project-state.md` (section 0S) et `sprint-remainder-audit-after-us125.md`.
+
 | Champ | Valeur |
 |---|---|
 | Date | 2026-07-19 |

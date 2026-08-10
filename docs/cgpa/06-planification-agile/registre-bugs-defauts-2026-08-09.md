@@ -43,3 +43,34 @@ Criticité CGPA : `Bloquant`, `Majeur`, `Mineur`, `Observation`. Priorité propo
 ## 5. Décision proposée
 
 > Le PO/CDO valide la création de ce registre Bugs normatif. Les éléments `BUG-CAND-*`, `DOC-CAND-*` et `DEBT-CAND-*` restent des candidats à qualifier et ne constituent pas une présomption de bug définitivement accepté. Toute criticité P0/P1 doit recevoir une décision humaine, une preuve, un responsable et une échéance/Gate. Pendant l’hypercare `v1.17.0-rc.1`, seules les corrections documentaires additives sont autorisées par ce registre ; aucun code, migration, Staging, Production, provider, secret, EP-19 ou observabilité critique n’est autorisé.
+
+---
+
+## 6. Addendum de suivi — 2026-08-10
+
+**Contexte :** session de réconciliation documentaire post-Gate Production US-125 et post-EP-15 Frontend. Les DOC-CAND ont été résolus ; les BUG-CAND et DEBT-CAND restent ouverts.
+
+### 6.1 DOC-CAND résolus
+
+| ID | Résolution | PR |
+|---|---|---|
+| `DOC-CAND-001` | ✅ CHANGELOG.md — bandeau additif `PRODUCTION_DEPLOYED` | #425 |
+| `DOC-CAND-002` | ✅ prod-state.md — section 0S `1.17.0-rc.1` en tête | #425 |
+| `DOC-CAND-003` | ✅ 4 bandeaux `SUPERSEDED` sur Gates/plans US-125 + 2 bandeaux EP-16 | #425 |
+
+### 6.2 BUG-CAND et DEBT-CAND restant ouverts
+
+| ID | État au 2026-08-10 | Action recommandée |
+|---|---|---|
+| `BUG-CAND-001` | Ouvert — P0 à confirmer. SMTP Keycloak absent, HTTP 500 sur mot de passe oublié. | Décision PO : P0 bloquant ou P1 planifié ? Cadrage SMTP réel + test anti-énumération. |
+| `BUG-CAND-002` | Ouvert — P1. Lien invitation sans route Angular d'acceptation. | Décision PO : parcours Angular dans EP-17 ou API-only assumé ? |
+| `BUG-CAND-003` | Ouvert — P1. `RgpdService` ne couvre pas `notification_*`. | Extension RGPD à planifier. Gate cible à déterminer. |
+| `BUG-CAND-004` | Ouvert — P1. Archivage Bien sans garde affectation active (asymétrie avec Patrimoine). | Décision métier PO : aligner ou documenter l'asymétrie. |
+| `BUG-CAND-005` | Ouvert — P2. **12 alertes Dependabot** (4 high, 7 moderate, 1 low) sur la branche default, et non plus 5. | Vérifier `npm audit --omit=dev`, reachability. Plan de mise à jour post-hypercare. |
+| `DEBT-CAND-001` | Ouvert — P1. 11 dettes design/UX EP-17 non rattachées. | Rattacher chaque `DD-*` à une US qualifiée et un lot/Gate cible. |
+
+### 6.3 Points d'attention
+
+- **BUG-CAND-005** : le nombre d'alertes Dependabot est passé de 5 à 12 depuis l'audit initial. Les 4 high méritent une analyse de reachability prioritaire.
+- **EP-15 Frontend** : les composants Gestionnaire/Locataire sont désormais intégrés (PR #423/#424), ce qui réduit le périmètre de `DEBT-CAND-001` pour les dettes UI liées à ces écrans.
+- **Aucun bug n'est fermé** par cet addendum — seuls les DOC-CAND documentaires sont résolus.
