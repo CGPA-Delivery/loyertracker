@@ -258,11 +258,18 @@ sprint actif sans décision explicite du Product Owner.**
 
 ## 12. Décision
 
-* **Statut : PROPOSÉ — NON APPROUVÉ — CODE INTERDIT.**
+> **Mise à jour cumulative (2026-08-10) — le statut initial ci-dessous a été progressivement
+> remplacé par les approbations PO successives documentées dans les sous-sections suivantes.**
+> Statut actuel : **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT) ET LOT 4
+> (PILOTE KEYCLOAK)**. Lots 5 et 6 : NON APPROUVÉ — Gates non instruits.
+
+* **Statut initial (2026-07-30) : PROPOSÉ — NON APPROUVÉ — CODE INTERDIT.** Ce statut a été
+  remplacé lot par lot par les décisions Product Owner ci-dessous. Il est conservé ici pour
+  l'historique, conformément à la règle de préservation des décisions historiques (`CLAUDE.md`).
 * Aucun développement Frontend, aucune installation de dépendance, aucun déploiement de thème
-  Keycloak n'est autorisé tant que ce Plan n'est pas explicitement approuvé par le Product Owner
-  et que les Gates 02A/04A applicables ne sont pas statués GO ou GO sous réserve.
-* Prochaine étape : soumission de ce Plan, de `DDS-LT-001`, `ADR-UI-001`, `DSG-001` et de
+  Keycloak n'était autorisé tant que ce Plan n'était pas explicitement approuvé par le Product Owner
+  et que les Gates 02A/04A applicables n'étaient pas statués GO ou GO sous réserve.
+* Prochaine étape initiale : soumission de ce Plan, de `DDS-LT-001`, `ADR-UI-001`, `DSG-001` et de
   l'addendum backlog EP-17 au Product Owner. UX/UI Design Lead, Design Architect, Frontend
   Architect et DevSecOps Lead sont désignés (Claude Code, `agent-designations-loyertracker.md`) et
   ont tous rendu leur avis proposé : UX/UI Design Lead (`UXR-001.md`, GO sous réserve), Design
@@ -276,8 +283,8 @@ sprint actif sans décision explicite du Product Owner.**
   **Décision Product Owner rendue le 2026-07-31** : Gate 04A **NO GO en l'état**
   (`gate-04A-decision-ep17-lot0.md`) ; Gate 06A **PASS sous réserve**
   (`gate-06A-decision-ep17-lot1.md`, réserve bloquante = rapport licence/sécurité PrimeNG). Le
-  Gate 04A étant NO GO, **le statut du Plan reste inchangé : PROPOSÉ — NON APPROUVÉ — CODE
-  INTERDIT** — le Gate 06A PASS sous réserve ne suffit pas seul à lever cette interdiction.
+  Gate 04A étant NO GO, **le statut du Plan restait inchangé : PROPOSÉ — NON APPROUVÉ — CODE
+  INTERDIT** — le Gate 06A PASS sous réserve ne suffisait pas seul à lever cette interdiction.
 
 ### Approbation Product Owner du Plan (2026-07-31)
 
