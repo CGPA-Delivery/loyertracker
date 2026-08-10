@@ -173,19 +173,57 @@ divergence entre documentation, configuration et gabarits.
   vaut ni déploiement, ni autorisation d'envoi. Le nom affiché (`RESEND_FROM_NAME`) et la
   cohérence de marque entre `loyertracker.org` et `loyerpro.org` restent à trancher.
 
-### 9.4 Réserves ouvertes
+### 9.4 Réserves
 
-- `RSV-DMARC-01` — les rapports agrégés DMARC **ne sont pas délivrés** : `rua=` pointe vers
-  `dmarc@loyertracker.org` alors qu'aucun MX racine ni boîte n'existe sur ce domaine. La directive
-  est syntaxiquement valide mais sans effet opérationnel tant que la réception n'est pas montée.
+- `RSV-DMARC-01` — **LEVÉE le 2026-08-10**, cf. §9.5. Énoncé initial conservé : les rapports
+  agrégés DMARC n'étaient pas délivrés, `rua=` pointant vers `dmarc@loyertracker.org` alors
+  qu'aucun MX racine ni boîte n'existait sur ce domaine. La réception étant montée et prouvée de
+  bout en bout, la directive `rua=` est désormais opérationnelle.
 - `RSV-DMARC-02` — la politique est `p=none`, purement observatoire : elle n'impose ni mise en
-  quarantaine ni rejet des messages usurpant le domaine. Le durcissement vers `quarantine` puis
-  `reject` suppose l'analyse de rapports réels, donc la levée préalable de `RSV-DMARC-01`.
+  quarantaine ni rejet des messages usurpant le domaine. **Reste ouverte** : la levée de
+  `RSV-DMARC-01` rend l'analyse possible mais ne la remplace pas — le durcissement vers
+  `quarantine` puis `reject` suppose des rapports réels effectivement reçus et analysés.
 - `RSV-EMAIL-NOREPLY-01` — `noreply@loyertracker.org` n'est pas une boîte : faute de MX racine,
   toute réponse d'un destinataire est perdue **sans notification à l'expéditeur ni à
   l'utilisateur**. Le canal reste donc unidirectionnel par construction ; tout message envoyé
   depuis cette adresse doit porter un chemin de contact alternatif exploitable. À cumuler avec
   §6 : les webhooks Resend n'étant pas activés (reportés EP-19), ni les réponses ni les rebonds
-  ne sont observables aujourd'hui.
+  ne sont observables aujourd'hui. **Reste ouverte** : la réception montée en §9.5 n'accepte que
+  `dmarc@loyertracker.org` — `noreply@` demeure volontairement non recevable.
+
+### 9.5 Réception mail `loyertracker.org` — SES inbound vers S3 (2026-08-10)
+
+Montée pour rendre la directive `rua=` opérationnelle. Entièrement dans le compte AWS du projet,
+**aucun tiers dans le flux mail**, aucun coût récurrent fixe.
+
+| Composant | Valeur |
+|---|---|
+| Région | `eu-west-1` |
+| Identité SES | `loyertracker.org` — `VerificationStatus: Success` |
+| Vérification | TXT `_amazonses.loyertracker.org`, TTL `3600` |
+| MX racine | `10 inbound-smtp.eu-west-1.amazonaws.com`, TTL `3600` |
+| Bucket | `loyertracker-inbound-mail`, accès public bloqué |
+| Policy bucket | `s3:PutObject` pour `ses.amazonaws.com` seul, conditionné par `AWS:SourceAccount` et `AWS:SourceArn` du rule set |
+| Rule set actif | `loyertracker-inbound` (région `eu-west-1`) |
+| Règle | `dmarc-reports` → destinataire `dmarc@loyertracker.org`, dépôt sous préfixe `dmarc/` |
+| Rétention | Cycle de vie S3 `expire-inbound-mail-180j` : expiration à 180 jours, abandon des uploads incomplets à 7 jours |
+
+**Preuve de bout en bout (2026-08-10)** : envoi réel vers `dmarc@loyertracker.org`
+(`MessageId 0102019fecac261e-…`), objet récupéré depuis `s3://loyertracker-inbound-mail/dmarc/`,
+en-têtes conformes (`To: dmarc@loyertracker.org`, `Received-SPF: pass`). L'objet
+`AMAZON_SES_SETUP_NOTIFICATION` présent dans le préfixe est le test d'écriture généré par SES à
+la création de la règle, non un message reçu.
+
+**Surface d'exposition** : seule l'adresse `dmarc@` est acceptée. Tout autre destinataire est
+rejeté faute de règle correspondante — le domaine n'est pas un puits à courrier. Ajouter une
+adresse recevable est une modification explicite du rule set, jamais un effet de bord.
+
+**Limite connue** : les rapports sont déposés en MIME brut, XML agrégé compressé en pièce jointe.
+Ils ne sont pas lisibles en l'état ; leur exploitation suppose un traitement de décompression et
+d'analyse qui n'est pas fourni ici.
+
+**Point d'attention exploitation** : le rule set actif est un réglage **de compte et de région**.
+Aucun rule set n'était actif en `eu-west-1` avant cette mise en place ; toute activation
+concurrente d'un autre rule set dans cette région désactiverait celui-ci.
 - Le TTL de `3600` s implique jusqu'à une heure de propagation avant qu'une correction DNS ne
   prenne effet — à intégrer à toute fenêtre d'intervention.
