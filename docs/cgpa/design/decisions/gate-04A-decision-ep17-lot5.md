@@ -80,13 +80,30 @@
 
 ## 6. Décision finale
 
-**Décision** : **EN ATTENTE** — à renseigner par le Product Owner / CGPA Chief Delivery Officer.
+**Décision** : **GO sous réserve**.
 
-**Portée de la décision** : [à compléter par le PO]
+**Instruction reçue (2026-08-10)** : « Je valide aussi la prochaine étape », du Product Owner /
+CGPA Chief Delivery Officer, en réponse à la soumission de cette instance et de
+`gate-02A-decision-ep17-lot5.md`.
 
-**Réserves qui subsistent après ce GO** : [à compléter par le PO]
+**Portée de la décision** : ce GO sous réserve couvre le périmètre de ce Gate 04A tel qu'instruit
+(§1-§5) — validation design des écrans déjà livrés par les Lots 1 à 4, sans nouvelle production
+de composants ni d'écrans. Le Lot 5 (US-136 à US-141) est autorisé à démarrer.
 
-**Ce que ce GO n'autorise pas** : [à compléter par le PO]
+**Réserves qui subsistent après ce GO** :
+* `CHECK-ACCESSIBILITY-01` (US-136) — audit WCAG 2.2 AA automatisé + manuel clavier à produire
+  pendant le Lot 5. Bloquant pour la clôture du Lot.
+* `CHECK-RESPONSIVE-01` (US-137) — tests au breakpoint 640px + viewport mobile réel à produire
+  pendant le Lot 5. Bloquant pour la clôture du Lot.
+* `CHECK-DESIGN-01` (revue Design) — à instancier pendant le Lot 5.
+* `DD-EP17-10` (état d'erreur au chargement) — à traiter pendant le Lot 5.
+* `DD-611-02` / `DD-611-03` (traçabilité DSG/documentation) — US-139 doit les traiter.
+* `DD-EP17-14` (SMTP cassé) — suivi propre, ne bloque pas le Lot 5.
+
+**Ce que ce GO n'autorise pas** : conformément à `CLAUDE.md` (« aucun code applicatif sans Plan
+d'Exécution approuvé »), ce GO sous réserve de Gate 04A ne vaut à lui seul ni extension du Plan
+d'Exécution au Lot 5, ni autorisation de développement. L'extension du Plan d'Exécution reste une
+action Product Owner distincte, préalable à tout travail du Lot 5.
 
 ## 7. Traçabilité
 

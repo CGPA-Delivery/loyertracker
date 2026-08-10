@@ -2,7 +2,7 @@
 
 | Champ | Valeur |
 |---|---|
-| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT) ET LOT 4 (PILOTE KEYCLOAK)** (voir §12, 2026-07-31, 2026-08-01, 2026-08-02, puis 2026-08-03) |
+| Statut | **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT), LOT 4 (PILOTE KEYCLOAK) ET LOT 5 (VALIDATION)** (voir §12, 2026-07-31, 2026-08-01, 2026-08-02, 2026-08-03, puis 2026-08-10) |
 | Date | 2026-07-30 |
 | Product Owner | jptshilombo@gmail.com |
 | Décision de socle liée | `docs/cgpa/design/decisions/DDS-LT-001-socle-ui-primeng-keycloak.md` (Acceptée) |
@@ -260,8 +260,8 @@ sprint actif sans décision explicite du Product Owner.**
 
 > **Mise à jour cumulative (2026-08-10) — le statut initial ci-dessous a été progressivement
 > remplacé par les approbations PO successives documentées dans les sous-sections suivantes.**
-> Statut actuel : **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT) ET LOT 4
-> (PILOTE KEYCLOAK)**. Lots 5 et 6 : NON APPROUVÉ — Gates non instruits.
+> Statut actuel : **APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT),
+> LOT 4 (PILOTE KEYCLOAK) ET LOT 5 (VALIDATION)**. Lot 6 : NON APPROUVÉ — Gate non instruit.
 
 * **Statut initial (2026-07-30) : PROPOSÉ — NON APPROUVÉ — CODE INTERDIT.** Ce statut a été
   remplacé lot par lot par les décisions Product Owner ci-dessous. Il est conservé ici pour
@@ -448,3 +448,41 @@ sprint actif sans décision explicite du Product Owner.**
   écrans confirmés) peut démarrer, sous réserve continue des points ci-dessus — en particulier
   l'implémentation de la source de tokens commune (`DD-EP17-03`) avant tout code de thème, et le
   respect intégral des interdictions de sécurité Keycloak dès la première ligne de code.
+
+### Extension de l'approbation au Lot 5 — Validation (2026-08-10)
+
+* **Instruction explicite reçue** : « Je valide aussi la prochaine étape », du Product Owner /
+  CGPA Chief Delivery Officer, en réponse à la soumission des Gates 02A/04A Lot 5.
+* Le Lot 4 (thème Keycloak, `US-135`) est livré, mergé et déployé en Production
+  (`KEYCLOAK_THEME_DEPLOYED`, 2026-08-04). Les deux Gates applicables au Lot 5 ont été instruits
+  et statués : `gate-02A-decision-ep17-lot5.md` et `gate-04A-decision-ep17-lot5.md`, tous deux
+  **GO sous réserve, périmètre limité à EP-17 Lot 5** (décision Product Owner du 2026-08-10, §6
+  de chaque instance).
+* **Nature du Lot 5** : validation, pas de nouvel écran. Les stories US-136 (Accessibilité),
+  US-137 (Responsive), US-138 (Régression visuelle), US-139 (Documentation), US-140 (Gate 04A
+  pilote) et US-141 (Gate Staging pilote) sont des activités de contrôle qualité et de
+  gouvernance, pas de développement Frontend. Aucun nouveau composant, aucun nouvel écran,
+  aucune nouvelle dépendance.
+* **Décision Product Owner** : Plan d'Exécution **approuvé, strictement pour le périmètre Lot 5
+  ainsi défini** (US-136 à US-141, 18 pts), en plus des Lots 1, 2, 3 (restreint) et 4 déjà
+  approuvés. Cette approbation ne s'étend pas au Lot 6 (US-142, 3 pts, cadrage uniquement) —
+  qui reste un point de contrôle GO/NO GO distinct.
+* **Ce que cette approbation ne couvre pas** — verrous inchangés :
+  * les preuves US-136 (accessibilité WCAG 2.2 AA) et US-137 (responsive, breakpoint 640px)
+    restent à produire pendant le Lot 5 — `CHECK-ACCESSIBILITY-01` et `CHECK-RESPONSIVE-01`
+    PASS ou PASS sous réserve requis avant clôture du Lot ;
+  * les preuves US-138 (régression visuelle) restent à produire — rapport de Visual Review
+    requis avant clôture du Lot ;
+  * US-139 (documentation) — `DSG-001.md`, `component-inventory-loyertracker.md`,
+    `traceability-ui-loyertracker.md` à mettre à jour avant clôture du Lot ;
+  * `DD-EP17-10` (état d'erreur au chargement), `DD-611-02`, `DD-611-03` (traçabilité) —
+    à traiter pendant le Lot 5 ;
+  * `DD-EP17-14` (SMTP cassé) — suivi propre, ne bloque pas le Lot 5 ;
+  * `DD-EP17-13` (langue Keycloak) — close pour l'écran de connexion, vérification des 5 autres
+    écrans à produire pendant le Lot 5 ;
+  * `STG-ISOL-01` (Staging mutualisé `ai-test-server`) reste **obligatoire avant toute promotion
+    Staging** pour US-141 (Gate Staging pilote) — cette approbation couvre l'instruction du Gate,
+    pas la promotion elle-même.
+* **Statut résultant** : « APPROUVÉ SOUS RÉSERVE — PÉRIMÈTRE LOT 1, LOT 2, LOT 3 (RESTREINT),
+  LOT 4 (PILOTE KEYCLOAK) ET LOT 5 (VALIDATION) » (§ en-tête). Le travail de validation du
+  Lot 5 (US-136 à US-141) peut démarrer, sous réserve continue des points ci-dessus.
