@@ -3,6 +3,7 @@ import { Component, effect, inject, input, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Paiement, S03ApiService, StatutPaiement } from '../core/s03/s03-api.service';
+import { QuittanceApiService } from '../core/quittance/quittance-api.service';
 import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
 
 /**
@@ -76,6 +77,11 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
             <button type="button" (click)="telecharger(p, 'quittance')" [disabled]="chargement()">
               Télécharger la quittance
             </button>
+            @if (p.quittanceId) {
+              <button type="button" (click)="annulerQuittance(p)" [disabled]="chargement()">
+                Annuler la quittance
+              </button>
+            }
           } @else {
             <button
               type="button"
@@ -172,6 +178,7 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
 })
 export class PaiementsBienComponent {
   private readonly api = inject(S03ApiService);
+  private readonly quittanceApi = inject(QuittanceApiService);
 
   readonly bienId = input.required<string>();
   readonly peutDeclencher = input<boolean>(false);
@@ -292,6 +299,20 @@ export class PaiementsBienComponent {
         }
         this.chargement.set(false);
       },
+      complete: () => this.chargement.set(false),
+    });
+  }
+
+  annulerQuittance(p: Paiement): void {
+    if (!p.quittanceId) return;
+    this.chargement.set(true);
+    this.message.set('Annulation de la quittance…');
+    this.quittanceApi.annuler(p.quittanceId).subscribe({
+      next: () => {
+        this.message.set('Quittance annulée');
+        this.chargerPour(this.bienId());
+      },
+      error: (err: unknown) => this.signalerErreur(err),
       complete: () => this.chargement.set(false),
     });
   }
