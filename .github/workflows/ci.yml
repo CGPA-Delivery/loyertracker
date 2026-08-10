@@ -179,6 +179,100 @@ jobs:
           SONAR_HOST_URL: https://sonar.loyerpro.org
 
   # ----------------------------------------------------------------------------------
+  # Accessibilité E2E (EP-17 / US-136) : stack isolée, TLS localhost de confiance,
+  # vrai parcours navigateur Keycloak. Aucun bypass TLS, realm, grant ou secret persistant.
+  # ----------------------------------------------------------------------------------
+  accessibility-e2e:
+    name: Accessibilité E2E (Playwright + axe)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Préparer secrets éphémères et certificat localhost de confiance
+        shell: bash
+        run: |
+          set -euo pipefail
+          secret() { openssl rand -hex 32; }
+          cat > .env.ci <<EOF
+          POSTGRES_DB=loyertracker
+          POSTGRES_USER=loyertracker
+          POSTGRES_PASSWORD=$(secret)
+          DB_APP_USER=loyertracker_api
+          DB_APP_PASSWORD=$(secret)
+          DB_BATCH_USER=loyertracker_batch
+          DB_BATCH_PASSWORD=$(secret)
+          KEYCLOAK_ADMIN=admin
+          KEYCLOAK_ADMIN_PASSWORD=$(secret)
+          KEYCLOAK_API_CLIENT_SECRET=$(secret)
+          KEYCLOAK_TEST_BAILLEUR_PASSWORD=$(secret)
+          KEYCLOAK_ISSUER_URI=https://localhost/auth/realms/loyertracker
+          KEYCLOAK_JWK_SET_URI=http://keycloak:8080/auth/realms/loyertracker/protocol/openid-connect/certs
+          KEYCLOAK_ADMIN_BASE_URL=http://keycloak:8080/auth
+          KEYCLOAK_REALM=loyertracker
+          KEYCLOAK_API_CLIENT_ID=loyertracker-admin
+          APP_CORS_ALLOWED_ORIGIN=https://localhost
+          APP_INVITATION_BASE_URL=https://localhost
+          QUITTANCE_HMAC_SECRET=$(secret)
+          QUITTANCE_VERIFY_BASE_URL=https://localhost
+          EOF
+          mkdir -p infra/nginx/certs
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+            -keyout infra/nginx/certs/localhost-key.pem \
+            -out infra/nginx/certs/localhost.pem \
+            -subj '/CN=localhost' \
+            -addext 'subjectAltName=DNS:localhost'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libnss3-tools
+          mkdir -p "$HOME/.pki/nssdb"
+          certutil -d "sql:$HOME/.pki/nssdb" -N --empty-password
+          certutil -d "sql:$HOME/.pki/nssdb" -A -t 'C,,' -n loyertracker-localhost \
+            -i infra/nginx/certs/localhost.pem
+
+      - name: Démarrer la stack de preuve isolée
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose --env-file .env.ci up -d --build
+          for attempt in $(seq 1 40); do
+            if curl --cacert infra/nginx/certs/localhost.pem -fsS https://localhost/healthz >/dev/null; then
+              break
+            fi
+            sleep 3
+          done
+          curl --cacert infra/nginx/certs/localhost.pem -fsS https://localhost/healthz >/dev/null
+          curl --cacert infra/nginx/certs/localhost.pem -fsS \
+            https://localhost/auth/realms/loyertracker/.well-known/openid-configuration \
+            | jq -e '.issuer == "https://localhost/auth/realms/loyertracker"' >/dev/null
+
+      - name: Installer et exécuter l'audit navigateur
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: https://localhost
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run a11y:e2e
+
+      - name: Publier les preuves d'accessibilité
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: accessibility-e2e-${{ github.sha }}
+          path: |
+            frontend/playwright-report/accessibility/
+            frontend/test-results/accessibility/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Diagnostiquer puis détruire l'environnement éphémère
+        if: always()
+        shell: bash
+        run: |
+          docker compose --env-file .env.ci logs --no-color > accessibility-compose.log || true
+          docker compose --env-file .env.ci down --volumes --remove-orphans || true
+          rm -f .env.ci infra/nginx/certs/localhost.pem infra/nginx/certs/localhost-key.pem
+
+  # ----------------------------------------------------------------------------------
   # Sécurité source : scan de secrets et analyse de composition. Les images sont
   # construites une seule fois, scannées et attestées dans le job Packaging.
   # ----------------------------------------------------------------------------------
