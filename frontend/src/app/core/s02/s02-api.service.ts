@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -113,6 +113,55 @@ export interface LocataireQuickAddPayload {
   nom: string;
   prenom?: string | null;
   email?: string | null;
+}
+
+/** Vue détaillée d'un Locataire (EP-15, miroir de LocataireDto). */
+export interface LocataireDetail {
+  id: string;
+  nom: string;
+  prenom: string | null;
+  telephone: string | null;
+  email: string | null;
+  profession: string | null;
+  dateNaissance: string | null;
+  typePieceIdentite: string | null;
+  numeroPieceIdentite: string | null;
+  photoPresente: boolean;
+  contactUrgence: string | null;
+  observations: string | null;
+  statut: string;
+  dateCreation: string;
+  dateArchivage: string | null;
+}
+
+/** Payload de modification d'un Locataire (EP-15). */
+export interface LocatairePayload {
+  nom: string;
+  prenom?: string | null;
+  telephone?: string | null;
+  email?: string | null;
+  profession?: string | null;
+  dateNaissance?: string | null;
+  typePieceIdentite?: string | null;
+  numeroPieceIdentite?: string | null;
+  photoBase64?: string | null;
+  contactUrgence?: string | null;
+  observations?: string | null;
+}
+
+/** Historique d'un Locataire (EP-15). */
+export interface LocataireHistorique {
+  locataire: LocataireDetail;
+  audit: AuditEntry[];
+}
+
+/** Entrée d'audit (commune à Gestionnaire et Locataire). */
+export interface AuditEntry {
+  id: string;
+  action: string;
+  details: string | null;
+  date: string;
+  auteur: string;
 }
 
 export interface Affectation {
@@ -234,5 +283,35 @@ export class S02ApiService {
 
   modifierPatrimoine(id: string, payload: PatrimoinePayload): Observable<Patrimoine> {
     return this.http.put<Patrimoine>(`${API_BASE_URL}/patrimoines/${id}`, payload);
+  }
+
+  // --- Locataire endpoints (EP-15) ---
+
+  verificationDoublonLocataire(email?: string, telephone?: string, piece?: string): Observable<Locataire[]> {
+    let params = new HttpParams();
+    if (email) params = params.set('email', email);
+    if (telephone) params = params.set('telephone', telephone);
+    if (piece) params = params.set('piece', piece);
+    return this.http.get<Locataire[]>(`${API_BASE_URL}/locataires/verification-doublon`, { params });
+  }
+
+  consulterLocataire(id: string): Observable<LocataireDetail> {
+    return this.http.get<LocataireDetail>(`${API_BASE_URL}/locataires/${id}`);
+  }
+
+  modifierLocataire(id: string, payload: LocatairePayload): Observable<LocataireDetail> {
+    return this.http.put<LocataireDetail>(`${API_BASE_URL}/locataires/${id}`, payload);
+  }
+
+  archiverLocataire(id: string): Observable<LocataireDetail> {
+    return this.http.post<LocataireDetail>(`${API_BASE_URL}/locataires/${id}/archivage`, null);
+  }
+
+  restaurerLocataire(id: string): Observable<LocataireDetail> {
+    return this.http.post<LocataireDetail>(`${API_BASE_URL}/locataires/${id}/restauration`, null);
+  }
+
+  historiqueLocataire(id: string): Observable<LocataireHistorique> {
+    return this.http.get<LocataireHistorique>(`${API_BASE_URL}/locataires/${id}/historique`);
   }
 }

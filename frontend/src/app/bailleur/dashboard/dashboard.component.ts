@@ -53,6 +53,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         <p>{{ username }} · {{ roles.join(', ') || 'aucun rôle' }}</p>
       </div>
       <div class="status">
+        <a routerLink="/bailleur/gestionnaires">Gestionnaires</a>
         <a routerLink="/bailleur/profil">Mon profil</a>
       </div>
     </header>

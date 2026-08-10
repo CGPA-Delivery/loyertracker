@@ -30,6 +30,8 @@ export interface Paiement {
   statut: StatutPaiement;
   /** Devise du bail parent (US-93, ADR-13). */
   devise: Devise;
+  /** ID de la quittance certifiée si émise (US-99). */
+  quittanceId?: string;
 }
 
 export interface PointagePayload {

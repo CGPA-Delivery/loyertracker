@@ -17,6 +17,30 @@ export const routes: Routes = [
       import('./bailleur/profil/profil.component').then((m) => m.ProfilComponent),
   },
   {
+    path: 'bailleur/gestionnaires',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./gestionnaire/gestionnaire-liste.component').then(
+        (m) => m.GestionnaireListeComponent,
+      ),
+  },
+  {
+    path: 'bailleur/gestionnaires/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./gestionnaire/gestionnaire-detail.component').then(
+        (m) => m.GestionnaireDetailComponent,
+      ),
+  },
+  {
+    path: 'bailleur/locataires/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./locataire/locataire-detail.component').then(
+        (m) => m.LocataireDetailComponent,
+      ),
+  },
+  {
     path: 'gestionnaire',
     canActivate: [authGuard],
     loadComponent: () =>
