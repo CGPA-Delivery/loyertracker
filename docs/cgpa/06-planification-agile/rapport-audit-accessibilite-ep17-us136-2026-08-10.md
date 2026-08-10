@@ -43,3 +43,20 @@ Le Plan d’Exécution Lot 5 précise qu’il s’agit de validation, sans nouve
 ## Non-actions explicites
 
 Aucun changement de produit, migration, secret, provider, Staging ou Production n’a été réalisé. Les Gates existants ne sont ni rejoués ni modifiés par ce rapport.
+
+## Addendum — preuve CI isolée du login Keycloak (2026-08-10T13:35:29Z)
+
+La branche `feat/ep17-us136-accessibility-reserve-closure`, SHA `1767be79567fa1257bd8bf196b475e8e6411708f`, a fait l’objet d’une exécution GitHub Actions complète : CI `31393393832`, job `Accessibilité E2E (Playwright + axe)` `93470300794`.
+
+| Élément | Preuve vérifiée | Résultat |
+|---|---|---|
+| Isolation et TLS | Stack Docker éphémère ; CA `localhost` générée au run et importée dans NSS/Chromium ; aucun bypass de certificat | PASS |
+| Audit runtime | Playwright `1.54.2`, axe `4.10.2`, Chromium ; écran login Keycloak réel | **1 passed (2.8s)** |
+| Contrôles axe bloquants | Landmark principal natif ; filtre des violations `serious` et `critical` | PASS — aucune violation bloquante |
+| Preuve téléchargeable | Artifact GitHub `9064684806` ; SHA-256 `7549d5aef8e9f1f0e61bd29e0c0c327ad681c3406ca52be4436105b2c7256523` ; 30 jours | PASS |
+
+Les correctifs ont retiré le contraste non conforme, ajouté le landmark principal natif et supprimé les `tabindex` positifs de l’upstream Keycloak 24.0.5. La surcharge `login.ftl` a été comparée à l’upstream : seuls ces attributs ont été retirés.
+
+### Portée exacte de la preuve
+
+Cette exécution ne clôt pas US-136 : elle couvre **le seul écran login Keycloak**, sans session Angular authentifiée. Les flux mot de passe oublié, réinitialisation, session expirée, accès refusé et logout, ainsi que la matrice manuelle clavier/focus/zoom/reflow/reduced-motion, restent à exécuter et à tracer. Verdict maintenu : **NO GO de clôture US-136**, avec réserve technique partiellement levée par preuve automatisée CI.

@@ -110,3 +110,8 @@ label {
 a {
   color: var(--lt-focus-ring);
 }
+
+/* WCAG 2.2 AA SC 1.4.3: 6.92:1 on the login dark background. */
+p.instruction {
+  color: var(--lt-text-muted);
+}
