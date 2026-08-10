@@ -211,3 +211,27 @@ Toute user story est **Terminée** uniquement si **tous** les critères suivants
 
 ---
 *Livrable CGPA v1.0 — Phase 06 (Planification Agile). Prochaine phase : 07 — DevSecOps & développement.*
+
+---
+
+## 9. Addendum — Statut des Epics post-EP-08 (2026-08-10)
+
+> **⚠️ Additif — ne modifie pas le backlog original ci-dessus.** Les Epics EP-09 à EP-19 ont été introduits par addenda successifs. Cette section documente leur état de livraison au 2026-08-10.
+
+| Epic | Description | Release | Statut |
+|---|---|---|---|
+| EP-09 | Correctifs et stabilisation | `1.4.0` → `1.8.0` | ✅ Clôturé |
+| EP-10 | Évolutions métier (paiements, garanties) | `1.9.0` | ✅ Clôturé |
+| EP-11 | Correctifs post-EP-10 | `1.10.0` | ✅ Clôturé |
+| EP-12 | Correctifs et durcissement | `1.11.0` | ✅ Clôturé |
+| EP-13 | Fin de bail (clôture, réouverture) | `1.11.0` | ✅ Clôturé |
+| EP-14 | Quittances certifiées (QR, PDF, HMAC) | `1.9.0` (Sprint 11) + `1.9.0` (Sprint 12) | ✅ Clôturé |
+| EP-15 | Personnes (Gestionnaires, Locataires) | `1.12.0` (Sprint A), `1.12.0` (Sprint B), `1.12.0` (Sprint C Backend), `1.17.0-rc.1` (Frontend PR #423/#424) | ✅ Clôturé — Frontend intégré le 2026-08-10 |
+| EP-16 | Notifications multicanales (Twilio) | `1.13.0` (Sprint N), `1.14.0` (Sprint N+1), `1.15.0` (Sprint N+2 Lot A), `1.17.0-rc.1` (Sprint N+2 Lot B / US-125) | ✅ Clôturé — **PRODUCTION_DEPLOYED** le 2026-08-09 |
+| EP-17 | Fondation UX/UI PrimeNG + Keycloak | — | 📋 **Proposé — NON APPROUVÉ** (US-127→US-142) |
+| EP-18 | Notifications email (Resend) | `1.16.0` | ✅ Clôturé — Resend activé en Production |
+| EP-19 | Suivi délivrabilité email (Webhooks Resend/Svix) | — | 📋 **Proposé — NON APPROUVÉ** (US-144→US-147) |
+
+**Release active en Production :** `v1.17.0-rc.1` (commit `d19c4fea`, Gate Production GO 2026-08-09, smoke 63/0, Flyway 32/32).
+
+**Prochain Epic à arbitrer :** EP-17 (UX/UI) ou EP-19 (Webhooks), sur décision PO/CDO distincte.

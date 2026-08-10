@@ -1,5 +1,14 @@
 # Addendum Backlog — Epic EP-16 (Notifications multicanales via Twilio)
 
+> **⚠️ SUPERSEDED — 2026-08-10 :** Ce document a été rédigé le 2026-07-19. Depuis, l'ensemble d'EP-16 a été livré :
+> - **Sprint N** (US-119/120/121) : release `1.13.0`, clôturée.
+> - **Sprint N+1** (US-122/123) : release `1.14.0`, clôturée.
+> - **Sprint N+2 Lot A** (US-124/126) : release `1.15.0`, clôturée.
+> - **Sprint N+2 Lot B** (US-125) : release `1.17.0-rc.1`, **PRODUCTION_DEPLOYED** le 2026-08-09 (Gate Production GO, smoke 63/0, Flyway 32/32).
+> - **EP-18** (Resend email) : release `1.16.0`, clôturée.
+>
+> Les formulations « Sprints N+1/N+2 non démarrés », « US-125 bloquée » et « soumis à GO distinct » ci-dessous sont **historiques** et reflètent l'état au 2026-07-19. Elles sont conservées comme trace de gouvernance. L'état courant est documenté dans `docs/project-state.md` (section 0S `1.17.0-rc.1`) et `sprint-remainder-audit-after-us125.md`.
+
 | Champ | Valeur |
 |-------|--------|
 | Document de référence | `product-backlog.md`, `addendum-backlog-ep13-fin-de-bail.md`, `addendum-backlog-ep15-personnes.md` — **non modifiés** |
