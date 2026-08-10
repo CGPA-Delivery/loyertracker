@@ -28,3 +28,20 @@
 - Aucun Staging, Production, secret, activation provider ou changement applicatif n’a été exécuté.
 - Les constats axe-core exploratoires sont conservés comme diagnostic, pas comme une preuve automatisée de clôture : l’outillage et les dépendances temporaires ont été retirés sur décision PO afin de respecter le périmètre Lot 5.
 - Le présent NO GO concerne seulement la clôture de **EP-17 / US-136** ; il ne rejoue ni ne remplace les Gates historiques.
+
+## Addendum de revalidation automatisée — 2026-08-10T13:35:29Z
+
+| Contrôle | Preuve immuable | Résultat | Statut réserve |
+|---|---|---|---|
+| TLS réel sans bypass | CI `31393393832`, job `93470300794` ; CA `localhost` éphémère importée dans le magasin Chromium/NSS ; aucune option `ignoreHTTPSErrors` | **PASS** | `RSV-EP17-US136-A11Y-02` partiellement levée : le blocage TLS local est remplacé par une preuve CI isolée |
+| Écran login Keycloak | Playwright `1.54.2` + axe `4.10.2`, Chromium ; `1 passed (2.8s)` | **PASS** — un landmark principal et aucune violation axe `serious`/`critical` | `RSV-EP17-US136-A11Y-01` partiellement levée pour le login |
+| Contraste et ordre clavier du thème | Correctifs `f32d8a0` + `1767be7`, contrat `test-theme-accessibility.sh` PASS | **PASS** — contraste `.instruction`, landmark natif et absence de `tabindex` positif | `RSV-EP17-US136-A11Y-01` partiellement levée pour le login |
+| Artefact de preuve | GitHub Artifact `9064684806`, `accessibility-e2e-fb438a5e8a019b1acc7fea5b70a72c0962055a5d`, SHA-256 `7549d5aef8e9f1f0e61bd29e0c0c327ad681c3406ca52be4436105b2c7256523`, rétention 30 jours | **PASS** | Preuve téléchargeable et traçable |
+
+### Réserves maintenues
+
+- `RSV-EP17-US136-A11Y-01` reste ouverte pour les cinq flux Keycloak non encore audités au runtime : mot de passe oublié, réinitialisation, session expirée, accès refusé et logout.
+- `RSV-EP17-US136-A11Y-02` reste ouverte pour l’exigence de parcours réellement authentifié ; le contrôle CI courant couvre l’écran login et non une session applicative complète.
+- `RSV-EP17-US136-A11Y-03` reste ouverte : navigation clavier manuelle, focus visible, absence de piège, zoom 200 %, reflow et préférence reduced-motion ne sont pas encore exécutés ni tracés.
+
+**Verdict actualisé : NO GO pour clôturer US-136, avec preuve automatisée du login Keycloak désormais PASS.** Aucun Gate historique, Staging, Production, realm, URI de redirection ou secret persistant n’a été modifié.
