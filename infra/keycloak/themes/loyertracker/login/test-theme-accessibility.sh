@@ -5,6 +5,7 @@ set -euo pipefail
 
 THEME_DIR="infra/keycloak/themes/loyertracker/login"
 TEMPLATE="$THEME_DIR/template.ftl"
+LOGIN_TEMPLATE="$THEME_DIR/login.ftl"
 CSS="$THEME_DIR/resources/css/login.css"
 
 fail() {
@@ -13,6 +14,7 @@ fail() {
 }
 
 [[ -f "$TEMPLATE" ]] || fail "template.ftl must provide the Keycloak main landmark"
+[[ -f "$LOGIN_TEMPLATE" ]] || fail "login.ftl must override upstream positive tabindex values"
 [[ -f "$CSS" ]] || fail "login.css is missing"
 
 grep -Fq '<main id="kc-content" role="main" aria-labelledby="kc-page-title">' "$TEMPLATE" \
@@ -21,6 +23,9 @@ grep -Fq '</main>' "$TEMPLATE" \
   || fail "main landmark must be closed"
 grep -A2 -F 'p.instruction {' "$CSS" | grep -Fq 'color: var(--lt-text-muted);' \
   || fail ".instruction must use the compliant existing muted token"
+if grep -nE 'tabindex="[1-9][0-9]*"' "$TEMPLATE" "$LOGIN_TEMPLATE"; then
+  fail "keyboard navigation must not use positive tabindex"
+fi
 
 if grep -R --include='*.js' -q . "$THEME_DIR/resources/js" 2>/dev/null; then
   fail "theme must not add JavaScript landmark manipulation"
