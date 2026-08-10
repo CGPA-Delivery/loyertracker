@@ -54,6 +54,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       </div>
       <div class="status">
         <a routerLink="/bailleur/gestionnaires">Gestionnaires</a>
+        <a routerLink="/bailleur/locataires">Locataires</a>
         <a routerLink="/bailleur/profil">Mon profil</a>
       </div>
     </header>
