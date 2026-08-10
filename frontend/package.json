@@ -36,7 +36,7 @@
     "@angular/compiler-cli": "22.1.0",
     "@axe-core/playwright": "4.10.2",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "1.54.2",
+    "@playwright/test": "1.62.1",
     "@types/jasmine": "~6.0.0",
     "@types/node": "24.13.3",
     "angular-eslint": "^22.1.0",
