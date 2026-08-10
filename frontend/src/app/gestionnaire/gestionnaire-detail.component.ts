@@ -33,35 +33,35 @@ import {
       <section class="panel">
         <div class="grid">
           <div class="field">
-            <label>Email</label>
+            <span class="label">Email</span>
             <span>{{ g.email }}</span>
           </div>
           <div class="field">
-            <label>Téléphone</label>
+            <span class="label">Téléphone</span>
             <span>{{ g.telephone || '—' }}</span>
           </div>
           <div class="field">
-            <label>Statut</label>
+            <span class="label">Statut</span>
             <span class="badge" [attr.data-statut]="g.statut">{{ g.statut }}</span>
           </div>
           <div class="field">
-            <label>Créé le</label>
+            <span class="label">Créé le</span>
             <span>{{ g.dateCreation | date:'mediumDate' }}</span>
           </div>
           @if (g.dateSuspension) {
             <div class="field">
-              <label>Suspendu le</label>
+              <span class="label">Suspendu le</span>
               <span>{{ g.dateSuspension | date:'mediumDate' }}</span>
             </div>
           }
           @if (g.dateArchivage) {
             <div class="field">
-              <label>Archivé le</label>
+              <span class="label">Archivé le</span>
               <span>{{ g.dateArchivage | date:'mediumDate' }}</span>
             </div>
           }
           <div class="field full">
-            <label>Observations</label>
+            <span class="label">Observations</span>
             <span>{{ g.observations || '—' }}</span>
           </div>
         </div>
@@ -89,7 +89,7 @@ import {
             <h3>Affectations</h3>
             <ul>
               @for (a of h.affectations; track a.id) {
-                <li>{{ a.bien?.nom || a.id }}</li>
+                <li>{{ a.bienId || a.patrimoineId || a.id }}</li>
               }
             </ul>
           }
@@ -144,7 +144,7 @@ import {
       .field.full {
         grid-column: 1 / -1;
       }
-      label {
+      .label {
         font-size: 0.85rem;
         color: #94a3b8;
       }
@@ -267,7 +267,9 @@ export class GestionnaireDetailComponent implements OnInit {
   private chargerHistorique(): void {
     this.api.historique(this.id).subscribe({
       next: (h) => this.historique.set(h),
-      error: () => {}, // silencieux — l'historique est secondaire
+      error: () => {
+        // Silencieux : l'historique est secondaire
+      },
     });
   }
 

@@ -33,45 +33,45 @@ import {
       <section class="panel">
         <div class="grid">
           <div class="field">
-            <label>Email</label>
+            <span class="label">Email</span>
             <span>{{ l.email || '—' }}</span>
           </div>
           <div class="field">
-            <label>Téléphone</label>
+            <span class="label">Téléphone</span>
             <span>{{ l.telephone || '—' }}</span>
           </div>
           <div class="field">
-            <label>Profession</label>
+            <span class="label">Profession</span>
             <span>{{ l.profession || '—' }}</span>
           </div>
           <div class="field">
-            <label>Date de naissance</label>
+            <span class="label">Date de naissance</span>
             <span>{{ l.dateNaissance || '—' }}</span>
           </div>
           <div class="field">
-            <label>Pièce d'identité</label>
+            <span class="label">Pièce d'identité</span>
             <span>{{ l.typePieceIdentite ? l.typePieceIdentite + ' ' + (l.numeroPieceIdentite || '') : '—' }}</span>
           </div>
           <div class="field">
-            <label>Contact urgence</label>
+            <span class="label">Contact urgence</span>
             <span>{{ l.contactUrgence || '—' }}</span>
           </div>
           <div class="field">
-            <label>Statut</label>
+            <span class="label">Statut</span>
             <span class="badge" [attr.data-statut]="l.statut">{{ l.statut }}</span>
           </div>
           <div class="field">
-            <label>Créé le</label>
+            <span class="label">Créé le</span>
             <span>{{ l.dateCreation | date:'mediumDate' }}</span>
           </div>
           @if (l.dateArchivage) {
             <div class="field">
-              <label>Archivé le</label>
+              <span class="label">Archivé le</span>
               <span>{{ l.dateArchivage | date:'mediumDate' }}</span>
             </div>
           }
           <div class="field full">
-            <label>Observations</label>
+            <span class="label">Observations</span>
             <span>{{ l.observations || '—' }}</span>
           </div>
         </div>
@@ -138,7 +138,7 @@ import {
       .field.full {
         grid-column: 1 / -1;
       }
-      label {
+      .label {
         font-size: 0.85rem;
         color: #94a3b8;
       }
@@ -238,7 +238,9 @@ export class LocataireDetailComponent implements OnInit {
   private chargerHistorique(): void {
     this.api.historiqueLocataire(this.id).subscribe({
       next: (h) => this.historique.set(h),
-      error: () => {},
+      error: () => {
+        // Silencieux : l'historique est secondaire
+      },
     });
   }
 

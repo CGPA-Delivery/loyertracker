@@ -1,11 +1,11 @@
-import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 
-import { Gestionnaire, GestionnaireApiService } from '../core/gestionnaire/gestionnaire-api.service';
+import { Gestionnaire } from '../core/gestionnaire/gestionnaire-api.service';
 import { GestionnaireDetailComponent } from './gestionnaire-detail.component';
 
 const ID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';

@@ -1,11 +1,11 @@
-import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 
-import { LocataireDetail, LocataireHistorique, S02ApiService } from '../core/s02/s02-api.service';
+import { LocataireDetail, LocataireHistorique } from '../core/s02/s02-api.service';
 import { LocataireDetailComponent } from './locataire-detail.component';
 
 const ID = 'loc-1';

@@ -1,10 +1,10 @@
-import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 
-import { Gestionnaire, GestionnaireApiService } from '../core/gestionnaire/gestionnaire-api.service';
+import { Gestionnaire } from '../core/gestionnaire/gestionnaire-api.service';
 import { GestionnaireListeComponent } from './gestionnaire-liste.component';
 
 const gestionnaires: Gestionnaire[] = [
