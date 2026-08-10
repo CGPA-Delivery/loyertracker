@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 
-import { Locataire, S02ApiService } from '../core/s02/s02-api.service';
+import { Locataire } from '../core/s02/s02-api.service';
 import { LocataireListeComponent } from './locataire-liste.component';
 
 const locataires: Locataire[] = [
