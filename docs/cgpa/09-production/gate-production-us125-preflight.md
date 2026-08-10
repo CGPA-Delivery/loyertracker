@@ -1,5 +1,7 @@
 # Gate Production US-125 — préflight et décision d'entrée
 
+> **⚠️ SUPERSEDED — 2026-08-10 :** Ce document a été rédigé le 2026-08-08, **avant** le Gate Production US-125 du 2026-08-09. Le statut `NO GO d'entrée` et `PRODUCTION_READY non atteint` reflétait l'état au moment de la rédaction. **Depuis le 2026-08-09T00:24:03Z, le Gate Production US-125 est GO, `1.17.0-rc.1` est `PRODUCTION_DEPLOYED`** (smoke 63 PASS / 0 FAIL, Flyway 32/32). Voir `docs/project-state.md` et `docs/prod-state.md` pour l'état courant. Ce bandeau est additif ; le contenu historique ci-dessous est préservé.
+
 - **Projet :** LoyerTracker
 - **US :** US-125 Notifications
 - **Référentiel :** CGPA v6.1.1

@@ -41,6 +41,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - `CHECK-REL-01`, `CHECK-OPS-01` et Gate 07A préparés ; avis des sous-agents QA/RM/DA/SRE acceptés par le CDO, validation PO tracée ; CHECK-OPS-01 final et instruction opérationnelle encore requis avant Production.
 - **Aucun déploiement Production** et aucune migration V32 Production exécutés.
 
+> **Mise à jour 2026-08-10 :** cette section a été rédigée avant le Gate Production US-125 du 2026-08-09. `1.17.0-rc.1` est désormais **`PRODUCTION_DEPLOYED`** (Gate Production GO, smoke 63 PASS / 0 FAIL, Flyway 32/32). Voir `docs/project-state.md` et `docs/prod-state.md` pour l'état courant.
+
 ### Gouvernance — Levée technique des réserves US-125
 
 - Addendum DAT/OpenAPI US-125 ajouté : quatre routes, schémas, sécurité JWT, RLS/ReBAC et masquage PII.

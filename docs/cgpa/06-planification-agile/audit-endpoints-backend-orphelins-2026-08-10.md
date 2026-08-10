@@ -1,73 +1,70 @@
-# Audit des endpoints backend sans appel Angular direct
-## LoyerTracker — PR#422 post-merge — 2026-08-10
+# Audit endpoints orphelins — post-EP-15
 
-**Méthodologie :** Extraction exhaustive des 70 endpoints backend (24 contrôleurs Spring) et des 46 appels HTTP Angular (hors `.spec.ts`), normalisation des chemins avec variables uniformisées `{var}`, comparaison.
+**Date :** 2026-08-10  
+**Cadre :** CGPA v6.1.1  
+**Release protégée :** `v1.17.0-rc.1` sous hypercare  
+**Mode :** audit statique lecture seule  
+**Référence amont :** `audit-backend-frontend-api-2026-08-09.md` (75 endpoints Backend, 44 usages Angular, 27 non trouvés)
 
-**Résultat : 25 endpoints backend sans appel Angular direct identifié.**
+## 1. Évolution post-EP-15
 
----
+L'EP-15 Frontend (PR #423 + #424, mergées le 2026-08-10) a ajouté les services Angular suivants :
 
-## Tableau d'analyse
-
-| # | Endpoint | Contrôleur | Statut | Recommandation |
-|---|---|---|---|---|
-| 1 | `GET /api/bailleurs/export` | RgpdController | **Conserver** | Export RGPD (obligation légale). Intégration UI optionnelle (backlog). |
-| 2 | `POST /api/batch/notifications` | BatchController | **Conserver** | Déclenchement manuel batch. UI admin optionnelle (backlog). |
-| 3 | `GET /api/biens/{id}/paiements/{p}/avis-echeance` | DocumentController | ✅ **Déjà intégré** | Appelé via `S03ApiService.telechargerAvisEcheance()` → `telechargerDocument(bienId, periode, 'avis-echeance')`. |
-| 4 | `GET /api/biens/{id}/paiements/{p}/quittance` | DocumentController | ✅ **Déjà intégré** | Appelé via `S03ApiService.telechargerQuittance()` → `telechargerDocument(bienId, periode, 'quittance')`. |
-| 5 | `GET /api/gestionnaires` | GestionnaireController | 🔴 **À intégrer** | Liste des gestionnaires. Aucun composant Angular. EP-15 backlog. |
-| 6 | `GET /api/gestionnaires/verification-doublon` | GestionnaireController | 🔴 **À intégrer** | Détection doublons. EP-15 backlog. |
-| 7 | `GET /api/gestionnaires/{id}` | GestionnaireController | 🔴 **À intégrer** | Détail gestionnaire. EP-15 backlog. |
-| 8 | `PUT /api/gestionnaires/{id}` | GestionnaireController | 🔴 **À intégrer** | Modification profil. EP-15 backlog. |
-| 9 | `POST /api/gestionnaires/{id}/archivage` | GestionnaireController | 🔴 **À intégrer** | Archivage. EP-15 backlog. |
-| 10 | `GET /api/gestionnaires/{id}/historique` | GestionnaireController | 🔴 **À intégrer** | Historique. EP-15 backlog. |
-| 11 | `POST /api/gestionnaires/{id}/reactivation` | GestionnaireController | 🔴 **À intégrer** | Réactivation. EP-15 backlog. |
-| 12 | `POST /api/gestionnaires/{id}/restauration` | GestionnaireController | 🔴 **À intégrer** | Restauration. EP-15 backlog. |
-| 13 | `POST /api/gestionnaires/{id}/suspension` | GestionnaireController | 🔴 **À intégrer** | Suspension. EP-15 backlog. |
-| 14 | `POST /api/invitations` | InvitationController | 🔴 **À intégrer** | Émission invitation. UI bailleur nécessaire (backlog). |
-| 15 | `POST /api/invitations/{token}/acceptation` | InvitationController | **Conserver** | Flux email (non authentifié). Pas d'UI Angular. |
-| 16 | `GET /api/locataires/verification-doublon` | LocataireController | 🟡 **À intégrer** | Détection doublons. Backlog locataires. |
-| 17 | `GET /api/locataires/{id}` | LocataireController | 🟡 **À intégrer** | Détail locataire. Backlog. |
-| 18 | `PUT /api/locataires/{id}` | LocataireController | 🟡 **À intégrer** | Modification locataire. Backlog. |
-| 19 | `DELETE /api/locataires/{id}` | LocataireController | 🟡 **À intégrer** | Archivage locataire. Backlog. |
-| 20 | `DELETE /api/locataires/{id}/effacement` | RgpdController | **Conserver** | Anonymisation RGPD (obligation légale). UI optionnelle. |
-| 21 | `GET /api/locataires/{id}/historique` | LocataireController | 🟡 **À intégrer** | Historique locataire. Backlog. |
-| 22 | `POST /api/locataires/{id}/restauration` | LocataireController | 🟡 **À intégrer** | Restauration. Backlog. |
-| 23 | `POST /api/public/notifications` | ResendCallbackController | **Conserver** | Webhook Resend (infrastructure). Appelé par Resend, pas par Angular. |
-| 24 | `GET /api/public/receipts/{id}/download` | PublicQuittanceController | ✅ **Déjà intégré** | Appelé via `VerifyReceiptService.urlTelechargement()` (href, pas http.get). |
-| 25 | `POST /api/quittances/{id}/annulation` | QuittanceController | 🟡 **À intégrer** | Annulation quittance. Backlog. |
-
----
-
-## Synthèse
-
-| Catégorie | Nombre | Endpoints |
+| Service | Endpoints couverts | Nombre |
 |---|---|---|
-| ✅ **Déjà intégrés indirectement** | 3 | #3, #4, #24 |
-| 🔒 **Conserver (infra/legal, pas d'UI)** | 4 | #1, #2, #15, #23 |
-| 🔴 **Gestionnaires — à intégrer (EP-15)** | 9 | #5→#13 |
-| 🟡 **Locataires — à intégrer (backlog)** | 7 | #16→#19, #21, #22 |
-| 🟡 **Quittance — à intégrer (backlog)** | 1 | #25 |
-| 🟡 **Invitations — à intégrer (backlog)** | 1 | #14 |
+| `GestionnaireApiService` | rechercher, verificationDoublon, consulter, modifierProfil, suspendre, reactiver, archiver, restaurer, historique | 9 |
+| `S02ApiService` (extension Locataire) | verificationDoublonLocataire, consulterLocataire, modifierLocataire, archiverLocataire, restaurerLocataire, historiqueLocataire | 6 |
+| `QuittanceApiService` | annuler | 1 |
+| `InvitationApiService` | inviter, accepter | 2 |
+| **Total EP-15** | | **18** |
 
----
+L'US-125 (notifications) a également ajouté 3 endpoints Angular (`NotificationApiService`) :
+- `GET /api/notifications/preferences/current`
+- `PUT /api/notifications/preferences/current`
+- `POST /api/notifications/preferences/current/unsubscribe`
+- `GET /api/notifications/history`
 
-## Recommandations
+## 2. Nouveau décompte
 
-### 1. Aucune suppression immédiate
-Les 25 endpoints sont tous légitimes et couvrent des fonctionnalités documentées (EP-15 Gestionnaires, EP-14 Quittances, RGPD, US-70, US-123). **Aucun endpoint n'est orphelin par obsolescence.**
+| Contrôle | Avant EP-15 | Après EP-15 |
+|---|---|---|
+| Endpoints Backend (non-Actuator) | 71 | 71 |
+| Usages API Angular uniques | 44 | **64** |
+| Endpoints Backend non trouvés dans Angular | 27 | **~9** |
 
-### 2. Priorité d'intégration Angular
-- **Priorité HAUTE** : Module Gestionnaires (9 endpoints) — EP-15 déjà spécifié, backend complet, UI absente
-- **Priorité MOYENNE** : Module Locataires (7 endpoints) — CRUD partiellement intégré (liste/création OK), manque détail/modification/archivage/historique
-- **Priorité BASSE** : Quittance (1 endpoint), Invitations (1 endpoint), Export RGPD (1 endpoint)
+## 3. Surfaces Backend toujours sans couverture Angular directe
 
-### 3. Endpoints infrastructure
-`POST /api/public/notifications` (Resend callback) et `POST /api/invitations/{token}/acceptation` (flux email) sont des endpoints système appelés par des services externes, pas par l'UI. Ils doivent rester tels quels.
+Les surfaces suivantes restent sans appel Angular direct, pour des raisons légitimes :
 
-### 4. Faux orphelins (déjà intégrés)
-Les endpoints `avis-echeance`, `quittance` et `download` sont déjà appelés par Angular via des patterns indirects (template variable `{document}`, `href` au lieu de `http.get`). Notre normalisation les a classés orphelins à tort — ils sont fonctionnellement couverts.
+| Surface | Justification |
+|---|---|
+| `POST /api/batch/notifications` | Exploitation/tests uniquement |
+| `POST /api/public/notifications/callback` (Twilio) | Callback fournisseur — non-UI |
+| `POST /api/public/resend/callback` (Resend/Svix) | Callback fournisseur — non-UI |
+| `GET /api/bailleurs/export` (RGPD) | Contrat conformité — pas d'UI standard |
+| `DELETE /api/locataires/{id}/effacement` (RGPD) | Contrat conformité — pas d'UI standard |
+| `DELETE /api/locataires/{id}` (suppression) | Backend uniquement — `archivage` utilisé côté UI |
+| Actuator (`/actuator/health`, `/actuator/info`, `/actuator/prometheus`) | Contrat Ops |
 
----
+**Aucun endpoint n'est déclaré orphelin, legacy ou supprimable.**
 
-**Conclusion :** Les 25 endpoints sont tous légitimes. 3 sont déjà intégrés indirectement, 4 sont infrastructure/légal, et 18 attendent leur UI Angular dans les sprints à venir (EP-15 Gestionnaires + backlog Locataires/Quittances). **Aucune suppression recommandée.** Le cahier des charges existant (EP-15, ADR-16) couvre déjà la plupart de ces endpoints ; l'effort restant est purement Frontend.
+## 4. Endpoints précédemment listés « non trouvés » désormais couverts
+
+| Surface | Avant EP-15 | Après EP-15 |
+|---|---|---|
+| Cycle Gestionnaire (9 endpoints) | ❌ Non trouvé | ✅ `GestionnaireApiService` |
+| Cycle Locataire avancé (6 endpoints) | ❌ Non trouvé | ✅ `S02ApiService` (extension) |
+| Annulation quittance | ❌ Non trouvé | ✅ `QuittanceApiService` |
+| Invitations (émettre + accepter) | ❌ Non trouvé | ✅ `InvitationApiService` |
+| Clôture/réouverture bail | Listé « non trouvé » | ✅ Déjà dans `S02ApiService` avant EP-15 |
+| Création/suppression Patrimoine | Listé « non trouvé » | ✅ Déjà dans `S02ApiService` avant EP-15 |
+
+> **Note :** Les endpoints clôture/réouverture bail et création/suppression patrimoine étaient déjà présents dans `S02ApiService` avant EP-15 (lignes 236-248 et 204-210). L'audit du 2026-08-09 les avait classés « non trouvés » — probablement un faux négatif de l'outil de recherche utilisé. Ils sont confirmés couverts.
+
+## 5. Règle des neuf contrôles (inchangée)
+
+La règle normative de `audit-backend-frontend-api-2026-08-09.md` §3 reste en vigueur : toute suppression future d'un endpoint exige les neuf contrôles documentés et une décision PO/CDO tracée.
+
+## 6. Limite de preuve (inchangée)
+
+Audit statique uniquement. Pas d'interrogation des logs runtime Production ni des métriques de trafic.

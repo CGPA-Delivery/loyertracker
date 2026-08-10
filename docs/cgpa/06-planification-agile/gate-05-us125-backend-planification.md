@@ -1,5 +1,7 @@
 # Gate 05 — Backlog et planification Agile — US-125 Backend
 
+> **⚠️ SUPERSEDED — 2026-08-10 :** Ce document de planification a été rédigé le 2026-08-06. Le plan Backend US-125 a été exécuté, la PR #389 fusionnée, le Gate Staging GO (2026-08-08), et le Gate Production GO (2026-08-09). `1.17.0-rc.1` est `PRODUCTION_DEPLOYED`. Ce bandeau est additif ; le contenu historique ci-dessous est préservé.
+
 ## 1. Identification
 
 | Champ | Valeur |
