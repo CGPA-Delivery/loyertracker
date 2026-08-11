@@ -235,7 +235,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker compose --env-file .env.ci up -d --build
+          docker compose --env-file .env.ci --profile ci up -d --build
           for attempt in $(seq 1 40); do
             if curl --cacert infra/nginx/certs/localhost.pem -fsS https://localhost/healthz >/dev/null; then
               break
@@ -246,6 +246,13 @@ jobs:
           curl --cacert infra/nginx/certs/localhost.pem -fsS \
             https://localhost/auth/realms/loyertracker/.well-known/openid-configuration \
             | jq -e '.issuer == "https://localhost/auth/realms/loyertracker"' >/dev/null
+          # Attendre que keycloak-smtp-init ait terminé (SMTP configuré vers Mailpit).
+          docker compose --env-file .env.ci --profile ci logs keycloak-smtp-init 2>/dev/null | grep -q 'SMTP configuré' || {
+            echo 'ATTENTION : keycloak-smtp-init non terminé — dernière tentative...'
+            docker compose --env-file .env.ci --profile ci logs keycloak-smtp-init 2>/dev/null | tail -5
+          }
+          # Vérifier que Mailpit est accessible (API HTTP).
+          curl -fsS http://localhost:8025/api/v1/messages >/dev/null
 
       - name: Installer et exécuter l'audit navigateur
         working-directory: frontend

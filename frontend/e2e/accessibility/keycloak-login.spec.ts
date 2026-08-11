@@ -90,3 +90,56 @@ test('Keycloak logout confirmation page exposes the shared landmark with no seri
   await expect(page.locator('main#kc-content form')).toBeVisible();
   await expectKeycloakMainWithoutBlockingAxeViolations(page);
 });
+
+test('Keycloak password-reset flow via Mailpit action-token exposes the update-password form with no serious axe violations', async ({ page, request }) => {
+  const testEmail = 'bailleur-test@test.local';
+  const mailpitBase = 'http://localhost:8025';
+
+  // 1. Aller sur l'écran de login et cliquer sur "Mot de passe oublié".
+  await gotoKeycloakLogin(page);
+  const forgotPasswordLink = page.locator('main#kc-content a[href*="login-actions/reset-credentials"]');
+  await expect(forgotPasswordLink).toBeVisible();
+  await forgotPasswordLink.click();
+  await expect(page).toHaveURL(/\/login-actions\/reset-credentials/);
+
+  // 2. Remplir l'email du compte de test et soumettre.
+  await page.locator('main#kc-content input#username').fill(testEmail);
+  await page.locator('main#kc-content form').evaluate((form: HTMLFormElement) => form.submit());
+
+  // 3. Keycloak doit confirmer l'envoi (message "Vous devriez recevoir un email...").
+  await expect(page.locator('#kc-info-message')).toContainText(/email/i, { timeout: 15_000 });
+
+  // 4. Poller Mailpit pour récupérer l'action-token.
+  let actionTokenUrl: string | null = null;
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const resp = await request.get(`${mailpitBase}/api/v1/messages`);
+    expect(resp.ok(), `Mailpit API status ${resp.status()}`).toBeTruthy();
+    const body = await resp.json();
+    const messages: Array<{ ID: string }> = body.messages ?? [];
+
+    for (const msg of messages) {
+      const msgResp = await request.get(`${mailpitBase}/api/v1/message/${msg.ID}`);
+      expect(msgResp.ok()).toBeTruthy();
+      const msgData = await msgResp.json();
+      const html: string = msgData.HTML ?? '';
+
+      // L'action-token Keycloak est un lien vers login-actions/action-token
+      const match = html.match(/https:\/\/localhost\/auth\/realms\/loyertracker\/login-actions\/action-token\?[^"\s<>]+/);
+      if (match) {
+        actionTokenUrl = match[0];
+        break;
+      }
+    }
+    if (actionTokenUrl) break;
+    await page.waitForTimeout(1_500);
+  }
+  expect(actionTokenUrl, 'Action-token non trouvé dans Mailpit après 20 tentatives').toBeTruthy();
+
+  // 5. Naviguer vers l'action-token (formulaire update-password).
+  await page.goto(actionTokenUrl!);
+  await expect(page.locator('main#kc-content form')).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator('#kc-page-title')).not.toBeEmpty();
+
+  // 6. Audit axe du formulaire de réinitialisation.
+  await expectKeycloakMainWithoutBlockingAxeViolations(page);
+});
