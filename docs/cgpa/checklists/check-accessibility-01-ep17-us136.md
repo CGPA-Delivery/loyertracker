@@ -40,8 +40,22 @@
 
 ### Réserves maintenues
 
-- `RSV-EP17-US136-A11Y-01` reste ouverte pour les cinq flux Keycloak non encore audités au runtime : mot de passe oublié, réinitialisation, session expirée, accès refusé et logout.
-- `RSV-EP17-US136-A11Y-02` reste ouverte pour l’exigence de parcours réellement authentifié ; le contrôle CI courant couvre l’écran login et non une session applicative complète.
+- `RSV-EP17-US136-A11Y-01` est **levée** pour les six flux Keycloak : login, mot de passe oublié, réinitialisation (action-token via Mailpit), session expirée, accès refusé et logout. Chaque flux dispose d'un test Playwright + axe-core automatisé en CI, avec artefact de preuve immuable.
+- `RSV-EP17-US136-A11Y-02` reste ouverte pour l’exigence de parcours réellement authentifié ; le contrôle CI courant couvre les écrans Keycloak et non une session applicative complète.
 - `RSV-EP17-US136-A11Y-03` reste ouverte : navigation clavier manuelle, focus visible, absence de piège, zoom 200 %, reflow et préférence reduced-motion ne sont pas encore exécutés ni tracés.
 
-**Verdict actualisé : NO GO pour clôturer US-136, avec preuve automatisée du login Keycloak désormais PASS.** Aucun Gate historique, Staging, Production, realm, URI de redirection ou secret persistant n’a été modifié.
+**Verdict actualisé : NO GO pour clôturer US-136, avec preuve automatisée des six flux Keycloak désormais PASS.** Aucun Gate historique, Staging, Production, realm, URI de redirection ou secret persistant n’a été modifié.
+
+## Addendum de revalidation — 2026-08-11 (flux restants + Mailpit)
+
+| Contrôle | Preuve immuable | Résultat | Statut réserve |
+|---|---|---|---|
+| Flux mot de passe oublié | PR #437, CI `31473483921`, job `93732529945` ; Playwright + axe, Chromium | **PASS** — `forgot-password` → email → axe, 0 violation `serious`/`critical` | `RSV-EP17-US136-A11Y-01` |
+| Flux réinitialisation (action-token) | PR #438, CI `31479982758`, job `93742469319` ; Mailpit `v1.25`, SMTP Keycloak → Mailpit, Playwright + axe | **PASS** — `forgot-password` → poll Mailpit API → `update-password` → axe, 0 violation `serious`/`critical` | `RSV-EP17-US136-A11Y-01` |
+| Flux session expirée | PR #437, CI `31473483921` ; regex `/page a expir/i`, Playwright + axe | **PASS** — message "La page a expiré" → axe, 0 violation | `RSV-EP17-US136-A11Y-01` |
+| Flux accès refusé | PR #437, CI `31473483921` ; Playwright + axe | **PASS** — 403 → axe, 0 violation | `RSV-EP17-US136-A11Y-01` |
+| Flux logout | PR #437, CI `31473483921` ; Playwright + axe, tabindex corrigé | **PASS** — confirmation logout → axe, 0 violation | `RSV-EP17-US136-A11Y-01` |
+| Flux PKCE bearer-only | PR #437, CI `31473483921` ; code challenge `openssl rand -base64 32`, Playwright + axe | **PASS** — authorization → axe, 0 violation | `RSV-EP17-US136-A11Y-01` |
+| Contraste alerte warning update-password | PR #438, commit `a37efa2` ; CSS `.pf-c-alert.pf-m-warning .pf-c-alert__title { color: #92400e }` | **PASS** — contraste ≥ 4.5:1 (WCAG AA SC 1.4.3) | `RSV-EP17-US136-A11Y-01` |
+| Artefact de preuve (PR #438) | GitHub Artifact `9095712663`, `accessibility-e2e-ec20230d44787b8852428a57118fe688ce9b4c61`, SHA-256 `9daa09d09ba7851e273ba8301d65160e58a73d8b3f435ebe25e537c15eaf6bdb`, rétention 30 jours | **PASS** | Preuve téléchargeable et traçable |
+| Infrastructure Mailpit | `docker-compose.yml` profil `ci`, `axllent/mailpit:v1.25@sha256:463c5cf0f81ecd484fa332a33635ad3b129b386008bf0387925d050ab68d1bda`, SMTP configuré via API REST Keycloak | **PASS** | Environnement de test email isolé, sans dépendance externe |
