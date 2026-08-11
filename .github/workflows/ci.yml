@@ -247,9 +247,9 @@ jobs:
             https://localhost/auth/realms/loyertracker/.well-known/openid-configuration \
             | jq -e '.issuer == "https://localhost/auth/realms/loyertracker"' >/dev/null
           # Attendre que keycloak-smtp-init ait terminé (SMTP configuré vers Mailpit).
-          docker compose --env-file .env.ci --profile ci logs keycloak-smtp-init 2>/dev/null | grep -q 'SMTP configuré' || {
-            echo 'ATTENTION : keycloak-smtp-init non terminé — dernière tentative...'
-            docker compose --env-file .env.ci --profile ci logs keycloak-smtp-init 2>/dev/null | tail -5
+          docker compose --env-file .env.ci --profile ci wait keycloak-smtp-init 2>/dev/null || {
+            echo 'ATTENTION : keycloak-smtp-init a échoué — logs :'
+            docker compose --env-file .env.ci --profile ci logs keycloak-smtp-init 2>/dev/null | tail -10
           }
           # Vérifier que Mailpit est accessible (API HTTP).
           curl -fsS http://localhost:8025/api/v1/messages >/dev/null

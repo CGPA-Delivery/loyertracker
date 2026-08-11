@@ -102,9 +102,9 @@ test('Keycloak password-reset flow via Mailpit action-token exposes the update-p
   await forgotPasswordLink.click();
   await expect(page).toHaveURL(/\/login-actions\/reset-credentials/);
 
-  // 2. Remplir l'email du compte de test et soumettre.
+  // 2. Remplir l'email du compte de test et cliquer sur le bouton submit.
   await page.locator('main#kc-content input#username').fill(testEmail);
-  await page.locator('main#kc-content form').evaluate((form: HTMLFormElement) => form.submit());
+  await page.locator('main#kc-content input[type="submit"]').click();
 
   // 3. Keycloak doit confirmer l'envoi (message "Vous devriez recevoir un email...").
   await expect(page.locator('#kc-info-message')).toContainText(/email/i, { timeout: 15_000 });
