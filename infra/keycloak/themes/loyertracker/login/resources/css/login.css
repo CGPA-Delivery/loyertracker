@@ -109,6 +109,7 @@ label {
 /* Liens */
 a {
   color: var(--lt-focus-ring);
+  text-decoration: underline;
 }
 
 /* WCAG 2.2 AA SC 1.4.3: 6.92:1 on the login dark background. */
