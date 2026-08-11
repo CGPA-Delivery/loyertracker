@@ -66,6 +66,8 @@ import { AuditEntry, S04ApiService } from '../core/s04/s04-api.service';
         gap: 0.5rem;
       }
       .row {
+        box-sizing: border-box;
+        min-width: 0;
         width: 100%;
         border: 1px solid #334155;
         border-radius: 6px;
@@ -73,6 +75,10 @@ import { AuditEntry, S04ApiService } from '../core/s04/s04-api.service';
         background: #0f172a;
         color: #e2e8f0;
         font-size: 0.85rem;
+      }
+      .row > span {
+        min-width: 0;
+        overflow-wrap: anywhere;
       }
       .ts {
         color: #94a3b8;

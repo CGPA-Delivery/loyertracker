@@ -608,6 +608,11 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         color: #bae6fd;
         font-size: 0.85rem;
       }
+      .status a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+      }
       .muted,
       small {
         color: #94a3b8;
@@ -634,6 +639,11 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         .status {
           display: grid;
           gap: 0.5rem;
+        }
+        .status a {
+          display: inline-flex;
+          align-items: center;
+          min-height: 44px;
         }
         .mobile-list-first form.panel {
           order: 1;

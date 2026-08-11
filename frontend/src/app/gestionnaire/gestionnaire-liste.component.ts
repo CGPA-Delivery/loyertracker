@@ -62,6 +62,8 @@ import { Gestionnaire, GestionnaireApiService } from '../core/gestionnaire/gesti
         margin: 0;
       }
       input {
+        box-sizing: border-box;
+        min-height: 44px;
         border: 1px solid #334155;
         border-radius: 6px;
         padding: 0.5rem;
@@ -80,6 +82,9 @@ import { Gestionnaire, GestionnaireApiService } from '../core/gestionnaire/gesti
         gap: 0.5rem;
       }
       .row {
+        box-sizing: border-box;
+        min-width: 0;
+        min-height: 44px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -109,6 +114,15 @@ import { Gestionnaire, GestionnaireApiService } from '../core/gestionnaire/gesti
       .muted,
       small {
         color: #94a3b8;
+      }
+      @media (max-width: 640px) {
+        .toolbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .toolbar input {
+          width: 100%;
+        }
       }
     `,
   ],

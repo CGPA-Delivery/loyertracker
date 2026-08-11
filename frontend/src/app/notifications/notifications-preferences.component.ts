@@ -140,6 +140,11 @@ import {
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 0.75rem;
       }
+      @media (max-width: 640px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
       h2,
       p {
         margin-top: 0;

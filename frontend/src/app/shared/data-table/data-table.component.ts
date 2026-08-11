@@ -45,16 +45,19 @@ export interface LtDataTableColumn {
           </tr>
         </ng-template>
         <ng-template #body let-row let-columns="columns">
-          <tr
-            [class.selected]="row === selectedRow()"
-            [attr.role]="selectable() ? 'button' : null"
-            [attr.tabindex]="selectable() ? 0 : null"
-            (click)="onRowClick(row)"
-            (keydown)="onRowKeydown($event, row)"
-          >
-            @for (col of columns; track col.field) {
+          <tr [class.selected]="row === selectedRow()" (click)="onRowClick(row)">
+            @for (col of columns; track col.field; let first = $first) {
               <td>
-                @if (col.type === 'status') {
+                @if (first && selectable()) {
+                  <button
+                    type="button"
+                    class="row-select"
+                    [attr.aria-label]="'Sélectionner la ligne : ' + cellValue(row, col.field)"
+                    (click)="onSelectButtonClick($event, row)"
+                  >
+                    {{ cellValue(row, col.field) }}
+                  </button>
+                } @else if (col.type === 'status') {
                   <lt-status-tag
                     [value]="cellValue(row, col.field) + ''"
                     [severity]="severityForStatut(cellValue(row, col.field) + '')"
@@ -77,18 +80,47 @@ export interface LtDataTableColumn {
     }
   `,
   styles: `
+    :host {
+      display: block;
+      min-width: 0;
+    }
+    :host ::ng-deep .p-datatable-wrapper {
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    :host ::ng-deep .p-datatable-table {
+      width: 100%;
+      table-layout: fixed;
+    }
+    :host ::ng-deep th,
+    :host ::ng-deep td {
+      overflow-wrap: anywhere;
+    }
     .error {
       margin: 0;
       padding: var(--lt-space-md);
       color: var(--lt-state-danger);
       font-size: var(--lt-font-size-sm);
     }
-    tr[role='button'] {
-      cursor: pointer;
-    }
     tr.selected {
       outline: var(--lt-focus-ring-width) var(--lt-focus-ring-style) var(--lt-focus-ring);
       outline-offset: -2px;
+    }
+    .row-select {
+      width: 100%;
+      min-height: 44px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+    }
+    .row-select:focus-visible {
+      outline: var(--lt-focus-ring-width) var(--lt-focus-ring-style) var(--lt-focus-ring);
+      outline-offset: 2px;
     }
   `,
 })
@@ -114,11 +146,8 @@ export class DataTableComponent<T extends object = object> {
     }
   }
 
-  protected onRowKeydown(event: KeyboardEvent, row: T): void {
-    if (!this.selectable() || (event.key !== 'Enter' && event.key !== ' ')) {
-      return;
-    }
-    event.preventDefault();
-    this.rowClick.emit(row);
+  protected onSelectButtonClick(event: MouseEvent, row: T): void {
+    event.stopPropagation();
+    this.onRowClick(row);
   }
 }

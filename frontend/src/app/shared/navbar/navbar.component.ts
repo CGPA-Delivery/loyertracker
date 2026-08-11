@@ -34,6 +34,9 @@ import { AuthService } from '../../core/auth/auth.service';
         color: #38bdf8;
       }
       a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
         color: #cbd5e1;
         text-decoration: none;
       }
