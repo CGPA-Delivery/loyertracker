@@ -56,7 +56,25 @@ Les avis sont consultatifs ; ils ne remplacent pas l’autorité PO/CDO.
    - assigne la résolution des réserves à un plan distinct et traçable.
 3. Produire une décision finale humaine explicite dans la section suivante.
 
-## 6. Décision finale PO/CDO — réservée
+## 6. Addendum post-US-137 — 2026-08-11
+
+La PR #447 puis la PR documentaire #448 sont fusionnées dans `main` (`e1c72d7`, puis `02efe86`). Les contrôles CI, CodeQL, Registry Policy et CGPA Audit sont verts. `CHECK-RESPONSIVE-01` porte désormais un addendum de clôture technique : preuve authentifiée TLS stricte **20/20 PASS**, seed non sensible **14 PASS / 0 FAIL**, et matrice QA/UX validée par le PO/CDO.
+
+| Réserve de §3 | État après US-137 | Justification |
+|---|---|---|
+| RES-BUILD-RUNTIME-01 | **Levée pour les routes couvertes** | URL exacte et heading vérifiés dans la preuve runtime authentifiée. |
+| RES-RESP-PROOF-01 | **Levée** | Tests/versionnement/artifacts CI durables. |
+| RES-DATA-01 | **Levée** | Seed isolé et parcours non vides. |
+| RES-A11Y-ANGULAR-01 | **Levée pour le périmètre couvert** | axe, clavier/focus, zoom, reflow et reduced-motion validés. |
+| RES-VR-04 | **À instruire séparément** | Réserve de régression visuelle Keycloak, non couverte par cette clôture. |
+| RES-BASELINE-01 | **Ouverte** | Baseline US-127 antérieure inexistante ; aucune preuve ne peut être rétrofabriquée. |
+| RES-DESIGN-01 | **Ouverte** | `CHECK-DESIGN-01` spécifique Lot 5 reste à produire/valider. |
+
+### Recommandation actualisée
+
+**NO GO pour la clôture complète du Gate 04A global.** La réinstruction est désormais recevable pour une décision humaine de **GO sous réserve** limitée aux preuves US-136/US-137, sous maintien explicite de `RES-VR-04`, `RES-BASELINE-01`, `RES-DESIGN-01` et des dettes design/traçabilité (`DD-EP17-10`, `DD-611-02`, `DD-611-03`). Aucun développement, Staging, Production ou promotion n’est autorisé par cet addendum.
+
+## 7. Décision finale PO/CDO — réservée
 
 > **À compléter exclusivement par le Product Owner / CGPA Chief Delivery Officer.**
 >
