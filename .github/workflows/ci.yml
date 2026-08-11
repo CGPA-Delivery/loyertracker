@@ -251,6 +251,18 @@ jobs:
             echo 'ATTENTION : keycloak-smtp-init a échoué — logs :'
             docker compose --env-file .env.ci --profile ci logs keycloak-smtp-init 2>/dev/null | tail -10
           }
+          # Configurer SMTP Keycloak directement via l'API Admin REST (fallback si le one-shot échoue).
+          echo 'Vérification configuration SMTP Keycloak...'
+          ADMIN_TOKEN=$(curl -fsS -d "client_id=admin-cli" -d "username=${KEYCLOAK_ADMIN:-admin}" -d "password=$(grep KEYCLOAK_ADMIN_PASSWORD .env.ci | cut -d= -f2)" -d 'grant_type=password' http://localhost:8080/auth/realms/master/protocol/openid-connect/token | jq -r '.access_token')
+          if [ -n "$ADMIN_TOKEN" ] && [ "$ADMIN_TOKEN" != "null" ]; then
+            curl -fsS -X PUT "http://localhost:8080/auth/admin/realms/loyertracker" \
+              -H "Authorization: Bearer $ADMIN_TOKEN" \
+              -H 'Content-Type: application/json' \
+              -d '{"smtpServer":{"host":"mailpit","port":"1025","from":"noreply@loyertracker.test","fromDisplayName":"LoyerTracker CI","replyTo":"noreply@loyertracker.test","replyToDisplayName":"LoyerTracker CI","auth":false,"ssl":false,"starttls":false}}'
+            echo 'SMTP configuré via API REST.'
+          else
+            echo 'ATTENTION : impossible d'\''obtenir un token admin Keycloak pour configurer SMTP.'
+          fi
           # Vérifier que Mailpit est accessible (API HTTP).
           curl -fsS http://localhost:8025/api/v1/messages >/dev/null
 
