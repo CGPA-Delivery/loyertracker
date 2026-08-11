@@ -13,8 +13,8 @@
 
 - **US-140 (Gate 04A pilote)** : GO sous réserve (2026-08-10), `gate-04A-decision-ep17-lot5.md` §6.
 - **US-136 (Accessibilité)** : 6/6 flux Keycloak PASS (PR #437, #438). `RSV-EP17-US136-A11Y-01` levée.
-- **US-137 (Responsive)** : non exécuté — ne bloque pas le Gate Staging (condition de clôture du Lot).
-- **US-138 (Régression visuelle)** : non exécuté — Should, ne bloque pas.
+- **US-137 (Responsive)** : GO sous réserve (2026-08-11) — seuls Dashboard Bailleur et Login Keycloak réellement vérifiés PASS ; autres routes pilotées redirigent vers `/bailleur`. Réserves RES-01→RES-04 documentées et rectifiées par preuves US-138.
+- **US-138 (Régression visuelle)** : GO sous réserve (2026-08-11) — captures Chromium 640px/390px produites ; Dashboard Bailleur PASS, Login Keycloak `overflowX=10`, baseline US-127 absente et routes Gestionnaire/Profil inaccessibles. `DD-611-04` en traitement.
 - **US-139 (Documentation)** : non exécuté — ne bloque pas le Gate Staging.
 
 ## Artefact promu
