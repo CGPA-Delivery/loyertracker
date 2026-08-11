@@ -14,9 +14,11 @@ import { InvitationApiService, InvitationDto } from '../core/invitation/invitati
       <h2>Inviter un gestionnaire</h2>
       <p class="muted">Le gestionnaire recevra un lien valable 72h pour créer son compte.</p>
 
-      <label>
+      <label for="invitation-email">
         Email du gestionnaire
         <input
+          id="invitation-email"
+          class="invitation-email"
           type="email"
           [formControl]="email"
           placeholder="gestionnaire@exemple.com"
@@ -39,6 +41,13 @@ import { InvitationApiService, InvitationDto } from '../core/invitation/invitati
         <div class="error" role="alert">{{ erreur() }}</div>
       }
     </div>
+  `,
+  styles: `
+    .invitation-email {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 44px;
+    }
   `,
 })
 export class InvitationFormComponent {

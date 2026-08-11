@@ -10,7 +10,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "a11y:e2e": "playwright test -c playwright.a11y.config.ts",
-    "verify:security-dependencies": "node scripts/verify-security-dependencies.cjs"
+    "verify:security-dependencies": "node scripts/verify-security-dependencies.cjs",
+    "responsive:e2e": "playwright test -c playwright.responsive.config.ts"
   },
   "private": true,
   "dependencies": {

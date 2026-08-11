@@ -53,6 +53,13 @@ import { ProfilBailleur, ProfilService } from './profil.service';
       }
     </section>
   `,
+  styles: `
+    header a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  `,
 })
 export class ProfilComponent implements OnInit {
   private readonly api = inject(ProfilService);

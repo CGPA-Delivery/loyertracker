@@ -48,6 +48,17 @@ import { DataTableComponent, LtDataTableColumn } from '../shared/data-table/data
       }
     }
   `,
+  styles: `
+    .status a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+    .toolbar input[type='search'] {
+      box-sizing: border-box;
+      min-height: 44px;
+    }
+  `,
 })
 export class LocataireListeComponent implements OnInit {
   private readonly s02 = inject(S02ApiService);

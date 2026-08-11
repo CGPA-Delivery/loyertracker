@@ -90,7 +90,10 @@ describe('DataTableComponent', () => {
     fixture.componentInstance.rowClick.subscribe(emitted);
 
     const tr = fixture.nativeElement.querySelector('tbody tr') as HTMLElement;
-    expect(tr.getAttribute('role')).toBe('button');
+    const selectButton = tr.querySelector('.row-select') as HTMLButtonElement;
+    expect(tr.getAttribute('role')).toBeNull();
+    expect(selectButton).not.toBeNull();
+    expect(selectButton.getAttribute('aria-label')).toBe('Sélectionner la ligne : 2026-08');
     expect(tr.classList).toContain('selected');
 
     tr.click();
@@ -98,7 +101,7 @@ describe('DataTableComponent', () => {
     expect(emitted).toHaveBeenCalledWith(row);
   });
 
-  it('émet `rowClick` au clavier (Entrée) sur une ligne sélectionnable', () => {
+  it('émet `rowClick` via le bouton natif de sélection', () => {
     const row = { periode: '2026-08', montant: '850,00 €' };
     fixture.componentRef.setInput('rows', [row]);
     fixture.componentRef.setInput('selectable', true);
@@ -106,8 +109,8 @@ describe('DataTableComponent', () => {
     const emitted = jasmine.createSpy('rowClick');
     fixture.componentInstance.rowClick.subscribe(emitted);
 
-    const tr = fixture.nativeElement.querySelector('tbody tr') as HTMLElement;
-    tr.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    const selectButton = fixture.nativeElement.querySelector('tbody .row-select') as HTMLButtonElement;
+    selectButton.click();
 
     expect(emitted).toHaveBeenCalledWith(row);
   });
