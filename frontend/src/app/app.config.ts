@@ -30,7 +30,7 @@ const apiBearerCondition = createInterceptorCondition<IncludeBearerTokenConditio
  * déclarées. On conserve donc le chemin demandé, en retirant seulement le fragment OAuth/SPA.
  */
 export function currentBrowserRedirectUri(): string {
-  return `${window.location.origin}${window.location.pathname}${window.location.search}`;
+  return `${globalThis.location.origin}${globalThis.location.pathname}${globalThis.location.search}`;
 }
 
 export const appConfig: ApplicationConfig = {
