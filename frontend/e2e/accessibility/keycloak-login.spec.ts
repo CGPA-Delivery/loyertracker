@@ -106,8 +106,9 @@ test('Keycloak password-reset flow via Mailpit action-token exposes the update-p
   await page.locator('main#kc-content input#username').fill(testEmail);
   await page.locator('main#kc-content input[type="submit"]').click();
 
-  // 3. Keycloak doit confirmer l'envoi (message "Vous devriez recevoir un email...").
-  await expect(page.locator('#kc-info-message')).toContainText(/email/i, { timeout: 15_000 });
+  // 3. Keycloak peut rediriger après soumission (pas de #kc-info-message avec le thème custom).
+  //    On poll directement Mailpit pour récupérer l'action-token.
+  await page.waitForTimeout(2_000); // laisser Keycloak envoyer le mail
 
   // 4. Poller Mailpit pour récupérer l'action-token.
   let actionTokenUrl: string | null = null;
