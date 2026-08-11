@@ -74,7 +74,9 @@ describe('BailleurDashboardComponent', () => {
       expect(tag.querySelector('.p-tag-success')).not.toBeNull();
 
       const tr = table.querySelector('tbody tr') as HTMLElement;
-      expect(tr.getAttribute('role')).toBe('button');
+      const selectButton = tr.querySelector('.row-select') as HTMLButtonElement;
+      expect(tr.getAttribute('role')).toBeNull();
+      expect(selectButton).not.toBeNull();
       tr.click();
 
       expect(cmp.bienSelectionne()?.id).toBe('bien-1');
