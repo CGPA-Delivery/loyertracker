@@ -34,12 +34,18 @@ body {
   color: var(--lt-text-primary);
 }
 
-/* Carte de connexion */
+/* Carte de connexion
+ * PatternFly additions applique `.card-pf { margin: 0 -10px 20px; }` après la CSS Keycloak de
+ * base. Sans contre-règle dans le thème enfant, la carte login dépasse donc de 10px à gauche et
+ * à droite aux viewports mobiles/tablette (RES-VR-04). */
+.login-pf-page .card-pf,
 .card-pf {
   background: var(--lt-surface-card);
   border: 1px solid var(--lt-border-default);
   border-radius: var(--lt-radius-default);
   color: var(--lt-text-primary);
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* Note vérifiée (build réel, 2026-08-03) : contrairement au thème `keycloak` classique
