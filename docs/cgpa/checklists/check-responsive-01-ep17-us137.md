@@ -60,3 +60,27 @@
 | RES-02 | Écrans intégrés (Invitation, Notifications) non rendus car 0 gestionnaire/0 bien dans l'environnement de test. Layout responsive non vérifiable sans données. | **Ouverte** — nécessite données de test |
 | RES-03 | R03 (info financière critique) non testable : 0 bien, 0 locataire, 0 paiement dans l'environnement. | **Ouverte** — nécessite données de test |
 | RES-04 | R04 (touch targets ≥ 44×44px) vérifié visuellement uniquement — pas de mesure programmatique (Playwright non fonctionnel). | **Acceptée** — vérification visuelle suffisante pour Gate 04A |
+
+## Addendum de clôture technique et validation humaine — 2026-08-11
+
+> Les constats ci-dessus sont historiques. Ils ne sont pas réécrits ; le présent addendum consigne les preuves ultérieures intégrées par PR #447 puis acceptées par le PO/CDO.
+
+| Champ | Valeur |
+|---|---|
+| Décision PO/CDO | Matrice manuelle QA/UX **validée** par Jordan Tshilombo Kabamba le 2026-08-11 |
+| Intégration | PR #447, merge commit `e1c72d71679eb01688d03fbd7e681d9f9bcd859a`; head validé `b27a8a2e09d7daf75b87d43a6cd5ebdab06613ea` |
+| CI post-merge | CI, CodeQL, Registry Policy et CGPA Framework Audit `success` sur `e1c72d7` |
+| Preuve runtime | `npm run responsive:e2e`: **20/20 PASS**, sans skip, aux viewports 360/390/640/1024px, avec TLS strict, OIDC/PKCE réel, axe, overflow, cibles 44px, reflow et reduced-motion |
+| Données | seed isolé non sensible `@test.local`, 14 PASS/0 FAIL; `directAccessGrants=false` restauré |
+| Matrice humaine acceptée | clavier/focus, zoom 200%, reflow, reduced-motion, Invitation, Notifications et information financière selon § critères |
+
+### Statut des réserves US-137
+
+| ID | Statut | Base de décision |
+|---|---|---|
+| RES-01 | **Levée** | Les routes authentifiées couvertes ne redirigent plus vers `/bailleur`; heading attendu et URL exacte vérifiés par la preuve Playwright. |
+| RES-02 | **Levée** | Seed non sensible rend les données métier/intégrées disponibles pour la preuve. |
+| RES-03 | **Levée** | La matrice acceptée couvre les montants, statuts de paiement et honoraires avec données seedées. |
+| RES-04 | **Levée** | Mesure programmatique des cibles interactives ≥44px, complétée par validation humaine. |
+
+**Verdict actualisé : GO technique pour CHECK-RESPONSIVE-01 / US-137.** Cette décision clôt uniquement les réserves responsive/a11y identifiées ci-dessus. Elle ne constitue ni Gate 04A global, ni autorisation de Staging, de Production, de migration ou de promotion.

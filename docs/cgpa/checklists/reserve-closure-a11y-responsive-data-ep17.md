@@ -113,3 +113,15 @@ npm run responsive:e2e
 - `RES-RESP-PROOF-01` : **traitée techniquement par fichiers versionnables**, à lever après exécution Playwright verte et artifact durable.
 - `RES-DATA-01` : **traitée techniquement par seed non sensible**, à lever après preuve que les écrans Invitation/Notifications/finance sont rendus non vides.
 - `RES-A11Y-ANGULAR-01` : **traitée techniquement par parcours navigateur authentifiés + axe serious/critical + matrice manuelle**, à lever après exécution verte sans skip et validation humaine de la matrice clavier/focus/zoom/reflow/reduced-motion.
+
+## 9. Décision de levée — 2026-08-11
+
+Les critères du §7 sont déclarés satisfaits : PR #447 intégrée à `main`, CI post-merge verte, preuve responsive TLS stricte **20/20 PASS** sans skip, données `@test.local` et matrice manuelle QA/UX validée par le PO/CDO.
+
+| Réserve | Statut final |
+|---|---|
+| `RES-RESP-PROOF-01` | **Levée** |
+| `RES-DATA-01` | **Levée** |
+| `RES-A11Y-ANGULAR-01` | **Levée pour le périmètre Angular authentifié couvert** |
+
+La levée est limitée au périmètre a11y/responsive US-137. Elle n’emporte aucune décision sur le Gate 04A global, la baseline visuelle, Staging ou Production.
