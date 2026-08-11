@@ -21,6 +21,18 @@ const apiBearerCondition = createInterceptorCondition<IncludeBearerTokenConditio
   bearerPrefix: 'Bearer',
 });
 
+/**
+ * URL de retour Keycloak pour le `check-sso` initial.
+ *
+ * Le runtime HTTPS local charge l'Angular directement sur des deep links
+ * (`/gestionnaire`, `/bailleur/profil`, etc.). Si `check-sso` revient toujours sur `/`,
+ * Angular évalue ensuite la route racine et finit sur `/bailleur`, ce qui masque les routes
+ * déclarées. On conserve donc le chemin demandé, en retirant seulement le fragment OAuth/SPA.
+ */
+export function currentBrowserRedirectUri(): string {
+  return `${globalThis.location.origin}${globalThis.location.pathname}${globalThis.location.search}`;
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
@@ -38,7 +50,7 @@ export const appConfig: ApplicationConfig = {
         onLoad: 'check-sso',
         pkceMethod: 'S256',
         checkLoginIframe: false,
-        redirectUri: window.location.origin + '/',
+        redirectUri: currentBrowserRedirectUri(),
       },
     }),
     {
