@@ -235,7 +235,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker compose --env-file .env.ci up -d --build
+          docker compose --env-file .env.ci --profile ci up -d --build
           for attempt in $(seq 1 40); do
             if curl --cacert infra/nginx/certs/localhost.pem -fsS https://localhost/healthz >/dev/null; then
               break
@@ -246,6 +246,31 @@ jobs:
           curl --cacert infra/nginx/certs/localhost.pem -fsS \
             https://localhost/auth/realms/loyertracker/.well-known/openid-configuration \
             | jq -e '.issuer == "https://localhost/auth/realms/loyertracker"' >/dev/null
+          # Attendre que keycloak-smtp-init ait terminé (SMTP configuré vers Mailpit).
+          docker compose --env-file .env.ci --profile ci wait keycloak-smtp-init 2>/dev/null || {
+            echo 'ATTENTION : keycloak-smtp-init a échoué — logs :'
+            docker compose --env-file .env.ci --profile ci logs keycloak-smtp-init 2>/dev/null | tail -10
+          }
+          # Configurer SMTP Keycloak directement via l'API Admin REST (fallback si le one-shot échoue).
+          echo 'Vérification configuration SMTP Keycloak...'
+          ADMIN_TOKEN=$(curl -fsS --cacert infra/nginx/certs/localhost.pem \
+            -d "client_id=admin-cli" \
+            -d "username=${KEYCLOAK_ADMIN:-admin}" \
+            -d "password=$(grep KEYCLOAK_ADMIN_PASSWORD .env.ci | cut -d= -f2)" \
+            -d 'grant_type=password' \
+            "https://localhost/auth/realms/master/protocol/openid-connect/token" | jq -r '.access_token')
+          if [ -n "$ADMIN_TOKEN" ] && [ "$ADMIN_TOKEN" != "null" ]; then
+            curl -fsS --cacert infra/nginx/certs/localhost.pem -X PUT \
+              "https://localhost/auth/admin/realms/loyertracker" \
+              -H "Authorization: Bearer $ADMIN_TOKEN" \
+              -H 'Content-Type: application/json' \
+              -d '{"smtpServer":{"host":"mailpit","port":"1025","from":"noreply@loyertracker.test","fromDisplayName":"LoyerTracker CI","replyTo":"noreply@loyertracker.test","replyToDisplayName":"LoyerTracker CI","auth":false,"ssl":false,"starttls":false}}'
+            echo 'SMTP configuré via API REST.'
+          else
+            echo 'ATTENTION : impossible d'\''obtenir un token admin Keycloak pour configurer SMTP.'
+          fi
+          # Vérifier que Mailpit est accessible (API HTTP).
+          curl -fsS http://localhost:8025/api/v1/messages >/dev/null
 
       - name: Installer et exécuter l'audit navigateur
         working-directory: frontend

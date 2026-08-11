@@ -166,6 +166,34 @@ services:
       start_period: 60s
     restart: unless-stopped
 
+  # Mailpit — serveur SMTP de capture pour les tests CI (action-token Keycloak).
+  # Profil `ci` uniquement : n'est pas démarré en dev local ni en Staging/Production.
+  # SMTP 1025 (interne, réseau Docker), API HTTP 8025 (exposée sur l'hôte pour Playwright).
+  mailpit:
+    image: axllent/mailpit:v1.25@sha256:463c5cf0f81ecd484fa332a33635ad3b129b386008bf0387925d050ab68d1bda
+    profiles: [ci]
+    ports:
+      - "8025:8025"
+    networks: [loyertracker-net]
+    restart: unless-stopped
+
+  # One-shot CI : configure SMTP Keycloak vers Mailpit après l'import du realm.
+  # Profil `ci` uniquement ; dépend de keycloak-theme-init (le realm doit être prêt).
+  keycloak-smtp-init:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    profiles: [ci]
+    entrypoint: ["bash", "/opt/keycloak/data/configure-smtp.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./infra/keycloak/configure-smtp.sh:/opt/keycloak/data/configure-smtp.sh:ro
+    depends_on:
+      keycloak-theme-init:
+        condition: service_completed_successfully
+    networks: [loyertracker-net]
+    restart: "no"
+
   nginx:
     # Image web du projet (SPA Angular buildée + Nginx non-root, lot Production Readiness 2).
     # Build depuis la racine du dépôt (ADR-08) ; en staging, la même image est tirée du

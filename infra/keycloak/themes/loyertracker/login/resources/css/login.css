@@ -99,6 +99,11 @@ label {
 .pf-c-alert.pf-m-warning .kc-feedback-text {
   color: var(--lt-state-warning);
 }
+/* WCAG AA : le thème PatternFly par défaut utilise #fde68a sur #fdf2e5 (1.12:1)
+   pour les alertes warning. On force une couleur warning foncée (≥ 4.5:1). */
+.pf-c-alert.pf-m-warning .pf-c-alert__title {
+  color: #92400e;
+}
 .pf-c-alert.pf-m-success .kc-feedback-text {
   color: var(--lt-state-success);
 }
