@@ -11,11 +11,11 @@ const base64Url = (value: Buffer) => value.toString('base64url');
 // et redirige vers la SPA, qui rejoue son propre check-sso — l'écran Keycloak n'était alors
 // atteint que par ricochet. Le code d'autorisation n'est jamais échangé : le `code_verifier`
 // reste local au test, aucun secret ni Direct Grant.
-function buildAuthorizationRequest(): string {
+function buildAuthorizationRequest(clientId = 'loyertracker-spa'): string {
   const codeVerifier = base64Url(randomBytes(32));
   const codeChallenge = base64Url(createHash('sha256').update(codeVerifier).digest());
   const params = new URLSearchParams({
-    client_id: 'loyertracker-spa',
+    client_id: clientId,
     redirect_uri: `${baseURL}/`,
     response_type: 'code',
     scope: 'openid',
@@ -62,5 +62,31 @@ test('Keycloak forgot-password flow reaches the reset-credentials screen with no
   await expect(page).toHaveURL(/\/login-actions\/reset-credentials/);
   await expect(page.locator('main#kc-content form')).toBeVisible();
   await expect(page.locator('#kc-page-title')).not.toBeEmpty();
+  await expectKeycloakMainWithoutBlockingAxeViolations(page);
+});
+
+test('Keycloak session-expired page exposes the shared landmark with no serious axe violations', async ({ page }) => {
+  await gotoKeycloakLogin(page);
+  const action = await page.locator('main#kc-content form').getAttribute('action');
+  expect(action).toBeTruthy();
+  const tabId = new URL(action!, baseURL).searchParams.get('tab_id');
+  expect(tabId).toBeTruthy();
+
+  await page.goto(`/auth/realms/loyertracker/login-actions/authenticate?execution=BAD&client_id=loyertracker-spa&tab_id=${encodeURIComponent(tabId!)}`);
+  await expect(page.locator('#kc-page-title')).toContainText(/page expir/i);
+  await expectKeycloakMainWithoutBlockingAxeViolations(page);
+});
+
+test('Keycloak bearer-only client denial exposes the error landmark with no serious axe violations', async ({ page }) => {
+  await page.goto(buildAuthorizationRequest('loyertracker-api'));
+  await expect(page.locator('#kc-page-title')).not.toBeEmpty();
+  await expect(page.locator('main#kc-content')).toContainText(/Bearer-only/i);
+  await expectKeycloakMainWithoutBlockingAxeViolations(page);
+});
+
+test('Keycloak logout confirmation page exposes the shared landmark with no serious axe violations', async ({ page }) => {
+  await page.goto('/auth/realms/loyertracker/protocol/openid-connect/logout');
+  await expect(page.locator('#kc-page-title')).toContainText(/déconnexion/i);
+  await expect(page.locator('main#kc-content form')).toBeVisible();
   await expectKeycloakMainWithoutBlockingAxeViolations(page);
 });
