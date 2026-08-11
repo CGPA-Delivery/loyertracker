@@ -174,7 +174,7 @@ test.describe('CHECK-RESPONSIVE-01 durable proof — authenticated Angular', () 
         await login(page, bailleurEmail, bailleurPassword);
         await page.goto(route.path);
         await page.waitForLoadState('networkidle');
-        await expect(page).toHaveURL(new RegExp(`${route.path.replace(/\//g, '\\/')}(\\?|$)`));
+        await expect.poll(() => new URL(page.url()).pathname).toBe(route.path);
         await expect(page.getByRole('heading', { name: route.heading }).first()).toBeVisible();
 
         await assertNoHorizontalOverflow(page);
