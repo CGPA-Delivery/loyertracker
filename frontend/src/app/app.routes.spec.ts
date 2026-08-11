@@ -23,7 +23,15 @@ describe('routes', () => {
   });
 
   it('les routes métier restent gardées par authGuard', () => {
-    for (const path of ['bailleur', 'bailleur/profil', 'gestionnaire']) {
+    for (const path of [
+      'bailleur',
+      'bailleur/profil',
+      'bailleur/gestionnaires',
+      'bailleur/gestionnaires/:id',
+      'bailleur/locataires',
+      'bailleur/locataires/:id',
+      'gestionnaire',
+    ]) {
       expect(routePour(path).canActivate).toEqual([authGuard]);
     }
   });
