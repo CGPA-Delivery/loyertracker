@@ -163,6 +163,15 @@
 
     </div>
   </div>
+
+  <script>
+    /* Normalise les tabindex positifs injectés par le thème PatternFly hérité
+       (ex: tabindex="4" sur le bouton de logout). L'ordre DOM natif est l'ordre
+       de tabulation correct (WCAG 2.4.3 / axe tabindex). */
+    document.querySelectorAll('[tabindex]:not([tabindex="0"]):not([tabindex="-1"])').forEach(function(el) {
+      el.setAttribute('tabindex', '0');
+    });
+  </script>
 </body>
 </html>
 </#macro>

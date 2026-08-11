@@ -73,7 +73,7 @@ test('Keycloak session-expired page exposes the shared landmark with no serious 
   expect(tabId).toBeTruthy();
 
   await page.goto(`/auth/realms/loyertracker/login-actions/authenticate?execution=BAD&client_id=loyertracker-spa&tab_id=${encodeURIComponent(tabId!)}`);
-  await expect(page.locator('#kc-page-title')).toContainText(/page expir/i);
+  await expect(page.locator('#kc-page-title')).toContainText(/page a expir/i);
   await expectKeycloakMainWithoutBlockingAxeViolations(page);
 });
 
