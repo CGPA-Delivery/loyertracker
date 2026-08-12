@@ -14,8 +14,8 @@
 | Lot | Priorité | Points | Effort | Statut |
 |---|---|---|---|---|
 | **Lot 0** | Immédiat | 4 (RSV-S9-03, OBS-S10-01, DD-EP17-10, DD-EP17-11) | 0,5 j | ✅ **Terminé** — PR #454 |
-| **Lot 1** | **P0** | DD-EP17-14 (SMTP Keycloak + anti-énumération) | 2-4 j | 🔄 PR #455 en attente de merge |
-| **Lot 2** | P1 | DD-EP17-12 (écran invitation) + DD-EP17-02 (états 403/404) | 3-5 j | 📋 Planifié |
+| **Lot 1** | **P0** | DD-EP17-14 (SMTP Keycloak + anti-énumération) | 2-4 j | 🟡 **Production en hypercare** — clôture conditionnée aux contrôles T+12/T+24 |
+| **Lot 2** | P1 | DD-EP17-12 (écran invitation) + DD-EP17-02 (états 403/404) | 3-5 j | ✅ **Terminé / clôturé** — PR #462 + Gate Staging PR #463 + recette PASS PR #464 |
 | **Lot 3** | P1 | DD-611-03 (traçabilité) + DD-611-01 (UXR) + DD-EP17-05 (modal) | 2-3 j | 📋 Planifié |
 | **Lot 4** | P1 | RSV-DMARC-02 (DMARC progressif) + RSV-EMAIL-NOREPLY-01-UNIDIR (Gate Prod) | 1-2 j + 60-90 j | 📋 Planifié |
 | **Lot 5** | P2 | 5 dettes Design (uniformisation visuelle) | 3-5 j | 📋 Planifié |
@@ -55,12 +55,12 @@ Lot 0 ✅ → Lot 1 🔄 → Lot 2 → Lot 3
 
 **Prochaine étape** : Merge PR #455 → renseigner `KC_SMTP_PASSWORD` sur Staging → déploiement → test anti-énumération → Gate Production.
 
-### Lot 2 — Parcours utilisateur critique 📋
+### Lot 2 — Parcours utilisateur critique ✅
 
-- **DD-EP17-12** : `InvitationAcceptationComponent` (route publique `/invitations/:token`)
-- **DD-EP17-02** : `ForbiddenComponent` + `NotFoundComponent` + `HttpErrorInterceptor`
-
-**Plan** : `plan-execution-lot2-parcours-utilisateur-critique.md`
+- **DD-EP17-12** : `InvitationAcceptationComponent` (route publique `/invitations/:token`) livré par PR #462 (`2b2b82c`)
+- **DD-EP17-02** : `ForbiddenComponent` + `NotFoundComponent` + `HttpErrorInterceptor` livrés par PR #462 (`2b2b82c`)
+- Gate Staging : PR #463 fusionnée ; recette humaine PASS : PR #464 fusionnée.
+- **Clôture** : décision `cloture-dd-ep17-02-dd-ep17-12-lot2-2026-08-12.md` ; fermeture limitée à Staging, sans autorisation Production.
 
 ### Lot 3 — Traçabilité, UXR et Modal 📋
 
