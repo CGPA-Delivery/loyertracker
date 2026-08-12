@@ -37,6 +37,51 @@ services:
       - ./infra/keycloak/themes/loyertracker:/opt/keycloak/themes/loyertracker:ro
     restart: always
 
+  # One-shot manuel, exclusivement déclenché après décision Gate Production DD-EP17-14 :
+  # docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production-smtp run --rm keycloak-smtp-production-init
+  # Aucun démarrage automatique et aucun secret versionné. Ce service n'expose aucun port et
+  # ne recrée ni Keycloak ni les services applicatifs ; il utilise l'API Admin interne.
+  keycloak-smtp-production-init:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    profiles: [production-smtp]
+    entrypoint: ["bash", "/opt/keycloak/data/configure-smtp-production.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_PRODUCTION_CHANGE_ID: ${KC_PRODUCTION_CHANGE_ID:?Définir l'identifiant de changement Production approuvé}
+      KC_SMTP_HOST: ${KC_SMTP_HOST:?Définir KC_SMTP_HOST}
+      KC_SMTP_PORT: ${KC_SMTP_PORT:-587}
+      KC_SMTP_USER: ${KC_SMTP_USER:?Définir KC_SMTP_USER}
+      KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:?Définir KC_SMTP_PASSWORD}
+      KC_SMTP_FROM: ${KC_SMTP_FROM:?Définir KC_SMTP_FROM}
+      KC_SMTP_FROM_DISPLAY: ${KC_SMTP_FROM_DISPLAY:-LoyerTracker}
+      KC_SMTP_REPLY_TO: ${KC_SMTP_REPLY_TO:-${KC_SMTP_FROM}}
+    volumes:
+      - ./infra/keycloak/configure-smtp-production.sh:/opt/keycloak/data/configure-smtp-production.sh:ro
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks: [loyertracker-net]
+    restart: "no"
+
+  # Rollback ciblé du changement SMTP Production. À exécuter uniquement sur instruction
+  # CDO/Release Manager ; rétablit smtpServer={} sans recréer de service ni toucher aux données.
+  keycloak-smtp-production-rollback:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    profiles: [production-smtp]
+    entrypoint: ["bash", "/opt/keycloak/data/rollback-smtp-production.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_PRODUCTION_CHANGE_ID: ${KC_PRODUCTION_CHANGE_ID:?Définir l'identifiant de changement Production approuvé}
+    volumes:
+      - ./infra/keycloak/rollback-smtp-production.sh:/opt/keycloak/data/rollback-smtp-production.sh:ro
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks: [loyertracker-net]
+    restart: "no"
+
   api:
     # GHCR par digest exact — jamais un tag, jamais de build local en Production.
     image: ${API_IMAGE_REF:?Définir API_IMAGE_REF=ghcr.io/.../loyertracker-api@sha256:...}
