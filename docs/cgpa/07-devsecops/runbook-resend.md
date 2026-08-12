@@ -180,16 +180,17 @@ divergence entre documentation, configuration et gabarits.
   qu'aucun MX racine ni boîte n'existait sur ce domaine. La réception étant montée et prouvée de
   bout en bout, la directive `rua=` est désormais opérationnelle.
 - `RSV-DMARC-02` — la politique est `p=none`, purement observatoire : elle n'impose ni mise en
-  quarantaine ni rejet des messages usurpant le domaine. **Reste ouverte** : la levée de
-  `RSV-DMARC-01` rend l'analyse possible mais ne la remplace pas — le durcissement vers
-  `quarantine` puis `reject` suppose des rapports réels effectivement reçus et analysés.
-- `RSV-EMAIL-NOREPLY-01` — `noreply@loyertracker.org` n'est pas une boîte : faute de MX racine,
-  toute réponse d'un destinataire est perdue **sans notification à l'expéditeur ni à
-  l'utilisateur**. Le canal reste donc unidirectionnel par construction ; tout message envoyé
-  depuis cette adresse doit porter un chemin de contact alternatif exploitable. À cumuler avec
-  §6 : les webhooks Resend n'étant pas activés (reportés EP-19), ni les réponses ni les rebonds
-  ne sont observables aujourd'hui. **Reste ouverte** : la réception montée en §9.5 n'accepte que
-  `dmarc@loyertracker.org` — `noreply@` demeure volontairement non recevable.
+  quarantaine ni rejet des messages usurpant le domaine. **Reste ouverte, instruite le 2026-08-12**
+  (`docs/cgpa/design/decisions/instruction-rsv-dmarc-02-email-noreply-01-ep18.md`) : plan de
+  durcissement progressif documenté (30 jours d'observation → `p=quarantine; pct=25` →
+  `p=quarantine; pct=100` → `p=reject`), aucun rapport DMARC agrégé réel reçu à date, surveillance
+  hebdomadaire du bucket S3.
+- `RSV-EMAIL-NOREPLY-01` — renommée `RSV-EMAIL-NOREPLY-01-UNIDIR` le 2026-08-12. Le déploiement
+  de `noreply@loyertracker.org` comme expéditeur est **autorisé** (Staging d'abord, Production via
+  Gate distinct). L'unidirectionnalité persiste comme contrainte permanente : `noreply@` n'est pas
+  une boîte, toute réponse est perdue sans notification, un pied de page « ne pas répondre » est
+  requis sur chaque e-mail. Instruction complète :
+  `docs/cgpa/design/decisions/instruction-rsv-dmarc-02-email-noreply-01-ep18.md`.
 
 ### 9.5 Réception mail `loyertracker.org` — SES inbound vers S3 (2026-08-10)
 
