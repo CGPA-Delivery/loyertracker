@@ -60,9 +60,16 @@ La navigation de recette externe vers le FQDN Staging est empêchée depuis l'en
 
 Le plafond de notifications Staging est à `5/5`. Cette réserve ne bloque ni ce déploiement ni le flux d'invitation ; elle bloque seulement toute recette nécessitant un nouvel envoi sortant sans décision de gestion de budget distincte.
 
-## 6. Décision et suite
+## 6. Recette humaine externe — PASS
 
-**GO — STAGING_DEPLOYED.** L'approbation CDO/PO reçue couvre le résultat de ce déploiement Staging, sur l'artefact immuable identifié ci-dessus.
+- **Validateur :** Jordan Tshilombo Kabamba, Product Owner / CDO.
+- **Décision communiquée :** `PASS` dans le canal de livraison, après exécution de la recette Staging demandée.
+- **Périmètre accepté :** acceptation publique d’invitation, comportements erreur du formulaire et pages Frontend 403/404.
+- **Conclusion :** la recette humaine externe est **PASS** ; la réserve de §5 relative à l’enregistrement de cette recette est levée.
+
+## 7. Décision et suite
+
+**GO — STAGING_DEPLOYED et recette humaine PASS.** L'approbation CDO/PO reçue couvre le résultat de ce déploiement Staging, sur l'artefact immuable identifié ci-dessus.
 
 Cette décision n'autorise pas la Production. La suite obligatoire demeure :
 
