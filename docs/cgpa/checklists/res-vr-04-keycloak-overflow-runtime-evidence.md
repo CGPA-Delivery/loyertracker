@@ -21,8 +21,11 @@ Aucun template FreeMarker, flux OIDC/PKCE, realm, secret ou JavaScript n'est mod
 Commande :
 
 ```bash
-node frontend/e2e/keycloak-overflow-probe.mjs
+NODE_EXTRA_CA_CERTS=/home/ubuntu/loyertracker/infra/nginx/certs/localhost.pem \
+  node frontend/e2e/keycloak-overflow-probe.mjs
 ```
+
+Le probe impose `ignoreHTTPSErrors: false`; la CA de confiance est donc un prérequis explicite, pas un contournement TLS.
 
 | Viewport | `scrollWidth` | `clientWidth` | `overflowX` | Résultat |
 |---:|---:|---:|---:|---|

@@ -34,7 +34,7 @@ const mode = applyLocalThemeCss ? 'candidate-css' : 'runtime-current';
 const browser = await chromium.launch({ headless: true });
 const results = [];
 for (const width of viewports) {
-  const page = await browser.newPage({ viewport: { width, height: 900 }, ignoreHTTPSErrors: true });
+  const page = await browser.newPage({ viewport: { width, height: 900 }, ignoreHTTPSErrors: false });
   await page.goto(authUrl(), { waitUntil: 'networkidle' });
   await page.locator('#kc-page-title').waitFor({ state: 'visible', timeout: 15000 });
   if (localThemeCss) {
