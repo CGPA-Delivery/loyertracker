@@ -34,20 +34,31 @@ for i in $(seq 1 30); do
   sleep 5
 done
 
-echo '[smtp-production] Application SMTP SES Mail Manager au realm Production...'
-"$KCADM" update "realms/${REALM}" \
-  -s "smtpServer.host=${KC_SMTP_HOST}" \
-  -s "smtpServer.port=${KC_SMTP_PORT}" \
-  -s "smtpServer.from=${KC_SMTP_FROM}" \
-  -s "smtpServer.fromDisplayName=${KC_SMTP_FROM_DISPLAY:-LoyerTracker}" \
-  -s "smtpServer.replyTo=${KC_SMTP_REPLY_TO:-${KC_SMTP_FROM}}" \
-  -s "smtpServer.replyToDisplayName=${KC_SMTP_FROM_DISPLAY:-LoyerTracker}" \
-  -s 'smtpServer.auth=true' \
-  -s "smtpServer.user=${KC_SMTP_USER}" \
-  -s "smtpServer.password=${KC_SMTP_PASSWORD}" \
-  -s 'smtpServer.ssl=false' \
-  -s 'smtpServer.starttls=true'
+json_escape() {
+  # Valeurs SMTP converties en chaîne JSON sans journaliser les secrets.
+  printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\r/\\r/g' -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g'
+}
+
+SMTP_UPDATE="$(mktemp)"
+trap 'rm -f "$SMTP_UPDATE"' EXIT
+cat >"$SMTP_UPDATE" <<EOF
+{"smtpServer":{"host":"$(json_escape "$KC_SMTP_HOST")","port":"$(json_escape "$KC_SMTP_PORT")","from":"$(json_escape "$KC_SMTP_FROM")","fromDisplayName":"$(json_escape "${KC_SMTP_FROM_DISPLAY:-LoyerTracker}")","replyTo":"$(json_escape "${KC_SMTP_REPLY_TO:-${KC_SMTP_FROM}}")","replyToDisplayName":"$(json_escape "${KC_SMTP_FROM_DISPLAY:-LoyerTracker}")","auth":"true","user":"$(json_escape "$KC_SMTP_USER")","password":"$(json_escape "$KC_SMTP_PASSWORD")","ssl":"false","starttls":"true"}}
+EOF
+
+# Le RealmRepresentation doit être envoyé avec smtpServer comme objet atomique : les -s
+# imbriqués sont sérialisés de manière non fiable par kcadm/Keycloak 24.
+echo '[smtp-production] Application atomique SMTP SES Mail Manager au realm Production...'
+"$KCADM" update "realms/${REALM}" -f "$SMTP_UPDATE"
 
 echo '[smtp-production] Vérification runtime (secret filtré)...'
-"$KCADM" get "realms/${REALM}" --fields smtpServer | grep -v '"password"'
+SMTP_JSON="$("$KCADM" get "realms/${REALM}" --fields smtpServer)"
+for key in host port from auth user ssl starttls; do
+  grep -q "\"${key}\"" <<<"$SMTP_JSON" || {
+    echo "[smtp-production] ERREUR : smtpServer incomplet : ${key}" >&2
+    exit 1
+  }
+done
+printf '[smtp-production] smtpServer configuré ; clés='
+printf '%s' "$SMTP_JSON" | sed -E 's/"password"[[:space:]]*:[[:space:]]*"[^"]*"//g' | tr -d '\n'
+printf '\n'
 echo '[smtp-production] Terminé — exécuter les tests fonctionnels et anti-énumération avant de conclure le Gate.'

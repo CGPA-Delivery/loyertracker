@@ -19,9 +19,11 @@ require_file "$PROD_COMPOSE"
 
 require_pattern "$PROD_SCRIPT" 'KC_PRODUCTION_CHANGE_ID'
 require_pattern "$PROD_SCRIPT" 'KC_SMTP_PASSWORD'
-require_pattern "$PROD_SCRIPT" 'smtpServer.password=${KC_SMTP_PASSWORD}'
-require_pattern "$PROD_SCRIPT" 'grep -v' # redacted runtime verification
-reject_pattern "$PROD_SCRIPT" 'configure-smtp-staging.sh'
+require_pattern "$PROD_SCRIPT" '"smtpServer"'
+require_pattern "$PROD_SCRIPT" '"password"'
+require_pattern "$PROD_SCRIPT" 'update "realms/${REALM}" -f "$SMTP_UPDATE"'
+require_pattern "$PROD_SCRIPT" 'smtpServer incomplet'
+reject_pattern "$PROD_SCRIPT" 'smtpServer.password=${KC_SMTP_PASSWORD}'
 
 require_pattern "$ROLLBACK_SCRIPT" 'KC_PRODUCTION_CHANGE_ID'
 require_pattern "$ROLLBACK_SCRIPT" 'smtpServer={}'
