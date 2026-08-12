@@ -66,5 +66,27 @@ export const routes: Routes = [
         (m) => m.VerifyReceiptComponent,
       ),
   },
-  { path: '**', redirectTo: 'bailleur' },
+  // Acceptation publique : le destinataire ne possède pas encore de session Keycloak.
+  {
+    path: 'invitations/:token',
+    loadComponent: () =>
+      import('./invitation/invitation-acceptation.component').then(
+        (m) => m.InvitationAcceptationComponent,
+      ),
+  },
+  {
+    path: '403',
+    loadComponent: () =>
+      import('./shared/error-pages/error-pages.component').then((m) => m.ForbiddenComponent),
+  },
+  {
+    path: '404',
+    loadComponent: () =>
+      import('./shared/error-pages/error-pages.component').then((m) => m.NotFoundComponent),
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./shared/error-pages/error-pages.component').then((m) => m.NotFoundComponent),
+  },
 ];

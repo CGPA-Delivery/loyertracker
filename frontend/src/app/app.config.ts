@@ -10,6 +10,7 @@ import {
 } from 'keycloak-angular';
 import { providePrimeNG } from 'primeng/config';
 
+import { httpErrorRedirectInterceptor } from './core/http/http-error-redirect.interceptor';
 import { routes } from './app.routes';
 import { LtPreset } from '../styles/tokens/lt-preset';
 
@@ -57,7 +58,7 @@ export const appConfig: ApplicationConfig = {
       provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
       useValue: [apiBearerCondition],
     },
-    provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),
+    provideHttpClient(withInterceptors([httpErrorRedirectInterceptor, includeBearerTokenInterceptor])),
     // US-130 (Lot 1) : thème LoyerTracker (DSG-001.md v0.2.0). `darkModeSelector: '.p-dark'` fige
     // le mode sombre indépendamment de la préférence système — l'app n'a qu'un seul mode
     // (DSG-001.md §Dark Mode), classe posée sur <html> dans index.html.
