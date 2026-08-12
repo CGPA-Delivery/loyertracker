@@ -55,18 +55,18 @@ La résolution SMTP ferme les deux problèmes simultanément.
 | T1 | `keycloak-smtp-init` | ✅ Exit 0, configuration appliquée de façon ciblée |
 | T2 | Vérification runtime realm | ✅ `smtpServer` contient hôte SES Mail Manager, port 587, expéditeur, authentification et STARTTLS ; secret non exposé |
 | T3 | Mot de passe oublié — parcours réel Staging | ✅ **PASS**, validé manuellement par Jordan Tshilombo (PO/CDO) sur Staging, 2026-08-12 |
-| T4 | Anti-énumération compte existant / inexistant | ⏳ À confirmer par test comparatif dédié (non déclaré dans la validation manuelle) |
+| T4 | Anti-énumération compte existant / inexistant | ✅ **PASS (2026-08-12)** — sonde contrôlée sur le flux OIDC/PKCE Staging : `HTTP 200` dans les deux cas et même réponse textuelle visible après normalisation des identifiants de session Keycloak dynamiques (SHA-256 identique `04dcf734…64765b01`). Compte existant de test et adresse inexistante dédiée ; aucune donnée personnelle ni secret consigné. |
 | T5 | Réception e-mail et action-token | ✅ Incluse dans la validation fonctionnelle déclarée « test de mot de passe oublié OK » par le PO/CDO |
 | T6 | Santé applicative post-configuration | ✅ Keycloak healthy ; aucun arrêt ni recréation des services Staging non ciblés |
 
-> **Portée de la validation humaine :** le PO/CDO confirme l'exécution réussie du parcours réel « Mot de passe oublié » en Staging. Cette preuve fonctionnelle couvre le parcours déclaré et la réception/action de l'e-mail ; les secrets SMTP et le contenu de l'e-mail ne sont pas consignés dans le dépôt. Le test différentiel anti-énumération reste une preuve de sécurité distincte à consigner avant le Gate Production.
+> **Portée de la validation humaine et sécurité :** le PO/CDO confirme l'exécution réussie du parcours réel « Mot de passe oublié » en Staging, y compris réception/action de l'e-mail. Le test comparatif distinct confirme l'absence de canal d'énumération observable (même `HTTP 200` et même message utilisateur). Les secrets SMTP, les adresses de test et le contenu d'e-mail ne sont pas consignés dans le dépôt.
 
 ---
 
 ## 5. Décision
 
-**GO Staging sous réserve de sécurité — flux DD-EP17-14 fonctionnellement validé en Staging.** Le défaut SMTP est corrigé et le flux est validé par le PO/CDO. Le déploiement ne touche que la configuration du realm Keycloak Staging et son `.env` local ; les images applicatives, la base de données et les autres services mutualisés restent inchangés.
+**GO Staging — DD-EP17-14 validée.** Le défaut SMTP est corrigé, le flux est validé par le PO/CDO et la preuve anti-énumération est **PASS**. Le déploiement ne touche que la configuration du realm Keycloak Staging et son `.env` local ; les images applicatives, la base de données et les autres services mutualisés restent inchangés.
 
 ### Étape suivante obligatoire
 
-Avant tout Gate Production : exécuter et consigner le test comparatif **compte existant / inexistant** (code HTTP et message identiques) afin de prouver la fermeture du canal d'énumération, puis préparer un **Gate Production distinct**. Celui-ci devra vérifier la configuration SMTP Production, appliquer la même configuration via un déploiement ciblé, exécuter le test fonctionnel avec un compte Production de test autorisé, puis obtenir une décision GO Production explicite. **Aucune promotion automatique.**
+Préparer un **Gate Production distinct** : figer l'identité de la configuration candidate, vérifier la configuration SMTP Production et le mécanisme de déploiement Production dédié, exécuter `CHECK-REL-01` et `CHECK-OPS-01` pré-Production, documenter backup/rollback/observabilité, puis obtenir une décision GO Production explicite. **Aucune promotion automatique.**
