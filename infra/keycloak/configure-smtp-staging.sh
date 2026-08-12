@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# configure-smtp-staging.sh — Configure SMTP Keycloak vers Resend pour l'environnement Staging.
+# configure-smtp-staging.sh — Configure SMTP Keycloak vers Amazon SES Mail Manager pour Staging.
 #
 # Prérequis :
 #   - Keycloak healthy (dépendance de service dans docker-compose.staging.yml)
@@ -9,6 +9,8 @@
 #
 # Idempotent : ré-exécutable sans effet de bord (repositionne les mêmes valeurs).
 # Résout DD-EP17-14 (HTTP 500 + canal d'énumération de comptes).
+# Utilise Amazon SES Mail Manager (port 587, STARTTLS) — PAS l'API REST Resend.
+# Credentials : /home/ubuntu/INFRASTRUCTURE/SES_MAIL/smtp_detail
 set -euo pipefail
 
 KCADM=/opt/keycloak/bin/kcadm.sh
@@ -25,7 +27,7 @@ for i in $(seq 1 30); do
   sleep 5
 done
 
-echo "[smtp-staging] Configuration SMTP du realm ${REALM} vers Resend (${KC_SMTP_HOST}:${KC_SMTP_PORT})..."
+echo "[smtp-staging] Configuration SMTP du realm ${REALM} vers Amazon SES Mail Manager (${KC_SMTP_HOST}:${KC_SMTP_PORT})..."
 "$KCADM" update "realms/${REALM}" \
   -s "smtpServer.host=${KC_SMTP_HOST}" \
   -s "smtpServer.port=${KC_SMTP_PORT}" \
@@ -39,8 +41,8 @@ echo "[smtp-staging] Configuration SMTP du realm ${REALM} vers Resend (${KC_SMTP
   -s "smtpServer.ssl=false" \
   -s "smtpServer.starttls=true"
 
-echo "[smtp-staging] SMTP Resend configuré. Vérification..."
+echo "[smtp-staging] SMTP SES configuré. Vérification..."
 # Vérification : relire la config pour confirmer (sans exposer le mot de passe)
 "$KCADM" get "realms/${REALM}" --fields smtpServer | grep -v '"password"'
 
-echo "[smtp-staging] Terminé — SMTP Resend actif pour le realm ${REALM}."
+echo "[smtp-staging] Terminé — SMTP SES actif pour le realm ${REALM}."
