@@ -8,6 +8,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — clôture EP-17 Lot 2
+
+- `DD-EP17-02` (états Frontend 403/404) et `DD-EP17-12` (acceptation publique d’invitation) sont **CLOSE**.
+- Preuves : PR #462 (`2b2b82c`), Gate Staging PR #463, smoke réel 63 PASS / 0 FAIL et recette humaine PO/CDO PASS consignée par PR #464.
+- Décision additive : `docs/cgpa/design/decisions/cloture-dd-ep17-02-dd-ep17-12-lot2-2026-08-12.md`.
+- La clôture est bornée à Staging et n’autorise aucune action Production.
+
 ### Gouvernance — audit Backend ↔ Frontend des endpoints
 
 - Audit statique : 75 endpoints Backend recensés, 44 usages API Angular, 0 appel Frontend orphelin et 27 endpoints non trouvés directement dans Angular.

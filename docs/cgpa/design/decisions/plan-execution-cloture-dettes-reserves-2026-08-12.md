@@ -6,8 +6,8 @@
 | Auteur | CDO / Enterprise Architect (instruction Jo_Skynet, consolidée de 3 analyses spécialisées indépendantes) |
 | Statut | **Proposé — en attente de validation PO/CDO** |
 | Points analysés | 17 (13 dettes Design + 2 réserves EP-18 + 2 réserves historiques) |
-| Points déjà clos | 1 (OBS-S10-01 — arbitrage 2026-07-05) |
-| Points à clôturer | 16 |
+| Points déjà clos | 6 (Lot 0 : 4 ; Lot 2 : DD-EP17-02 et DD-EP17-12) |
+| Points à clôturer | 11 après clôture du Lot 2 (DD-EP17-02, DD-EP17-12) |
 
 ---
 
@@ -26,9 +26,9 @@
 | ID | Constat | Criticité | Statut actuel | Action recommandée | Effort |
 |---|---|---|---|---|---|
 | **DD-EP17-14** | Mot de passe oublié HTTP 500 + énumération comptes | **P0** | Ouvert, priorité propre | Config SMTP Keycloak, anti-énumération, Gate Production | M/L |
-| **DD-EP17-12** | Pas d'interface Angular acceptation invitation | **P1** | Ouvert | Écran Angular + route `/invitations/:token` | M |
+| **DD-EP17-12** | Pas d'interface Angular acceptation invitation | **P1** | **Close (2026-08-12)** | Écran Angular + route `/invitations/:token` | M |
 | **DD-611-03** | Traçabilité Story-écran-composant-test incomplète | **P1** | En traitement | Lot C documentaire : matrice complète | M |
-| **DD-EP17-02** | Pas d'état 403/404 uniforme | **P1** | Ouvert | `lt-error-state` + routes + intercepteur | M |
+| **DD-EP17-02** | Pas d'état 403/404 uniforme | **P1** | **Close (2026-08-12)** | `lt-error-state` + routes + intercepteur | M |
 | **DD-611-01** | UXR-001 non renseigné | **P1** | Préparé | Revue UX humaine + rattachement lot | S |
 | **DD-EP17-05** | Focus-trap modal sans usage Production | **P1** | Partiellement traité | Premier appelant métier + test a11y complet | S/M |
 | **RSV-EMAIL-NOREPLY-01-UNIDIR** | Unidirectionnalité + Gate Production requis | **P1** | Partiellement levée | Gate Production + pied de page + contrainte acceptée | S/M |

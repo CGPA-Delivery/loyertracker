@@ -30,7 +30,7 @@ Colonnes normatives : `référence`, `alias`, `intention`, `code/PR/commit`, `te
 | `EP-18/US-143` | — | Fondation webhook Resend | PR #368 / `8c9f1e4`, contrôleur/vérificateur | Tests présents ; événement réel non exécuté | Fondation mergée ; validation réelle absente | Fondation livrée / opérationnel reclassé | EP-19, ne pas rouvrir EP-18 |
 | `EP-19/US-144→147` | — | Backlog futur | Aucun Gate d’exécution | Non exécuté | Aucun environnement | Non livré | Hors autorisation hypercare |
 | `BUG-CAND-001` | `DD-EP17-14` | Mot de passe oublié Keycloak | Code/config/preuve exacte à relier dans fiche bug | Test SMTP réel et anti-énumération absents | Défaut Production documenté | Bug candidat ouvert | Qualification P0/P1 PO/CDO requise |
-| `BUG-CAND-002` | `DD-EP17-12` | Acceptation invitation | `InvitationService.java:78-80`, route Angular absente | Test parcours utilisateur absent | Code backend présent | Défaut candidat ouvert | Décision UI/API-only requise |
+| `BUG-CAND-002` | `DD-EP17-12` | Acceptation invitation | PR #462 (`2b2b82c`) : route Angular `/invitations/:token` et composant d’acceptation ; décision de clôture Lot 2 | CI post-merge ; smoke Staging 63/0 ; recette humaine PASS (PR #464) | Staging `STAGING_DEPLOYED` | **Close** | Fermeture bornée à Staging ; aucune autorisation Production |
 | `BUG-CAND-003` | `RSV-EP18-03` | RGPD notifications | `ADR-19:257` | Couverture `notification_*` absente | Réserve documentaire | Réserve candidate ouverte | Gate conformité à fixer |
 | `BUG-CAND-004` | `DD-EP15-04` | Archivage Bien avec affectation active | `BienService.java:91-97`, ADR-16 | Test de garde à produire | Code présent, comportement à trancher | Dette candidate ouverte | Décision métier requise |
 
