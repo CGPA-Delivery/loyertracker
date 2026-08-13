@@ -2,14 +2,14 @@
 
 | Champ | Valeur |
 |---|---|
-| Date | 2026-08-12 |
-| Périmètre | Configuration SMTP du realm Keycloak Production, flux « mot de passe oublié » |
-| Type | Configuration Release Candidate — sans rebuild applicatif ni migration |
-| Candidat immutable | `8d7f651090476cb1932dfc9299f599cf315d6287` (merge PR #460) |
-| Composants | `docker-compose.prod.yml`, `configure-smtp-production.sh`, `rollback-smtp-production.sh` |
-| Artefacts API/Web | Inchangés : digests Production actuels (verrou release PASS) |
-| Gate Staging | GO — PR #456/#457/#458, parcours et anti-énumération PASS |
-| Décision Gate 07A | En attente de la décision CDO après clôture du Gate Production |
+| Date | 2026-08-13 |
+| Périmètre | Validation fonctionnelle SMTP Keycloak déjà configuré sur Production canonique |
+| Type | Gate de preuve runtime — sans reconfiguration, rebuild applicatif ni migration |
+| Candidat immutable | mécanisme PR #474 (`ed4a935`), fusionné ; `main` canonique `68753b671747` |
+| Composants | runtime realm `smtpServer`, relais SMTP, scripts de vérification/rollback CI-validés |
+| Artefacts API/Web | `sha-d19c4fea`, verrou Production canonique PASS |
+| Gate Staging | GO — preuves fonctionnelles et anti-énumération déjà obtenues |
+| Décision Gate 07A | En attente après preuve live Production et hypercare |
 
 ## Matrice de readiness
 
