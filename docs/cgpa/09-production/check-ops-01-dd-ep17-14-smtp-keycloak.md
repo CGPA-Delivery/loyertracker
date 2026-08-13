@@ -42,7 +42,7 @@
 4. Capturer l'état `smtpServer` pré-changement via Admin API, sans mot de passe.
 5. Exécuter seulement :
    ```bash
-   docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production-smtp run --rm keycloak-smtp-production-init
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production-smtp run --no-deps --rm keycloak-smtp-production-init
    ```
 6. Confirmer la lecture runtime filtrée, sans logs de secrets ; API/Web/PostgreSQL/Keycloak ne doivent pas être recréés.
 7. Exécuter les tests contrôlés : mot de passe oublié compte test, réception/action-token, anti-énumération existant/inexistant (même HTTP/message).
@@ -61,7 +61,7 @@
 
 Rollback autorisé :
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production-smtp run --rm keycloak-smtp-production-rollback
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production-smtp run --no-deps --rm keycloak-smtp-production-rollback
 ```
 
 Ce rollback efface uniquement `smtpServer`. Il ne touche ni images, ni API, ni Nginx, ni PostgreSQL, ni migrations. Toute restauration de dump est destructive et reste une décision séparée CDO + Release Manager.
