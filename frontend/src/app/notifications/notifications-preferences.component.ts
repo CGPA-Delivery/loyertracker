@@ -1,6 +1,10 @@
-import { Component, HostListener, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
+import { LtConfirmDialogService } from '../shared/confirm-dialog/confirm-dialog.service';
+import { ToastComponent } from '../shared/toast/toast.component';
+import { LtToastService } from '../shared/toast/toast.service';
 import {
   CanalNotification,
   NotificationPreference,
@@ -10,7 +14,7 @@ import {
 @Component({
   selector: 'app-notifications-preferences',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ConfirmDialogComponent, ToastComponent],
   template: `
     <section class="panel notifications-preferences" aria-labelledby="notifications-preferences-title">
       <header class="panel-head">
@@ -44,7 +48,7 @@ import {
             type="tel"
             formControlName="phoneE164"
             autocomplete="tel"
-            placeholder="+243999964331"
+            placeholder="+243****4331"
             aria-describedby="phone-help"
           />
           <span id="phone-help" class="field-help">Format international E.164, sans espace.</span>
@@ -87,37 +91,12 @@ import {
         </div>
       </form>
 
-      @if (confirmationDesinscription()) {
-        <div class="modal-backdrop">
-          <section
-            class="confirm-modal"
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="notifications-unsubscribe-title"
-            aria-describedby="notifications-unsubscribe-description"
-          >
-            <h3 id="notifications-unsubscribe-title">Confirmer la désinscription ?</h3>
-            <p id="notifications-unsubscribe-description">
-              Vous ne recevrez plus aucun message WhatsApp ni SMS dès maintenant.
-              Vos alertes dans l’application restent actives sans changement.
-            </p>
-            <div class="actions">
-              <button type="button" (click)="annulerDesinscription()">Annuler</button>
-              <button type="button" class="danger" (click)="confirmerDesinscription()">
-                Confirmer la désinscription
-              </button>
-            </div>
-          </section>
-        </div>
-      }
-
       @if (preferences()?.consentAt) {
         <p class="muted">Consentement recueilli le {{ preferences()?.consentAt }} via formulaire LoyerTracker.</p>
       }
 
-      @if (message(); as m) {
-        <p class="message" role="status" aria-live="polite">{{ m }}</p>
-      }
+      <lt-confirm-dialog />
+      <lt-toast />
     </section>
   `,
   styles: [
@@ -183,30 +162,8 @@ import {
       .field-help {
         color: var(--lt-text-muted, #94a3b8);
       }
-      .invite,
-      .message {
+      .invite {
         color: var(--lt-state-info, #bae6fd);
-      }
-      .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: var(--lt-space-md);
-        background: rgb(15 23 42 / 0.72);
-        z-index: var(--lt-z-modal-backdrop, 1200);
-      }
-      .confirm-modal {
-        width: min(100%, 34rem);
-        border: 1px solid var(--lt-border-default, #64748b);
-        border-radius: 6px;
-        padding: var(--lt-space-md);
-        background: var(--lt-surface-card, #111827);
-        color: var(--lt-text-primary, #e2e8f0);
-        z-index: var(--lt-z-modal, 1300);
-      }
-      .confirm-modal .actions {
-        margin-top: var(--lt-space-md);
       }
       @media (max-width: 640px) {
         .panel-head,
@@ -220,13 +177,12 @@ import {
 })
 export class NotificationsPreferencesComponent implements OnInit {
   private readonly api = inject(NotificationsService);
+  private readonly confirmDialog = inject(LtConfirmDialogService);
+  private readonly toast = inject(LtToastService);
 
   readonly contexte = input<'bailleur' | 'gestionnaire'>('bailleur');
   readonly preferences = signal<NotificationPreference | null>(null);
-  readonly confirmationDesinscription = signal(false);
   readonly chargement = signal(false);
-  readonly message = signal<string | null>(null);
-  private declencheurDesinscription: HTMLElement | null = null;
 
   readonly form = new FormGroup({
     phoneE164: new FormControl('', {
@@ -255,9 +211,8 @@ export class NotificationsPreferencesComponent implements OnInit {
           whatsappOptIn: preferences.whatsappOptIn,
           smsOptIn: preferences.smsOptIn,
         });
-        this.message.set(null);
       },
-      error: () => this.message.set('Impossible de charger les préférences de notification.'),
+      error: () => this.toast.danger('Impossible de charger les préférences de notification.'),
       complete: () => this.chargement.set(false),
     });
   }
@@ -270,12 +225,11 @@ export class NotificationsPreferencesComponent implements OnInit {
     }
     const valeur = this.form.getRawValue();
     if (!this.canalPrefereAutorise(valeur.preferredChannel, valeur.whatsappOptIn, valeur.smsOptIn)) {
-      this.message.set("Activez l'opt-in du canal préféré avant d'enregistrer.");
+      this.toast.warning("Activez l'opt-in du canal préféré avant d'enregistrer.");
       return;
     }
 
     this.chargement.set(true);
-    this.message.set(null);
     this.api
       .enregistrerPreferences({
         phoneE164: valeur.phoneE164.trim(),
@@ -288,76 +242,33 @@ export class NotificationsPreferencesComponent implements OnInit {
       .subscribe({
         next: (preferences) => {
           this.preferences.set(preferences);
-          this.message.set('Préférences enregistrées.');
+          this.toast.success('Préférences enregistrées.');
         },
-        error: () => this.message.set("Échec de l'enregistrement des préférences."),
+        error: () => this.toast.danger("Échec de l'enregistrement des préférences."),
         complete: () => this.chargement.set(false),
       });
   }
 
   demanderDesinscription(): void {
-    this.declencheurDesinscription = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    this.confirmationDesinscription.set(true);
-    setTimeout(() => {
-      const premierBouton = document.querySelector<HTMLElement>('[role="alertdialog"] button');
-      premierBouton?.focus();
-    });
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  gererClavier(event: KeyboardEvent): void {
-    const dialog = document.querySelector<HTMLElement>('[role="alertdialog"]');
-    if (!dialog || !this.confirmationDesinscription()) {
-      return;
-    }
-
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      this.annulerDesinscription();
-      return;
-    }
-
-    if (event.key !== 'Tab') {
-      return;
-    }
-
-    const focusables = Array.from(
-      dialog.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'),
-    ).filter((element) => !element.hasAttribute('disabled'));
-    if (focusables.length === 0) {
-      event.preventDefault();
-      dialog.focus();
-      return;
-    }
-
-    const first = focusables[0];
-    const last = focusables.at(-1)!;
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
-  annulerDesinscription(): void {
-    this.confirmationDesinscription.set(false);
-    setTimeout(() => this.declencheurDesinscription?.focus());
-  }
-
-  confirmerDesinscription(): void {
-    this.chargement.set(true);
-    this.api.desinscrire().subscribe({
-      next: (preferences) => {
-        this.preferences.set(preferences);
-        this.confirmationDesinscription.set(false);
-        this.message.set(
-          'Désinscription effective — aucun envoi externe ne sera plus tenté. Vos alertes dans l’application restent actives.',
-        );
+    this.confirmDialog.confirm({
+      header: 'Confirmer la désinscription ?',
+      message:
+        'Vous ne recevrez plus aucun message WhatsApp ni SMS dès maintenant. Vos alertes dans l’application restent actives sans changement.',
+      acceptLabel: 'Confirmer la désinscription',
+      rejectLabel: 'Annuler',
+      accept: () => {
+        this.chargement.set(true);
+        this.api.desinscrire().subscribe({
+          next: (preferences) => {
+            this.preferences.set(preferences);
+            this.toast.success(
+              'Désinscription effective — aucun envoi externe ne sera plus tenté. Vos alertes dans l’application restent actives.',
+            );
+          },
+          error: () => this.toast.danger('Échec de la désinscription.'),
+          complete: () => this.chargement.set(false),
+        });
       },
-      error: () => this.message.set('Échec de la désinscription.'),
-      complete: () => this.chargement.set(false),
     });
   }
 
