@@ -28,8 +28,8 @@
 ## 2. Écarts prouvés
 
 1. **Critique financier :** `GarantieService` contrôle correctement `montant <= paiement.getResteDu()`, mais décide `RECU` avec `retenue >= montantAttendu` et appelle `paiement.pointer(retenue, ...)`. Après un encaissement antérieur de 400 et une retenue de 600 sur 1 000, il écrase 400 par 600 et conclut `PARTIEL` au lieu de `RECU`.
-2. **Concurrence métier :** aucune stratégie de verrou pessimiste/optimiste explicite n’est visible sur `Garantie` + `Paiement`; l’unicité `garantie_movement_id` bloque une seconde liaison mais ne suffit pas à prouver l’absence de double débit concurrent.
-3. **Notification :** payload réel limité à `bailId,montant`; il n’apporte ni références complètes, ni soldes avant/après, ni statut, ni numéro/lien de quittance. Le rendu Twilio actuel est générique `clé=valeur`, non conforme au message détaillé/SMS court requis.
+2. **Concurrence et cardinalité métier :** aucune stratégie de verrou pessimiste/optimiste explicite n’est visible sur `Garantie` + `Paiement`. V21 a une FK/index mais pas de contrainte DB `UNIQUE` sur `paiement.garantie_movement_id`; le garde applicatif interdit actuellement plusieurs retenues. Le PO doit décider « une retenue » (contrainte DB + idempotence) ou « plusieurs retenues » (liaison append-only) avant code.
+3. **Notification/ReBAC :** payload réel limité à `bailId,montant`; il n’apporte ni références complètes, ni soldes avant/après, ni statut, ni numéro/lien de quittance. En outre, V32 prévoit `notification_event.bien_id` pour l’historique gestionnaire fail-closed, mais l’émission actuelle ne le persiste pas. Le rendu Twilio est générique `clé=valeur`; `GARANTIE_DEBITEE` est seedé WhatsApp seulement, pas SMS/Email, donc le fallback ne peut pas être réputé complet.
 4. **Document :** la quittance est interdite pour `PARTIEL`, conformément à ADR-15; aucun reçu partiel distinct n’existe. Le nom authentifié est `quittance-<periode>.pdf`, le public `quittance-certifiee.pdf`: nomenclature et parité manquantes.
 5. **UI :** la retenue est explicite et affiche solde/reste dû, mais sans dialogue de confirmation projeté, résultat détaillé, lien/référence de quittance ni statut de livraison.
 6. **Contrat :** `PaiementDto` n’expose ni mode, ni mouvement, ni informations de garantie/document/notification nécessaires à l’UI; les écritures d’audit sont limitées à cible paiement.
@@ -39,9 +39,9 @@
 ### Flux local atomique
 1. Autoriser par tenant/ReBAC, charger paiement et garantie avec verrou de concurrence.
 2. Calculer `resteAvant`; valider; calculer `montantRecuApres`, `resteApres`, `soldeGarantieApres`.
-3. Insérer le mouvement append-only, mettre à jour le cache garantie, le paiement et sa relation unique, recalculer les honoraires, écrire audit riche.
-4. Si `RECU`, émettre/récupérer la quittance ADR-15 de manière idempotente puis produire un unique événement `GARANTIE_DEBITEE` enrichi. Si `PARTIEL`, ne pas émettre une quittance intégrale.
-5. Créer événement/Outbox dans la transaction; le Dispatcher seul appelle Twilio après commit.
+3. Insérer le mouvement append-only, mettre à jour le cache garantie, le paiement et la liaison dont la cardinalité a été approuvée, recalculer les honoraires, écrire audit riche.
+4. Si `RECU`, émettre/récupérer la quittance ADR-15 de manière idempotente puis produire un unique événement `GARANTIE_DEBITEE` enrichi, avec `bien_id` persistant. Si `PARTIEL`, ne pas émettre une quittance intégrale.
+5. Créer événement/Outbox dans la transaction; le Dispatcher seul appelle Twilio après commit, et seulement avec templates WhatsApp/SMS approuvés selon le canal/fallback.
 
 ### Arbitrage documentaire requis avant code
 **Option recommandée :** conserver strictement ADR-15 : quittance uniquement `RECU`; introduire un *reçu de paiement partiel certifié* distinct, avec son propre libellé et sans prétendre solder l’échéance. Cette option nécessite une décision ADR/addendum et probablement V33 uniquement si une persistance distincte est nécessaire. **Aucune migration ne doit être décidée avant cette validation.**
@@ -78,10 +78,10 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 **GREEN :** additionner au reçu courant et dériver statut du nouveau solde; ne jamais dépasser plafonds.
 **Tests :** négatifs, double retry, concurrence, cross-bailleur, gestionnaire non affecté, invariant ledger.
 
-### Tâche 3 — Idempotence/concurrence et audit
-**Fichiers probables :** repositories verrouillés, `GarantieService`, modèle/audit.
-**RED :** deux requêtes concurrentes ne créent qu’un mouvement/débit/Outbox.
-**GREEN :** verrou ou contrôle de version choisi et testé; audit contextualisé sans PII/secret.
+### Tâche 3 — Idempotence/concurrence, cardinalité et audit
+**Fichiers probables :** repositories verrouillés, `GarantieService`, modèle/audit et, seulement si validé, V33 additive.
+**RED :** deux requêtes concurrentes ne créent qu’un mouvement/débit/Outbox; test de contrainte DB pour une retenue si ce choix est retenu, ou tests de lien append-only si plusieurs retenues sont approuvées.
+**GREEN :** verrou ou contrôle de version choisi et testé; cardinalité imposée en DB selon décision; audit contextualisé sans PII/secret.
 
 ### Tâche 4 — Document et nom de téléchargement
 **Fichiers :** créer `quittances/QuittanceFilenameFactory.java` + test; adapter `DocumentController`, `PublicQuittanceController`, quittance/HTML/tests.
@@ -89,9 +89,9 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 **GREEN :** factory unique; conserver contrôle HMAC et absence d’oracle.
 
 ### Tâche 5 — Notification
-**Fichiers :** `GarantieService`, renderer/template, tests notification/dispatcher/fallback.
-**RED :** payload minimisé mais complet, outbox unique, template WhatsApp/SMS conforme; absence consentement/téléphone/template/budget => aucun appel; indisponibilité Twilio => transaction financière commitée.
-**GREEN :** Outbox enrichie, résolution de variables sûre, fallback existant réutilisé.
+**Fichiers :** `GarantieService`, `NotificationOutboxService`/événement, renderer/templates, migration additive uniquement si persistance/seed requis, tests notification/dispatcher/fallback.
+**RED :** payload minimisé mais complet avec `bien_id` persistant, outbox unique, templates WhatsApp **et SMS** approuvés; absence consentement/téléphone/template/budget => aucun appel; indisponibilité Twilio => transaction financière commitée; historique gestionnaire affecté visible uniquement dans son périmètre.
+**GREEN :** Outbox enrichie, résolution de variables sûre, fallback existant réutilisé et test du provider Twilio pour body/callback/préfixe WhatsApp/classification 4xx-429.
 
 ### Tâche 6 — API/UI et UX
 **Fichiers :** DTO/contrat OpenAPI, `s03-api.service.ts`, `garanties-bail.component.ts` et specs.
@@ -115,7 +115,9 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 | Sous/sur-comptage après paiement classique préalable | Critique | TDD cumulatif + tests intégration + invariant ledger. |
 | Double débit concurrent | Critique | verrouillage + idempotence DB/test concurrent. |
 | Quittance trompeuse pour PARTIEL | Élevé | décision explicite reçu partiel avant code. |
-| PII/token dans Outbox ou logs | Élevé | payload d’IDs/valeurs minimales, tests de redaction. |
+| PII/token dans Outbox ou logs | Élevé | payload d’IDs/valeurs minimales, `bien_id` persistant pour ReBAC, tests de redaction. |
+| Historique gestionnaire incomplet | Élevé | persister `notification_event.bien_id` et tests gestionnaire affecté/hors périmètre. |
+| Fallback SMS inexploitable | Élevé | templates SMS approuvés et tests de disponibilité avant activation. |
 | Notification facturée en double | Élevé | Outbox unique, SKIP LOCKED, callback/fallback idempotents. |
 | Écart UX/accessibilité | Moyen | Gate design/UI et preuves responsive/a11y avant promotion. |
 

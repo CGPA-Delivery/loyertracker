@@ -8,7 +8,10 @@
 - Épic proposée : **EP-20** (EP-19 est déjà réservé au suivi de délivrabilité Resend).
 - Stories proposées : **US-148 à US-153**.
 - Décision : **NO GO applicatif** jusqu’à décision PO/CDO sur le Plan d’Exécution et le traitement documentaire de `PARTIEL`.
-- Réserve ouverte : `RSV-EP20-PARTIEL-01` — choisir explicitement le reçu partiel certifié distinct recommandé, ou exclure explicitement un document pour `PARTIEL`.
+- Réserves ouvertes :
+  - `RSV-EP20-PARTIEL-01` — choisir explicitement le reçu partiel certifié distinct recommandé, ou exclure explicitement un document pour `PARTIEL`.
+  - `RSV-EP20-CARDINALITE-02` — décider « une retenue par paiement » ou « plusieurs retenues append-only » avant toute migration/implémentation.
+  - `RSV-EP20-NOTIF-03` — persister `bien_id` pour ReBAC historique et approuver le template SMS avant de revendiquer un fallback WhatsApp→SMS.
 
 ## Écart critique constaté
 
