@@ -26,6 +26,15 @@ services:
       # Le compose de base fige KC_HOSTNAME=localhost (dev). En prod : hostname public réel, sinon
       # l'issuer serait https://localhost/... et l'API rejetterait les tokens (iss ≠ ISSUER_URI).
       KC_HOSTNAME: ${KC_HOSTNAME:-localhost}
+      # SMTP SES Mail Manager (DD-EP17-14) — relayé via sidecar Postfix car Keycloak 24
+      # ne parvient pas à initialiser le mailer Quarkus/SPI directement vers SES
+      # (NullPointerException dans testSMTPConnection). Le sidecar gère TLS/AUTH SES.
+      KC_SPI_MAILER_DEFAULT_HOST: 'smtp-relay'
+      KC_SPI_MAILER_DEFAULT_PORT: '25'
+      KC_SPI_MAILER_DEFAULT_FROM: 'loyertracker@loyerpro.org'
+      KC_SPI_MAILER_DEFAULT_FROM_DISPLAY_NAME: 'LoyerTracker'
+      KC_SPI_MAILER_DEFAULT_REPLY_TO: 'loyertracker@loyerpro.org'
+      KC_SPI_MAILER_DEFAULT_REPLY_TO_DISPLAY_NAME: 'LoyerTracker'
     volumes:
       # Realm production : sans bailleur-test@test.local (sécurité — DT-05 / R-03 audit CGPA v5.4.1).
       # Remplace le montage du fichier de base (realm-loyertracker.json qui contient le compte de test).
@@ -81,6 +90,23 @@ services:
         condition: service_healthy
     networks: [loyertracker-net]
     restart: "no"
+
+  # Sidecar SMTP relay (DD-EP17-14) — Postfix relaye les emails de Keycloak vers SES
+  # Mail Manager. Keycloak 24 ne parvient pas à initialiser le mailer Quarkus/SPI
+  # directement vers SES (NullPointerException). Le sidecar gère TLS + AUTH SES.
+  # Keycloak → smtp-relay:25 (pas d'auth) → SES:587 (TLS + AUTH).
+  smtp-relay:
+    image: boky/postfix:latest
+    environment:
+      ALLOWED_SENDER_DOMAINS: loyerpro.org loyertracker.com
+      RELAYHOST: '[whn9rwqd9ci6.fips.qbns.mail-manager-smtp.amazonaws.com]:587'
+      RELAYHOST_USERNAME: inp-ckeocfp56fx5y4kdlfn5xc3g
+      RELAYHOST_PASSWORD: 'u5@7Nvi|Sl{({H&9r$,7rifsxB9KKtZo'
+      MYNETWORKS: '172.0.0.0/8 127.0.0.0/8'
+      # Accepter tous les destinataires (relay ouvert) — le filtrage est fait par SES
+      POSTFIX_smtpd_recipient_restrictions: 'permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination'
+    networks: [loyertracker-net]
+    restart: always
 
   api:
     # GHCR par digest exact — jamais un tag, jamais de build local en Production.
