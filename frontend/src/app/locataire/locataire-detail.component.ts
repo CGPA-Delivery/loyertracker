@@ -111,9 +111,9 @@ import {
       .page-head,
       .toolbar {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: var(--lt-space-md);
       }
       h1 {
         margin: 0;
@@ -121,14 +121,14 @@ import {
       .panel {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: #111827;
-        margin-bottom: 1rem;
+        margin-bottom: var(--lt-space-md);
       }
       .grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
       }
       .field {
         display: flex;
@@ -151,13 +151,13 @@ import {
       }
       .actions {
         display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
+        gap: var(--lt-space-xs);
+        margin-top: var(--lt-space-md);
       }
       button {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem 1rem;
+        padding: var(--lt-space-xs) var(--lt-space-md);
         background: #0f172a;
         color: #e2e8f0;
         cursor: pointer;
@@ -175,7 +175,7 @@ import {
       ul {
         list-style: none;
         padding: 0;
-        margin: 0.5rem 0;
+        margin: var(--lt-space-xs) 0;
       }
       li {
         padding: 0.25rem 0;

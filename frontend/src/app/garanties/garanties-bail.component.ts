@@ -216,7 +216,7 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
       .panel {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: #111827;
       }
       .panel-head,
@@ -225,7 +225,7 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
       .actions,
       .historique-outils {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
         align-items: center;
       }
       .panel-head,
@@ -241,27 +241,27 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
         margin-top: 0;
       }
       .depot {
-        margin-bottom: 0.75rem;
+        margin-bottom: var(--lt-space-sm);
       }
       .list {
         display: grid;
-        gap: 0.5rem;
+        gap: var(--lt-space-xs);
       }
       .item {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
       }
       .historique {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
       }
       .historique-outils {
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: var(--lt-space-xs);
       }
       .table-scroll {
         overflow-x: auto;
@@ -274,7 +274,7 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
       th,
       td {
         text-align: left;
-        padding: 0.35rem 0.5rem;
+        padding: var(--lt-space-2xs) var(--lt-space-xs);
         border-bottom: 1px solid #334155;
         color: #cbd5e1;
         white-space: nowrap;
@@ -285,20 +285,20 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
         user-select: none;
       }
       .sous-formulaire {
-        margin-top: 1rem;
+        margin-top: var(--lt-space-md);
         border-top: 1px solid #334155;
-        padding-top: 0.75rem;
+        padding-top: var(--lt-space-sm);
       }
       label {
         display: grid;
-        gap: 0.35rem;
+        gap: var(--lt-space-2xs);
         color: #cbd5e1;
       }
       input,
       select {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
         color: #e2e8f0;
       }

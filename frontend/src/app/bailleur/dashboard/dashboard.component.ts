@@ -62,7 +62,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
     </header>
 
     <section class="toolbar">
-      <button type="button" (click)="chargerBiens()" [disabled]="chargement()">Rafraîchir</button>
+      <button type="button" data-testid="bailleur-dashboard-refresh-btn" (click)="chargerBiens()" [disabled]="chargement()">Rafraîchir</button>
       <span role="status" aria-live="polite" aria-atomic="true">{{ message() }}</span>
     </section>
 
@@ -557,7 +557,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       .fields,
       .item {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
       }
       .page-head,
       .toolbar,
@@ -572,8 +572,8 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       }
       .grid {
         display: grid;
-        gap: 1rem;
-        margin-top: 1rem;
+        gap: var(--lt-space-md);
+        margin-top: var(--lt-space-md);
       }
       .two {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -581,17 +581,17 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
       .panel {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: #111827;
       }
       label {
         display: grid;
-        gap: 0.35rem;
-        margin-bottom: 0.75rem;
+        gap: var(--lt-space-2xs);
+        margin-bottom: var(--lt-space-sm);
         color: #cbd5e1;
       }
       lt-form-field {
-        margin-bottom: 0.75rem;
+        margin-bottom: var(--lt-space-sm);
       }
       input,
       select {
@@ -599,7 +599,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         min-height: 44px;
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
         color: #e2e8f0;
       }
@@ -638,7 +638,7 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         }
         .status {
           display: grid;
-          gap: 0.5rem;
+          gap: var(--lt-space-xs);
         }
         .status a {
           display: inline-flex;

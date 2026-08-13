@@ -10,6 +10,7 @@ import { HonorairesBienComponent } from '../../honoraires/honoraires-bien.compon
 import { PaiementsBienComponent } from '../../paiements/paiements-bien.component';
 import { NotificationsHistoriqueComponent } from '../../notifications/notifications-historique.component';
 import { NotificationsPreferencesComponent } from '../../notifications/notifications-preferences.component';
+import { DataTableComponent, LtDataTableColumn } from '../../shared/data-table/data-table.component';
 import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
 
 @Component({
@@ -22,6 +23,7 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
     AlertesListeComponent,
     NotificationsPreferencesComponent,
     NotificationsHistoriqueComponent,
+    DataTableComponent,
     MoneyFormatPipe,
   ],
   template: `
@@ -30,7 +32,7 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
         <h1>Espace gestionnaire</h1>
         <p>{{ username }} · {{ roles.join(', ') || 'aucun rôle' }}</p>
       </div>
-      <button type="button" (click)="chargerBiens()" [disabled]="chargement()">Rafraîchir</button>
+      <button type="button" data-testid="gestionnaire-dashboard-refresh-btn" (click)="chargerBiens()" [disabled]="chargement()">Rafraîchir</button>
     </header>
 
     <section class="toolbar">
@@ -40,24 +42,16 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
     <section class="grid two">
       <div class="panel">
         <h2>Biens affectés</h2>
-        <div class="list">
-          @for (bien of biens(); track bien.id) {
-            <button
-              type="button"
-              class="row"
-              [class.selected]="bien.id === bienSelectionne()?.id"
-              (click)="selectionnerBien(bien)"
-            >
-              <span>
-                <strong>{{ bien.adresse }}</strong>
-                <small>{{ bien.type }}</small>
-              </span>
-              <span class="badge">{{ bien.statut }}</span>
-            </button>
-          } @empty {
-            <p class="muted">Aucun bien affecté.</p>
-          }
-        </div>
+        <lt-data-table
+          [columns]="bienColumns"
+          [rows]="biens()"
+          [loading]="chargement()"
+          [error]="erreur()"
+          emptyMessage="Aucun bien affecté."
+          [selectable]="true"
+          [selectedRow]="bienSelectionne()"
+          (rowClick)="selectionnerBien($event)"
+        />
       </div>
 
       @if (bienSelectionne(); as bien) {
@@ -160,14 +154,12 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
       .page-head,
       .toolbar,
       .fields,
-      .row,
       .item {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
       }
       .page-head,
       .toolbar,
-      .row,
       .item {
         align-items: center;
         justify-content: space-between;
@@ -179,8 +171,8 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
       }
       .grid {
         display: grid;
-        gap: 1rem;
-        margin-top: 1rem;
+        gap: var(--lt-space-md);
+        margin-top: var(--lt-space-md);
       }
       .two {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -188,30 +180,22 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
       .panel {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: #111827;
       }
       label {
         display: grid;
-        gap: 0.35rem;
-        margin-bottom: 0.75rem;
+        gap: var(--lt-space-2xs);
+        margin-bottom: var(--lt-space-sm);
         color: #cbd5e1;
       }
       input {
         width: 100%;
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
         color: #e2e8f0;
-      }
-      .list {
-        display: grid;
-        gap: 0.5rem;
-      }
-      .row {
-        width: 100%;
-        text-align: left;
       }
       .selected {
         border-color: #38bdf8;
@@ -225,7 +209,7 @@ import { MoneyFormatPipe } from '../../shared/money/money-format.pipe';
         color: #94a3b8;
       }
       .detail {
-        margin-top: 1rem;
+        margin-top: var(--lt-space-md);
       }
     `,
   ],
@@ -238,12 +222,19 @@ export class GestionnaireDashboardComponent implements OnInit {
   readonly roles = this.auth.roles;
   readonly message = signal('Prêt');
   readonly chargement = signal(false);
+  readonly erreur = signal<string | null>(null);
   readonly biens = signal<Bien[]>([]);
   readonly baux = signal<Bail[]>([]);
   readonly locataires = signal<Locataire[]>([]);
   readonly bienSelectionne = signal<Bien | null>(null);
   readonly bienSelectionneId = computed(() => this.bienSelectionne()?.id ?? null);
   readonly bailSelectionne = signal<Bail | null>(null);
+
+  readonly bienColumns: LtDataTableColumn[] = [
+    { field: 'adresse', header: 'Adresse' },
+    { field: 'type', header: 'Type' },
+    { field: 'statut', header: 'Statut', type: 'status' },
+  ];
 
   selectionnerBail(bail: Bail): void {
     this.bailSelectionne.set(bail);
@@ -264,6 +255,7 @@ export class GestionnaireDashboardComponent implements OnInit {
 
   chargerBiens(): void {
     this.chargement.set(true);
+    this.erreur.set(null);
     this.message.set('Chargement des biens affectés');
     this.api.listerBiens().subscribe({
       next: (biens) => {
@@ -336,10 +328,12 @@ export class GestionnaireDashboardComponent implements OnInit {
     if (err instanceof HttpErrorResponse) {
       const detail = err.status === 409 ? 'conflit métier' : err.status === 403 ? 'accès refusé' : 'erreur API';
       this.message.set(`${detail} (${err.status})`);
+      this.erreur.set(`${detail} (${err.status})`);
       this.chargement.set(false);
       return;
     }
     this.message.set('erreur inconnue');
+    this.erreur.set('erreur inconnue');
     this.chargement.set(false);
   }
 }

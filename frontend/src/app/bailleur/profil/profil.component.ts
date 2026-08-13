@@ -40,7 +40,7 @@ import { ProfilBailleur, ProfilService } from './profil.service';
             Adresse postale
             <textarea formControlName="adresse" rows="3" maxlength="500"></textarea>
           </label>
-          <button type="submit" [disabled]="form.invalid || enregistrement()">Enregistrer</button>
+          <button type="submit" data-testid="profil-submit-btn" [disabled]="form.invalid || enregistrement()">Enregistrer</button>
         </form>
 
         <app-notifications-preferences contexte="bailleur" />

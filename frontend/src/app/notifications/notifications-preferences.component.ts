@@ -125,20 +125,20 @@ import {
       .panel {
         border: 1px solid var(--lt-border-default, #64748b);
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: var(--lt-surface-card, #111827);
       }
       .panel-head,
       .actions {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
         align-items: center;
         justify-content: space-between;
       }
       .form-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
       }
       @media (max-width: 640px) {
         .form-grid {
@@ -151,7 +151,7 @@ import {
       }
       label {
         display: grid;
-        gap: 0.35rem;
+        gap: var(--lt-space-2xs);
         color: var(--lt-text-subtle, #cbd5e1);
       }
       input,
@@ -160,7 +160,7 @@ import {
         min-height: 44px;
         border: 1px solid var(--lt-border-default, #64748b);
         border-radius: 6px;
-        padding: 0.5rem 0.75rem;
+        padding: var(--lt-space-xs) var(--lt-space-sm);
         background: var(--lt-surface-page, #0f172a);
         color: var(--lt-text-primary, #e2e8f0);
       }
@@ -192,7 +192,7 @@ import {
         inset: 0;
         display: grid;
         place-items: center;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: rgb(15 23 42 / 0.72);
         z-index: var(--lt-z-modal-backdrop, 1200);
       }
@@ -200,13 +200,13 @@ import {
         width: min(100%, 34rem);
         border: 1px solid var(--lt-border-default, #64748b);
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: var(--lt-surface-card, #111827);
         color: var(--lt-text-primary, #e2e8f0);
         z-index: var(--lt-z-modal, 1300);
       }
       .confirm-modal .actions {
-        margin-top: 1rem;
+        margin-top: var(--lt-space-md);
       }
       @media (max-width: 640px) {
         .panel-head,

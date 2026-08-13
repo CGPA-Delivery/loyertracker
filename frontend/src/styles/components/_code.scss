@@ -2,7 +2,7 @@
 // `_button.scss`).
 pre {
   background: #1e293b;
-  padding: 0.75rem;
+  padding: var(--lt-space-sm);
   border-radius: var(--lt-radius-default);
   overflow: auto;
 }

@@ -46,13 +46,13 @@ import {
       .panel {
         border: 1px solid var(--lt-border-default, #64748b);
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: var(--lt-surface-card, #111827);
       }
       .panel-head,
       .row {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
         align-items: center;
         justify-content: space-between;
       }
@@ -62,12 +62,12 @@ import {
       }
       .list {
         display: grid;
-        gap: 0.5rem;
+        gap: var(--lt-space-xs);
       }
       .row {
         border: 1px solid var(--lt-border-default, #64748b);
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: var(--lt-surface-page, #0f172a);
         color: var(--lt-text-primary, #e2e8f0);
       }
@@ -82,7 +82,7 @@ import {
       button {
         border: 1px solid var(--lt-border-default, #64748b);
         border-radius: 6px;
-        padding: 0.5rem 0.75rem;
+        padding: var(--lt-space-xs) var(--lt-space-sm);
         background: var(--lt-surface-page, #0f172a);
         color: var(--lt-text-primary, #e2e8f0);
       }
