@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 
 import { Alerte, S04ApiService } from '../core/s04/s04-api.service';
+import { DataTableComponent, LtDataTableColumn } from '../shared/data-table/data-table.component';
 
 /**
  * Consultation et marquage des alertes de pilotage (US-50/51/52). Réutilisable par les deux espaces :
@@ -9,9 +10,13 @@ import { Alerte, S04ApiService } from '../core/s04/s04-api.service';
  * actifs). La génération batch n'est exposée qu'au bailleur via {@code peutGenerer} (cohérent avec
  * {@code @PreAuthorize hasRole('BAILLEUR')} sur `POST /api/batch/alertes`). Seules les alertes
  * NON_LUE sont affichées ; les alertes LUE sont filtrées côté frontend (US-52).
+ *
+ * <p>EP-17 Lot 5 (DD-EP17-04) : migré du patron `.panel`/`.list`/`.row` vers `lt-data-table`
+ * avec colonne d'actions.</p>
  */
 @Component({
   selector: 'app-alertes-liste',
+  imports: [DataTableComponent],
   template: `
     <div class="panel">
       <header class="panel-head">
@@ -28,20 +33,14 @@ import { Alerte, S04ApiService } from '../core/s04/s04-api.service';
         }
       </div>
 
-      @if (alertesTriees().length === 0) {
-        <p class="muted">Aucune alerte non lue.</p>
-      }
-      <div class="list">
-        @for (a of alertesTriees(); track a.id) {
-          <div class="row">
-            <span class="type" [attr.data-type]="a.type">{{ a.type }}</span>
-            <span class="msg">{{ a.message }}</span>
-            <button type="button" (click)="marquerLue(a)" [disabled]="chargement()">
-              Marquer lue
-            </button>
-          </div>
-        }
-      </div>
+      <lt-data-table
+        [columns]="columns"
+        [rows]="alertesTriees()"
+        [loading]="chargement()"
+        [error]="erreur()"
+        emptyMessage="Aucune alerte non lue."
+        (actionClick)="marquerLue($event.row)"
+      />
     </div>
   `,
   styles: [
@@ -49,14 +48,13 @@ import { Alerte, S04ApiService } from '../core/s04/s04-api.service';
       .panel {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: #111827;
       }
       .panel-head,
-      .toolbar,
-      .row {
+      .toolbar {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
         align-items: center;
       }
       .panel-head {
@@ -66,42 +64,10 @@ import { Alerte, S04ApiService } from '../core/s04/s04-api.service';
         margin-top: 0;
       }
       .toolbar {
-        margin-bottom: 0.75rem;
-      }
-      .list {
-        display: grid;
-        gap: 0.5rem;
-      }
-      .row {
-        width: 100%;
-        border: 1px solid #334155;
-        border-radius: 6px;
-        padding: 0.5rem;
-        background: #0f172a;
-        color: #e2e8f0;
-      }
-      .msg {
-        flex: 1;
-      }
-      button {
-        border: 1px solid #334155;
-        border-radius: 6px;
-        padding: 0.35rem 0.6rem;
-        background: #0f172a;
-        color: #e2e8f0;
+        margin-bottom: var(--lt-space-sm);
       }
       .muted {
         color: #94a3b8;
-      }
-      .type {
-        font-size: 0.85rem;
-        color: #bae6fd;
-      }
-      .type[data-type='LOYER_EN_RETARD'] {
-        color: #fecaca;
-      }
-      .type[data-type='PREAVIS'] {
-        color: #fde68a;
       }
     `,
   ],
@@ -114,6 +80,7 @@ export class AlertesListeComponent implements OnInit {
   readonly alertes = signal<Alerte[]>([]);
   readonly message = signal('Prêt');
   readonly chargement = signal(false);
+  readonly erreur = signal<string | null>(null);
 
   // Seules les alertes NON_LUE, du plus récent au plus ancien.
   readonly alertesTriees = computed(() =>
@@ -122,12 +89,19 @@ export class AlertesListeComponent implements OnInit {
       .sort((a, b) => b.dateCreation.localeCompare(a.dateCreation)),
   );
 
+  readonly columns: LtDataTableColumn[] = [
+    { field: 'type', header: 'Type' },
+    { field: 'message', header: 'Message' },
+    { field: 'marquerLue', header: 'Marquer lue', type: 'actions' },
+  ];
+
   ngOnInit(): void {
     this.charger();
   }
 
   charger(): void {
     this.chargement.set(true);
+    this.erreur.set(null);
     this.api.listerAlertes().subscribe({
       next: (alertes) => {
         this.alertes.set(alertes);
@@ -170,8 +144,10 @@ export class AlertesListeComponent implements OnInit {
       const detail =
         err.status === 404 ? 'introuvable' : err.status === 403 ? 'accès refusé' : 'erreur API';
       this.message.set(`${detail} (${err.status})`);
+      this.erreur.set(`${detail} (${err.status})`);
       return;
     }
     this.message.set('erreur inconnue');
+    this.erreur.set('erreur inconnue');
   }
 }

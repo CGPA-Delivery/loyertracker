@@ -79,7 +79,7 @@ type Etat = 'chargement' | 'valide' | 'invalide' | 'indisponible';
                 <code class="empreinte__hash">{{ q.contentHash }}</code>
               </div>
 
-              <a class="telecharger" [href]="urlPdf()" rel="nofollow">
+              <a class="telecharger" data-testid="verify-receipt-download-link" [href]="urlPdf()" rel="nofollow">
                 Télécharger le PDF officiel
               </a>
             </section>
@@ -248,7 +248,7 @@ type Etat = 'chargement' | 'valide' | 'invalide' | 'indisponible';
         text-align: left;
         margin: 0 0 1.25rem;
         padding: 0.8rem 1rem;
-        border-radius: 10px;
+        border-radius: var(--lt-radius-default);
         background: #fffbeb;
         border: 1px solid #fde68a;
         color: #7c5310;
@@ -306,7 +306,7 @@ type Etat = 'chargement' | 'valide' | 'invalide' | 'indisponible';
         padding: 0.7rem 0.85rem;
         background: #0f172a;
         color: #7dd3fc;
-        border-radius: 8px;
+        border-radius: var(--lt-radius-default);
       }
 
       .telecharger {
@@ -316,7 +316,7 @@ type Etat = 'chargement' | 'valide' | 'invalide' | 'indisponible';
         color: #ffffff;
         background: #0284c7;
         padding: 0.75rem 1.5rem;
-        border-radius: 10px;
+        border-radius: var(--lt-radius-default);
         transition: background 150ms ease;
       }
       .telecharger:hover {
@@ -357,7 +357,7 @@ type Etat = 'chargement' | 'valide' | 'invalide' | 'indisponible';
         }
       }
 
-      @media (max-width: 560px) {
+      @media (max-width: 640px) {
         .carte {
           padding: 2rem 1.25rem 1.5rem;
         }

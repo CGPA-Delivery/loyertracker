@@ -7,8 +7,9 @@ import { StatusTagComponent, severityForStatut } from '../status-tag/status-tag.
 export interface LtDataTableColumn {
   field: string;
   header: string;
-  /** `'status'` rend la cellule via `lt-status-tag` (`severityForStatut()`) plutôt qu'en texte brut. */
-  type?: 'text' | 'status';
+  /** `'status'` rend la cellule via `lt-status-tag` (`severityForStatut()`) plutôt qu'en texte brut.
+   *  `'actions'` rend un bouton dont le clic émet `actionClick` avec la ligne et le champ. */
+  type?: 'text' | 'status' | 'actions';
 }
 
 /**
@@ -62,6 +63,14 @@ export interface LtDataTableColumn {
                     [value]="cellValue(row, col.field) + ''"
                     [severity]="severityForStatut(cellValue(row, col.field) + '')"
                   />
+                } @else if (col.type === 'actions') {
+                  <button
+                    type="button"
+                    class="row-action"
+                    (click)="onActionClick($event, row, col.field)"
+                  >
+                    {{ col.header }}
+                  </button>
                 } @else {
                   {{ cellValue(row, col.field) }}
                 }
@@ -122,6 +131,19 @@ export interface LtDataTableColumn {
       outline: var(--lt-focus-ring-width) var(--lt-focus-ring-style) var(--lt-focus-ring);
       outline-offset: 2px;
     }
+    .row-action {
+      min-height: 44px;
+      padding: var(--lt-space-2xs) 0.6rem;
+      border: 1px solid #334155;
+      border-radius: var(--lt-radius-default);
+      background: #0f172a;
+      color: var(--lt-text-primary);
+      font-size: var(--lt-font-size-sm);
+      cursor: pointer;
+    }
+    .row-action:hover {
+      background: #334155;
+    }
   `,
 })
 export class DataTableComponent<T extends object = object> {
@@ -133,6 +155,8 @@ export class DataTableComponent<T extends object = object> {
   readonly selectable = input(false);
   readonly selectedRow = input<T | null>(null);
   readonly rowClick = output<T>();
+  /** Émis quand une colonne de type 'actions' est cliquée. */
+  readonly actionClick = output<{ row: T; field: string }>();
 
   protected readonly severityForStatut = severityForStatut;
 
@@ -149,5 +173,10 @@ export class DataTableComponent<T extends object = object> {
   protected onSelectButtonClick(event: MouseEvent, row: T): void {
     event.stopPropagation();
     this.onRowClick(row);
+  }
+
+  protected onActionClick(event: MouseEvent, row: T, field: string): void {
+    event.stopPropagation();
+    this.actionClick.emit({ row, field });
   }
 }

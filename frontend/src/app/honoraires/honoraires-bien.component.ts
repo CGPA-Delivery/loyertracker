@@ -61,7 +61,7 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
       .panel {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: #111827;
       }
       .panel-head,
@@ -69,7 +69,7 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
       .row,
       .actions {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
         align-items: center;
       }
       .panel-head,
@@ -80,24 +80,24 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
         margin-top: 0;
       }
       .toolbar {
-        margin-bottom: 0.75rem;
+        margin-bottom: var(--lt-space-sm);
       }
       .list {
         display: grid;
-        gap: 0.5rem;
+        gap: var(--lt-space-xs);
       }
       .row {
         width: 100%;
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
         color: #e2e8f0;
       }
       button {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.35rem 0.6rem;
+        padding: var(--lt-space-2xs) 0.6rem;
         background: #0f172a;
         color: #e2e8f0;
       }

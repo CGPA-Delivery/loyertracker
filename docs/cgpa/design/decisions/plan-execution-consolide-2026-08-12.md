@@ -17,8 +17,8 @@
 | **Lot 1** | **P0** | DD-EP17-14 (SMTP Keycloak + anti-énumération) | 2-4 j | 🟡 **Production en hypercare** — clôture conditionnée aux contrôles T+12/T+24 |
 | **Lot 2** | P1 | DD-EP17-12 (écran invitation) + DD-EP17-02 (états 403/404) | 3-5 j | ✅ **Terminé / clôturé** — PR #462 + Gate Staging PR #463 + recette PASS PR #464 |
 | **Lot 3** | P1 | DD-611-03 (traçabilité) + DD-611-01 (UXR) + DD-EP17-05 (modal) | 2-3 j | ✅ **Terminé** — PR #468 |
-| **Lot 4** | P1 | RSV-DMARC-02 (DMARC progressif) + RSV-EMAIL-NOREPLY-01-UNIDIR (Gate Prod) | 1-2 j + 60-90 j | 🟡 **En cours** — PR #469 (résolution de conflit en cours) |
-| **Lot 5** | P2 | 5 dettes Design (uniformisation visuelle) | 3-5 j | 📋 Planifié |
+| **Lot 4** | P1 | RSV-DMARC-02 (DMARC progressif) + RSV-EMAIL-NOREPLY-01-UNIDIR (Gate Prod) | 1-2 j + 60-90 j | ✅ **Terminé** — PR #469 |
+| **Lot 5** | P2 | 5 dettes Design (uniformisation visuelle) | 3-5 j | ✅ **Terminé** — PR #470 (en attente de fusion) |
 
 ---
 

@@ -40,7 +40,7 @@ import { InvitationApiService, AcceptationDto } from '../core/invitation/invitat
             <p class="error" role="alert">{{ message }}</p>
           }
 
-          <button type="button" (click)="accepter()" [disabled]="chargement()">
+          <button type="button" data-testid="invitation-accept-btn" (click)="accepter()" [disabled]="chargement()">
             {{ chargement() ? 'Création en cours…' : 'Accepter l’invitation' }}
           </button>
         </section>

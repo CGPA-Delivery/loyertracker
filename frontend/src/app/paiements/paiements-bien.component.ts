@@ -100,7 +100,7 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
       .panel {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 1rem;
+        padding: var(--lt-space-md);
         background: #111827;
       }
       .panel-head,
@@ -108,7 +108,7 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
       .row,
       .fields {
         display: flex;
-        gap: 0.75rem;
+        gap: var(--lt-space-sm);
         align-items: center;
       }
       .panel-head,
@@ -120,18 +120,18 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
         margin-top: 0;
       }
       .toolbar {
-        margin-bottom: 0.75rem;
+        margin-bottom: var(--lt-space-sm);
       }
       .list {
         display: grid;
-        gap: 0.5rem;
+        gap: var(--lt-space-xs);
       }
       .row {
         width: 100%;
         text-align: left;
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
         color: #e2e8f0;
       }
@@ -139,20 +139,20 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
         border-color: #38bdf8;
       }
       .pointage {
-        margin-top: 1rem;
+        margin-top: var(--lt-space-md);
         border-top: 1px solid #334155;
-        padding-top: 0.75rem;
+        padding-top: var(--lt-space-sm);
       }
       label {
         display: grid;
-        gap: 0.35rem;
+        gap: var(--lt-space-2xs);
         color: #cbd5e1;
       }
       input,
       select {
         border: 1px solid #334155;
         border-radius: 6px;
-        padding: 0.5rem;
+        padding: var(--lt-space-xs);
         background: #0f172a;
         color: #e2e8f0;
       }
