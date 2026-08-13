@@ -23,6 +23,8 @@ require_pattern "$PROD_SCRIPT" '"smtpServer"'
 require_pattern "$PROD_SCRIPT" '"password"'
 require_pattern "$PROD_SCRIPT" 'update "realms/${REALM}" -f "$SMTP_UPDATE"'
 require_pattern "$PROD_SCRIPT" 'smtpServer incomplet'
+require_pattern "$PROD_SCRIPT" 'get "realms/${REALM}"'
+reject_pattern "$PROD_SCRIPT" '--fields smtpServer'
 reject_pattern "$PROD_SCRIPT" 'smtpServer.password=${KC_SMTP_PASSWORD}'
 
 require_pattern "$ROLLBACK_SCRIPT" 'KC_PRODUCTION_CHANGE_ID'
@@ -31,6 +33,7 @@ require_pattern "$ROLLBACK_SCRIPT" 'update "realms/${REALM}" -f "$ROLLBACK_UPDAT
 require_pattern "$ROLLBACK_SCRIPT" 'Rollback confirmé : smtpServer={}'
 
 require_pattern "$PROD_COMPOSE" 'keycloak-smtp-production-init:'
+require_pattern "$PROD_COMPOSE" 'run --no-deps --rm keycloak-smtp-production-init'
 require_pattern "$PROD_COMPOSE" 'profiles: [production-smtp]'
 require_pattern "$PROD_COMPOSE" 'configure-smtp-production.sh'
 require_pattern "$PROD_COMPOSE" 'KC_SMTP_PASSWORD:'

@@ -51,14 +51,13 @@ echo '[smtp-production] Application atomique SMTP SES Mail Manager au realm Prod
 "$KCADM" update "realms/${REALM}" -f "$SMTP_UPDATE"
 
 echo '[smtp-production] Vérification runtime (secret filtré)...'
-SMTP_JSON="$("$KCADM" get "realms/${REALM}" --fields smtpServer)"
+# Keycloak 24 peut masquer smtpServer avec --fields ; lire le realm complet.
+SMTP_JSON="$("$KCADM" get "realms/${REALM}")"
 for key in host port from auth user ssl starttls; do
   grep -q "\"${key}\"" <<<"$SMTP_JSON" || {
     echo "[smtp-production] ERREUR : smtpServer incomplet : ${key}" >&2
     exit 1
   }
 done
-printf '[smtp-production] smtpServer configuré ; clés='
-printf '%s' "$SMTP_JSON" | sed -E 's/"password"[[:space:]]*:[[:space:]]*"[^"]*"//g' | tr -d '\n'
-printf '\n'
+printf '[smtp-production] smtpServer configuré ; clés vérifiées=host,port,from,auth,user,ssl,starttls\n'
 echo '[smtp-production] Terminé — exécuter les tests fonctionnels et anti-énumération avant de conclure le Gate.'

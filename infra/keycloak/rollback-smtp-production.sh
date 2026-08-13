@@ -26,11 +26,11 @@ printf '%s\n' '{"smtpServer":{}}' > "$ROLLBACK_UPDATE"
 "$KCADM" update "realms/${REALM}" -f "$ROLLBACK_UPDATE"
 
 # Lire le realm complet : --fields smtpServer peut masquer ce sous-objet avec KC 24.
+# Vérifier uniquement le sous-objet smtpServer, pas des champs homonymes du realm entier.
 SMTP_JSON="$("$KCADM" get "realms/${REALM}")"
-for key in host password user; do
-  if grep -Fq "\"${key}\"" <<< "$SMTP_JSON"; then
-    echo '[smtp-production-rollback] ERREUR : smtpServer contient encore des champs.' >&2
-    exit 1
-  fi
-done
+SMTP_KEYS="$(printf '%s' "$SMTP_JSON" | jq -r '.smtpServer // {} | keys[]?')"
+if [[ -n "$SMTP_KEYS" ]]; then
+  echo '[smtp-production-rollback] ERREUR : smtpServer contient encore des champs.' >&2
+  exit 1
+fi
 printf '[smtp-production-rollback] Rollback confirmé : smtpServer={}\n'
