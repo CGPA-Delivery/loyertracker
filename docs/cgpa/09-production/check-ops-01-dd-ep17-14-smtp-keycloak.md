@@ -2,11 +2,11 @@
 
 | Champ | Valeur |
 |---|---|
-| Date | 2026-08-12 |
-| Candidat de configuration | `8d7f651090476cb1932dfc9299f599cf315d6287` / PR #460 |
-| Hôte | `loyertracker-prod-server` (`172.31.9.248`, hôte Production réellement opéré) |
-| Déploiement pendant le contrôle | Aucun |
-| Résultat technique | **PASS sous réserve d'exécution contrôlée et décision CDO** |
+| Date | 2026-08-13 |
+| Candidat de configuration | `ed4a93501a85fc2006c9f720bbea53e226cfb51b` / PR #474, fusionnée dans `main` |
+| Hôte | Production canonique `18.158.70.88` (`ip-172-31-22-90`) |
+| Déploiement pendant le contrôle | Aucun — réinstruction lecture seule du runtime SMTP déjà actif |
+| Résultat technique | **PASS sous réserve de preuve fonctionnelle live et décision CDO** |
 
 ## Preflight et observabilité
 
@@ -34,19 +34,19 @@
 
 > Un backup plus récent doit être exécuté et revalidé immédiatement avant la fenêtre de déploiement si ce backup a plus de 24 heures à ce moment-là.
 
-## Procédure d'exécution autorisable après GO
+## Procédure de validation live après GO
 
-1. Synchroniser le checkout Production de façon non destructive avec le candidat `8d7f651` ; préserver `.env` et archives locales.
-2. Exécuter `check-release-state.sh --host` et confirmer le même état healthy.
-3. Ajouter `KC_PRODUCTION_CHANGE_ID` et les variables `KC_SMTP_*` à `.env` local (jamais Git), permissions `600`.
-4. Capturer l'état `smtpServer` pré-changement via Admin API, sans mot de passe.
-5. Exécuter seulement :
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile production-smtp run --no-deps --rm keycloak-smtp-production-init
-   ```
-6. Confirmer la lecture runtime filtrée, sans logs de secrets ; API/Web/PostgreSQL/Keycloak ne doivent pas être recréés.
-7. Exécuter les tests contrôlés : mot de passe oublié compte test, réception/action-token, anti-énumération existant/inexistant (même HTTP/message).
-8. Vérifier health, logs, Prometheus/Alertmanager, puis démarrer hypercare.
+Le runtime SMTP est déjà configuré vers le relais interne sain : ne pas exécuter le one-shot de reconfiguration pendant cette réinstruction. Après fenêtre UTC et `GO / PRODUCTION_READY` limité au test :
+
+1. Confirmer checkout `main`, lock release et santé sans recréer de conteneur.
+2. Générer un backup PostgreSQL + globals frais, SHA-256, puis valider le dump avec `pg_restore --list`.
+3. Capturer l'état `smtpServer` pré-test via Admin API, sans valeur secrète.
+4. Vérifier par Admin API que le compte de test autorisé est `enabled=true`.
+5. Exécuter le flux public « mot de passe oublié » pour ce compte : réception réelle puis action-token terminée, sans conserver d'adresse/token/contenu.
+6. Exécuter le même flux pour une adresse synthétique inexistante et comparer HTTP/message normalisé.
+7. Vérifier logs, alerting, HTTPS, Actuator, release lock et santé ; démarrer hypercare.
+
+Le one-shot `keycloak-smtp-production-init` reste réservé à une reconfiguration explicitement autorisée, avec `--no-deps`, et ne fait pas partie de ce Gate fonctionnel.
 
 ## Rollback et seuils
 
