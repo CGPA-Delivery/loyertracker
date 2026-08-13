@@ -98,10 +98,12 @@ services:
   smtp-relay:
     image: boky/postfix:latest
     environment:
-      ALLOWED_SENDER_DOMAINS: loyerpro.org loyertracker.com
-      RELAYHOST: '[whn9rwqd9ci6.fips.qbns.mail-manager-smtp.amazonaws.com]:587'
-      RELAYHOST_USERNAME: inp-ckeocfp56fx5y4kdlfn5xc3g
-      RELAYHOST_PASSWORD: 'u5@7Nvi|Sl{({H&9r$,7rifsxB9KKtZo'
+      # Endpoint et identifiants SES injectés exclusivement par `.env` local (mode 600).
+      # Ne jamais versionner de valeur SMTP ou de fallback de credential.
+      ALLOWED_SENDER_DOMAINS: loyerpro.org loyertracker.org
+      RELAYHOST: ${SES_SMTP_RELAY_HOST:?Définir SES_SMTP_RELAY_HOST dans .env local}
+      RELAYHOST_USERNAME: ${SES_SMTP_RELAY_USERNAME:?Définir SES_SMTP_RELAY_USERNAME dans .env local}
+      RELAYHOST_PASSWORD: ${SES_SMTP_RELAY_PASSWORD:?Définir SES_SMTP_RELAY_PASSWORD dans .env local}
       MYNETWORKS: '172.0.0.0/8 127.0.0.0/8'
       # Accepter tous les destinataires (relay ouvert) — le filtrage est fait par SES
       POSTFIX_smtpd_recipient_restrictions: 'permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination'

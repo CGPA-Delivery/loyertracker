@@ -4,7 +4,7 @@
 |---|---|
 | Date | 2026-08-12 |
 | Candidat de configuration | `8d7f651090476cb1932dfc9299f599cf315d6287` / PR #460 |
-| Hôte | `loyertracker-prod-server` (`172.31.22.90`) |
+| Hôte | `loyertracker-prod-server` (`172.31.9.248`, hôte Production réellement opéré) |
 | Déploiement pendant le contrôle | Aucun |
 | Résultat technique | **PASS sous réserve d'exécution contrôlée et décision CDO** |
 
