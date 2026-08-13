@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
 
 import { ProfilComponent } from './profil.component';
@@ -39,6 +40,8 @@ describe('ProfilComponent', () => {
         provideRouter([]),
         { provide: ProfilService, useValue: api },
         { provide: NotificationsService, useValue: notifications },
+        ConfirmationService,
+        MessageService,
       ],
     });
   });
