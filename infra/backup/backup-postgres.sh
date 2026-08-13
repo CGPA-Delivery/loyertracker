@@ -24,11 +24,22 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_DIR"
 
-# Variables de connexion depuis .env (jamais en dur, jamais versionnées).
-[[ -f .env ]] || { echo "ERREUR : .env introuvable dans ${REPO_DIR}" >&2; exit 1; }
-set -a; source .env; set +a
-
+# Les identifiants de connexion viennent du conteneur PostgreSQL déjà démarré.
+# Ne jamais `source .env` : un secret valide pour Docker Compose peut être une syntaxe Bash
+# invalide (p. ex. caractères spéciaux SMTP) et empêcher un backup/heartbeat planifié.
 BACKUP_DIR="${BACKUP_DIR:-$HOME/loyertracker-backups}"
+
+postgres_env() {
+    docker compose exec -T postgres sh -lc 'printf "%s\n%s\n" "$POSTGRES_USER" "$POSTGRES_DB"' </dev/null
+}
+
+mapfile -t POSTGRES_ENV < <(postgres_env)
+POSTGRES_USER="${POSTGRES_ENV[0]:-}"
+POSTGRES_DB="${POSTGRES_ENV[1]:-}"
+[[ -n "$POSTGRES_USER" && -n "$POSTGRES_DB" ]] || {
+    echo "ERREUR : variables POSTGRES_USER/POSTGRES_DB indisponibles dans le conteneur postgres." >&2
+    exit 1
+}
 DAILY_DIR="${BACKUP_DIR}/daily"
 WEEKLY_DIR="${BACKUP_DIR}/weekly"
 STAMP="$(date +%Y%m%d-%H%M%S)"
