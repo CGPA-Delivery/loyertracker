@@ -1,6 +1,6 @@
 # Product Backlog — LoyerTracker
 
-> **Addendum EP-20 — Paiement d’une échéance par garantie locative (2026-08-13, cadrage proposé).** EP-19 demeure réservé au suivi de délivrabilité Resend; EP-20 est introduit sans collision avec US-148→153. État : **NO GO applicatif** jusqu’à approbation humaine du Plan d’Exécution et de l’arbitrage sur un reçu partiel distinct. Aucun code, migration, Staging ou Production autorisé. Références : `addendum-ep20-garantie-echeance.md`, `plan-execution-ep20-garantie-echeance.md`.
+> **Addendum EP-20 — Paiement d’une échéance par garantie locative (2026-08-13, décision PO/CDO approuvée).** EP-19 demeure réservé au suivi de délivrabilité Resend. Pour préserver les IDs historiques Lot 6 UX `US-148→151`, EP-20 utilise la nomenclature canonique `EP20-US01→EP20-US06`. Décisions : `PARTIEL` sans document certifié; une retenue garantie par échéance; `bien_id` persistant et templates WhatsApp/SMS avant fallback. **GO / EP20_IMPLEMENTATION_READY** effectif seulement après fusion humaine de la décision documentaire; aucun Staging, Production, fournisseur, secret ni envoi réel autorisé. Références : `decision-pocdo-ep20-garantie-2026-08-13.md`, `plan-execution-ep20-garantie-echeance.md`.
 
 | Champ | Valeur |
 |-------|--------|

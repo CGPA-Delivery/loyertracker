@@ -8,6 +8,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — décision PO/CDO EP-20 garantie locative
+
+- Décision approuvée : `EP20-US01→EP20-US06` remplace uniquement la nomenclature proposée EP-20, afin de préserver les stories historiques Lot 6 UX `US-148→151`.
+- `PARTIEL` ne produit aucun document certifié; la quittance ADR-15 reste réservée à `RECU`.
+- Une retenue garantie maximum par échéance, `notification_event.bien_id` persistant, templates WhatsApp/SMS requis avant fallback.
+- **GO / EP20_IMPLEMENTATION_READY** après fusion humaine de la décision documentaire, strictement limité au code TDD, migrations additives nécessaires et tests/CI; aucun Staging, Production, fournisseur, secret ou envoi réel.
+- Référence : `docs/cgpa/06-planification-agile/decision-pocdo-ep20-garantie-2026-08-13.md`.
+
 ### Gouvernance — clôture EP-17 Lot 2
 
 - `DD-EP17-02` (états Frontend 403/404) et `DD-EP17-12` (acceptation publique d’invitation) sont **CLOSE**.
