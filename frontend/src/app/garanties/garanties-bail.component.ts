@@ -223,6 +223,7 @@ interface ConfirmationRetenue {
           aria-modal="true"
           aria-labelledby="confirmation-retenue-titre"
           aria-describedby="confirmation-retenue-description"
+          (keydown)="gererClavierConfirmation($event)"
         >
           <div class="confirmation-dialogue">
             <h3 id="confirmation-retenue-titre">Confirmer la retenue</h3>
@@ -535,6 +536,13 @@ export class GarantiesBailComponent {
 
   annulerConfirmationRetenue(): void {
     this.confirmationRetenue.set(null);
+  }
+
+  gererClavierConfirmation(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.annulerConfirmationRetenue();
+    }
   }
 
   retenir(): void {
