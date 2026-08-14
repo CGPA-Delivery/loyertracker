@@ -8,6 +8,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — cadrage EP20-US06 UI
+
+- **GO / EP20-US06_CADRAGE_READY** : décision PO/CDO limitée à la conception documentaire de la confirmation/résultat UI, a11y et responsive `360/390/640/1024`.
+- Aucun code, API, migration, environnement, provider, secret ou envoi réel n’est autorisé. La future implémentation demeure soumise à une décision distincte après fusion/CI de ce cadrage.
+
 ### Gouvernance — clôture EP20-US05 nomenclature PDF
 
 - **CLOSE** après PR #489 (merge `d911044`) et CI complète SUCCESS : téléchargements authentifié/public unifiés sur `quittance-certifiee-YYYY-MM.pdf`, sans PII.

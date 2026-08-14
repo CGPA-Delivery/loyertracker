@@ -9,4 +9,4 @@
 | BF-152 | EF-152 | EP20-US05 | factory pure, noms sûrs sans PII, Content-Disposition authentifié/public |
 | BF-153 | EF-153 | EP20-US06 | confirmation, états finaux, a11y, responsive 360/390/640/1024 |
 
-**Statut :** `EP20-US01` implémentée et validée localement au commit `f5727f2` (RED→GREEN, classe S03 et `mvn -q verify` PASS); PR/revue humaine en attente. Les autres lignes restent planifiées, non exécutées. Toute ligne de preuve sera complétée de manière additive après exécution réelle.
+**Statut :** `EP20-US03`, `EP20-US04` et `EP20-US05` sont `CLOSE` sur `main`. `EP20-US06` est `GO / CADRAGE_READY` documentaire : confirmation, états finaux, a11y et responsive `360/390/640/1024` sont à spécifier avant code. Les preuves runtime seront ajoutées seulement après exécution réelle autorisée. Toute ligne de preuve reste additive.
