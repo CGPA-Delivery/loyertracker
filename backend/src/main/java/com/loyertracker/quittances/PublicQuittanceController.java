@@ -59,12 +59,12 @@ public class PublicQuittanceController {
         }
     }
 
-    private static ResponseEntity<byte[]> pdf(byte[] contenu) {
+    private static ResponseEntity<byte[]> pdf(QuittanceTelechargee quittance) {
         ContentDisposition disposition = ContentDisposition.attachment()
-                .filename("quittance-certifiee.pdf").build();
+                .filename(QuittanceFilenameFactory.quittanceCertifiee(quittance.periode())).build();
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
-                .body(contenu);
+                .body(quittance.pdf());
     }
 }
