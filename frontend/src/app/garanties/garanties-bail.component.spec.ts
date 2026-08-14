@@ -222,6 +222,45 @@ describe('GarantiesBailComponent', () => {
     expect(api.listerGaranties).toHaveBeenCalledTimes(2);
   });
 
+  it('demande une confirmation avant de retenir la garantie', () => {
+    const { cmp } = creer();
+    api.listerPaiements.and.returnValue(of([paiement()]));
+    api.retenirSurLoyer.and.returnValue(of(garantie({ soldeActuel: 0 })));
+    cmp.ouvrir(garantie(), 'RETENUE');
+    cmp.retenueForm.setValue({ paiementId: 'p-1', montant: 850 });
+
+    cmp.demanderConfirmationRetenue();
+
+    expect(cmp.confirmationRetenue()).toEqual({
+      garantieId: 'g-1',
+      paiementId: 'p-1',
+      montant: 850,
+      statutAttendu: 'RECU',
+    });
+    expect(api.retenirSurLoyer).not.toHaveBeenCalled();
+
+    cmp.confirmerRetenue();
+
+    expect(api.retenirSurLoyer).toHaveBeenCalledWith('bien-1', 'bail-1', 'g-1', {
+      paiementId: 'p-1',
+      montant: 850,
+    });
+  });
+
+  it('rend une confirmation accessible avec actions explicites', () => {
+    const { fixture, cmp } = creer();
+    api.listerPaiements.and.returnValue(of([paiement()]));
+    cmp.ouvrir(garantie(), 'RETENUE');
+    cmp.retenueForm.setValue({ paiementId: 'p-1', montant: 850 });
+    cmp.demanderConfirmationRetenue();
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('[role="alertdialog"]');
+    expect(dialog?.getAttribute('aria-modal')).toBe('true');
+    expect(dialog?.textContent).toContain('Confirmer la retenue');
+    expect(dialog?.querySelectorAll('button[type="button"]').length).toBe(2);
+  });
+
   it('ne propose comme impayés que les loyers restant dus du bail courant', () => {
     const { cmp } = creer();
     api.listerPaiements.and.returnValue(
