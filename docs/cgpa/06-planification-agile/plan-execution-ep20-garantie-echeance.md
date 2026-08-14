@@ -132,4 +132,10 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 
 V34 est additive et se limite au seed `GARANTIE_DEBITEE / SMS / fr` approuvé/actif. Le contrat de dépôt est à 34 ; l'état Flyway Production n'est pas modifié. Aucun provider, secret, envoi réel, Staging ou Production n'est autorisé ou réalisé par cette clôture.
 
-Référence : `cloture-ep20-us03-notification-garantie-2026-08-14.md`. **EP20-US04 reste non démarrée** : elle requiert une instruction PO/CDO distincte et demeure contrainte par ADR-15 (`RECU` seulement; jamais de document certifié téléchargeable pour `PARTIEL`).
+## 11. Avancement additif EP20-US04 (2026-08-14)
+
+**État : `CANDIDAT_REVUE_LOCALE` — non intégré.** La politique PO/CDO privilégie l’intégrité financière : lorsqu’un débit de garantie fait passer un paiement à `RECU`, l’émission automatique est tentée seulement si le profil bailleur satisfait la précondition documentaire d’adresse. Sans adresse, la retenue et le passage `RECU` restent validés, aucune quittance n’est créée et l’émission reste disponible après correction du profil.
+
+ADR-15 est conservé strictement : `PARTIEL` retourne `409` pour le téléchargement et ne crée aucune quittance; un `RECU` issu d’une retenue, avec profil complet, crée exactement une quittance `EMISE` liée au paiement. Preuves : `S03PaiementsGarantiesIntegrationTest`, `QuittanceCertifieeIntegrationTest` et `mvn -q verify` PASS sur Flyway 34. Commits locaux `57e0391`, `a8c555b`, `fde5965`; PR, CI et revue humaine restent requis. Aucun Staging, Production, provider, secret ou envoi réel.
+
+Référence : `cloture-ep20-us03-notification-garantie-2026-08-14.md`. **À la clôture US03, EP20-US04 restait non démarrée** : elle requérait une instruction PO/CDO distincte et demeure contrainte par ADR-15 (`RECU` seulement; jamais de document certifié téléchargeable pour `PARTIEL`).
