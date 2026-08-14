@@ -50,6 +50,8 @@ public class NotificationMetrics {
         REFUSE_POLITIQUE,
         /** Destinataire sans opt-in SMS ou sans canal de secours défini (K3). */
         REFUSE_CONSENTEMENT,
+        /** Aucun template SMS actif et approuvé n'est disponible pour l'événement. */
+        REFUSE_TEMPLATE,
         /** Un SMS de secours existait déjà pour cet événement : jamais un second. */
         DEJA_EN_FILE
     }

@@ -38,14 +38,17 @@ public class NotificationFallbackService {
 
     private final NotificationOutboxRepository outbox;
     private final NotificationPreferenceRepository preferences;
+    private final NotificationTemplateRepository templates;
     private final NotificationMetrics metrics;
     private final boolean politiqueActivee;
 
     public NotificationFallbackService(NotificationOutboxRepository outbox,
-            NotificationPreferenceRepository preferences, NotificationMetrics metrics,
+            NotificationPreferenceRepository preferences, NotificationTemplateRepository templates,
+            NotificationMetrics metrics,
             @Value("${app.notifications.fallback.enabled:false}") boolean politiqueActivee) {
         this.outbox = outbox;
         this.preferences = preferences;
+        this.templates = templates;
         this.metrics = metrics;
         this.politiqueActivee = politiqueActivee;
     }
@@ -75,6 +78,16 @@ public class NotificationFallbackService {
                 .isPresent();
         if (!consentement) {
             metrics.fallback(NotificationMetrics.IssueFallback.REFUSE_CONSENTEMENT);
+            return false;
+        }
+
+        String langue = preference.map(NotificationPreference::getLanguage).orElse("fr");
+        boolean templateSmsApprouve = templates
+                .existsByCodeAndChannelAndLanguageAndApprovalStatusAndEnabledTrue(
+                        echec.getNotificationType().name(), CanalNotification.SMS, langue,
+                        StatutApprobationTemplate.APPROUVE);
+        if (!templateSmsApprouve) {
+            metrics.fallback(NotificationMetrics.IssueFallback.REFUSE_TEMPLATE);
             return false;
         }
 

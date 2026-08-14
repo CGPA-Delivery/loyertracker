@@ -511,6 +511,55 @@ class NotificationDispatchIntegrationTest {
     }
 
     @Test
+    void fallbackSmsGarantieDebiteeExigeUnTemplateSmsApprouve() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "GARANTIE_DEBITEE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreferenceAvecFallbackSms(bailleurId, recipientId);
+        seedOutboxPending(bailleurId, eventId, recipientId, "GARANTIE_DEBITEE");
+        jdbc.update("DELETE FROM notification_template WHERE code = 'GARANTIE_DEBITEE' AND channel = 'SMS'");
+
+        dispatcherAvec(demande -> ResultatEnvoi.echecPermanent("TWILIO_REFUS_400"), 5, true,
+                BUDGET_LARGE, true).traiterLot(50);
+        jdbc.update("""
+                INSERT INTO notification_template (code, channel, language, version, approval_status, enabled)
+                VALUES ('GARANTIE_DEBITEE', 'SMS', 'fr', 1, 'APPROUVE', true)
+                """);
+
+        assertThat(compterSmsEnFile(eventId)).isZero();
+    }
+
+    @Test
+    void fallbackSmsGarantieDebiteeAvecTemplateApprouveEstUnique() {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId, "GARANTIE_DEBITEE");
+        UUID recipientId = UUID.randomUUID();
+        seedPreferenceAvecFallbackSms(bailleurId, recipientId);
+        seedOutboxPending(bailleurId, eventId, recipientId, "GARANTIE_DEBITEE");
+
+        new TransactionTemplate(txManager).executeWithoutResult(status -> {
+            tenant.positionner(bailleurId);
+            NotificationPreference preference = preferenceRepository
+                    .findFirstByBailleurIdAndRecipientId(bailleurId, recipientId)
+                    .orElseThrow();
+            assertThat(preference.getFallbackChannel()).isEqualTo(CanalNotification.SMS);
+            assertThat(preference.estEligiblePour(CanalNotification.SMS)).isTrue();
+            assertThat(preference.getPhoneE164()).isNotNull();
+            assertThat(preference.getLanguage()).isEqualTo("fr");
+            assertThat(templateRepository
+                    .existsByCodeAndChannelAndLanguageAndApprovalStatusAndEnabledTrue(
+                            "GARANTIE_DEBITEE", CanalNotification.SMS, "fr",
+                            StatutApprobationTemplate.APPROUVE))
+                    .isTrue();
+        });
+
+        dispatcherAvec(demande -> ResultatEnvoi.echecPermanent("TWILIO_REFUS_400"), 5, true,
+                BUDGET_LARGE, true).traiterLot(50);
+
+        assertThat(compterSmsEnFile(eventId)).isEqualTo(1);
+    }
+
+    @Test
     void unSecondEchecPermanentNeCreeJamaisUnDeuxiemeSms() {
         UUID bailleurId = seedBailleur();
         UUID eventId = seedEvent(bailleurId, "QUITTANCE_DISPONIBLE");
@@ -556,7 +605,7 @@ class NotificationDispatchIntegrationTest {
         NotificationBudgetService budget =
                 new NotificationBudgetService(em, metrics, plafondMensuel, 0.8d);
         NotificationFallbackService fallback = new NotificationFallbackService(outboxRepository,
-                preferenceRepository, metrics, fallbackActive);
+                preferenceRepository, templateRepository, metrics, fallbackActive);
         ChannelNotificationProvider fournisseur = new ChannelNotificationProvider() {
             @Override
             public Set<CanalNotification> canaux() {
@@ -579,7 +628,7 @@ class NotificationDispatchIntegrationTest {
         NotificationBudgetService budget =
                 new NotificationBudgetService(em, metrics, BUDGET_LARGE, 0.8d);
         NotificationFallbackService fallback = new NotificationFallbackService(outboxRepository,
-                preferenceRepository, metrics, false);
+                preferenceRepository, templateRepository, metrics, false);
         ChannelNotificationProvider fournisseur = new ChannelNotificationProvider() {
             @Override
             public Set<CanalNotification> canaux() {
@@ -602,7 +651,7 @@ class NotificationDispatchIntegrationTest {
         NotificationBudgetService budget =
                 new NotificationBudgetService(em, metrics, BUDGET_LARGE, 0.8d);
         NotificationFallbackService fallback = new NotificationFallbackService(outboxRepository,
-                preferenceRepository, metrics, false);
+                preferenceRepository, templateRepository, metrics, false);
         return new NotificationDispatcher(em, tenant, txManager, outboxService, outboxRepository,
                 preferenceRepository, templateRepository, deliveryService, List.of(), json,
                 metrics, budget, fallback, true, 5);
@@ -655,7 +704,9 @@ class NotificationDispatchIntegrationTest {
                 INSERT INTO notification_template (code, channel, language, version, approval_status, enabled)
                 VALUES ('QUITTANCE_DISPONIBLE', 'WHATSAPP', 'fr', 1, 'APPROUVE', true),
                        ('LOYER_EN_RETARD',      'WHATSAPP', 'fr', 1, 'APPROUVE', true),
-                       ('GARANTIE_DEBITEE',     'WHATSAPP', 'fr', 1, 'APPROUVE', true)
+                       ('GARANTIE_DEBITEE',     'WHATSAPP', 'fr', 1, 'APPROUVE', true),
+                       ('QUITTANCE_DISPONIBLE', 'SMS',      'fr', 1, 'APPROUVE', true),
+                       ('GARANTIE_DEBITEE',     'SMS',      'fr', 1, 'APPROUVE', true)
                 """);
     }
 
