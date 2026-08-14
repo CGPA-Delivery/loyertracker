@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — clôture EP20-US05 nomenclature PDF
+
+- **CLOSE** après PR #489 (merge `d911044`) et CI complète SUCCESS : téléchargements authentifié/public unifiés sur `quittance-certifiee-YYYY-MM.pdf`, sans PII.
+- La factory verrouille `YYYY-MM`; HMAC, intégrité PDF, `404` public indifférencié et sémantique défensive du contenu PDF sont préservés. `mvn -q verify` PASS sur Flyway 34.
+- Build/scan/SBOM Docker SUCCESS; publication/signatures `SKIPPED` attendue après classifieur vert. Aucun Staging/Production, provider, secret ou envoi réel. Référence : `docs/cgpa/06-planification-agile/cloture-ep20-us05-nomenclature-pdf-2026-08-14.md`.
+
 ### EP20-US05 — nomenclature PDF unifiée sans PII
 
 - Les téléchargements de quittance authentifié et public exposent le même nom `quittance-certifiee-YYYY-MM.pdf`, exclusivement dérivé de la période certifiée.
