@@ -235,7 +235,7 @@ interface ConfirmationRetenue {
               <p class="muted">Aucune quittance certifiée n’est disponible pour un paiement PARTIEL.</p>
             }
             <div class="actions">
-              <button type="button" (click)="annulerConfirmationRetenue()">Annuler</button>
+              <button id="annuler-confirmation-retenue" type="button" (click)="annulerConfirmationRetenue()">Annuler</button>
               <button type="button" (click)="confirmerRetenue()" [disabled]="chargement()">
                 Confirmer la retenue
               </button>
@@ -380,6 +380,7 @@ export class GarantiesBailComponent {
   readonly message = signal('Prêt');
   readonly chargement = signal(false);
   readonly confirmationRetenue = signal<ConfirmationRetenue | null>(null);
+  private dernierDeclencheurConfirmation: HTMLElement | null = null;
 
   /** Loyers du bien restant dus, candidats à une retenue (US-95). */
   readonly impayes = signal<Paiement[]>([]);
@@ -521,7 +522,9 @@ export class GarantiesBailComponent {
   demanderConfirmationRetenue(): void {
     const confirmation = this.preparerRetenue();
     if (confirmation) {
+      this.dernierDeclencheurConfirmation = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       this.confirmationRetenue.set(confirmation);
+      queueMicrotask(() => document.getElementById('annuler-confirmation-retenue')?.focus());
     }
   }
 
@@ -536,6 +539,9 @@ export class GarantiesBailComponent {
 
   annulerConfirmationRetenue(): void {
     this.confirmationRetenue.set(null);
+    const declencheur = this.dernierDeclencheurConfirmation;
+    this.dernierDeclencheurConfirmation = null;
+    queueMicrotask(() => declencheur?.focus());
   }
 
   gererClavierConfirmation(event: KeyboardEvent): void {
