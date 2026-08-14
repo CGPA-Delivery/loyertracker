@@ -8,6 +8,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — clôture EP20-US03 notification garantie
+
+- **CLOSE** après merges #484 (`5c8c2c8`) et #485 (`b76b3dc`) : `GARANTIE_DEBITEE` porte `bien_id` transactionnel pour le ReBAC fail-closed, et le fallback SMS exige un template du même code/canal/langue, actif et `APPROUVE`.
+- V34 ajoute le template global `GARANTIE_DEBITEE / SMS / fr`; le contrat dépôt Flyway est aligné à 34, sans modifier le compteur Production.
+- Preuves : RED sans template, scénarios `0` fallback sans template et `1` unique avec template, `NotificationDispatchIntegrationTest`, `mvn -q verify`, CI #485 complète SUCCESS.
+- Aucun Staging/Production, provider externe, secret ou envoi réel. `EP20-US04` reste non démarrée et nécessite un GO PO/CDO distinct ; référence : `docs/cgpa/06-planification-agile/cloture-ep20-us03-notification-garantie-2026-08-14.md`.
+
 ### Gouvernance — décision PO/CDO EP-20 garantie locative
 
 - Décision approuvée : `EP20-US01→EP20-US06` remplace uniquement la nomenclature proposée EP-20, afin de préserver les stories historiques Lot 6 UX `US-148→151`.
