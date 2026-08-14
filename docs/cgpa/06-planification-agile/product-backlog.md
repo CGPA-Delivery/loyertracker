@@ -1,5 +1,7 @@
 # Product Backlog — LoyerTracker
 
+> **Addendum EP-20 — Paiement d’une échéance par garantie locative (2026-08-13, cadrage proposé).** EP-19 demeure réservé au suivi de délivrabilité Resend; EP-20 est introduit sans collision avec US-148→153. État : **NO GO applicatif** jusqu’à approbation humaine du Plan d’Exécution et de l’arbitrage sur un reçu partiel distinct. Aucun code, migration, Staging ou Production autorisé. Références : `addendum-ep20-garantie-echeance.md`, `plan-execution-ep20-garantie-echeance.md`.
+
 | Champ | Valeur |
 |-------|--------|
 | Projet | LoyerTracker |
