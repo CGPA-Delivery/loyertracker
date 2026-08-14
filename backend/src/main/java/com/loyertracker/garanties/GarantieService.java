@@ -174,9 +174,10 @@ public class GarantieService {
         GarantieMovement mouvement = enregistrerMouvement(enregistre, TypeMouvementGarantie.RETENUE_LOYER,
                 requete.montant(), BigDecimal.ZERO, "Retenue sur loyer impayé", authentication);
 
-        StatutPaiement statutResultant = requete.montant().compareTo(paiement.getMontantAttendu()) >= 0
+        BigDecimal montantRecuApres = paiement.getMontantRecu().add(requete.montant());
+        StatutPaiement statutResultant = montantRecuApres.compareTo(paiement.getMontantAttendu()) >= 0
                 ? StatutPaiement.RECU : StatutPaiement.PARTIEL;
-        paiement.pointer(requete.montant(), statutResultant);
+        paiement.pointer(montantRecuApres, statutResultant);
         paiement.lierMouvementGarantie(mouvement.getId());
         paiements.save(paiement);
 
