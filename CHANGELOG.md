@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### EP20-US05 — nomenclature PDF unifiée sans PII
+
+- Les téléchargements de quittance authentifié et public exposent le même nom `quittance-certifiee-YYYY-MM.pdf`, exclusivement dérivé de la période certifiée.
+- La factory rejette toute période hors `YYYY-MM`; HMAC, intégrité PDF et `404` public indifférencié restent inchangés.
+- Preuves locales : RED/GREEN, tests document/public/factory et `mvn -q verify` SUCCESS sur Flyway 34. PR, CI et revue humaine requis; aucun Staging/Production, provider, secret ou envoi réel.
+
 ### Gouvernance — clôture EP20-US04 quittance certifiée
 
 - **CLOSE** après PR #487 (merge `d3c9b6d`) et CI complète SUCCESS : ADR-15 est appliqué, `PARTIEL` retourne `409` sans quittance, et une retenue conduisant à `RECU` crée un unique exemplaire `EMISE` si le profil documentaire est complet.
