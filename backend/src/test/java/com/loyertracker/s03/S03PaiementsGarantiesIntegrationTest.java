@@ -320,6 +320,8 @@ class S03PaiementsGarantiesIntegrationTest {
         assertThat(paiement).containsEntry("statut", "RECU");
         assertThat((BigDecimal) paiement.get("montant_recu")).isEqualByComparingTo("850.00");
         assertThat(paiement.get("garantie_movement_id")).isNotNull();
+        assertThat(jdbc.queryForObject("SELECT bien_id::text FROM notification_event WHERE event_type = 'GARANTIE_DEBITEE' ORDER BY date_creation DESC LIMIT 1", String.class))
+                .isEqualTo(bienId);
     }
 
     @Test

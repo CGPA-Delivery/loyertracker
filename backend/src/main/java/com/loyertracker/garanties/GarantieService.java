@@ -192,8 +192,8 @@ public class GarantieService {
         // Voie B (ADR-18 §2) : le locataire dont le loyer impayé vient d'être couvert par sa garantie
         // (bail déjà vérifié existant par exigerBailDuBien ci-dessus, locataireId NOT NULL depuis V26).
         UUID locataireId = baux.findById(bailId).orElseThrow().getLocataireId();
-        notifications.emettre(bailleurId, TypeEvenementNotification.GARANTIE_DEBITEE,
-                TypeAgregatNotification.GARANTIE, enregistre.getId(),
+        notifications.emettreAvecBien(bailleurId, TypeEvenementNotification.GARANTIE_DEBITEE,
+                TypeAgregatNotification.GARANTIE, enregistre.getId(), bienId,
                 Map.of("bailId", bailId.toString(), "montant", requete.montant().toString()),
                 List.of(new Destinataire(TypeDestinataire.LOCATAIRE, locataireId)));
         return GarantieDto.from(enregistre);

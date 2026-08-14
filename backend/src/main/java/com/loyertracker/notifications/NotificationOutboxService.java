@@ -55,7 +55,21 @@ public class NotificationOutboxService {
     public UUID emettre(UUID bailleurId, TypeEvenementNotification type,
             TypeAgregatNotification aggregateType, UUID aggregateId,
             Map<String, Object> payloadMinimal, List<Destinataire> destinataires) {
-        UUID eventId = creerEvenement(bailleurId, type, aggregateType, aggregateId, payloadMinimal);
+        return emettreInterne(bailleurId, type, aggregateType, aggregateId, null, payloadMinimal, destinataires);
+    }
+
+    /** Émission transactionnelle avec provenance de bien persistée pour l'historique ReBAC. */
+    @Transactional
+    public UUID emettreAvecBien(UUID bailleurId, TypeEvenementNotification type,
+            TypeAgregatNotification aggregateType, UUID aggregateId, UUID bienId,
+            Map<String, Object> payloadMinimal, List<Destinataire> destinataires) {
+        return emettreInterne(bailleurId, type, aggregateType, aggregateId, bienId, payloadMinimal, destinataires);
+    }
+
+    private UUID emettreInterne(UUID bailleurId, TypeEvenementNotification type,
+            TypeAgregatNotification aggregateType, UUID aggregateId, UUID bienId,
+            Map<String, Object> payloadMinimal, List<Destinataire> destinataires) {
+        UUID eventId = creerEvenement(bailleurId, type, aggregateType, aggregateId, bienId, payloadMinimal);
         for (Destinataire destinataire : destinataires) {
             preferences.findByBailleurIdAndRecipientTypeAndRecipientId(bailleurId,
                             destinataire.type(), destinataire.id())
@@ -81,14 +95,15 @@ public class NotificationOutboxService {
     public UUID emettreTransactionnel(UUID bailleurId, TypeEvenementNotification type,
             TypeAgregatNotification aggregateType, UUID aggregateId,
             Map<String, Object> payloadMinimal, UUID recipientId, String recipientAddress) {
-        UUID eventId = creerEvenement(bailleurId, type, aggregateType, aggregateId, payloadMinimal);
+        UUID eventId = creerEvenement(bailleurId, type, aggregateType, aggregateId, null, payloadMinimal);
         outbox.save(new NotificationOutbox(bailleurId, eventId, recipientId, type,
                 CanalNotification.EMAIL, recipientAddress));
         return eventId;
     }
 
     private UUID creerEvenement(UUID bailleurId, TypeEvenementNotification type,
-            TypeAgregatNotification aggregateType, UUID aggregateId, Map<String, Object> payloadMinimal) {
+            TypeAgregatNotification aggregateType, UUID aggregateId, UUID bienId,
+            Map<String, Object> payloadMinimal) {
         String payloadJson;
         try {
             payloadJson = json.writeValueAsString(payloadMinimal == null ? Map.of() : payloadMinimal);
@@ -97,14 +112,15 @@ public class NotificationOutboxService {
         }
         return (UUID) em.createNativeQuery("""
                 INSERT INTO notification_event
-                    (bailleur_id, event_type, aggregate_type, aggregate_id, payload_minimal)
-                VALUES (CAST(:b AS uuid), :type, :aggType, CAST(:aggId AS uuid), CAST(:payload AS jsonb))
+                    (bailleur_id, event_type, aggregate_type, aggregate_id, bien_id, payload_minimal)
+                VALUES (CAST(:b AS uuid), :type, :aggType, CAST(:aggId AS uuid), CAST(:bienId AS uuid), CAST(:payload AS jsonb))
                 RETURNING id
                 """)
                 .setParameter("b", bailleurId.toString())
                 .setParameter("type", type.name())
                 .setParameter("aggType", aggregateType.name())
                 .setParameter("aggId", aggregateId.toString())
+                .setParameter("bienId", bienId == null ? null : bienId.toString())
                 .setParameter("payload", payloadJson)
                 .getSingleResult();
     }

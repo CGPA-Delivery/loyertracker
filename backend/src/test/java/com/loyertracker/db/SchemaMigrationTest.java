@@ -409,6 +409,14 @@ class SchemaMigrationTest {
         }
     }
 
+    @Test
+    void notificationEventPorteLeBienPourLeRebac() throws SQLException {
+        try (Connection c = connect()) {
+            assertThat(columnExists(c, "notification_event", "bien_id")).isTrue();
+            assertThat(indexExists(c, "idx_notification_event_bien")).isTrue();
+        }
+    }
+
     // --- Helpers ---------------------------------------------------------------------
 
     private Connection connect() throws SQLException {
@@ -420,6 +428,17 @@ class SchemaMigrationTest {
                 "SELECT 1 FROM information_schema.tables "
                         + "WHERE table_schema = 'public' AND table_name = ?")) {
             ps.setString(1, table);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private boolean columnExists(Connection c, String table, String column) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = ? AND column_name = ?")) {
+            ps.setString(1, table);
+            ps.setString(2, column);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
