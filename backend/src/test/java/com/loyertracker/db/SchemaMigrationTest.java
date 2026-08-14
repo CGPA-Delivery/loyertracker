@@ -135,7 +135,7 @@ class SchemaMigrationTest {
     void lesSixIndexUniquesPartielsSontCrees() throws SQLException {
         String[] index = {
             "uq_bail_actif", "uq_affectation_active", "uq_affectation_patrimoine_active",
-            "uq_paiement_periode", "uq_honoraire_periode", "uq_alerte_nonlue"
+            "uq_paiement_periode", "uq_paiement_garantie_movement_id", "uq_honoraire_periode", "uq_alerte_nonlue"
         };
         try (Connection c = connect()) {
             for (String idx : index) {

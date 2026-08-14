@@ -12,6 +12,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -316,6 +320,37 @@ class S03PaiementsGarantiesIntegrationTest {
         assertThat(paiement).containsEntry("statut", "RECU");
         assertThat((BigDecimal) paiement.get("montant_recu")).isEqualByComparingTo("850.00");
         assertThat(paiement.get("garantie_movement_id")).isNotNull();
+    }
+
+    @Test
+    void retenueLoyerConcurrenteNeDoitDebiterQuUneFois() throws Exception {
+        String bailleur = "kc-" + UUID.randomUUID();
+        inscrireBailleur(bailleur);
+        String bienId = creerBien(bailleur, "10 ter rue Retenue concurrence");
+        String bailId = creerBail(bailleur, bienId, "2026-01-01", "2026-02-28");
+        genererEcheances(bailleur);
+        String garantieId = creerGarantie(bienId, bailId, bailleur, "850.00");
+        String paiementId = paiementIdPourPeriode(bienId, "2026-01", bailleur);
+        String payload = "{\"paiementId\":\"" + paiementId + "\",\"montant\":850.00}";
+
+        CountDownLatch depart = new CountDownLatch(1);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            List<Future<Integer>> resultats = List.of(
+                    executor.submit(() -> { depart.await(); return mockMvc.perform(
+                            retenueLoyer(bienId, bailId, garantieId, bailleur, payload)).andReturn().getResponse().getStatus(); }),
+                    executor.submit(() -> { depart.await(); return mockMvc.perform(
+                            retenueLoyer(bienId, bailId, garantieId, bailleur, payload)).andReturn().getResponse().getStatus(); }));
+            depart.countDown();
+            long succes = resultats.stream().mapToInt(f -> { try { return f.get(); } catch (Exception e) { throw new RuntimeException(e); } })
+                    .filter(code -> code == 200).count();
+            assertThat(succes).isEqualTo(1);
+        } finally {
+            executor.shutdown();
+        }
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM garantie_movement WHERE garantie_id = ?::uuid AND type = 'RETENUE_LOYER'", Integer.class, garantieId)).isEqualTo(1);
+        assertThat(soldeActuel(garantieId)).isEqualByComparingTo("0.00");
+        assertThat(compterAudit("RETENUE_LOYER_GARANTIE")).isEqualTo(1);
     }
 
     @Test
