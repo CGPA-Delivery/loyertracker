@@ -17,9 +17,9 @@ public record QuittanceTelechargee(byte[] pdf, String periode) {
 
     @Override
     public boolean equals(Object autre) {
-        return autre instanceof QuittanceTelechargee quittance
-                && Arrays.equals(pdf, quittance.pdf)
-                && Objects.equals(periode, quittance.periode);
+        return autre instanceof QuittanceTelechargee(byte[] autrePdf, String autrePeriode)
+                && Arrays.equals(pdf, autrePdf)
+                && Objects.equals(periode, autrePeriode);
     }
 
     @Override
