@@ -8,6 +8,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — GO Frontend EP20-US06
+
+- **GO / EP20-US06_FRONTEND_IMPLEMENTATION_READY** : future branche Frontend limitée à confirmation/résultats UI, TDD et preuves E2E a11y/responsive réelles.
+- Contrats API existants exclusivement ; un besoin Backend/API/migration est bloquant et requiert un addendum PO/CDO. Staging, Production, provider, secret et envoi réel restent interdits.
+
 ### Gouvernance — cadrage EP20-US06 UI
 
 - **GO / EP20-US06_CADRAGE_READY** : décision PO/CDO limitée à la conception documentaire de la confirmation/résultat UI, a11y et responsive `360/390/640/1024`.

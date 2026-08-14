@@ -144,6 +144,12 @@ ADR-15 est conservé strictement : `PARTIEL` retourne `409` pour le télécharge
 
 `mvn -q verify` est PASS avec Flyway 34. Build/scan/SBOM Docker est SUCCESS; publication/signatures est `SKIPPED` attendu après classifieur sans changement image. Aucun Staging, Production, provider, secret ou envoi réel. Référence : `cloture-ep20-us04-quittance-certifiee-2026-08-14.md`; tout travail EP20 suivant requiert un GO PO/CDO séparé.
 
+## 15. GO d’implémentation Frontend EP20-US06 (2026-08-14)
+
+**État : `GO / EP20-US06_FRONTEND_IMPLEMENTATION_READY` après fusion de la présente décision.** Le PO/CDO autorise une branche Frontend dédiée : confirmation de retenue, résultats succès/refus/récupération, représentation `RECU`/`PARTIEL` conforme ADR-15 et tests unitaires/E2E avec preuves a11y/responsive réelles.
+
+Le périmètre reste Frontend et contrats API existants uniquement. Un contrat serveur absent, une API ou une migration nécessaire est un blocage soumis à addendum ; aucun Backend/API, migration, Staging, Production, provider, secret ou envoi réel n’est autorisé.
+
 ## 14. Décision de cadrage EP20-US06 (2026-08-14)
 
 **État : `GO / EP20-US06_CADRAGE_READY`.** Le PO/CDO autorise uniquement la préparation documentaire de la confirmation/résultat UI : contrat tenant-scopé et ReBAC/RLS, états `RECU`/`PARTIEL`, absence de promesse de livraison externe, critères GWT, inventaire composants, responsive `360/390/640/1024` et a11y (clavier/focus/Escape/annonces/erreurs/contraste/cibles 44 px).
