@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### EP20-US04 — quittance certifiée après retenue de garantie
+
+- Une retenue qui solde un paiement en `RECU` émet automatiquement une quittance seulement si le profil documentaire bailleur est complet ; une adresse absente n’annule jamais l’écriture financière et la quittance reste réémissible après correction.
+- ADR-15 : `PARTIEL` renvoie `409` au téléchargement et ne crée aucune quittance ; `RECU` après retenue, profil complet, crée un unique exemplaire `EMISE` lié au paiement.
+- Preuves locales : tests ciblés S03/quittances et `mvn -q verify` SUCCESS sur Flyway 34. PR, CI et revue humaine restent requises ; aucun Staging/Production, provider, secret ou envoi réel.
+
 ### Gouvernance — clôture EP20-US03 notification garantie
 
 - **CLOSE** après merges #484 (`5c8c2c8`) et #485 (`b76b3dc`) : `GARANTIE_DEBITEE` porte `bien_id` transactionnel pour le ReBAC fail-closed, et le fallback SMS exige un template du même code/canal/langue, actif et `APPROUVE`.

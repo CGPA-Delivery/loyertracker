@@ -114,6 +114,19 @@ public class QuittanceCertifieeService {
     }
 
     /**
+     * Précondition documentaire de l'émission automatique. Une absence d'adresse ne doit jamais
+     * faire échouer une écriture financière ; l'émission manuelle reste possible après correction
+     * du profil.
+     */
+    @Transactional(readOnly = true)
+    public boolean emissionAutomatiqueDisponible(UUID bienId) {
+        UUID bailleurId = tenant.activerDepuisBien(bienId);
+        return bailleurs.findById(bailleurId)
+                .map(bailleur -> bailleur.getAdresse() != null && !bailleur.getAdresse().isBlank())
+                .orElse(false);
+    }
+
+    /**
      * Émet (ou renvoie, ou ré-émet en version N+1) la quittance certifiée du loyer
      * {@code (bien, periode)} et retourne l'exemplaire officiel PDF.
      */

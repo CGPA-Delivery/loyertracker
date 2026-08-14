@@ -81,6 +81,35 @@ class QuittanceCertifieeIntegrationTest {
     }
 
     @Test
+    void paiementPartielNeDonneJamaisAccesAUneQuittanceCertifiee() throws Exception {
+        String bailleur = "kc-" + UUID.randomUUID();
+        inscrireBailleur(bailleur);
+        mockMvc.perform(put("/api/bailleurs/profil").with(bailleurJwt(bailleur))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"adresse\":\"10 rue du Bailleur, 75001 Paris\"}"))
+                .andExpect(status().isOk());
+        String bienId = creerBien(bailleur, "6 avenue du Partiel " + UUID.randomUUID());
+        String locataireId = creerLocataire(bailleur);
+        mockMvc.perform(post("/api/biens/{bienId}/baux", bienId).with(bailleurJwt(bailleur))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"locataireId\":\"" + locataireId
+                                + "\",\"loyerHc\":800.00,\"provisionCharges\":50.00,"
+                                + "\"dateDebut\":\"2026-01-01\",\"dateFin\":\"2026-01-31\"}"))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/batch/echeances").with(bailleurJwt(bailleur)))
+                .andExpect(status().isOk());
+        mockMvc.perform(patch("/api/biens/{bienId}/paiements/{periode}/pointage", bienId, "2026-01")
+                        .with(bailleurJwt(bailleur)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"montantRecu\":300.00,\"statut\":\"PARTIEL\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/biens/{b}/paiements/{p}/quittance", bienId, "2026-01")
+                        .with(bailleurJwt(bailleur)))
+                .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM quittance", Integer.class)).isZero();
+    }
+
+    @Test
     void emissionPersisteLExemplaireOfficielNumeroteEtHache() throws Exception {
         String bailleur = "kc-" + UUID.randomUUID();
         String bienId = loyerRecu(bailleur, "2026-01", "2026-01-31");

@@ -5,6 +5,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -320,8 +321,38 @@ class S03PaiementsGarantiesIntegrationTest {
         assertThat(paiement).containsEntry("statut", "RECU");
         assertThat((BigDecimal) paiement.get("montant_recu")).isEqualByComparingTo("850.00");
         assertThat(paiement.get("garantie_movement_id")).isNotNull();
+        // L'absence d'adresse du bailleur ne bloque jamais la retenue financière : la quittance
+        // certifiée reste réémissible après correction du profil, mais n'est pas créée ici.
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM quittance WHERE paiement_id = ?::uuid AND statut = 'EMISE'",
+                Integer.class, paiementId)).isZero();
         assertThat(jdbc.queryForObject("SELECT bien_id::text FROM notification_event WHERE event_type = 'GARANTIE_DEBITEE' ORDER BY date_creation DESC LIMIT 1", String.class))
                 .isEqualTo(bienId);
+    }
+
+    @Test
+    void retenueLoyerSoldeeAvecProfilCompletEmetUneQuittanceUnique() throws Exception {
+        String bailleur = "kc-" + UUID.randomUUID();
+        inscrireBailleur(bailleur);
+        mockMvc.perform(put("/api/bailleurs/profil").with(bailleurJwt(bailleur))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"adresse\":\"10 rue du Bailleur, 75001 Paris\"}"))
+                .andExpect(status().isOk());
+        String bienId = creerBien(bailleur, "11 rue Retenue quittance");
+        String bailId = creerBail(bailleur, bienId, "2026-01-01", "2026-01-31");
+        genererEcheances(bailleur);
+        mockMvc.perform(pointer(bienId, "2026-01", bailleur, "300.00", "PARTIEL"))
+                .andExpect(status().isOk());
+        String garantieId = creerGarantie(bienId, bailId, bailleur, "600.00");
+        String paiementId = paiementIdPourPeriode(bienId, "2026-01", bailleur);
+
+        mockMvc.perform(retenueLoyer(bienId, bailId, garantieId, bailleur,
+                        "{\"paiementId\":\"" + paiementId + "\",\"montant\":550.00}"))
+                .andExpect(status().isOk());
+
+        assertThat(jdbc.queryForObject("SELECT statut FROM paiement WHERE id = ?::uuid", String.class,
+                paiementId)).isEqualTo("RECU");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM quittance WHERE paiement_id = ?::uuid AND statut = 'EMISE'",
+                Integer.class, paiementId)).isEqualTo(1);
     }
 
     @Test
