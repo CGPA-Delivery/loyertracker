@@ -138,4 +138,8 @@ V34 est additive et se limite au seed `GARANTIE_DEBITEE / SMS / fr` approuvé/ac
 
 ADR-15 est conservé strictement : `PARTIEL` retourne `409` pour le téléchargement et ne crée aucune quittance; un `RECU` issu d’une retenue, avec profil complet, crée exactement une quittance `EMISE` liée au paiement. Preuves : `S03PaiementsGarantiesIntegrationTest`, `QuittanceCertifieeIntegrationTest` et `mvn -q verify` PASS sur Flyway 34. Commits locaux `57e0391`, `a8c555b`, `fde5965`; PR, CI et revue humaine restent requis. Aucun Staging, Production, provider, secret ou envoi réel.
 
-Référence : `cloture-ep20-us03-notification-garantie-2026-08-14.md`. **À la clôture US03, EP20-US04 restait non démarrée** : elle requérait une instruction PO/CDO distincte et demeure contrainte par ADR-15 (`RECU` seulement; jamais de document certifié téléchargeable pour `PARTIEL`).
+## 12. Clôture additive EP20-US04 (2026-08-14)
+
+**État : `CLOSE` — intégré sur `main`.** PR #487 fusionnée via `d3c9b6d`; CI complète SUCCESS. ADR-15 est confirmé par les preuves négative (`PARTIEL` : `409`, `0` quittance) et positive (`RECU` après retenue, profil complet : exactement une quittance `EMISE`). La précondition documentaire ne bloque jamais le débit financier : sans adresse bailleur, la retenue et `RECU` persistent, la quittance reste réémissible après correction.
+
+`mvn -q verify` est PASS avec Flyway 34. Build/scan/SBOM Docker est SUCCESS; publication/signatures est `SKIPPED` attendu après classifieur sans changement image. Aucun Staging, Production, provider, secret ou envoi réel. Référence : `cloture-ep20-us04-quittance-certifiee-2026-08-14.md`; tout travail EP20 suivant requiert un GO PO/CDO séparé.
