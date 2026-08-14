@@ -55,12 +55,18 @@ public class NotificationOutboxService {
     public UUID emettre(UUID bailleurId, TypeEvenementNotification type,
             TypeAgregatNotification aggregateType, UUID aggregateId,
             Map<String, Object> payloadMinimal, List<Destinataire> destinataires) {
-        return emettreAvecBien(bailleurId, type, aggregateType, aggregateId, null, payloadMinimal, destinataires);
+        return emettreInterne(bailleurId, type, aggregateType, aggregateId, null, payloadMinimal, destinataires);
     }
 
     /** Émission transactionnelle avec provenance de bien persistée pour l'historique ReBAC. */
     @Transactional
     public UUID emettreAvecBien(UUID bailleurId, TypeEvenementNotification type,
+            TypeAgregatNotification aggregateType, UUID aggregateId, UUID bienId,
+            Map<String, Object> payloadMinimal, List<Destinataire> destinataires) {
+        return emettreInterne(bailleurId, type, aggregateType, aggregateId, bienId, payloadMinimal, destinataires);
+    }
+
+    private UUID emettreInterne(UUID bailleurId, TypeEvenementNotification type,
             TypeAgregatNotification aggregateType, UUID aggregateId, UUID bienId,
             Map<String, Object> payloadMinimal, List<Destinataire> destinataires) {
         UUID eventId = creerEvenement(bailleurId, type, aggregateType, aggregateId, bienId, payloadMinimal);
