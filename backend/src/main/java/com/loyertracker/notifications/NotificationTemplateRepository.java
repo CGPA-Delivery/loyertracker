@@ -10,4 +10,7 @@ public interface NotificationTemplateRepository extends JpaRepository<Notificati
     /** Le référentiel n'est pas RLS-scopé (global) : toujours accessible quel que soit le tenant. */
     List<NotificationTemplate> findByCodeAndChannelAndLanguageOrderByVersionDesc(String code,
             CanalNotification channel, String language);
+
+    boolean existsByCodeAndChannelAndLanguageAndApprovalStatusAndEnabledTrue(String code,
+            CanalNotification channel, String language, StatutApprobationTemplate approvalStatus);
 }
