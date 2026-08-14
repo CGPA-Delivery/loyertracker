@@ -290,6 +290,35 @@ class S03PaiementsGarantiesIntegrationTest {
     }
 
     @Test
+    void retenueLoyerCumuleUnPointagePartielEtSolderEcheance() throws Exception {
+        String bailleur = "kc-" + UUID.randomUUID();
+        inscrireBailleur(bailleur);
+        String bienId = creerBien(bailleur, "10 bis rue Retenue cumulée");
+        String bailId = creerBail(bailleur, bienId, "2026-01-01", "2026-02-28");
+        genererEcheances(bailleur); // échéance de 850.00
+
+        // Un règlement classique antérieur couvre déjà une partie de l'échéance.
+        mockMvc.perform(pointer(bienId, "2026-01", bailleur, "300.00", "PARTIEL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resteDu").value(550.00));
+
+        String garantieId = creerGarantie(bienId, bailId, bailleur, "600.00");
+        String paiementId = paiementIdPourPeriode(bienId, "2026-01", bailleur);
+
+        // La garantie couvre le reste, pas le montant attendu total : reçu cumulé = 850.00, RECU.
+        mockMvc.perform(retenueLoyer(bienId, bailId, garantieId, bailleur,
+                        "{\"paiementId\":\"" + paiementId + "\",\"montant\":550.00}"))
+                .andExpect(status().isOk());
+
+        Map<String, Object> paiement = jdbc.queryForMap(
+                "SELECT statut, montant_recu, garantie_movement_id FROM paiement WHERE id = ?::uuid",
+                paiementId);
+        assertThat(paiement).containsEntry("statut", "RECU");
+        assertThat((BigDecimal) paiement.get("montant_recu")).isEqualByComparingTo("850.00");
+        assertThat(paiement.get("garantie_movement_id")).isNotNull();
+    }
+
+    @Test
     void retenueLoyerCouvreImpayeEtRecalculeHonoraires() throws Exception {
         String bailleur = "kc-" + UUID.randomUUID();
         inscrireBailleur(bailleur);
