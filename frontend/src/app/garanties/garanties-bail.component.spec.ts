@@ -261,6 +261,20 @@ describe('GarantiesBailComponent', () => {
     expect(dialog?.querySelectorAll('button[type="button"]').length).toBe(2);
   });
 
+  it('ferme la confirmation avec Escape sans appeler l API', () => {
+    const { fixture, cmp } = creer();
+    api.listerPaiements.and.returnValue(of([paiement()]));
+    cmp.ouvrir(garantie(), 'RETENUE');
+    cmp.retenueForm.setValue({ paiementId: 'p-1', montant: 850 });
+    cmp.demanderConfirmationRetenue();
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('[role="alertdialog"]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    expect(cmp.confirmationRetenue()).toBeNull();
+    expect(api.retenirSurLoyer).not.toHaveBeenCalled();
+  });
+
   it('ne propose comme impayés que les loyers restant dus du bail courant', () => {
     const { cmp } = creer();
     api.listerPaiements.and.returnValue(
