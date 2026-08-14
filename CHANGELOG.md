@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — clôture EP20-US04 quittance certifiée
+
+- **CLOSE** après PR #487 (merge `d3c9b6d`) et CI complète SUCCESS : ADR-15 est appliqué, `PARTIEL` retourne `409` sans quittance, et une retenue conduisant à `RECU` crée un unique exemplaire `EMISE` si le profil documentaire est complet.
+- L’absence d’adresse bailleur ne bloque jamais la retenue financière; la quittance reste réémissible après correction du profil. `mvn -q verify` PASS sur Flyway 34.
+- Build/scan/SBOM Docker SUCCESS; publication/signatures `SKIPPED` attendue sans changement image. Aucun Staging/Production, provider, secret ou envoi réel. Référence : `docs/cgpa/06-planification-agile/cloture-ep20-us04-quittance-certifiee-2026-08-14.md`.
+
 ### EP20-US04 — quittance certifiée après retenue de garantie
 
 - Une retenue qui solde un paiement en `RECU` émet automatiquement une quittance seulement si le profil documentaire bailleur est complet ; une adresse absente n’annule jamais l’écriture financière et la quittance reste réémissible après correction.
