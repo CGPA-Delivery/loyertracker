@@ -76,6 +76,7 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 **Fichiers probables :** `backend/.../garanties/GarantieService.java`, `paiements/Paiement.java`, repositories; test `S03PaiementsGarantiesIntegrationTest`.
 **RED :** 400 déjà reçu + retenue 600 doit être `RECU`, reçu=1000, reste=0; cas retenue 200 => `PARTIEL`, reçu=600, reste=400.
 **GREEN :** additionner au reçu courant et dériver statut du nouveau solde; ne jamais dépasser plafonds.
+**Preuve EP20-US01 :** test RED observé puis GREEN au commit `f5727f2` : `300 + 550 = RECU`, reçu `850`, reste `0`; `S03PaiementsGarantiesIntegrationTest` et `mvn -q verify` PASS sur PostgreSQL Testcontainers/Flyway 32. PR applicative et revue humaine requises avant toute suite.
 **Tests :** négatifs, double retry, concurrence, cross-bailleur, gestionnaire non affecté, invariant ledger.
 
 ### Tâche 3 — Idempotence/concurrence, cardinalité et audit
