@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.loyertracker.quittances.QuittanceCertifieeService;
+import com.loyertracker.quittances.QuittanceFilenameFactory;
 
 /**
  * Documents locatifs d'un loyer. L'avis d'échéance reste généré à la volée (arbitrage C) ; la
@@ -39,19 +40,19 @@ public class DocumentController {
     public ResponseEntity<byte[]> quittance(@PathVariable UUID bienId, @PathVariable String periode,
             Authentication authentication) {
         return pdf(quittanceCertifieeService.emettre(bienId, periode, authentication),
-                "quittance", periode);
+                QuittanceFilenameFactory.quittanceCertifiee(periode));
     }
 
     @GetMapping("/avis-echeance")
     @PreAuthorize("hasAnyRole('BAILLEUR', 'GESTIONNAIRE') and @authz.peutAccederBien(#bienId, authentication)")
     public ResponseEntity<byte[]> avisEcheance(@PathVariable UUID bienId,
             @PathVariable String periode) {
-        return pdf(quittanceService.avisEcheance(bienId, periode), "avis-echeance", periode);
+        return pdf(quittanceService.avisEcheance(bienId, periode), "avis-echeance-" + periode + ".pdf");
     }
 
-    private static ResponseEntity<byte[]> pdf(byte[] contenu, String prefixe, String periode) {
+    private static ResponseEntity<byte[]> pdf(byte[] contenu, String fichier) {
         ContentDisposition disposition = ContentDisposition.attachment()
-                .filename(prefixe + "-" + periode + ".pdf").build();
+                .filename(fichier).build();
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
