@@ -147,15 +147,20 @@ public class GarantieService {
             RetenueLoyerRequest requete, Authentication authentication) {
         UUID bailleurId = tenant.activerDepuisBien(bienId);
         exigerBailDuBien(bienId, bailId);
-        Garantie garantie = exigerGarantieDuBail(bailId, garantieId);
+        // Ordre global de verrouillage : paiement puis garantie. Le second appel concurrent attend,
+        // puis relit garantieMovementId/resteDu avant de pouvoir créer tout mouvement.
+        Paiement paiement = paiements.findByIdForUpdate(requete.paiementId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Paiement introuvable."));
+        exigerPaiementDuBail(paiement, bienId, bailId);
+        Garantie garantie = garanties.findByIdForUpdate(garantieId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Garantie introuvable."));
+        exigerGarantieDuBail(bailId, garantieId);
         if (garantie.getStatut() == StatutGarantie.RESTITUE_TOTAL) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Garantie déjà restituée intégralement.");
         }
-        Paiement paiement = paiements.findById(requete.paiementId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Paiement introuvable."));
-        exigerPaiementDuBail(paiement, bienId, bailId);
         if (paiement.getGarantieMovementId() != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Ce paiement est déjà couvert par un mouvement de garantie.");

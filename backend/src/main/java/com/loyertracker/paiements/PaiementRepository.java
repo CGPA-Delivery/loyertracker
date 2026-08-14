@@ -6,8 +6,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import jakarta.persistence.LockModeType;
 
 public interface PaiementRepository extends JpaRepository<Paiement, UUID> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Paiement p where p.id = :id")
+    Optional<Paiement> findByIdForUpdate(@Param("id") UUID id);
 
     List<Paiement> findByBienIdOrderByPeriodeDesc(UUID bienId);
 

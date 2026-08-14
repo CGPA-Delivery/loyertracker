@@ -5,10 +5,17 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import jakarta.persistence.LockModeType;
+
 public interface GarantieRepository extends JpaRepository<Garantie, UUID> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select g from Garantie g where g.id = :id")
+    java.util.Optional<Garantie> findByIdForUpdate(@Param("id") UUID id);
 
     List<Garantie> findByBailIdOrderByDateDepotDesc(UUID bailId);
 
