@@ -13,6 +13,12 @@ import {
 
 type ActionGarantie = 'RESTITUTION' | 'RETENUE' | 'COMPLEMENT';
 type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
+interface ConfirmationRetenue {
+  garantieId: string;
+  paiementId: string;
+  montant: number;
+  statutAttendu: 'RECU' | 'PARTIEL';
+}
 
 /**
  * Dépôt, restitution et usage métier des garanties d'un bail (US-32, Annexe A.5 ; US-95/96/97,
@@ -161,7 +167,7 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
             </form>
           }
           @case ('RETENUE') {
-            <form [formGroup]="retenueForm" (ngSubmit)="retenir()" class="sous-formulaire">
+            <form [formGroup]="retenueForm" (ngSubmit)="demanderConfirmationRetenue()" class="sous-formulaire">
               <h3>Utiliser la garantie pour un impayé (solde {{ g.soldeActuel }})</h3>
               @if (impayes().length === 0) {
                 <p class="muted">Aucun loyer impayé sur ce bien.</p>
@@ -208,6 +214,33 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
             </form>
           }
         }
+      }
+
+      @if (confirmationRetenue(); as confirmation) {
+        <section
+          class="confirmation-overlay"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="confirmation-retenue-titre"
+          aria-describedby="confirmation-retenue-description"
+        >
+          <div class="confirmation-dialogue">
+            <h3 id="confirmation-retenue-titre">Confirmer la retenue</h3>
+            <p id="confirmation-retenue-description">
+              Retenir {{ confirmation.montant }} de la garantie. Le loyer sera attendu comme
+              {{ confirmation.statutAttendu }}.
+            </p>
+            @if (confirmation.statutAttendu === 'PARTIEL') {
+              <p class="muted">Aucune quittance certifiée n’est disponible pour un paiement PARTIEL.</p>
+            }
+            <div class="actions">
+              <button type="button" (click)="annulerConfirmationRetenue()">Annuler</button>
+              <button type="button" (click)="confirmerRetenue()" [disabled]="chargement()">
+                Confirmer la retenue
+              </button>
+            </div>
+          </div>
+        </section>
       }
     </div>
   `,
@@ -302,6 +335,24 @@ type ColonneTri = 'dateMouvement' | 'type' | 'debit' | 'credit' | 'soldeApres';
         background: #0f172a;
         color: #e2e8f0;
       }
+      .confirmation-overlay {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: var(--lt-space-md);
+        background: rgb(15 23 42 / 80%);
+      }
+      .confirmation-dialogue {
+        width: min(100%, 32rem);
+        padding: var(--lt-space-md);
+        border: 1px solid #334155;
+        border-radius: 6px;
+        background: #111827;
+      }
+      button {
+        min-height: 44px;
+      }
       .muted,
       small {
         color: #94a3b8;
@@ -327,6 +378,7 @@ export class GarantiesBailComponent {
   readonly action = signal<ActionGarantie | null>(null);
   readonly message = signal('Prêt');
   readonly chargement = signal(false);
+  readonly confirmationRetenue = signal<ConfirmationRetenue | null>(null);
 
   /** Loyers du bien restant dus, candidats à une retenue (US-95). */
   readonly impayes = signal<Paiement[]>([]);
@@ -465,36 +517,77 @@ export class GarantiesBailComponent {
       });
   }
 
+  demanderConfirmationRetenue(): void {
+    const confirmation = this.preparerRetenue();
+    if (confirmation) {
+      this.confirmationRetenue.set(confirmation);
+    }
+  }
+
+  confirmerRetenue(): void {
+    const confirmation = this.confirmationRetenue();
+    if (!confirmation) {
+      return;
+    }
+    this.confirmationRetenue.set(null);
+    this.executerRetenue(confirmation);
+  }
+
+  annulerConfirmationRetenue(): void {
+    this.confirmationRetenue.set(null);
+  }
+
   retenir(): void {
+    const confirmation = this.preparerRetenue();
+    if (confirmation) {
+      this.executerRetenue(confirmation);
+    }
+  }
+
+  private preparerRetenue(): ConfirmationRetenue | null {
     const g = this.selection();
     if (!g || this.retenueForm.invalid) {
-      return;
+      return null;
     }
     const { paiementId, montant } = this.retenueForm.getRawValue();
     if (!montant || montant <= 0) {
       this.message.set('Retenue : montant > 0 requis');
-      return;
+      return null;
     }
     if (montant > g.soldeActuel) {
       this.message.set('Le montant ne peut excéder le solde de la garantie');
-      return;
+      return null;
     }
     const paiement = this.impayes().find((p) => p.id === paiementId);
-    if (paiement && montant > paiement.resteDu) {
+    if (!paiement || montant > paiement.resteDu) {
       this.message.set('Le montant ne peut excéder le reste dû du loyer');
-      return;
+      return null;
     }
+    return {
+      garantieId: g.id,
+      paiementId,
+      montant,
+      statutAttendu: montant === paiement.resteDu ? 'RECU' : 'PARTIEL',
+    };
+  }
+
+  private executerRetenue(confirmation: ConfirmationRetenue): void {
     this.chargement.set(true);
     this.message.set('Retenue…');
-    this.api.retenirSurLoyer(this.bienId(), this.bailId(), g.id, { paiementId, montant }).subscribe({
-      next: () => {
-        this.message.set('Impayé couvert par la garantie');
-        this.fermerFormulaires();
-        this.chargerPour(this.bienId(), this.bailId());
-      },
-      error: (err: unknown) => this.signalerErreur(err),
-      complete: () => this.chargement.set(false),
-    });
+    this.api
+      .retenirSurLoyer(this.bienId(), this.bailId(), confirmation.garantieId, {
+        paiementId: confirmation.paiementId,
+        montant: confirmation.montant,
+      })
+      .subscribe({
+        next: () => {
+          this.message.set('Impayé couvert par la garantie');
+          this.fermerFormulaires();
+          this.chargerPour(this.bienId(), this.bailId());
+        },
+        error: (err: unknown) => this.signalerErreur(err),
+        complete: () => this.chargement.set(false),
+      });
   }
 
   complementer(): void {
