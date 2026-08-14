@@ -320,6 +320,10 @@ class S03PaiementsGarantiesIntegrationTest {
         assertThat(paiement).containsEntry("statut", "RECU");
         assertThat((BigDecimal) paiement.get("montant_recu")).isEqualByComparingTo("850.00");
         assertThat(paiement.get("garantie_movement_id")).isNotNull();
+        // L'absence d'adresse du bailleur ne bloque jamais la retenue financière : la quittance
+        // certifiée reste réémissible après correction du profil, mais n'est pas créée ici.
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM quittance WHERE paiement_id = ?::uuid AND statut = 'EMISE'",
+                Integer.class, paiementId)).isZero();
         assertThat(jdbc.queryForObject("SELECT bien_id::text FROM notification_event WHERE event_type = 'GARANTIE_DEBITEE' ORDER BY date_creation DESC LIMIT 1", String.class))
                 .isEqualTo(bienId);
     }

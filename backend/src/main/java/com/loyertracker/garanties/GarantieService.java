@@ -25,6 +25,7 @@ import com.loyertracker.notifications.TypeEvenementNotification;
 import com.loyertracker.paiements.Paiement;
 import com.loyertracker.paiements.PaiementRepository;
 import com.loyertracker.paiements.StatutPaiement;
+import com.loyertracker.quittances.QuittanceCertifieeService;
 import com.loyertracker.securite.TenantContext;
 
 /**
@@ -49,10 +50,12 @@ public class GarantieService {
     private final AuditService audit;
     private final HonoraireService honoraires;
     private final NotificationOutboxService notifications;
+    private final QuittanceCertifieeService quittances;
 
     public GarantieService(GarantieRepository garanties, GarantieMovementRepository mouvements,
             BailRepository baux, PaiementRepository paiements, TenantContext tenant,
-            AuditService audit, HonoraireService honoraires, NotificationOutboxService notifications) {
+            AuditService audit, HonoraireService honoraires, NotificationOutboxService notifications,
+            QuittanceCertifieeService quittances) {
         this.garanties = garanties;
         this.mouvements = mouvements;
         this.baux = baux;
@@ -61,6 +64,7 @@ public class GarantieService {
         this.audit = audit;
         this.honoraires = honoraires;
         this.notifications = notifications;
+        this.quittances = quittances;
     }
 
     @Transactional(readOnly = true)
@@ -189,6 +193,10 @@ public class GarantieService {
         audit.enregistrer(authentication, bailleurId, "RETENUE_LOYER_GARANTIE", "paiement",
                 paiement.getId());
         honoraires.recalculerPourBien(bienId);
+        if (statutResultant == StatutPaiement.RECU
+                && quittances.emissionAutomatiqueDisponible(bienId)) {
+            quittances.emettre(bienId, paiement.getPeriode(), authentication);
+        }
         // Voie B (ADR-18 §2) : le locataire dont le loyer impayé vient d'être couvert par sa garantie
         // (bail déjà vérifié existant par exigerBailDuBien ci-dessus, locataireId NOT NULL depuis V26).
         UUID locataireId = baux.findById(bailId).orElseThrow().getLocataireId();
