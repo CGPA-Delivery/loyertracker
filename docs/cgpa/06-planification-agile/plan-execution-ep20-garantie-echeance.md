@@ -125,3 +125,11 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 ## 9. Décision CGPA
 
 **GO / EP20_IMPLEMENTATION_READY documenté, effectif après fusion humaine de la présente décision.** Les conditions de déclenchement sont satisfaites : décision `PARTIEL` (aucun document certifié), cardinalité (une retenue par échéance), `bien_id`/templates notification et renommage anti-collision `EP20-US01→EP20-US06`. L’autorisation couvre seulement le développement contrôlé et tests locaux/CI; elle n’autorise ni Staging, ni Production, ni activation fournisseur, ni secret.
+
+## 10. Clôture additive EP20-US03 (2026-08-14)
+
+**État : `CLOSE` — intégré sur `main`.** La story Must `EP20-US03` est livrée par les PR #484 (persistance transactionnelle de `bien_id`, ReBAC fail-closed) et #485 (template SMS/fallback fermé), merges `5c8c2c8` et `b76b3dc`. La preuve inclut RED observé sans template, scénarios négatif/positif d’unicité, `NotificationDispatchIntegrationTest`, `mvn -q verify`, Flyway 34 migrations et CI complète SUCCESS.
+
+V34 est additive et se limite au seed `GARANTIE_DEBITEE / SMS / fr` approuvé/actif. Le contrat de dépôt est à 34 ; l'état Flyway Production n'est pas modifié. Aucun provider, secret, envoi réel, Staging ou Production n'est autorisé ou réalisé par cette clôture.
+
+Référence : `cloture-ep20-us03-notification-garantie-2026-08-14.md`. **EP20-US04 reste non démarrée** : elle requiert une instruction PO/CDO distincte et demeure contrainte par ADR-15 (`RECU` seulement; jamais de document certifié téléchargeable pour `PARTIEL`).
