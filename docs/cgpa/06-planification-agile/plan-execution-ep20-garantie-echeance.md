@@ -143,3 +143,9 @@ ADR-15 est conservé strictement : `PARTIEL` retourne `409` pour le télécharge
 **État : `CLOSE` — intégré sur `main`.** PR #487 fusionnée via `d3c9b6d`; CI complète SUCCESS. ADR-15 est confirmé par les preuves négative (`PARTIEL` : `409`, `0` quittance) et positive (`RECU` après retenue, profil complet : exactement une quittance `EMISE`). La précondition documentaire ne bloque jamais le débit financier : sans adresse bailleur, la retenue et `RECU` persistent, la quittance reste réémissible après correction.
 
 `mvn -q verify` est PASS avec Flyway 34. Build/scan/SBOM Docker est SUCCESS; publication/signatures est `SKIPPED` attendu après classifieur sans changement image. Aucun Staging, Production, provider, secret ou envoi réel. Référence : `cloture-ep20-us04-quittance-certifiee-2026-08-14.md`; tout travail EP20 suivant requiert un GO PO/CDO séparé.
+
+## 13. Avancement additif EP20-US05 (2026-08-14)
+
+**État : `CANDIDAT_REVUE_LOCALE` — non intégré.** Les endpoints quittance authentifié et public utilisent `QuittanceFilenameFactory` et servent `quittance-certifiee-YYYY-MM.pdf`. La période est issue du contenu certifié après contrôle HMAC/intégrité sur le flux public ; elle ne divulgue aucune PII. La factory n’accepte que `YYYY-MM`, ce qui bloque toute injection de chemin/caractères dangereux.
+
+Preuves TDD : RED noms divergents pour les deux endpoints et période malformée acceptée, puis GREEN. `DocumentGenerationIntegrationTest`, `PublicQuittanceIntegrationTest`, `QuittanceFilenameFactoryTest` et `mvn -q verify` sont PASS sur Flyway 34. Le `404` public indifférencié et le contrôle HMAC sont préservés. PR, CI et revue humaine requis; aucun Staging, Production, provider, secret ou envoi réel.

@@ -87,7 +87,7 @@ class DocumentGenerationIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andExpect(header().string("Content-Disposition",
-                        org.hamcrest.Matchers.containsString("quittance-2026-01.pdf")))
+                        org.hamcrest.Matchers.containsString("quittance-certifiee-2026-01.pdf")))
                 .andReturn().getResponse().getContentAsByteArray();
         assertThat(new String(pdf, 0, 5, StandardCharsets.US_ASCII)).isEqualTo("%PDF-");
 

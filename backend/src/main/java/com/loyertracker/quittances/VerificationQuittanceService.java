@@ -32,6 +32,7 @@ public class VerificationQuittanceService {
     private static final String TYPE_TELECHARGEMENT = "TELECHARGEMENT";
     private static final String RESULTAT_VALIDE = "VALIDE";
     private static final String RESULTAT_INVALIDE = "INVALIDE";
+    private static final String CHAMP_PERIODE = "periode";
     private static final String JOURNALISER_QUITTANCE_CONNUE = """
             SELECT journaliser_evenement_quittance(CAST(:id AS uuid), :type, :resultat)
             """;
@@ -77,7 +78,7 @@ public class VerificationQuittanceService {
      * en base). Toute défaillance renvoie {@code Optional.empty()} (404 indifférencié côté HTTP).
      */
     @Transactional
-    public Optional<byte[]> telecharger(UUID id, String token) {
+    public Optional<QuittanceTelechargee> telecharger(UUID id, String token) {
         Ligne ligne = lireLigne(id);
         if (ligne == null || !tokens.verifier(token, id, ligne.version(), ligne.contentHash())) {
             journaliser(ligne == null ? null : id, TYPE_TELECHARGEMENT, RESULTAT_INVALIDE);
@@ -101,7 +102,15 @@ public class VerificationQuittanceService {
         }
         journaliser(id, TYPE_TELECHARGEMENT, RESULTAT_VALIDE);
         metrics.telechargement(true);
-        return Optional.of(pdf);
+        return Optional.of(new QuittanceTelechargee(pdf, periodeCertifiee(ligne)));
+    }
+
+    private String periodeCertifiee(Ligne ligne) {
+        try {
+            return mapper.readTree(ligne.contenu()).path(CHAMP_PERIODE).path("code").asText();
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            throw new IllegalStateException("Contenu certifié illisible.", e);
+        }
     }
 
     private Ligne lireLigne(UUID id) {
@@ -143,8 +152,8 @@ public class VerificationQuittanceService {
                 c.path("locataire").path("nom").asText(),
                 c.path("patrimoine").path("nom").asText(),
                 c.path("bien").path("adresse").asText(),
-                c.path("periode").path("code").asText(),
-                c.path("periode").path("libelle").asText(),
+                c.path(CHAMP_PERIODE).path("code").asText(),
+                c.path(CHAMP_PERIODE).path("libelle").asText(),
                 montants.path("devise").asText(),
                 montants.path("loyer_hc").asText(),
                 montants.path("provision_charges").asText(),
