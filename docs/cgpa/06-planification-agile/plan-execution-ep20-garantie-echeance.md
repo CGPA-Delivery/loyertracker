@@ -3,7 +3,7 @@
 > **Pour Hermes :** appliquer TDD strict pour chaque tâche applicative après approbation PO/CDO.
 
 **Date :** 2026-08-13
-**État :** **NO GO applicatif — cadrage soumis à validation humaine**
+**État :** **GO PO/CDO documenté — démarrage applicatif uniquement après fusion humaine de la décision EP-20**
 **Référentiel :** CGPA v6.1.1 ; ADR-14 (ledger), ADR-15 (quittance), ADR-18 (Outbox/Twilio).
 **Branche analysée :** `main` / `0161a16d00c4`; URL historique demandée `jptshilombo/loyertracker` redirigée vers l’organisation canonique `CGPA-Delivery/loyertracker` au même SHA.
 **Production observée :** release applicative `v1.17.0-rc.1` (artefacts `sha-d19c4fea`, Flyway 32); validations SMTP DD-EP17-14 en hypercare, donc aucune promotion EP-20 n’est autorisée.
@@ -44,7 +44,7 @@
 5. Créer événement/Outbox dans la transaction; le Dispatcher seul appelle Twilio après commit, et seulement avec templates WhatsApp/SMS approuvés selon le canal/fallback.
 
 ### Arbitrage documentaire requis avant code
-**Option recommandée :** conserver strictement ADR-15 : quittance uniquement `RECU`; introduire un *reçu de paiement partiel certifié* distinct, avec son propre libellé et sans prétendre solder l’échéance. Cette option nécessite une décision ADR/addendum et probablement V33 uniquement si une persistance distincte est nécessaire. **Aucune migration ne doit être décidée avant cette validation.**
+**Option décidée :** conserver strictement ADR-15 : quittance uniquement `RECU`; aucun document téléchargeable certifié pour `PARTIEL` dans EP-20. Un reçu partiel certifié est hors périmètre et ne pourra être étudié que dans une décision future distincte. V33 n’est pas réservée pour ce sous-flux; elle reste conditionnelle aux protections de persistance réellement nécessaires et à leur test sur base fraîche.
 
 ### Fichier PDF
 Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`, UUID locataire/paiement, numéro permanent; nettoyage allow-list ASCII/`-`; UUID8 déterministes, plus numéro permanent préservé. Les UUID complets restent en base/audit. Le contrôleur authentifié et le contrôleur public récupèrent la même métadonnée de quittance puis appellent la même factory.
@@ -59,12 +59,12 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 
 | ID | Story | Priorité |
 |---|---|---|
-| US-148 | Imputation garantie cumulée et sûre sur le reste dû réel | Must |
-| US-149 | Traçabilité/audit et contrat de règlement par garantie | Must |
-| US-150 | Notification détaillée Outbox WhatsApp/SMS `GARANTIE_DEBITEE` | Must |
-| US-151 | Quittance intégrale et reçu partiel : décision + implémentation | Must |
-| US-152 | Nomenclature PDF unifiée et sans PII | Must |
-| US-153 | Confirmation et résultat UI accessibles/responsives | Must |
+| EP20-US01 | Imputation garantie cumulée et sûre sur le reste dû réel | Must |
+| EP20-US02 | Traçabilité, cardinalité, audit et concurrence | Must |
+| EP20-US03 | Notification détaillée Outbox WhatsApp/SMS `GARANTIE_DEBITEE` | Must |
+| EP20-US04 | Quittance intégrale `RECU` et absence de document certifié `PARTIEL` | Must |
+| EP20-US05 | Nomenclature PDF unifiée et sans PII | Must |
+| EP20-US06 | Confirmation et résultat UI accessibles/responsives | Must |
 
 ## 6. Exécution TDD proposée
 
@@ -123,9 +123,4 @@ Créer `QuittanceFilenameFactory`, composant pur. Entrées : période `YYYY-MM`,
 
 ## 9. Décision CGPA
 
-**NO GO applicatif (cadrage terminé).** Le dépôt est techniquement apte à recevoir l’évolution, mais le code est interdit tant que le PO/CDO n’a pas approuvé :
-1. ce Plan d’Exécution;
-2. l’option de reçu partiel (recommandée) ou l’exclusion explicite de document pour `PARTIEL`;
-3. l’instruction du Gate de conception UX/contrat et l’autorisation de démarrer US-148→153.
-
-Cette décision autorise uniquement une PR documentaire de cadrage et sa revue humaine. Elle n’autorise ni application, ni migration, ni Staging, ni Production.
+**GO / EP20_IMPLEMENTATION_READY documenté, effectif après fusion humaine de la présente décision.** Les conditions de déclenchement sont satisfaites : décision `PARTIEL` (aucun document certifié), cardinalité (une retenue par échéance), `bien_id`/templates notification et renommage anti-collision `EP20-US01→EP20-US06`. L’autorisation couvre seulement le développement contrôlé et tests locaux/CI; elle n’autorise ni Staging, ni Production, ni activation fournisseur, ni secret.
