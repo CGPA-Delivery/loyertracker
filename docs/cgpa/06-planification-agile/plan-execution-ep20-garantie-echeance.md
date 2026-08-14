@@ -144,6 +144,12 @@ ADR-15 est conservé strictement : `PARTIEL` retourne `409` pour le télécharge
 
 `mvn -q verify` est PASS avec Flyway 34. Build/scan/SBOM Docker est SUCCESS; publication/signatures est `SKIPPED` attendu après classifieur sans changement image. Aucun Staging, Production, provider, secret ou envoi réel. Référence : `cloture-ep20-us04-quittance-certifiee-2026-08-14.md`; tout travail EP20 suivant requiert un GO PO/CDO séparé.
 
+## 14. Décision de cadrage EP20-US06 (2026-08-14)
+
+**État : `GO / EP20-US06_CADRAGE_READY`.** Le PO/CDO autorise uniquement la préparation documentaire de la confirmation/résultat UI : contrat tenant-scopé et ReBAC/RLS, états `RECU`/`PARTIEL`, absence de promesse de livraison externe, critères GWT, inventaire composants, responsive `360/390/640/1024` et a11y (clavier/focus/Escape/annonces/erreurs/contraste/cibles 44 px).
+
+Aucune preuve runtime/a11y/recette n’est revendiquée avant l’implémentation. Cette décision n’autorise ni code Frontend/Backend, API, migration, Staging, Production, provider, secret ou envoi réel. Après fusion humaine/CI verte, une décision PO/CDO séparée reste obligatoire avant toute branche d’implémentation.
+
 ## 13. Avancement additif EP20-US05 (2026-08-14)
 
 **État : `CLOSE` — intégré sur `main`.** PR #489 fusionnée via `d911044`; CI complète SUCCESS. Les endpoints quittance authentifié et public utilisent `QuittanceFilenameFactory` et servent `quittance-certifiee-YYYY-MM.pdf`. La période vient du contenu certifié après contrôle HMAC/intégrité sur le flux public ; aucune PII n’est exposée. La factory n’accepte que `YYYY-MM`, bloquant l’injection de chemin/caractères dangereux.
