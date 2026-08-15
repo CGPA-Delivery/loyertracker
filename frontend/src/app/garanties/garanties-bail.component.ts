@@ -270,6 +270,13 @@ interface ConfirmationRetenue {
         flex-wrap: wrap;
         justify-content: flex-end;
       }
+      .fields {
+        flex-wrap: wrap;
+      }
+      .fields > label {
+        flex: 1 1 10rem;
+        min-width: 0;
+      }
       h2,
       h3 {
         margin-top: 0;
@@ -282,6 +289,11 @@ interface ConfirmationRetenue {
         gap: var(--lt-space-xs);
       }
       .item {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        flex-wrap: wrap;
         border: 1px solid #334155;
         border-radius: 6px;
         padding: var(--lt-space-xs);
@@ -330,6 +342,10 @@ interface ConfirmationRetenue {
       }
       input,
       select {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
         border: 1px solid #334155;
         border-radius: 6px;
         padding: var(--lt-space-xs);
@@ -524,7 +540,7 @@ export class GarantiesBailComponent {
     if (confirmation) {
       this.dernierDeclencheurConfirmation = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       this.confirmationRetenue.set(confirmation);
-      queueMicrotask(() => document.getElementById('annuler-confirmation-retenue')?.focus());
+      setTimeout(() => document.getElementById('annuler-confirmation-retenue')?.focus());
     }
   }
 
@@ -548,6 +564,26 @@ export class GarantiesBailComponent {
     if (event.key === 'Escape') {
       event.preventDefault();
       this.annulerConfirmationRetenue();
+      return;
+    }
+    if (event.key !== 'Tab') {
+      return;
+    }
+    const dialogue = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+    const actions = dialogue
+      ? Array.from(dialogue.querySelectorAll<HTMLButtonElement>('button:not([disabled])'))
+      : [];
+    if (actions.length === 0) {
+      return;
+    }
+    const premiere = actions[0];
+    const derniere = actions[actions.length - 1];
+    if (event.shiftKey && document.activeElement === premiere) {
+      event.preventDefault();
+      derniere.focus();
+    } else if (!event.shiftKey && document.activeElement === derniere) {
+      event.preventDefault();
+      premiere.focus();
     }
   }
 

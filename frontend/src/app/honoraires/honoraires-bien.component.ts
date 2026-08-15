@@ -58,7 +58,15 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
   `,
   styles: [
     `
+      :host {
+        display: block;
+        min-width: 0;
+        max-width: 100%;
+      }
       .panel {
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
         border: 1px solid #334155;
         border-radius: 6px;
         padding: var(--lt-space-md);
@@ -84,15 +92,24 @@ import { MoneyFormatPipe } from '../shared/money/money-format.pipe';
       }
       .list {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
         gap: var(--lt-space-xs);
       }
       .row {
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        flex-wrap: wrap;
         border: 1px solid #334155;
         border-radius: 6px;
         padding: var(--lt-space-xs);
         background: #0f172a;
         color: #e2e8f0;
+      }
+      .actions {
+        min-width: 0;
+        flex-wrap: wrap;
       }
       button {
         border: 1px solid #334155;
