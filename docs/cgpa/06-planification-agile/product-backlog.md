@@ -1,5 +1,7 @@
 # Product Backlog — LoyerTracker
 
+> **État canonique au 2026-08-15 — synchronisation post-EP-20.** EP-17 est **Partiellement livré / exécuté par lots — clôture globale non prononcée** ; EP-19 reste **Proposé — NON APPROUVÉ** ; EP-20 est **Clôturé — intégré sur `main`**. Aucun EP-21 ni Gate Staging/Production n’est autorisé. Voir §10 et `decision-pocdo-synchronisation-backlog-post-ep20-2026-08-15.md`.
+
 > **Addendum EP-20 — Paiement d’une échéance par garantie locative (2026-08-13, décision PO/CDO approuvée).** EP-19 demeure réservé au suivi de délivrabilité Resend. Pour préserver les IDs historiques Lot 6 UX `US-148→151`, EP-20 utilise la nomenclature canonique `EP20-US01→EP20-US06`. Décisions : `PARTIEL` sans document certifié; une retenue garantie par échéance; `bien_id` persistant et templates WhatsApp/SMS avant fallback. **GO / EP20_IMPLEMENTATION_READY** effectif seulement après fusion humaine de la décision documentaire; aucun Staging, Production, fournisseur, secret ni envoi réel autorisé. Références : `decision-pocdo-ep20-garantie-2026-08-13.md`, `plan-execution-ep20-garantie-echeance.md`.
 
 | Champ | Valeur |
@@ -237,3 +239,30 @@ Toute user story est **Terminée** uniquement si **tous** les critères suivants
 **Release active en Production :** `v1.17.0-rc.1` (commit `d19c4fea`, Gate Production GO 2026-08-09, smoke 63/0, Flyway 32/32).
 
 **Prochain Epic à arbitrer :** EP-17 (UX/UI) ou EP-19 (Webhooks), sur décision PO/CDO distincte.
+
+---
+
+## 10. Addendum — Synchronisation canonique post-EP-20 (2026-08-15)
+
+> **Vue actuelle faisant autorité pour le prochain arbitrage.** La table du §9 est conservée comme photographie historique du 2026-08-10 ; elle n’est pas réécrite.
+
+| Epic | État canonique au 2026-08-15 | Preuve / borne |
+|---|---|---|
+| EP-17 | 🟡 **Partiellement livré / exécuté par lots — clôture globale non prononcée** | Lots 1→5 autorisés ou exécutés selon leurs Gates ; plusieurs dettes sont closes. `EP-17/US-142` reste non approuvée et `DD-EP17-14` suit un flux SMTP/hypercare distinct. |
+| EP-19 | 📋 **Proposé — NON APPROUVÉ** | La fondation callback/signature EP-18/US-143 existe, mais ne prouve ni la validation Svix réelle ni `EP-19/US-144→147` (statuts, métriques, tableau de bord). Plan d’Exécution et GO PO distinct requis. |
+| EP-20 | ✅ **Clôturé — intégré sur `main`** | Six stories intégrées ; US03→06 disposent d’actes dédiés, US01/02 sont couvertes par la clôture globale EP-20. Clôture PR #501, merge `293dd50b91cdd21786994d6b44c100599c0fcf28`. Aucun Staging/Production exécuté. |
+
+### Traçabilité EP-20
+
+| Story | PR/merge de livraison | État |
+|---|---|---|
+| `EP20-US01` | #482 — `5b059c153061e221f3c47e7ef38f8fd4ed985215` | Intégrée ; clôture globale EP-20, sans acte individuel |
+| `EP20-US02` | #483 — `cd0b0beadde1683833baf7e32849494e868f3af1` | Intégrée ; clôture globale EP-20, sans acte individuel |
+| `EP20-US03` | #484/#485 ; clôture #486 | CLOSE |
+| `EP20-US04` | #487 ; clôture #488 | CLOSE |
+| `EP20-US05` | #489 ; clôture #490 | CLOSE |
+| `EP20-US06` | #491→#500 ; clôture #501 — `293dd50b91cdd21786994d6b44c100599c0fcf28` | CLOSE |
+
+**Décision de suite :** aucun EP-21 n’est créé ou autorisé. Le prochain travail produit exige un arbitrage PO/CDO distinct entre la clôture/reprise bornée d’EP-17, l’instruction d’EP-19 ou le cadrage d’un nouvel Epic après contrôle de collisions d’identifiants. Une promotion EP-20 vers Staging relève d’un Gate séparé et n’est pas autorisée par cette synchronisation.
+
+Référence : `decision-pocdo-synchronisation-backlog-post-ep20-2026-08-15.md`.
