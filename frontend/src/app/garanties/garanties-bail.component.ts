@@ -577,7 +577,10 @@ export class GarantiesBailComponent {
       return;
     }
     const premiere = actions[0];
-    const derniere = actions[actions.length - 1];
+    const derniere = actions.at(-1);
+    if (!premiere || !derniere) {
+      return;
+    }
     if (event.shiftKey && document.activeElement === premiere) {
       event.preventDefault();
       derniere.focus();
