@@ -261,6 +261,27 @@ describe('GarantiesBailComponent', () => {
     expect(dialog?.querySelectorAll('button[type="button"]').length).toBe(2);
   });
 
+  it('place le focus dans le dialogue puis le restitue au déclencheur après Escape', async () => {
+    const { fixture, cmp } = creer();
+    api.listerPaiements.and.returnValue(of([paiement()]));
+    cmp.ouvrir(garantie(), 'RETENUE');
+    cmp.retenueForm.setValue({ paiementId: 'p-1', montant: 850 });
+    fixture.detectChanges();
+    const declencheur = fixture.nativeElement.querySelector('select') as HTMLSelectElement;
+    declencheur.focus();
+
+    cmp.demanderConfirmationRetenue();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const annuler = fixture.nativeElement.querySelector('[role="alertdialog"] button:first-child') as HTMLButtonElement;
+    expect(document.activeElement).toBe(annuler);
+
+    fixture.nativeElement.querySelector('[role="alertdialog"]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(declencheur);
+  });
+
   it('ferme la confirmation avec Escape sans appeler l API', () => {
     const { fixture, cmp } = creer();
     api.listerPaiements.and.returnValue(of([paiement()]));
