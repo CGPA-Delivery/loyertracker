@@ -38,8 +38,30 @@ public class AuditService {
     /** Consultation du journal du bailleur courant (US-62), du plus récent au plus ancien. */
     @Transactional(readOnly = true)
     public List<AuditDto> consulter(Authentication authentication) {
-        tenant.activerDepuisKeycloak(((Jwt) authentication.getPrincipal()).getSubject());
-        return journal.findByOrderByHorodatageDesc().stream().map(AuditDto::from).toList();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (aRole(authentication, "ROLE_BAILLEUR")) {
+            tenant.activerDepuisKeycloak(jwt.getSubject());
+            return journal.findByOrderByHorodatageDesc().stream().map(AuditDto::from).toList();
+        }
+        if (aRole(authentication, "ROLE_GESTIONNAIRE")) {
+            return consulterPaiementsBiensAffectes(jwt.getSubject());
+        }
+        return List.of();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<AuditDto> consulterPaiementsBiensAffectes(String keycloakId) {
+        List<Object[]> lignes = em.createNativeQuery("""
+                SELECT id, acteur_id, acteur_role, action, entity_type, entity_id, horodatage
+                FROM audit_paiements_biens_affectes_gestionnaire(:keycloakId)
+                """)
+                .setParameter("keycloakId", keycloakId)
+                .getResultList();
+        return lignes.stream()
+                .map(l -> new AuditDto((UUID) l[0], (UUID) l[1], (String) l[2], (String) l[3],
+                        (String) l[4], (UUID) l[5], java.time.OffsetDateTime.ofInstant(
+                                (java.time.Instant) l[6], java.time.ZoneOffset.UTC)))
+                .toList();
     }
 
     /**

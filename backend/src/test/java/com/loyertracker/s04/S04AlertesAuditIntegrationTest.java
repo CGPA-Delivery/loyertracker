@@ -212,10 +212,27 @@ class S04AlertesAuditIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$..action", hasItem("POINTER_PAIEMENT")));
 
-        // Le gestionnaire n'a pas accès à l'audit (US-62, ENF-05) → 403.
-        mockMvc.perform(get("/api/audit")
-                        .with(gestionnaireJwt("kc-g-" + UUID.randomUUID())))
-                .andExpect(status().isForbidden());
+        String autreBailleur = "kc-" + UUID.randomUUID();
+        inscrireBailleur(autreBailleur);
+        String autreBienId = creerBien(autreBailleur, "9 rue Audit externe");
+        creerBail(autreBailleur, autreBienId, "2026-01-01", "2026-01-31");
+        genererEcheances(autreBailleur);
+        mockMvc.perform(pointer(autreBienId, "2026-01", autreBailleur, "850.00", "RECU"))
+                .andExpect(status().isOk());
+
+        UUID gestionnaire = insererGestionnaire("kc-g-" + UUID.randomUUID(), "g-audit@test.local");
+        affecter(bailleur, bienId, gestionnaire);
+        mockMvc.perform(get("/api/audit").with(gestionnaireJwt(keycloakId(gestionnaire))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$..action", hasItem("POINTER_PAIEMENT")))
+                .andExpect(jsonPath("$..action", not(hasItem("CREER_LOCATAIRE"))));
+
+        // Un gestionnaire non affecté ne reçoit aucun fallback tenant.
+        UUID nonAffecte = insererGestionnaire("kc-g-" + UUID.randomUUID(), "g-non-affecte@test.local");
+        mockMvc.perform(get("/api/audit").with(gestionnaireJwt(keycloakId(nonAffecte))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     // ---- helpers --------------------------------------------------------------------
