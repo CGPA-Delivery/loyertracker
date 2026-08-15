@@ -23,7 +23,7 @@ public class AuditController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('BAILLEUR')")
+    @PreAuthorize("hasAnyRole('BAILLEUR', 'GESTIONNAIRE')")
     public List<AuditDto> consulter(Authentication authentication) {
         return auditService.consulter(authentication);
     }
