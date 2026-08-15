@@ -8,6 +8,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Gouvernance — synchronisation Product Backlog et clôture EP-20
+
+- Décision PO/CDO : ajouter une vue canonique datée du 2026-08-15 sans réécrire la table historique du 2026-08-10.
+- EP-17 est requalifié **Partiellement livré / exécuté par lots — clôture globale non prononcée**, avec `EP-17/US-142` toujours non approuvée ; EP-19 reste **Proposé — non approuvé**, la fondation EP-18/US-143 ne valant pas livraison EP-19 ; EP-20 passe **Clôturé — intégré sur `main`**.
+- `EP20-US01→EP20-US06` sont intégrées ; US01/02 sont couvertes par la clôture globale sans acte individuel, US03→06 disposent d’actes dédiés ; clôture finale PR #501, merge `293dd50b91cdd21786994d6b44c100599c0fcf28`.
+- Aucun EP-21, code, migration, Staging, Production, provider, secret, webhook ou envoi réel n’est autorisé par cette synchronisation.
+- Référence : `docs/cgpa/06-planification-agile/decision-pocdo-synchronisation-backlog-post-ep20-2026-08-15.md`.
+
 ### Gouvernance — GO Frontend EP20-US06
 
 - **GO / EP20-US06_FRONTEND_IMPLEMENTATION_READY** : future branche Frontend limitée à confirmation/résultats UI, TDD et preuves E2E a11y/responsive réelles.
