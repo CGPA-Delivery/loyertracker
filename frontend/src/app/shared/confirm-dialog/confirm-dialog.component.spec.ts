@@ -91,6 +91,13 @@ describe('ConfirmDialogComponent (DDS-LT-005)', () => {
     return trigger;
   }
 
+  it('nomme le host alertdialog même lorsque le dialogue est fermé', () => {
+    const hostDialog: HTMLElement | null = document.querySelector('p-dialog[role="alertdialog"]');
+
+    expect(hostDialog).withContext('le host p-dialog doit être rendu').not.toBeNull();
+    expect(hostDialog!.getAttribute('aria-label')).toBe('Confirmation requise');
+  });
+
   it('exigence 4 — role="alertdialog", aria-modal="true" et aria-labelledby vers le titre', fakeAsync(() => {
     ouvrirEtCliquerDeclencheur();
     tick(500);

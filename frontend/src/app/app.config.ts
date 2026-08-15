@@ -9,6 +9,7 @@ import {
   provideKeycloak,
 } from 'keycloak-angular';
 import { providePrimeNG } from 'primeng/config';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { httpErrorRedirectInterceptor } from './core/http/http-error-redirect.interceptor';
 import { routes } from './app.routes';
@@ -36,6 +37,8 @@ export function currentBrowserRedirectUri(): string {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    ConfirmationService,
+    MessageService,
     provideRouter(routes),
     provideKeycloak({
       config: {

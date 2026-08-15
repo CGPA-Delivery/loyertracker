@@ -40,6 +40,7 @@ import { LtConfirmDialogService } from './confirm-dialog.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <p-confirmdialog
+      [pt]="{ host: { 'aria-label': 'Confirmation requise' } }"
       [focusTrap]="true"
       [closeOnEscape]="true"
       [motionOptions]="{ duration: 1 }"
