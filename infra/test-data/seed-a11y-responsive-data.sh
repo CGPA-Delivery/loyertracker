@@ -118,6 +118,10 @@ FIN=$(date -d "+90 days" +%Y-%m-%d)
 expect_status 201 "POST /api/biens/{id}/baux" -X POST "${AUTH_B[@]}" -H 'Content-Type: application/json' \
   -d "{\"locataireId\":\"$LOCATAIRE_ID\",\"loyerHc\":1250.00,\"provisionCharges\":150.00,\"depotGarantie\":1400.00,\"dateDebut\":\"$DEBUT\",\"dateFin\":\"$FIN\",\"devise\":\"EUR\"}" \
   "$BASE/api/biens/$BIEN_ID/baux"
+BAIL_ID=$(jq -r .id <<<"$BODY")
+expect_status 201 "POST /api/biens/{id}/baux/{id}/garanties" -X POST "${AUTH_B[@]}" -H 'Content-Type: application/json' \
+  -d "{\"montant\":1400.00,\"typeGarantie\":\"CAUTION\",\"dateDepot\":\"$DEBUT\"}" \
+  "$BASE/api/biens/$BIEN_ID/baux/$BAIL_ID/garanties"
 
 note "2. Invitation gestionnaire and affectation"
 GEST_EMAIL="gestionnaire-$RUN_ID@test.local"

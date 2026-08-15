@@ -7,6 +7,7 @@ const bailleurEmail = process.env.RESPONSIVE_BAILLEUR_EMAIL ?? 'bailleur-test@te
 const bailleurPassword = process.env.KEYCLOAK_TEST_BAILLEUR_PASSWORD ?? '';
 const gestionnaireEmail = process.env.RESPONSIVE_GESTIONNAIRE_EMAIL ?? '';
 const gestionnairePassword = process.env.RESPONSIVE_GESTIONNAIRE_PASSWORD ?? '';
+const responsiveSeedRunId = process.env.RESPONSIVE_SEED_RUN_ID ?? '';
 const touchTargetMin = 44;
 
 const base64Url = (value: Buffer) => value.toString('base64url');
@@ -54,7 +55,12 @@ async function login(page: Page, email: string, password: string): Promise<void>
 async function assertNoHorizontalOverflow(page: Page): Promise<void> {
   const overflow = await page.evaluate(() => {
     const clientWidth = document.documentElement.clientWidth;
-    const offenders = Array.from(document.querySelectorAll<HTMLElement>('body *'))
+    const overflowingElements = Array.from(document.querySelectorAll<HTMLElement>('body *'))
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.right > clientWidth + 1;
+      });
+    const offenders = overflowingElements
       .map((element) => {
         const rect = element.getBoundingClientRect();
         return {
@@ -66,13 +72,32 @@ async function assertNoHorizontalOverflow(page: Page): Promise<void> {
           text: (element.innerText || '').trim().replace(/\s+/g, ' ').slice(0, 80),
         };
       })
-      .filter((element) => element.width > 0 && element.right > clientWidth + 1)
       .slice(0, 12);
+    const ancestors: unknown[] = [];
+    let ancestor: HTMLElement | null = overflowingElements[0] ?? null;
+    while (ancestor) {
+      const rect = ancestor.getBoundingClientRect();
+      const style = getComputedStyle(ancestor);
+      ancestors.push({
+        tag: ancestor.tagName.toLowerCase(),
+        className: String(ancestor.className || ''),
+        left: Math.round(rect.left),
+        right: Math.round(rect.right),
+        width: Math.round(rect.width),
+        display: style.display,
+        minWidth: style.minWidth,
+        maxWidth: style.maxWidth,
+        boxSizing: style.boxSizing,
+        gridTemplateColumns: style.gridTemplateColumns,
+      });
+      ancestor = ancestor.parentElement;
+    }
     return {
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth,
       overflowX: document.documentElement.scrollWidth - clientWidth,
       offenders,
+      ancestors,
     };
   });
   expect(overflow.overflowX, JSON.stringify(overflow)).toBeLessThanOrEqual(1);
@@ -165,6 +190,7 @@ test.describe('CHECK-RESPONSIVE-01 durable proof — authenticated Angular', () 
     expect(bailleurPassword, 'KEYCLOAK_TEST_BAILLEUR_PASSWORD requis : aucune preuve authentifiée ne peut être produite sans lui.').not.toBe('');
     expect(gestionnaireEmail, 'RESPONSIVE_GESTIONNAIRE_EMAIL requis : exécuter le seed contrôlé avant la preuve.').not.toBe('');
     expect(gestionnairePassword, 'RESPONSIVE_GESTIONNAIRE_PASSWORD requis : exécuter le seed contrôlé avant la preuve.').not.toBe('');
+    expect(responsiveSeedRunId, 'RESPONSIVE_SEED_RUN_ID requis : la preuve doit cibler les données du seed courant.').not.toBe('');
   });
 
   for (const viewport of viewports) {
@@ -205,6 +231,71 @@ test.describe('CHECK-RESPONSIVE-01 durable proof — authenticated Angular', () 
       await assertTouchTargets(page);
       await expect(page.getByText(/Aucun bien affecté/i)).toHaveCount(0);
       await page.screenshot({ path: `test-results/responsive/dashboard-gestionnaire-${viewport.name}.png`, fullPage: true });
+    });
+
+    test(`dialogue-retenue-garantie — ${viewport.name}px`, async ({ page }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await login(page, bailleurEmail, bailleurPassword);
+      await page.goto('/bailleur');
+      await page.waitForLoadState('networkidle');
+
+      await page.getByRole('button', {
+        name: `Sélectionner la ligne : 21 avenue Responsive ${responsiveSeedRunId}`,
+      }).click();
+      await expect(page.getByRole('heading', { name: /Bail ·/i })).toBeVisible();
+      await page.getByRole('button', { name: 'Garanties', exact: true }).first().click();
+      await expect(page.getByRole('button', { name: /Utiliser pour un impayé/i })).toBeVisible();
+      await page.getByRole('button', { name: /Utiliser pour un impayé/i }).click();
+
+      const formulaire = page.locator('form.sous-formulaire').filter({ hasText: /Utiliser la garantie pour un impayé/i });
+      const paiement = formulaire.getByLabel('Loyer impayé');
+      await expect(paiement.locator('option')).not.toHaveCount(1);
+      await paiement.selectOption({ index: 1 });
+      await formulaire.getByLabel('Montant retenu').fill('1');
+
+      let requetesRetenue = 0;
+      page.on('request', (request) => {
+        if (request.method() === 'POST' && request.url().includes('/retenue-loyer')) {
+          requetesRetenue += 1;
+        }
+      });
+
+      const declencheur = formulaire.getByRole('button', { name: 'Confirmer la retenue', exact: true });
+      await declencheur.click();
+
+      const dialogue = page.getByRole('alertdialog', { name: 'Confirmer la retenue' });
+      const annuler = dialogue.getByRole('button', { name: 'Annuler' });
+      const confirmer = dialogue.getByRole('button', { name: 'Confirmer la retenue', exact: true });
+      await expect(dialogue).toBeVisible();
+      await expect(dialogue).toContainText('PARTIEL');
+      await expect(dialogue).toContainText(/Aucune quittance certifiée/i);
+      await expect(annuler).toBeFocused();
+      expect(requetesRetenue).toBe(0);
+
+      await annuler.press('Tab');
+      await expect(confirmer).toBeFocused();
+      await confirmer.press('Tab');
+      await expect(annuler).toBeFocused();
+      await annuler.press('Shift+Tab');
+      await expect(confirmer).toBeFocused();
+
+      await assertNoHorizontalOverflow(page);
+      await assertNoBlockingAxeViolations(page);
+      for (const action of [annuler, confirmer]) {
+        const box = await action.boundingBox();
+        expect(box, 'le bouton du dialogue doit être rendu').not.toBeNull();
+        expect(box!.width).toBeGreaterThanOrEqual(touchTargetMin);
+        expect(box!.height).toBeGreaterThanOrEqual(touchTargetMin);
+      }
+      await page.screenshot({
+        path: `test-results/responsive/dialogue-retenue-garantie-${viewport.name}.png`,
+        fullPage: false,
+      });
+
+      await dialogue.press('Escape');
+      await expect(dialogue).toBeHidden();
+      await expect(declencheur).toBeFocused();
+      expect(requetesRetenue).toBe(0);
     });
   }
 });

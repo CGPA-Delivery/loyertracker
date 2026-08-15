@@ -272,7 +272,8 @@ describe('GarantiesBailComponent', () => {
 
     cmp.demanderConfirmationRetenue();
     fixture.detectChanges();
-    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
     const annuler = fixture.nativeElement.querySelector('[role="alertdialog"] button:first-child') as HTMLButtonElement;
     expect(document.activeElement).toBe(annuler);
 
@@ -280,6 +281,32 @@ describe('GarantiesBailComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(document.activeElement).toBe(declencheur);
+  });
+
+  it('confine Tab et Shift+Tab aux actions de la confirmation', async () => {
+    const { fixture, cmp } = creer();
+    api.listerPaiements.and.returnValue(of([paiement()]));
+    cmp.ouvrir(garantie(), 'RETENUE');
+    cmp.retenueForm.setValue({ paiementId: 'p-1', montant: 850 });
+    cmp.demanderConfirmationRetenue();
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+
+    const dialogue = fixture.nativeElement.querySelector('[role="alertdialog"]') as HTMLElement;
+    const [annuler, confirmer] = Array.from(dialogue.querySelectorAll<HTMLButtonElement>('button'));
+    confirmer.focus();
+    dialogue.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    expect(document.activeElement).toBe(annuler);
+
+    annuler.focus();
+    dialogue.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    }));
+    expect(document.activeElement).toBe(confirmer);
   });
 
   it('ferme la confirmation avec Escape sans appeler l API', () => {
