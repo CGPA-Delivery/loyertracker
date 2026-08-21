@@ -154,36 +154,46 @@ class ResendCallbackIntegrationTest {
         assertThat(statutDelivery("RESEND-CB-3")).isEqualTo("READ");
     }
 
-    // --- TC-147 : bounce → UNDELIVERED / PERMANENT ------------------------------------------
+    // --- TC-147 : bounce dur → UNDELIVERED / HARD_BOUNCE ------------------------------------
 
     @Test
-    void emailBounceMarqueUndeliveredEnErreurPermanente() throws Exception {
+    void emailHardBounceMarqueUndeliveredAvecCategorieDediee() throws Exception {
         UUID bailleurId = seedBailleur();
         UUID eventId = seedEvent(bailleurId);
         creerDeliveryDirecte(bailleurId, eventId, "RESEND-CB-4");
 
-        appelerCallbackSigne("email.bounced", "RESEND-CB-4").andExpect(status().isNoContent());
+        appelerCallbackSigne("email.bounced", "RESEND-CB-4", "HARD").andExpect(status().isNoContent());
 
         assertThat(statutDelivery("RESEND-CB-4")).isEqualTo("UNDELIVERED");
-        assertThat(jdbc.queryForObject(
-                "SELECT error_category FROM notification_delivery WHERE provider_message_id = ?",
-                String.class, "RESEND-CB-4")).isEqualTo("PERMANENT");
+        assertThat(categorieErreur("RESEND-CB-4")).isEqualTo("HARD_BOUNCE");
     }
 
-    // --- TC-148 : plainte → FAILED / PERMANENT ----------------------------------------------
+    // --- TC-148 : bounce mou → UNDELIVERED / SOFT_BOUNCE ------------------------------------
 
     @Test
-    void emailComplainedMarqueFailedEnErreurPermanente() throws Exception {
+    void emailSoftBounceMarqueUndeliveredAvecCategorieDediee() throws Exception {
         UUID bailleurId = seedBailleur();
         UUID eventId = seedEvent(bailleurId);
         creerDeliveryDirecte(bailleurId, eventId, "RESEND-CB-5");
 
-        appelerCallbackSigne("email.complained", "RESEND-CB-5").andExpect(status().isNoContent());
+        appelerCallbackSigne("email.bounced", "RESEND-CB-5", "SOFT").andExpect(status().isNoContent());
 
-        assertThat(statutDelivery("RESEND-CB-5")).isEqualTo("FAILED");
-        assertThat(jdbc.queryForObject(
-                "SELECT error_category FROM notification_delivery WHERE provider_message_id = ?",
-                String.class, "RESEND-CB-5")).isEqualTo("PERMANENT");
+        assertThat(statutDelivery("RESEND-CB-5")).isEqualTo("UNDELIVERED");
+        assertThat(categorieErreur("RESEND-CB-5")).isEqualTo("SOFT_BOUNCE");
+    }
+
+    // --- TC-149 : plainte → FAILED / COMPLAINT ----------------------------------------------
+
+    @Test
+    void emailComplainedMarqueFailedAvecCategorieDediee() throws Exception {
+        UUID bailleurId = seedBailleur();
+        UUID eventId = seedEvent(bailleurId);
+        creerDeliveryDirecte(bailleurId, eventId, "RESEND-CB-6");
+
+        appelerCallbackSigne("email.complained", "RESEND-CB-6").andExpect(status().isNoContent());
+
+        assertThat(statutDelivery("RESEND-CB-6")).isEqualTo("FAILED");
+        assertThat(categorieErreur("RESEND-CB-6")).isEqualTo("COMPLAINT");
     }
 
     // --- TC-149 : callback dupliqué, aucune transition supplémentaire (idempotence) --------
@@ -230,7 +240,11 @@ class ResendCallbackIntegrationTest {
     // --- Helpers -----------------------------------------------------------------------------
 
     private ResultActions appelerCallbackSigne(String type, String emailId) throws Exception {
-        String corps = corps(type, emailId);
+        return appelerCallbackSigne(type, emailId, null);
+    }
+
+    private ResultActions appelerCallbackSigne(String type, String emailId, String bounceType) throws Exception {
+        String corps = corps(type, emailId, bounceType);
         String svixId = "msg-" + UUID.randomUUID();
         String svixTimestamp = String.valueOf(Instant.now().getEpochSecond());
         String svixSignature = "v1," + signer(svixId, svixTimestamp, corps);
@@ -244,7 +258,12 @@ class ResendCallbackIntegrationTest {
     }
 
     private String corps(String type, String emailId) {
-        return "{\"type\":\"" + type + "\",\"data\":{\"email_id\":\"" + emailId + "\"}}";
+        return corps(type, emailId, null);
+    }
+
+    private String corps(String type, String emailId, String bounceType) {
+        String bounce = bounceType == null ? "" : ",\"bounce_type\":\"" + bounceType + "\"";
+        return "{\"type\":\"" + type + "\",\"data\":{\"email_id\":\"" + emailId + "\"" + bounce + "}}";
     }
 
     /** Reproduit l'algorithme de {@code ResendSignatureVerifier} pour signer côté test. */
@@ -262,6 +281,12 @@ class ResendCallbackIntegrationTest {
     private String statutDelivery(String providerMessageId) {
         return jdbc.queryForObject(
                 "SELECT statut FROM notification_delivery WHERE provider_message_id = ?",
+                String.class, providerMessageId);
+    }
+
+    private String categorieErreur(String providerMessageId) {
+        return jdbc.queryForObject(
+                "SELECT error_category FROM notification_delivery WHERE provider_message_id = ?",
                 String.class, providerMessageId);
     }
 
