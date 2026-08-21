@@ -57,7 +57,8 @@ public class ResendCallbackController {
                 || payload.type() == null) {
             return ResponseEntity.badRequest().build();
         }
-        deliveries.appliquerCallbackResend(payload.data().emailId(), payload.type());
+        deliveries.appliquerCallbackResend(payload.data().emailId(), payload.type(),
+                payload.data().bounceType());
         return ResponseEntity.noContent().build();
     }
 }

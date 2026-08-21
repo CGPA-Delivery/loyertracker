@@ -91,17 +91,24 @@ public class NotificationDeliveryService {
      * @return {@code true} si une transition a effectivement été appliquée
      */
     @Transactional
-    public boolean appliquerCallbackResend(String providerMessageId, String eventType) {
+    public boolean appliquerCallbackResend(String providerMessageId, String eventType, String bounceType) {
         StatutDelivery nouveauStatut = STATUTS_RESEND.get(eventType == null ? "" : eventType.toLowerCase());
         if (nouveauStatut == null) {
             return false;
         }
         String errorCode = switch (nouveauStatut) {
-            case UNDELIVERED -> "RESEND_BOUNCED";
+            case UNDELIVERED -> "HARD".equalsIgnoreCase(bounceType)
+                    ? "RESEND_HARD_BOUNCE" : "RESEND_SOFT_BOUNCE";
             case FAILED -> "RESEND_COMPLAINED";
             default -> null;
         };
-        String errorCategory = errorCode == null ? null : CategorieErreurNotification.PERMANENT.name();
+        String errorCategory = switch (nouveauStatut) {
+            case UNDELIVERED -> "HARD".equalsIgnoreCase(bounceType)
+                    ? CategorieErreurNotification.HARD_BOUNCE.name()
+                    : CategorieErreurNotification.SOFT_BOUNCE.name();
+            case FAILED -> CategorieErreurNotification.COMPLAINT.name();
+            default -> null;
+        };
         return appliquerStatut(providerMessageId, nouveauStatut, errorCode, errorCategory);
     }
 

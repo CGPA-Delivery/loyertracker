@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record ResendWebhookPayload(String type, Data data) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Data(@JsonProperty("email_id") String emailId) {
+    public record Data(@JsonProperty("email_id") String emailId,
+            @JsonProperty("bounce_type") String bounceType) {
     }
 }
