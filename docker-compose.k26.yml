@@ -1,0 +1,96 @@
+name: loyertracker
+
+# Overlay « IAM central » (K26-A) pour un hébergement derrière Traefik, avec un Keycloak 26
+# partagé hors de cette pile. À combiner avec les deux fichiers existants :
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.k26.yml up -d
+#
+# Principe :
+#   - le Keycloak 24 embarqué (et ses one-shots d'initialisation) est INACTIF : l'IAM est le Keycloak 26
+#     externe, joint sur le réseau Docker partagé `iam` sous le nom `keycloak` (port 8080, chemin /auth) ;
+#   - même origine que l'application : le frontend appelle toujours `/auth`, et nginx le transmet au
+#     Keycloak externe (aucun changement de code ni d'image) ;
+#   - Traefik termine le TLS public ; il atteint le conteneur nginx en HTTPS interne (port 8443, certificat
+#     auto-signé de infra/nginx/certs) via le transport `lt-insecure` (infra/traefik/dynamic/) ;
+#   - aucun port n'est publié sur l'hôte ;
+#   - la console d'administration Keycloak et le realm `master` ne sont pas exposés publiquement par nginx
+#     (infra/nginx/admin-access.k26.conf) ;
+#   - le relais Postfix est inutile (SMTP direct depuis le realm du Keycloak externe) et reste inactif.
+#
+# Prérequis (réseaux Docker créés en dehors de cette pile) : `traefik_web` (Traefik) et `iam` (Keycloak 26).
+# Variables .env propres à ce mode (en plus de celles de docker-compose.prod.yml) :
+#   KEYCLOAK_ISSUER_URI=https://<hôte public>/auth/realms/loyertracker
+#   KEYCLOAK_JWK_SET_URI=http://keycloak:8080/auth/realms/loyertracker/protocol/openid-connect/certs
+#   KEYCLOAK_ADMIN_BASE_URL=http://keycloak:8080/auth
+#   APP_CORS_ALLOWED_ORIGIN / APP_INVITATION_BASE_URL / QUITTANCE_VERIFY_BASE_URL=https://<hôte public>
+#   APP_PUBLIC_HOST=<hôte public>   (défaut ci-dessous ; sert à la règle de routage Traefik)
+# Le realm importé dans le Keycloak externe doit avoir pour URL frontale https://<hôte public>/auth.
+
+services:
+  # Keycloak embarqué et one-shots : inactifs (profil jamais activé).
+  keycloak:
+    profiles: [disabled-kc24]
+  keycloak-init:
+    profiles: [disabled-kc24]
+    depends_on: !reset {}
+  keycloak-theme-init:
+    profiles: [disabled-kc24]
+    depends_on: !reset {}
+  keycloak-smtp-production-init:
+    profiles: [disabled-kc24]
+    depends_on: !reset {}
+  keycloak-smtp-production-rollback:
+    profiles: [disabled-kc24]
+    depends_on: !reset {}
+  smtp-relay:
+    profiles: [disabled-kc24]
+
+  postgres:
+    deploy:
+      resources:
+        limits:
+          memory: 400M
+
+  api:
+    # N'attend plus le Keycloak embarqué ; joint le Keycloak externe par le réseau `iam`.
+    depends_on: !override
+      postgres:
+        condition: service_healthy
+    networks: !override [loyertracker-net, iam]
+    environment:
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=55
+    deploy:
+      resources:
+        limits:
+          memory: 800M
+
+  nginx:
+    depends_on: !override
+      api:
+        condition: service_started
+    networks: !override [loyertracker-net, iam, traefik_web]
+    # Aucun port hôte : le trafic public arrive par Traefik.
+    ports: !reset []
+    volumes:
+      # Masque la console d'administration Keycloak et le realm master (include optionnel de nginx.conf).
+      - ./infra/nginx/admin-access.k26.conf:/etc/nginx/admin-access.d/10-block-admin.conf:ro
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_web
+      - traefik.http.routers.loyertracker.rule=Host(`${APP_PUBLIC_HOST:-loyertracker.tshilo.dev}`)
+      - traefik.http.routers.loyertracker.entrypoints=websecure
+      - traefik.http.routers.loyertracker.tls.certresolver=le
+      - traefik.http.services.loyertracker.loadbalancer.server.port=8443
+      - traefik.http.services.loyertracker.loadbalancer.server.scheme=https
+      - traefik.http.services.loyertracker.loadbalancer.serversTransport=lt-insecure@file
+
+networks:
+  iam:
+    external: true
+    name: iam
+  traefik_web:
+    external: true
+    name: traefik_web

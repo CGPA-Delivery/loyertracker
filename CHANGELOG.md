@@ -8,6 +8,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Infrastructure — overlay Compose « IAM central » pour VPS derrière Traefik
+
+- Ajout de `docker-compose.k26.yml` : Keycloak embarqué inactif, `api`/`nginx` joints au Keycloak 26 externe par le réseau Docker `iam` (même origine `/auth`, sans changement de code ni d'image), route Traefik, aucun port hôte, limites mémoire. Valable en plus de `docker-compose.yml` et `docker-compose.prod.yml`.
+- `infra/nginx/nginx.conf` : un `include` avec motif (`/etc/nginx/admin-access.d/*.conf`), **vide par défaut** — comportement inchangé en dev, CI et staging (la CI appelle l'API Admin à travers nginx). `infra/nginx/admin-access.k26.conf`, monté uniquement par l'overlay, masque la console d'administration et le realm `master` du point d'entrée public.
+- Exemples Traefik dans `infra/traefik/dynamic/` (transport vers le port interne, redirection permanente d'un ancien domaine) et runbook `docs/cgpa/10-mise-en-production/runbook-hebergement-vps-iam-central.md`.
+- Aucun code applicatif, aucune migration, aucun secret. L'`include` de `nginx.conf` sera embarqué dans la prochaine image web construite ; les images actuellement déployées ne sont pas modifiées.
+
 ### Gouvernance — synchronisation Product Backlog et clôture EP-20
 
 - Décision PO/CDO : ajouter une vue canonique datée du 2026-08-15 sans réécrire la table historique du 2026-08-10.

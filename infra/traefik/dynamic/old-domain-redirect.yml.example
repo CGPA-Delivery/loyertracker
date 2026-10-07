@@ -1,0 +1,26 @@
+# EXEMPLE (suffixe .example : non chargé tel quel). Redirection permanente d'un ancien nom de domaine vers
+# le domaine actuel, chemin et paramètres conservés. Les liens déjà diffusés (par exemple les QR des
+# quittances certifiées, /verify/receipt/<id>) continuent d'aboutir.
+# Adapter les deux noms de domaine, retirer le suffixe .example et déposer dans le répertoire surveillé par
+# Traefik APRÈS avoir fait pointer l'ancien nom vers le serveur Traefik (le certificat est émis à la
+# première requête, par défi HTTP-01).
+http:
+  routers:
+    old-domain-http:
+      rule: "Host(`ancien-domaine.example`)"
+      entryPoints: [web]
+      middlewares: [old-domain-redirect]
+      service: noop@internal
+    old-domain:
+      rule: "Host(`ancien-domaine.example`)"
+      entryPoints: [websecure]
+      middlewares: [old-domain-redirect]
+      service: noop@internal
+      tls:
+        certResolver: le
+  middlewares:
+    old-domain-redirect:
+      redirectRegex:
+        regex: '^https?://ancien-domaine\.example/(.*)'
+        replacement: 'https://nouveau-domaine.example/${1}'
+        permanent: true

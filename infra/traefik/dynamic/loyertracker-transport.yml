@@ -1,0 +1,9 @@
+# Configuration dynamique Traefik (fournisseur de fichiers) : référence pour docker-compose.k26.yml.
+# À déposer dans le répertoire surveillé par Traefik (option --providers.file.directory).
+# Le conteneur nginx de LoyerTracker présente un certificat auto-signé sur son port interne 8443 :
+# Traefik ne le vérifie pas (le trafic reste sur le réseau Docker interne ; le certificat public est
+# celui de Traefik).
+http:
+  serversTransports:
+    lt-insecure:
+      insecureSkipVerify: true
