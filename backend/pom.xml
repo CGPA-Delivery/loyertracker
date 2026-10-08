@@ -24,11 +24,15 @@
              le BOM gère Tomcat 10.1.54 et postgresql 42.7.10, en deçà des correctifs requis
              (Tomcat CVE → 10.1.55 ; pgjdbc CVE-2026-42198 → 42.7.11 ; pgjdbc CVE-2026-54291,
              contournement SCRAM-SHA-256-PLUS, → 42.7.12). À retirer quand un futur patch Spring
-             Boot relèvera ces versions au-delà du seuil. -->
-        <tomcat.version>10.1.55</tomcat.version>
+             Boot relèvera ces versions au-delà du seuil.
+             Tomcat 10.1.60 : CVE-2026-65182, CVE-2026-65905 et CVE-2026-68525 (CRITICAL, contrainte
+             de sécurité, authentification DIGEST et FORM), corrigées en 10.1.58. -->
+        <tomcat.version>10.1.60</tomcat.version>
         <postgresql.version>42.7.12</postgresql.version>
-        <!-- CVE-2026-54512/54513 (jackson-databind, HIGH) : BOM gère 2.21.2, correctif en 2.21.4. -->
-        <jackson-bom.version>2.21.4</jackson-bom.version>
+        <!-- CVE-2026-54512/54513 (jackson-databind, HIGH) : BOM gère 2.21.2, correctif en 2.21.4.
+             Jackson 2.21.7 : CVE-2026-89407, CVE-2026-89425 (jackson-core), CVE-2026-68497,
+             CVE-2026-91776, CVE-2026-91777 (jackson-databind), tous HIGH, corrigés en 2.21.7. -->
+        <jackson-bom.version>2.21.7</jackson-bom.version>
         <!-- SonarQube — propriétés statiques (token transmis via SONAR_TOKEN en CI). -->
         <sonar.projectKey>loyertracker-backend</sonar.projectKey>
         <sonar.projectName>LoyerTracker – Backend</sonar.projectName>
