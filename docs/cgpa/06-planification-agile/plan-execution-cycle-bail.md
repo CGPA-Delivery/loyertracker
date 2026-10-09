@@ -77,7 +77,7 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 ### Lot 5 — Demande de modification de locataire approuvée par un bailleur (P4, D3)
 - **Dépend de** : lot 4.
 - **Périmètre** : entité `DemandeModificationLocataire` (avant/après, auteur, statut `EN_ATTENTE`/`APPROUVEE`/`REFUSEE`, approbateur) ; un bailleur suffit ; journalisation.
-- **Remplace** : l'application immédiate de `LocataireService.modifier` pour les gestionnaires.
+- **Précision (audit §6, C8)** : le Gestionnaire n'a aujourd'hui aucun droit de modification (`LocataireController` = BAILLEUR). Le lot **ajoute** cette capacité sous approbation ; `LocataireService.modifier` reste l'action du bailleur. Ajouter un avant/après au journal d'audit.
 
 ### Lot 6 — Historique par bien (P5)
 - **Périmètre** : chronologie des baux, locataires, dates, loyers, motif de fin, statut d'interruption ; affichage sur la fiche bien.
@@ -122,6 +122,8 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 | Scheduler de clôture manqué | Tech | Job idempotent + alerte + rattrapage au démarrage |
 
 ## 9. Questions ouvertes (bloquantes pour le lot 2)
+
+- **Q0** : jeu de statuts du bail : `ACTIF/INTERROMPU/CLOS` (v1) ou `BROUILLON/ACTIF/RESILIE/TERMINE/INTERROMPU` (demande PO) ? Réutiliser `date_cloture_effective` comme `dateEffetFin` ? Voir audit §6.
 
 - **Q1** : confirmer R7 : une interruption est-elle **refusée** tant qu'il y a des impayés, ou seulement signalée ?
 - **Q2** : `CLOTUREE` est-il un nouveau statut de paiement, ou un marqueur sur l'échéance ?
