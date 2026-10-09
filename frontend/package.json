@@ -53,7 +53,7 @@
     "playwright-core": "1.55.1",
     "socket.io-parser": "^4.2.7",
     "typescript": "6.0.3",
-    "typescript-eslint": "^8.65.0"
+    "typescript-eslint": "^8.67.0"
   },
   "overrides": {
     "@angular-devkit/build-angular": {
