@@ -107,7 +107,7 @@ jobs:
         run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -DskipTests
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonar.loyerpro.org
+          SONAR_HOST_URL: https://sonar.tshilo.dev
 
       - name: Publier le rapport de couverture JaCoCo
         if: always()
@@ -176,7 +176,7 @@ jobs:
           projectBaseDir: frontend/
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
-          SONAR_HOST_URL: https://sonar.loyerpro.org
+          SONAR_HOST_URL: https://sonar.tshilo.dev
 
   # ----------------------------------------------------------------------------------
   # Accessibilité E2E (EP-17 / US-136) : stack isolée, TLS localhost de confiance,

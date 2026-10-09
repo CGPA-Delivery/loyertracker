@@ -1,6 +1,5 @@
 package com.loyertracker.notifications;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.List;
@@ -16,8 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.loyertracker.notifications.provider.ChannelNotificationProvider;
 import com.loyertracker.notifications.provider.NotificationProvider.DemandeEnvoi;
 import com.loyertracker.notifications.provider.NotificationProvider.NotificationRecipient;
@@ -256,7 +256,7 @@ public class NotificationDispatcher {
                     new TypeReference<Map<String, Object>>() { });
             return brut.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Payload de notification illisible.", e);
         }
     }

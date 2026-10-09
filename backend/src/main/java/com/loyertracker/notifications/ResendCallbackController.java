@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.loyertracker.notifications.provider.resend.ResendSignatureVerifier;
 
 /**
@@ -50,7 +50,7 @@ public class ResendCallbackController {
         ResendWebhookPayload payload;
         try {
             payload = json.readValue(corpsBrut, ResendWebhookPayload.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return ResponseEntity.badRequest().build();
         }
         if (payload == null || payload.data() == null || payload.data().emailId() == null

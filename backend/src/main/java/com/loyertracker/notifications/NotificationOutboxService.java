@@ -7,8 +7,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.EntityManager;
 
@@ -107,7 +107,7 @@ public class NotificationOutboxService {
         String payloadJson;
         try {
             payloadJson = json.writeValueAsString(payloadMinimal == null ? Map.of() : payloadMinimal);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Payload de notification non sérialisable.", e);
         }
         return (UUID) em.createNativeQuery("""

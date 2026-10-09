@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.EntityManager;
 
@@ -108,7 +108,7 @@ public class VerificationQuittanceService {
     private String periodeCertifiee(Ligne ligne) {
         try {
             return mapper.readTree(ligne.contenu()).path(CHAMP_PERIODE).path("code").asText();
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (tools.jackson.core.JacksonException e) {
             throw new IllegalStateException("Contenu certifié illisible.", e);
         }
     }
@@ -139,7 +139,7 @@ public class VerificationQuittanceService {
         JsonNode c;
         try {
             c = mapper.readTree(ligne.contenu());
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+        } catch (tools.jackson.core.JacksonException e) {
             throw new IllegalStateException("Contenu certifié illisible.", e);
         }
         JsonNode montants = c.path("montants");
