@@ -129,6 +129,17 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 - **Q2** : `CLOTUREE` est-il un nouveau statut de paiement, ou un marqueur sur l'échéance ?
 - **Q3** : un bailleur qui approuve sa propre demande (cas de patrimoine à un seul bailleur) : autorisé ?
 
+### Réponses proposées (Claude Sonnet 5.5, 2026-10-09) — à confirmer par le PO/CDO
+
+**Statut : proposées, non validées.** Elles ne valent pas approbation du plan. Si elles sont retenues, R1, R3 et R7 du §2 et les lots 1 et 2 devront être alignés.
+
+| Q | Réponse proposée | Justification | Non vérifié |
+|---|---|---|---|
+| Q0 | Garder `ACTIF` / `CLOS`. Un préavis = bail `ACTIF` avec `date_cloture_effective` future ; un job le passe à `CLOS` à cette date, avec un `motif_fin` (résiliation, terme, autre). `INTERROMPU` seulement si le PO veut un état visible distinct pendant le préavis. `BROUILLON` reporté. | Évite de migrer les `CLOS` existants ; préserve `uq_bail_actif` (`V1:159`), le CHECK de `V1` et les alertes de `V25` (filtres `ACTIF`/`CLOS`). Diffère du plan v1 (R1) et du modèle demandé. | Impact exact sur toutes les requêtes filtrant `bail.statut`. |
+| Q1 | **Ne pas bloquer** l'interruption sur impayés (remplace R7). Confirmation explicite affichant le montant dû ; impayés, retards et partiels conservés sur le bail clos, visibles et recouvrables, jamais supprimés. | Un bailleur doit pouvoir mettre fin au bail d'un locataire en défaut. Le blocage de LoyerPro ne convient pas à ce cas. | Revue Financial Governance requise. |
+| Q2 | `CLOTUREE` = **nouveau statut de paiement**. | Sort naturellement des calculs d'arriérés et des alertes, sans filtre à chaque requête. | CHECK sur `paiement.statut` (migration nécessaire s'il existe) ; la génération des loyers ne doit pas recréer ces échéances. |
+| Q3 | Le bailleur modifie directement un locataire, avec journal avant/après. L'approbation ne concerne que les demandes d'un gestionnaire. Un seul bailleur du patrimoine suffit, y compris s'il est seul. L'approbateur n'est jamais le demandeur. | Cohérent avec D3 ; le gestionnaire n'a aujourd'hui aucun droit de modification (`LocataireController:29`). | Dépend de l'ADR multi-bailleurs. |
+
 ## 10. Gates et preuves attendues
 
 - Gate : Plan approuvé → ADR approuvé (lot 4) → recette par lot → Gate Staging `STG-ISOL-01` → Gate Production.
