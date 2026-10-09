@@ -9,7 +9,10 @@
   de modèle de données.
 - Date : 2026-10-09.
 - Responsables proposés : DevSecOps Lead, Delivery Architect et Release Manager.
-- Statut : **Proposé — régularisation a posteriori, en attente de validation humaine PO/CDO**.
+- Statut : **Validé par le PO/CDO le 2026-10-09** (conversation de pilotage), plan et écart de
+  gouvernance. Aucune réserve complémentaire (date, assignation) n'a été précisée à cette
+  validation ; le risque correspondant reste ouvert au registre jusqu'au Gate Staging.
+  Historique : proposé le 2026-10-09 en régularisation a posteriori.
 - Décision : orientation PO « on migre sur Boot 4 » donnée dans la conversation de pilotage le
   2026-10-08. **Aucun Plan d'Exécution n'a été approuvé avant le codage ni avant la fusion.**
   Voir l'écart de gouvernance en §3.
@@ -104,11 +107,33 @@
 | 3 | `mvn verify` local : 280 tests, 0 échec ; Spotless ; JaCoCo | Fait |
 | 4 | CI de la PR : Sonar, Sécurité, Docker, CodeQL, E2E accessibilité | Fait |
 | 5 | Fusion PR #542 | Fait (2026-10-09), sans plan approuvé |
-| 6 | Validation de ce plan par le PO/CDO | **À faire** |
-| 7 | Répétition Flyway 12 / Hibernate 7 sur copie de données représentatives | **À faire** |
+| 6 | Validation de ce plan par le PO/CDO | Fait (2026-10-09) |
+| 7 | Répétition Flyway 12 / Hibernate 7 sur copie de données représentatives | **Partiel** : volet synthétique PASS (2026-10-09), voir §7bis ; copie de données **à faire** |
 | 8 | Gate Staging (`STG-ISOL-01`) avec l'artefact immuable `sha-<8>` issu de `main` | **À faire** |
 | 9 | Comparaison de parité JSON et recette humaine | **À faire** |
 | 10 | Gate Production, hypercare | **À faire** |
+
+### 7bis. Répétition Flyway synthétique — résultat (2026-10-09)
+
+Exécutée en local sur un conteneur PostgreSQL 16 jetable (digest du dépôt), isolé, sans donnée
+personnelle ni commande Docker globale. L'ancienne application (`d47907f`, Spring Boot 3.5.16,
+Flyway 11) migre une base jusqu'à V32 (état de Production supposé d'après `project-state.md`,
+non revérifié) ; la nouvelle application (Boot 4, Flyway 12, Hibernate 7, `ddl-auto=validate`)
+démarre ensuite sur cette base.
+
+| Contrôle | Résultat |
+|---|---|
+| Démarrage : `validate` + `migrate` + validation Hibernate | PASS |
+| Historique antérieur (version, checksum, succès) inchangé | PASS |
+| Aucune migration en échec ; migrations appliquées par la nouvelle appli | PASS ; 4 (V33 à V36) |
+| Comptes de lignes des tables existantes inchangés | PASS (tables vides) |
+| Schéma identique à une migration complète sur base vierge | PASS |
+
+Limites : aucune donnée réelle (effets des types, contraintes et du ledger de garanties sur
+données existantes non couverts) ; version de départ V32 non revérifiée en Production ;
+configuration exacte de Production (rôle batch, variables) non reproduite. La répétition sur
+**copie de données** reste à faire, avec stockage local chiffré et destruction après revue. Le
+script de répétition n'est pas versionné à ce stade.
 
 ## 8. Dépendances
 
@@ -156,6 +181,10 @@
    reste « non exécuté ».
 
 ## 13. Décision attendue
+
+**Décision rendue le 2026-10-09 (conversation de pilotage) :** plan validé et écart de gouvernance
+validé par le PO/CDO. Les points ci-dessous sont conservés pour traçabilité ; le sort des PR
+#539, #540, #541 et #518 a été tranché (fermées).
 
 À rendre par le CGPA Chief Delivery Officer :
 
