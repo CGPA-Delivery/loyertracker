@@ -80,8 +80,16 @@ cmd_install() {
   install -d -m 755 "$EDGE_DIR/dynamic"
   install -d -m 700 -o "$TRAEFIK_UID" -g "$TRAEFIK_UID" "$EDGE_DIR/letsencrypt"
   install -d -m 750 -o root -g "$TRAEFIK_UID" "$EDGE_DIR/secrets"
-  install -m 644 "$SRC_DIR/compose.yml" "$EDGE_DIR/compose.yml"
-  install -m 644 "$SRC_DIR/dynamic/middlewares.yml" "$EDGE_DIR/dynamic/middlewares.yml"
+  # Écriture atomique : « install » crée la destination avec des droits restrictifs avant le chmod ; Traefik
+  # surveille /dynamic et relisait le fichier à ce moment-là (permission denied constaté le 2026-10-10).
+  install_atomic() {
+    local src="$1" dst="$2" tmp
+    tmp="${dst}.new.$$"
+    install -m 644 "$src" "$tmp"
+    mv -f "$tmp" "$dst"
+  }
+  install_atomic "$SRC_DIR/compose.yml" "$EDGE_DIR/compose.yml"
+  install_atomic "$SRC_DIR/dynamic/middlewares.yml" "$EDGE_DIR/dynamic/middlewares.yml"
   [ -f "$EDGE_DIR/networks.yml" ] || printf 'services:\n  traefik: {}\n' >"$EDGE_DIR/networks.yml"
   [ -f "$EDGE_DIR/projects.list" ] || : >"$EDGE_DIR/projects.list"
   if [ ! -f "$EDGE_DIR/letsencrypt/acme.json" ]; then
