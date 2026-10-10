@@ -14,7 +14,7 @@
 ### Edge — déroulé (à faire par le CDO, sur l'hôte, en root)
 
 1. Copier le dossier `edge/` sur l'hôte (LF, vérifier la somme de contrôle).
-2. `ACME_EMAIL=<contact> ./edge.sh install` : saisie **sur l'hôte** du mot de passe d'accès Staging
+2. `EXPECTED_HOSTNAME=srv2050514 ACME_EMAIL=<contact> ./edge.sh install` : saisie **sur l'hôte** du mot de passe d'accès Staging
    (16 caractères minimum, jamais dans le chat ni le dépôt) ; digests d'images résolus et figés dans `/srv/edge/.env`.
 3. `./edge.sh verify` : ports, publication, santé, 404 sur hôte inconnu, redirection HTTP, droits (0600).
 4. Par projet : `./edge.sh add-project <projet>` (recrée Traefik de façon ciblée, micro-coupure).
@@ -33,9 +33,9 @@ routeurs dédiés de priorité supérieure, sans `staging-auth`, pour ne pas int
 ## Déroulé (à faire par le CDO, en root puis en administrateur nominatif)
 
 1. Se connecter à l'hôte, déposer le script, vérifier sa somme de contrôle contre le dépôt.
-2. `STG_ADMIN_USER=<login> ./harden-host.sh prepare` — SSH reste inchangé, la session actuelle reste valable.
+2. `EXPECTED_HOSTNAME=srv2050514 STG_ADMIN_USER=<login> ./harden-host.sh prepare` — SSH reste inchangé, la session actuelle reste valable.
 3. Ouvrir une **2e session** en tant que `<login>` ; vérifier `sudo -n true`.
-4. `STG_ADMIN_USER=<login> ./harden-host.sh ssh-lockdown` ; **tester une nouvelle connexion** avant de
+4. `EXPECTED_HOSTNAME=srv2050514 STG_ADMIN_USER=<login> ./harden-host.sh ssh-lockdown` ; **tester une nouvelle connexion** avant de
    fermer les sessions existantes.
 5. Installer Tailscale et rejoindre le tailnet **à la main** (clé d'authentification saisie sur l'hôte
    uniquement, jamais dans le chat ni le dépôt) ; puis `./harden-host.sh tailscale-check`.
@@ -53,3 +53,10 @@ routeurs dédiés de priorité supérieure, sans `staging-auth`, pour ne pas int
 - Ne pas rejouer `prepare` sur un hôte qui héberge des projets sans fenêtre de maintenance.
 - Les ports publiés par Docker contournent UFW : seul Traefik publiera 80/443 (STG-ISOL-01).
 - Le script ne crée ni Traefik, ni réseau, ni projet : ce sont des étapes distinctes du plan.
+
+## Garde-fou « mauvais serveur »
+
+Le 2026-10-10, `edge.sh install` a été lancé par erreur sur `srv2044374` (SonarQube) au lieu de
+`srv2050514`. Les scripts exigent désormais `EXPECTED_HOSTNAME=<hôte visé>` (sans valeur par défaut) et
+s'arrêtent si `hostname -s` diffère. `prepare` refuse en plus de tourner si des conteneurs existent déjà,
+et `install` refuse si les ports 80/443 sont occupés. Vérifier `hostname` avant toute commande.

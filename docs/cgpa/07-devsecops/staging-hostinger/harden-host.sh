@@ -13,7 +13,8 @@
 #   5. tailscale-check   vérifie le lien tailnet ; refuse si absent
 #   6. close-public-ssh  ferme le 22 public dans UFW — PUIS retirer la règle 22 du pare-feu Hostinger
 #
-# Usage : STG_ADMIN_USER=<login> ./harden-host.sh <phase>
+# Usage : EXPECTED_HOSTNAME=srv2050514 STG_ADMIN_USER=<login> ./harden-host.sh <phase>
+# (EXPECTED_HOSTNAME est un garde-fou obligatoire : le script refuse de tourner sur un autre hôte.)
 set -euo pipefail
 
 STG_ADMIN_USER="${STG_ADMIN_USER:-}"
@@ -23,9 +24,16 @@ log()  { printf '[harden] %s\n' "$*"; }
 die()  { printf '[harden] ERREUR: %s\n' "$*" >&2; exit 1; }
 need_root() { [ "$(id -u)" -eq 0 ] || die "à exécuter en root"; }
 need_admin() { [ -n "$STG_ADMIN_USER" ] || die "STG_ADMIN_USER requis (login nominatif, pas root)"; }
+# Garde-fou : refuse de tourner sur un autre serveur que celui visé (ex. SonarQube srv2044374).
+# Usage : EXPECTED_HOSTNAME=srv2050514 (valeur à saisir consciemment, sans défaut).
+guard_host() {
+  [ -n "${EXPECTED_HOSTNAME:-}" ] || die "EXPECTED_HOSTNAME requis (ex. srv2050514)"
+  [ "$(hostname -s)" = "$EXPECTED_HOSTNAME" ] || die "hôte courant « $(hostname -s) » ≠ « ${EXPECTED_HOSTNAME} » : abandon, aucune modification"
+}
 
 phase_prepare() {
-  need_root; need_admin
+  need_root; need_admin; guard_host
+  [ -z "$(docker ps -q 2>/dev/null || true)" ] || die "des conteneurs tournent déjà sur cet hôte : 'prepare' est réservé à un hôte neuf et vide"
   . /etc/os-release
   log "OS détecté : ${PRETTY_NAME} (${VERSION_CODENAME:-?})"
   [ "${ID}" = "ubuntu" ] || die "Ubuntu attendu"
@@ -120,6 +128,10 @@ install_docker() {
 
   log "Docker : rotation des logs, no-new-privileges, live-restore"
   install -d -m 755 /etc/docker
+  if [ -s /etc/docker/daemon.json ]; then
+    cp -a /etc/docker/daemon.json "/etc/docker/daemon.json.bak-$(date -u +%Y%m%dT%H%M%SZ)"
+    log "daemon.json existant sauvegardé avant remplacement"
+  fi
   cat >/etc/docker/daemon.json <<'EOF'
 {
   "log-driver": "json-file",
@@ -141,7 +153,7 @@ EOF
 }
 
 phase_ssh_lockdown() {
-  need_root; need_admin
+  need_root; need_admin; guard_host
   id "$STG_ADMIN_USER" >/dev/null 2>&1 || die "utilisateur ${STG_ADMIN_USER} absent : lancer 'prepare' d'abord"
   [ -s "/home/${STG_ADMIN_USER}/.ssh/authorized_keys" ] || die "aucune clé pour ${STG_ADMIN_USER}"
   printf '\n[harden] Avez-vous ouvert une 2e session SSH en tant que %s et vérifié « sudo -n true » ? [oui/NON] ' "$STG_ADMIN_USER"
@@ -174,7 +186,7 @@ phase_tailscale_check() {
 }
 
 phase_close_public_ssh() {
-  need_root
+  need_root; guard_host
   phase_tailscale_check
   printf '\n[harden] SSH via le tailnet testé avec succès depuis un poste distinct ? [oui/NON] '
   read -r reponse

@@ -3,6 +3,7 @@
 # Référence : docs/cgpa/07-devsecops/plan-staging-partage-hostinger.md §2, §5.
 # À exécuter en root sur l'hôte (sudo), APRÈS `harden-host.sh prepare`, depuis une copie du dossier edge/.
 #
+#   Toutes les commandes exigent EXPECTED_HOSTNAME=<hôte visé> (garde-fou), ex. srv2050514.
 #   ACME_EMAIL=<contact LE> ./edge.sh install      installe /srv/edge et démarre Traefik
 #   ./edge.sh add-project <projet>                 crée le réseau edge-<projet> et l'attache à Traefik
 #   ./edge.sh verify                               contrôles STG-ISOL-01 de l'edge (lecture seule)
@@ -53,9 +54,19 @@ resolve_digest() {
   printf '%s' "$ref"
 }
 
+# Garde-fou : refuse de tourner sur un autre serveur que celui visé (ex. SonarQube srv2044374).
+guard_host() {
+  [ -n "${EXPECTED_HOSTNAME:-}" ] || die "EXPECTED_HOSTNAME requis (ex. srv2050514)"
+  [ "$(hostname -s)" = "$EXPECTED_HOSTNAME" ] || die "hôte courant « $(hostname -s) » ≠ « ${EXPECTED_HOSTNAME} » : abandon, aucune modification"
+}
+
 cmd_install() {
-  need_root
+  need_root; guard_host
   command -v docker >/dev/null 2>&1 || die "Docker absent : lancer harden-host.sh prepare"
+  # Les ports 80/443 doivent être libres : sinon un autre service les utilise (jamais le déloger).
+  if ss -H -tln | awk '{print $4}' | grep -Eq '(:|\])(80|443)$'; then
+    die "80 ou 443 déjà utilisé sur cet hôte : abandon, aucune modification"
+  fi
   : "${ACME_EMAIL:?ACME_EMAIL requis (adresse de contact pour Let s Encrypt)}"
   [ -f "$SRC_DIR/compose.yml" ] && [ -f "$SRC_DIR/dynamic/middlewares.yml" ] || die "compose.yml ou dynamic/ introuvable à côté du script"
 
@@ -113,7 +124,7 @@ cmd_install() {
 }
 
 cmd_add_project() {
-  need_root
+  need_root; guard_host
   local projet="${1:-}"
   [[ "$projet" =~ $PROJECT_RE ]] || die "nom de projet invalide (minuscules, chiffres, tirets ; 2 à 21 caractères)"
   [ -f "$EDGE_DIR/compose.yml" ] || die "edge non installé : lancer « install »"
