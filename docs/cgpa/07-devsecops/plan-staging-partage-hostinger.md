@@ -53,9 +53,10 @@ historiques à ne pas reproduire : la basic-auth interceptait les JWT Bearer sur
 
 ## 1. Hôte cible et dimensionnement
 
-**Recommandation (sous réserve de décision D1/D2) : un nouveau VPS Francfort, Ubuntu 24.04 LTS,
-plan KVM 4 (4 vCPU / 16 Go / 200 Go, à confirmer en hPanel).** Le VPS A est trop petit et hors
-gouvernance ; il n'est ni réutilisé ni migré en place.
+**Hôte retenu le 2026-10-10 (décision CDO) : `srv2050514`, KVM 4 (4 vCPU / 16 Go / 200 Go), datacenter
+Düsseldorf (`dus`, id 25), `187.7.72.186`, Ubuntu 26.04 LTS.** C'est un écart assumé par rapport à
+l'achat décidé (KVM 2, Francfort, Ubuntu 24.04 avec Docker) : voir §1.1. Le VPS A est trop petit et
+hors gouvernance ; il n'est ni réutilisé ni migré en place.
 
 | Poste | Hypothèse | Valeur |
 |---|---|---|
@@ -78,12 +79,17 @@ conformément au mode opératoire `infra/backup/`.
 
 | Décision | Conséquence |
 |---|---|
-| **D1/D2 : « KVM 2 »** | Précisé le 2026-10-10 (D2 bis) : **achat d'un nouveau KVM 2 à Francfort** ; `srv2044374` (SonarQube) n'est pas réutilisé. Le sort du VPS A (D1) reste à confirmer (§6.4). |
+| **D1/D2 : « KVM 2 »** | Précisé le 2026-10-10 (D2 bis) : achat d'un nouveau KVM 2 à Francfort ; `srv2044374` (SonarQube) n'est pas réutilisé. Le sort du VPS A (D1) reste à confirmer (§6.4). |
+| **D2 ter : KVM 4 à Düsseldorf conservé** | **Décision CDO du 2026-10-10**, après constat que `srv2050514` livré diffère de la décision : KVM 4 au lieu de KVM 2, `dus` (Düsseldorf) au lieu de `fra`, Ubuntu 26.04 LTS sans Docker au lieu de 24.04 avec Docker. Conséquences : (a) l'exigence « ≥ 5 projets + 30 % » est tenue (§1) ; (b) la **région n'est plus Francfort** : même pays (Allemagne), pas le même datacenter que la Production AWS — **écart au §1 du prompt, accepté par décision CDO**, le trafic Staging ↔ Production restant sans réseau privé commun (§6.1) ; (c) Docker est à installer et à durcir (§4.1) ; (d) prix et période de facturation de ce plan à relever en hPanel (l'API ne les expose pas) ; (e) l'impact ci-dessous relatif à KVM 2 est **sans objet** et conservé pour mémoire. |
 | **D5 bis : Tailscale** | **Accepté** le 2026-10-10 : option 1 de §4.1b. Voir « Prérequis Tailscale » ci-dessous. |
 | **D3 : `staging.tshilo.dev`** | Hôtes `<projet>.staging.tshilo.dev` ; un seul enregistrement `A *.staging` vers le nouvel hôte (TTL 300 s), HTTP-01 par hôte. `loyertracker.tshilo.dev` (VPS A) reste inchangé. |
 | **D5 : pas d'IP publique fixe** | Une restriction SSH par IP est inapplicable (ni pour l'administrateur ni pour les runners GitHub Actions). Alternative proposée en §4.1b. |
 
-**Impact de KVM 2 (8 Go) sur le dimensionnement.** Avec 2 Go par projet, 2 Go d'hôte et 30 % de marge :
+**État constaté de `srv2050514` à la livraison (lecture seule, 2026-10-10)** : aucun pare-feu Hostinger
+(`firewall_group_id: null`), aucune sauvegarde ni snapshot, une clé SSH ed25519 `tshil@Dell-XPS-159530`
+enregistrée pour root. Ces trois points sont des **prérequis bloquants** avant tout déploiement (R-HOST-15).
+
+**Impact de KVM 2 (8 Go) sur le dimensionnement — sans objet depuis D2 ter, conservé pour mémoire.** Avec 2 Go par projet, 2 Go d'hôte et 30 % de marge :
 (2 × 2 + 2) × 1,3 ≈ 7,8 Go. Un KVM 2 couvre donc **2 projets avec marge**, pas 5 : l'exigence « ≥ 5
 projets + 30 % » n'est **pas tenue**. Options : accepter 2 à 3 projets (3 projets = 10,4 Go, sans marge
 de 30 %) en limitant les services (un Keycloak mutualisé par projet n'est pas viable, un seul
@@ -147,6 +153,11 @@ Nommage : projet Compose `<projet>-staging` ; réseaux `<projet>-staging_interna
 ## 4. Durcissement hôte et gabarit Compose (proposés, non exécutés)
 
 ### 4.1 Durcissement (script `harden-host.sh`, idempotent, à relire avant exécution)
+
+> **Version de référence : [`staging-hostinger/harden-host.sh`](staging-hostinger/harden-host.sh)**
+> (4 phases : `prepare`, `ssh-lockdown`, `tailscale-check`, `close-public-ssh`, adaptées à Ubuntu 26.04
+> sans Docker préinstallé et à l'absence d'IP fixe). Le bloc ci-dessous est l'ébauche initiale, conservée
+> pour mémoire ; elle suppose `ADMIN_IPS` et n'est **plus** la version à exécuter.
 
 ```bash
 #!/usr/bin/env bash
@@ -368,7 +379,9 @@ décommissionner après M5 sur décision CDO. Il n'est pas supprimé ni modifié
 | R-HOST-08 | Un seul snapshot, écrasé par le suivant ; restauration non éprouvée | Moyenne | Sauvegardes `pg_dump` + test de restauration |
 | R-HOST-09 | Prix et plans non vérifiables par l'API | Faible | Relevé hPanel avant achat |
 | R-HOST-10 | VPS B (SonarQube, utilisé par la CI) : datacenter 15 inconnu, pare-feu non synchronisé, SSH ouvert à `any`. Y ajouter le Staging mêlerait outillage CI et Staging | Moyenne | Ne pas y héberger le Staging sans décision D2 bis ; vérifier l'emplacement ; synchroniser et restreindre son pare-feu |
-| R-HOST-13 | KVM 2 (8 Go) : capacité de 2 projets avec marge de 30 % ; exigence « ≥ 5 projets » non tenue | Moyenne | Limiter le nombre de projets ou passer à KVM 4 (voir §1.1) |
+| R-HOST-13 | ~~KVM 2 (8 Go) : capacité de 2 projets~~ **Levé le 2026-10-10** : KVM 4 retenu (D2 ter) | — | — |
+| R-HOST-15 | `srv2050514` livré sans pare-feu Hostinger, sans sauvegarde ni snapshot ; SSH root par clé ouvert | Élevée | Créer et activer un pare-feu (22, 80, 443) ; activer la sauvegarde (hPanel) ; durcir ; Tailscale puis fermer le 22 |
+| R-HOST-16 | Datacenter Düsseldorf ≠ Francfort (écart au prompt, accepté par le CDO) ; latence et résidence des données restent en Allemagne | Faible | Écart consigné (D2 ter) ; à rappeler dans l'ADR région |
 | R-HOST-14 | Sans IP fixe, SSH restreint par IP impossible | Moyenne | Réseau privé Tailscale (§4.1b) ou acceptation CDO du SSH ouvert en clé seule |
 | R-HOST-11 | Hôte unique = point de défaillance pour tous les Staging | Moyenne | Acceptable en Staging ; snapshot + reprise documentée |
 | R-HOST-12 | Dérive entre le Compose du dépôt et l'hôte (déjà constatée sur `ai-test-server`) | Moyenne | Compose copié du dépôt par `stg-deploy`, contrôle de dérive à chaque déploiement |
@@ -381,8 +394,9 @@ promotion** vers le VPS A et restent ouvertes tant que leur preuve de traitement
 | # | Question | Proposition |
 |---|---|---|
 | D1 | Statut du VPS A (geler/décommissionner, ou conserver) | §6.4 — **à confirmer** (réponse reçue « KVM 2 » ambiguë) |
-| D2 | Taille de l'hôte | **KVM 2 reçu** (§1.1) ; D2 bis ci-dessous |
-| D2 bis | Nouveau KVM 2 à acheter à Francfort, ou réutilisation de `srv2044374` (SonarQube) | **Décidé : nouveau KVM 2 à Francfort** (prix à relever en hPanel ; achat = « oui » explicite distinct) |
+| D2 | Taille de l'hôte | KVM 2 reçu, **remplacé par D2 ter : KVM 4** |
+| D2 bis | Nouveau KVM 2 à acheter à Francfort, ou réutilisation de `srv2044374` (SonarQube) | Nouvel achat décidé ; réalisé en KVM 4 à Düsseldorf (D2 ter) |
+| D2 ter | Conserver `srv2050514` (KVM 4, Düsseldorf, Ubuntu 26.04) | **Décidé : conservé** (2026-10-10) |
 | D3 | Domaine Staging | **`*.staging.tshilo.dev` — décidé** ; zone chez Hostinger, HTTP-01 par hôte |
 | D4 | Reverse proxy | Traefik (Q2) |
 | D5 | Accès SSH sans IP fixe | **IP fixe indisponible ; Tailscale accepté** (§4.1b) |
@@ -394,7 +408,18 @@ promotion** vers le VPS A et restent ouvertes tant que leur preuve de traitement
 
 ## 8. Gouvernance et prochaines étapes
 
-### 8.0 Étape suivante proposée : achat du nouvel hôte (non exécuté — « oui » explicite requis)
+### 8.0a Journal des actions exécutées (2026-10-10)
+
+| Heure (UTC) | Action | Résultat |
+|---|---|---|
+| ~09:50 | Achat de `srv2050514` par le CDO dans hPanel (KVM 4, Düsseldorf, Ubuntu 26.04 LTS) | Écart à la décision, accepté (D2 ter) |
+| 10:02 | `vps_firewall_create` `srv2050514-baseline` (id `375064`) + 3 règles TCP 22/80/443 `any` | Créées, avec « oui » explicite du CDO |
+| 10:02 | `vps_firewall_activate` sur la VM `2050514` | `ct_firewall` = `success` ; `firewall_group_id` = 375064 |
+
+Aucune autre action n'a été exécutée. Sauvegarde automatique Hostinger : **non activée** (à faire dans hPanel).
+`harden-host.sh` est **proposé, non exécuté**.
+
+### 8.0 Étape initiale proposée : achat du nouvel hôte (réalisée par le CDO, voir 8.0a)
 
 | Champ | Valeur |
 |---|---|
