@@ -1,0 +1,93 @@
+# PROPOSÉ — NON EXÉCUTÉ. Edge mutualisé du Staging Hostinger (Traefik + docker-socket-proxy).
+# Référence : docs/cgpa/07-devsecops/plan-staging-partage-hostinger.md §2.
+# Déployé dans /srv/edge par `edge.sh install`. Les réseaux `edge-<projet>` sont ajoutés par
+# `edge.sh add-project <projet>` via networks.yml (généré, voir edge.sh) — jamais à la main.
+# Seul ce projet Compose publie des ports sur l'hôte (80/443).
+name: edge
+
+services:
+  socket-proxy:
+    # Seul composant qui voit docker.sock : lecture des conteneurs uniquement, aucune écriture (POST=0).
+    image: ${SOCKET_PROXY_IMAGE:?renseigner SOCKET_PROXY_IMAGE (digest) dans /srv/edge/.env}
+    restart: unless-stopped
+    environment:
+      CONTAINERS: "1"
+      EVENTS: "1"
+      PING: "1"
+      POST: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [socket]
+    read_only: true
+    tmpfs: [/run]
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits: { cpus: "0.25", memory: 64M }
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  traefik:
+    image: ${TRAEFIK_IMAGE:?renseigner TRAEFIK_IMAGE (digest) dans /srv/edge/.env}
+    restart: unless-stopped
+    depends_on: [socket-proxy]
+    user: "65532:65532"
+    cap_drop: [ALL]
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: "0"
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - --global.checknewversion=false
+      - --global.sendanonymoususage=false
+      - --log.level=INFO
+      - --log.format=json
+      - --accesslog=true
+      - --accesslog.format=json
+      - --api=false
+      - --ping=true
+      - --ping.entrypoint=ping
+      - --entrypoints.ping.address=:8082
+      - --providers.docker=true
+      - --providers.docker.endpoint=tcp://socket-proxy:2375
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.watch=true
+      - --providers.file.directory=/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL:?renseigner ACME_EMAIL dans /srv/edge/.env}
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.httpchallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+    volumes:
+      - ./dynamic:/dynamic:ro
+      - ./letsencrypt:/letsencrypt
+      - ./secrets:/secrets:ro
+    # `public` : publication des ports et sortie vers Let's Encrypt. `socket` est internal (aucune sortie).
+    # Les réseaux edge-<projet> s'ajoutent par fusion avec networks.yml.
+    networks: [public, socket]
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping", "--ping.entrypoint=ping", "--entrypoints.ping.address=:8082"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits: { cpus: "0.50", memory: 256M }
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+networks:
+  public:
+    driver: bridge
+  socket:
+    internal: true

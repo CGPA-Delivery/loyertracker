@@ -7,6 +7,23 @@
 | Fichier | Rôle |
 |---|---|
 | `harden-host.sh` | Durcissement de l'hôte en 4 phases : `prepare`, `ssh-lockdown`, `tailscale-check`, `close-public-ssh` |
+| `edge/edge.sh` | Edge mutualisé : `install`, `add-project <projet>`, `verify` (à lancer après `harden-host.sh prepare`) |
+| `edge/compose.yml` | Traefik v3.7 + `docker-socket-proxy`, seul projet publiant 80/443 ; réseaux `public`, `socket` (internal) et `edge-<projet>` |
+| `edge/dynamic/middlewares.yml` | `staging-auth` (basic-auth, `removeHeader`), `staging-headers`, TLS ≥ 1.2 |
+
+### Edge — déroulé (à faire par le CDO, sur l'hôte, en root)
+
+1. Copier le dossier `edge/` sur l'hôte (LF, vérifier la somme de contrôle).
+2. `ACME_EMAIL=<contact> ./edge.sh install` : saisie **sur l'hôte** du mot de passe d'accès Staging
+   (16 caractères minimum, jamais dans le chat ni le dépôt) ; digests d'images résolus et figés dans `/srv/edge/.env`.
+3. `./edge.sh verify` : ports, publication, santé, 404 sur hôte inconnu, redirection HTTP, droits (0600).
+4. Par projet : `./edge.sh add-project <projet>` (recrée Traefik de façon ciblée, micro-coupure).
+5. Archiver les instantanés `/srv/edge/snapshots/` comme preuve avant/après `STG-ISOL-01`.
+
+Limites : la fusion Compose (réseaux `edge-<projet>`) est validée avec `docker compose config` ; le démarrage
+réel, Let's Encrypt et `verify` ne sont **pas testés**. Un routeur de projet sans `staging-auth@file` n'est pas
+détecté par ces scripts (contrôle d'onboarding). Les chemins publics (`/api/`, `/verify/`, callbacks) sont des
+routeurs dédiés de priorité supérieure, sans `staging-auth`, pour ne pas intercepter les JWT Bearer (écart 5).
 
 ## Hôte visé
 

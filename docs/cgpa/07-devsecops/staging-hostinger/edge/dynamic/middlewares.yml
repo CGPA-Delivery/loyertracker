@@ -1,0 +1,27 @@
+# PROPOSÉ — NON EXÉCUTÉ. Middlewares et options TLS partagés (file provider, rechargés à chaud).
+# Chaque routeur de projet DOIT référencer staging-auth@file et staging-headers@file, sauf exception
+# par chemin documentée (voir README, gabarit Compose du plan §4.3 et STG-ISOL-01).
+http:
+  middlewares:
+    staging-auth:
+      basicAuth:
+        usersFile: /secrets/staging.htpasswd
+        realm: staging
+        # Ne pas transmettre les identifiants Staging à l'application.
+        removeHeader: true
+    staging-headers:
+      headers:
+        stsSeconds: 15552000
+        stsIncludeSubdomains: false
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: no-referrer
+        customResponseHeaders:
+          # Staging : jamais indexé.
+          X-Robots-Tag: "noindex, nofollow"
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      sniStrict: true
