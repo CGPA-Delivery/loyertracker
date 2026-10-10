@@ -64,8 +64,11 @@ cmd_install() {
   need_root; guard_host
   command -v docker >/dev/null 2>&1 || die "Docker absent : lancer harden-host.sh prepare"
   # Les ports 80/443 doivent être libres : sinon un autre service les utilise (jamais le déloger).
-  if ss -H -tln | awk '{print $4}' | grep -Eq '(:|\])(80|443)$'; then
-    die "80 ou 443 déjà utilisé sur cet hôte : abandon, aucune modification"
+  # Exception : ré-exécution sur un edge déjà installé (Traefik de ce projet tient lui-même 80/443).
+  if ! docker ps --format '{{.Names}}' | grep -qx 'edge-traefik-1'; then
+    if ss -H -tln | awk '{print $4}' | grep -Eq '(:|\])(80|443)$'; then
+      die "80 ou 443 déjà utilisé sur cet hôte : abandon, aucune modification"
+    fi
   fi
   : "${ACME_EMAIL:?ACME_EMAIL requis (adresse de contact pour Let s Encrypt)}"
   [ -f "$SRC_DIR/compose.yml" ] && [ -f "$SRC_DIR/dynamic/middlewares.yml" ] || die "compose.yml ou dynamic/ introuvable à côté du script"
@@ -172,7 +175,8 @@ cmd_verify() {
 
   # 1. Ports en écoute hors boucle locale : 22 (pare-feu), 80, 443 attendus ; tout autre = écart.
   local ports unexpected
-  ports="$(ss -H -tln | awk '{print $4}' | grep -Ev '^(127\.|\[::1\]|100\.)' | sed 's/.*://' | sort -un | tr '\n' ' ')"
+  # Adresses exclues : boucle locale et tailnet Tailscale (IPv4 100.x, IPv6 fd7a:115c:a1e0::/48).
+  ports="$(ss -H -tln | awk '{print $4}' | grep -Ev '^(127\.|\[::1\]|100\.|\[fd7a:)' | sed 's/.*://' | sort -un | tr '\n' ' ')"
   unexpected="$(printf '%s' "$ports" | tr ' ' '\n' | grep -Ev '^(22|80|443|)$' || true)"
   if [ -z "$unexpected" ]; then pass "ports en écoute : ${ports}"; else fail "ports inattendus : ${unexpected}"; fi
 
@@ -190,8 +194,14 @@ cmd_verify() {
 
   # 4. Hôte inconnu : 404 en HTTPS ; HTTP redirigé vers HTTPS.
   local code
-  code="$(curl -ks -o /dev/null -w '%{http_code}' -H 'Host: inconnu.invalid' https://127.0.0.1/ || true)"
-  [ "$code" = "404" ] && pass "hôte inconnu en HTTPS → 404" || fail "hôte inconnu en HTTPS → ${code}"
+  # tls.options.default.sniStrict=true : un nom inconnu est refusé dès la poignée de main TLS (code 000),
+  # ce qui est au moins aussi strict qu'un 404. Tout autre code (200, 401, 5xx…) est un écart.
+  code="$(curl -ks -o /dev/null -w '%{http_code}' --resolve inconnu.invalid:443:127.0.0.1 https://inconnu.invalid/ || true)"
+  case "$code" in
+    404) pass "hôte inconnu en HTTPS → 404" ;;
+    000) pass "hôte inconnu en HTTPS → refusé par TLS (sniStrict)" ;;
+    *)   fail "hôte inconnu en HTTPS → ${code}" ;;
+  esac
   code="$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: inconnu.invalid' http://127.0.0.1/ || true)"
   case "$code" in 301|308) pass "HTTP → redirection (${code})" ;; *) fail "HTTP → ${code}" ;; esac
 

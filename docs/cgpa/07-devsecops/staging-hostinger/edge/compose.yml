@@ -18,7 +18,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: [socket]
-    read_only: true
+    # Pas de read_only ici : l'entrypoint de l'image génère haproxy.cfg au démarrage (constaté le 2026-10-10 :
+    # « can't create haproxy.cfg: Read-only file system »). Isolation conservée : réseau `socket` interne,
+    # socket Docker en lecture seule, POST=0, no-new-privileges, limites de ressources.
     tmpfs: [/run]
     security_opt: ["no-new-privileges:true"]
     deploy:
