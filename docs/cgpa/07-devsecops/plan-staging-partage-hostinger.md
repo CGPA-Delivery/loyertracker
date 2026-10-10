@@ -416,6 +416,8 @@ promotion** vers le VPS A et restent ouvertes tant que leur preuve de traitement
 | 10:02 | `vps_firewall_create` `srv2050514-baseline` (id `375064`) + 3 règles TCP 22/80/443 `any` | Créées, avec « oui » explicite du CDO |
 | 10:02 | `vps_firewall_activate` sur la VM `2050514` | `ct_firewall` = `success` ; `firewall_group_id` = 375064 |
 
+| 10:09 | `vps_firewall_delete-rule` règle TCP 22 (id 1395269) du pare-feu 375064, puis `vps_firewall_sync-to-all-assigned-v-ms` | `ct_firewall` = `success`, `is_synced: true` ; restent 80 et 443. Demandé explicitement par le CDO ; **ordre du plan §4.1b (Tailscale testé avant fermeture) non vérifié par l'assistant**. Retour arrière : recréer TCP 22 `any` puis resynchroniser. |
+
 Aucune autre action n'a été exécutée. Sauvegarde automatique Hostinger : **non activée** (à faire dans hPanel).
 `harden-host.sh` est **proposé, non exécuté**.
 
