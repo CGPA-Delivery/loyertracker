@@ -180,10 +180,10 @@ class DetectionIncoherencesBailBienScriptTest {
         assertThat(r.detail(a10, "A10")).startsWith("2 créance(s) ouverte(s)").endsWith("1300.00");
         assertThat(r.detail(a5, "A5")).contains("2020-01-01");
 
-        assertThat(r.volumetrie.get("biens")).isEqualTo(count("bien"));
-        assertThat(r.volumetrie.get("baux ACTIF")).isEqualTo(
-                count("bail WHERE statut = 'ACTIF'"));
-        assertThat(r.volumetrie.get("paiements")).isEqualTo(count("paiement"));
+        assertThat(r.volumetrie)
+                .containsEntry("biens", count("bien"))
+                .containsEntry("baux ACTIF", count("bail WHERE statut = 'ACTIF'"))
+                .containsEntry("paiements", count("paiement"));
     }
 
     @Test
