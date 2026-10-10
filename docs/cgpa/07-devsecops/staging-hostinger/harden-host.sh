@@ -168,7 +168,10 @@ phase_ssh_lockdown() {
   read -r reponse
   [ "$reponse" = "oui" ] || die "abandon : validez d'abord l'accès de ${STG_ADMIN_USER}"
 
-  cat >/etc/ssh/sshd_config.d/90-staging.conf <<EOF
+  # Nom en « 00- » : OpenSSH retient la PREMIÈRE valeur lue ; les 50-cloud-init.conf / 60-cloudimg-settings.conf
+  # de Hostinger activent PasswordAuthentication et l'emporteraient sur un nom en « 90- ».
+  rm -f /etc/ssh/sshd_config.d/90-staging.conf
+  cat >/etc/ssh/sshd_config.d/00-staging.conf <<EOF
 PermitRootLogin no
 PasswordAuthentication no
 KbdInteractiveAuthentication no
@@ -181,11 +184,11 @@ EOF
   # Ubuntu récent : sshd démarre par socket activation, /run/sshd peut manquer et fait échouer « sshd -t ».
   install -d -m 0755 /run/sshd
   if ! sshd -t; then
-    rm -f /etc/ssh/sshd_config.d/90-staging.conf   # ne pas laisser une configuration non validée
+    rm -f /etc/ssh/sshd_config.d/00-staging.conf   # ne pas laisser une configuration non validée
     die "configuration sshd invalide : fichier retiré, rien rechargé"
   fi
   systemctl reload ssh || systemctl reload sshd \
-    || die "rechargement impossible : configuration écrite mais NON appliquée (retirer 90-staging.conf si nécessaire)"
+    || die "rechargement impossible : configuration écrite mais NON appliquée (retirer 00-staging.conf si nécessaire)"
   log "sshd rechargé. GARDEZ l'ancienne session ouverte et testez une NOUVELLE connexion avant de la fermer."
   log "Désactiver aussi la connexion root par clé n'est effectif qu'avec cette configuration."
 }
