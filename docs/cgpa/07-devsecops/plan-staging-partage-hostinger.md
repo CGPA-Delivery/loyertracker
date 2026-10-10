@@ -419,6 +419,7 @@ promotion** vers le VPS A et restent ouvertes tant que leur preuve de traitement
 | 10:09 | `vps_firewall_delete-rule` règle TCP 22 (id 1395269) du pare-feu 375064, puis `vps_firewall_sync-to-all-assigned-v-ms` | `ct_firewall` = `success`, `is_synced: true` ; restent 80 et 443. Demandé explicitement par le CDO ; **ordre du plan §4.1b (Tailscale testé avant fermeture) non vérifié par l'assistant**. Retour arrière : recréer TCP 22 `any` puis resynchroniser. |
 | 10:12 | `vps_firewall_create-rule` TCP 22 `any` (id 1395290) puis synchronisation | `success` ; réouverture **temporaire** demandée par le CDO, Tailscale déclaré en place, pour tester SSH |
 | 10:13 | `vps_firewall_delete-rule` règle 1395290 puis synchronisation | `ct_firewall` = `success`, `is_synced: true` ; restent 80 et 443. **Test SSH par Tailscale déclaré concluant par le CDO** : la réserve de l'entrée de 10:09 est levée sur déclaration du CDO (l'assistant n'a pas accès à l'hôte et n'a pas vérifié le test) |
+| heure non relevée (après 10:13) | `dns_records_update` zone `tshilo.dev`, `overwrite: false` : ajout de `*.staging` A `187.7.72.186` TTL 300 | Accepté ; liste relue : seul ajout, les autres enregistrements sont inchangés. Demandé explicitement par le CDO |
 
 Aucune autre action n'a été exécutée. Sauvegarde automatique Hostinger : **non activée** (à faire dans hPanel).
 `harden-host.sh` est **proposé, non exécuté**.
