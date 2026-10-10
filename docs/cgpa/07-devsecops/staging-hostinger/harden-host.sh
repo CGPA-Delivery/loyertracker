@@ -23,7 +23,12 @@ TS_IFACE="tailscale0"
 log()  { printf '[harden] %s\n' "$*"; }
 die()  { printf '[harden] ERREUR: %s\n' "$*" >&2; exit 1; }
 need_root() { [ "$(id -u)" -eq 0 ] || die "à exécuter en root"; }
-need_admin() { [ -n "$STG_ADMIN_USER" ] || die "STG_ADMIN_USER requis (login nominatif, pas root)"; }
+need_admin() {
+  [ -n "$STG_ADMIN_USER" ] || die "STG_ADMIN_USER requis (login nominatif, pas root)"
+  # root refusé : 'ssh-lockdown' écrirait PermitRootLogin no + AllowUsers root = verrouillage total.
+  [ "$STG_ADMIN_USER" != "root" ] || die "STG_ADMIN_USER ne peut pas être root : choisir un login nominatif (ex. deploy)"
+  [[ "$STG_ADMIN_USER" =~ ^[a-z][a-z0-9_-]{1,30}$ ]] || die "STG_ADMIN_USER invalide"
+}
 # Garde-fou : refuse de tourner sur un autre serveur que celui visé (ex. SonarQube srv2044374).
 # Usage : EXPECTED_HOSTNAME=srv2050514 (valeur à saisir consciemment, sans défaut).
 guard_host() {
@@ -156,6 +161,9 @@ phase_ssh_lockdown() {
   need_root; need_admin; guard_host
   id "$STG_ADMIN_USER" >/dev/null 2>&1 || die "utilisateur ${STG_ADMIN_USER} absent : lancer 'prepare' d'abord"
   [ -s "/home/${STG_ADMIN_USER}/.ssh/authorized_keys" ] || die "aucune clé pour ${STG_ADMIN_USER}"
+  # Sans sudo fonctionnel pour l'administrateur, fermer root verrouille toute administration.
+  runuser -u "$STG_ADMIN_USER" -- sudo -n true 2>/dev/null \
+    || die "${STG_ADMIN_USER} n'a pas de sudo sans mot de passe : abandon, aucune modification (voir /etc/sudoers.d)"
   printf '\n[harden] Avez-vous ouvert une 2e session SSH en tant que %s et vérifié « sudo -n true » ? [oui/NON] ' "$STG_ADMIN_USER"
   read -r reponse
   [ "$reponse" = "oui" ] || die "abandon : validez d'abord l'accès de ${STG_ADMIN_USER}"
@@ -170,8 +178,14 @@ LoginGraceTime 30
 X11Forwarding no
 AllowUsers ${STG_ADMIN_USER}
 EOF
-  sshd -t || die "configuration sshd invalide : rien rechargé"
-  systemctl reload ssh || systemctl reload sshd
+  # Ubuntu récent : sshd démarre par socket activation, /run/sshd peut manquer et fait échouer « sshd -t ».
+  install -d -m 0755 /run/sshd
+  if ! sshd -t; then
+    rm -f /etc/ssh/sshd_config.d/90-staging.conf   # ne pas laisser une configuration non validée
+    die "configuration sshd invalide : fichier retiré, rien rechargé"
+  fi
+  systemctl reload ssh || systemctl reload sshd \
+    || die "rechargement impossible : configuration écrite mais NON appliquée (retirer 90-staging.conf si nécessaire)"
   log "sshd rechargé. GARDEZ l'ancienne session ouverte et testez une NOUVELLE connexion avant de la fermer."
   log "Désactiver aussi la connexion root par clé n'est effectif qu'avec cette configuration."
 }
