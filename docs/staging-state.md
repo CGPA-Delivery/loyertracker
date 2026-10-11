@@ -515,7 +515,7 @@ le réseau `loyertracker-net` déjà dédié). Confirmé live : 9 conteneurs `lo
 | Pare-feu Hostinger | `srv2050514-baseline` (id `375064`) : TCP 80 et 443 ouverts à tous ; règle 22 retirée le 2026-10-10 13:16 UTC |
 | Accès administrateur | SSH par clé, compte nominatif `deploy`, via le tailnet ; `root` et mot de passe refusés (`00-staging.conf`) |
 | DNS | `*.staging.tshilo.dev` A `187.7.72.186`, TTL 300 s (zone `tshilo.dev` chez Hostinger) |
-| Sauvegarde Hostinger | Décision CDO du 2026-10-11 : **manuelle, chaque semaine, dans hPanel** (pas d'automatisation). **Aucune sauvegarde réalisée à ce jour** : la première est un prérequis bloquant de tout déploiement ; chaque sauvegarde est datée au journal. RPO jusqu'à 7 jours ; un seul snapshot conservé (le suivant écrase le précédent) |
+| Sauvegarde Hostinger | Décision CDO du 2026-10-11 : **manuelle, chaque semaine, dans hPanel** (pas d'automatisation). **Un snapshot existe** (id `395915`, 2026-10-10 13:30 UTC, hôte durci avec edge ; créé hors assistant, vraisemblablement par le CDO, à confirmer) mais **son expiration est indiquée à 24 h** (2026-10-11 13:30 UTC) : conservation réelle à vérifier, une sauvegarde valide reste un prérequis bloquant de tout déploiement ; chaque sauvegarde est datée au journal. RPO jusqu'à 7 jours ; un seul snapshot conservé (le suivant écrase le précédent). Deux tentatives de création par l'assistant le 2026-10-11 ont échoué (`ECONNRESET`) |
 
 ### Edge (Traefik + docker-socket-proxy)
 
@@ -550,8 +550,10 @@ sudoers, images Traefik/socket-proxy, UFW et fail2ban sur `srv2044374`.
 
 ### Points ouverts
 
-- **Sauvegarde** : manuelle hebdomadaire par décision du CDO (2026-10-11), **première sauvegarde non
-  réalisée** (R-HOST-15 / R-ONB-09, requalifiés, non levés) ; UFW de l'hôte conserve le 22 ouvert (le
+- **Sauvegarde** : manuelle hebdomadaire par décision du CDO (2026-10-11) ; un snapshot du 2026-10-10
+  13:30 UTC existe mais **expire à 24 h selon l'API** : un snapshot ne constitue pas une sauvegarde
+  hebdomadaire tant que sa conservation réelle n'est pas vérifiée (R-HOST-15 / R-ONB-09, requalifiés,
+  non levés) ; UFW de l'hôte conserve le 22 ouvert (le
   pare-feu Hostinger le bloque déjà). Les plans `plan-staging-partage-hostinger.md` (§1, §8.0a) et
   `plan-onboarding-loyertracker-staging-hostinger.md` (§0, §9) parlent encore d'activation automatique :
   à aligner par erratum.
