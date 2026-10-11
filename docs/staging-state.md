@@ -560,6 +560,8 @@ sudoers, images Traefik/socket-proxy, UFW et fail2ban sur `srv2044374`.
   à aligner par erratum.
 - **VPS Francfort `srv2011505`** hors gouvernance : secrets exposés à faire tourner, canaux externes à
   remettre à `false`, `KC_HOSTNAME` à corriger (R-HOST-02 à 04) ; sort à décider (D1).
-- **Décisions** D1, D4, D6 à D10 (plan parent) et D-ONB-1 à 10 (plan d'onboarding) ouvertes.
+- **Décisions** : D1, D4, D6 à D10 (plan parent) et D-ONB-2 à 10 (plan d'onboarding) **décidées le 2026-10-11**
+  (« OK recommandations », fiche `docs/cgpa/07-devsecops/decisions-staging-hostinger.md`) ; **leur exécution
+  n'est pas faite**, et l'approbation du Plan d'Exécution reste à formuler.
 - **STG-ISOL-01** : preuves de l'edge produites ; contrôle `non exécuté` pour LoyerTracker (aucun
   déploiement). CHECK-CICD-01, CHECK-REL-01, CHECK-OPS-01, CHECK-VAL-01 : `non exécuté`.
