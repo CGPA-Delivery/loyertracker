@@ -1,0 +1,270 @@
+# PROPOSÉ — NON EXÉCUTÉ, NON VERSIONNÉ DANS infra/. Gabarit Compose de LoyerTracker pour le Staging
+# mutualisé Hostinger (srv2050514). Dérivé de docker-compose.staging.yml (ai-test-server) ; écarts :
+#   - AUCUN port publié (seul Traefik publie 80/443) ; nginx rejoint le réseau edge-loyertracker ;
+#   - labels Traefik (routeurs, exceptions /api/ et /verify/, transport TLS interne) ;
+#   - réseau `internal` NON `internal: true` : l'API et Keycloak ont besoin d'une sortie Internet
+#     (Twilio, Resend, SMTP) — compensé par les drapeaux de canaux externes à false (K8, ADR-18) ;
+#   - service keycloak-public-host-init (redirect URIs du domaine Staging, par API Admin) ;
+#   - keycloak-smtp-init sous profil `smtp` (inactif tant que les identifiants SMTP ne sont pas fournis) ;
+#   - les fichiers du dépôt sont lus depuis ./repo (checkout du commit de la release, droits stg-loyertracker).
+# Invocation (via le wrapper stg-deploy uniquement, jamais à la main) :
+#   docker compose -p loyertracker-staging --project-directory /srv/loyertracker \
+#     --env-file /srv/loyertracker/env/.env -f /srv/loyertracker/compose.yml up -d <services>
+name: loyertracker-staging
+
+services:
+  postgres:
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    logging: &log
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 512M }
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    command: ["start", "--import-realm", "--http-relative-path=/auth"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: ${KC_HOSTNAME:?KC_HOSTNAME = hôte public du Staging}
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./repo/infra/keycloak/realm-loyertracker.json:/opt/keycloak/data/import/realm-loyertracker.json:ro
+      - ./repo/infra/keycloak/themes/loyertracker:/opt/keycloak/themes/loyertracker:ro
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /auth/health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    logging: *log
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 1G }
+
+  keycloak-init:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    entrypoint: ["bash", "/opt/keycloak/data/bootstrap-test-account.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KEYCLOAK_TEST_BAILLEUR_PASSWORD: ${KEYCLOAK_TEST_BAILLEUR_PASSWORD}
+      KEYCLOAK_API_CLIENT_SECRET: ${KEYCLOAK_API_CLIENT_SECRET}
+    volumes:
+      - ./repo/infra/keycloak/bootstrap-test-account.sh:/opt/keycloak/data/bootstrap-test-account.sh:ro
+    depends_on:
+      keycloak: { condition: service_healthy }
+    networks: [internal]
+    restart: "no"
+    logging: *log
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 512M }
+
+  keycloak-theme-init:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    entrypoint: ["bash", "/opt/keycloak/data/activate-login-theme.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./repo/infra/keycloak/activate-login-theme.sh:/opt/keycloak/data/activate-login-theme.sh:ro
+    depends_on:
+      keycloak: { condition: service_healthy }
+    networks: [internal]
+    restart: "no"
+    logging: *log
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 512M }
+
+  # NOUVEAU (script proposé dans ce dossier, à intégrer au dépôt après approbation du Plan d'Exécution) :
+  # le realm versionné ne connaît que les domaines loyerpro.org ; sans cette étape, la connexion OIDC
+  # est refusée sur *.staging.tshilo.dev. Même mécanisme que keycloak-theme-init (API Admin, jamais
+  # d'édition du JSON de realm — DD-EP17-01).
+  keycloak-public-host-init:
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    entrypoint: ["bash", "/opt/keycloak/data/keycloak-public-host-init.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      APP_PUBLIC_HOST: ${APP_PUBLIC_HOST:?APP_PUBLIC_HOST = hôte public du Staging}
+    volumes:
+      - ./keycloak-public-host-init.sh:/opt/keycloak/data/keycloak-public-host-init.sh:ro
+    depends_on:
+      keycloak: { condition: service_healthy }
+    networks: [internal]
+    restart: "no"
+    logging: *log
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 512M }
+
+  # SMTP Keycloak (« mot de passe oublié ») : inactif par défaut. Activer par `--profile smtp` UNIQUEMENT
+  # quand de NOUVEAUX identifiants SMTP sont fournis sur l'hôte (les anciens sont à considérer exposés).
+  keycloak-smtp-init:
+    profiles: [smtp]
+    image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
+    entrypoint: ["bash", "/opt/keycloak/data/configure-smtp-staging.sh"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # `:-` et non `:?` : Compose interpole aussi les services dont le profil est inactif ; un `:?` ici
+      # bloquerait tout déploiement tant que le SMTP n'est pas fourni. Les valeurs vides sont refusées par le script.
+      KC_SMTP_HOST: ${KC_SMTP_HOST:-}
+      KC_SMTP_PORT: ${KC_SMTP_PORT:-587}
+      KC_SMTP_USER: ${KC_SMTP_USER:-}
+      KC_SMTP_PASSWORD: ${KC_SMTP_PASSWORD:-}
+      KC_SMTP_FROM: ${KC_SMTP_FROM:-noreply@loyertracker.org}
+      KC_SMTP_FROM_DISPLAY: ${KC_SMTP_FROM_DISPLAY:-LoyerTracker}
+      KC_SMTP_REPLY_TO: ${KC_SMTP_REPLY_TO:-noreply@loyertracker.org}
+    volumes:
+      - ./repo/infra/keycloak/configure-smtp-staging.sh:/opt/keycloak/data/configure-smtp-staging.sh:ro
+    depends_on:
+      keycloak: { condition: service_healthy }
+    networks: [internal]
+    restart: "no"
+
+  api:
+    image: ${API_IMAGE_REF:?API_IMAGE_REF = ghcr.io/.../loyertracker-api@sha256:...}
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USER: ${DB_APP_USER}
+      DB_PASSWORD: ${DB_APP_PASSWORD}
+      DB_ADMIN_USER: ${POSTGRES_USER}
+      DB_ADMIN_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_BATCH_USER: ${DB_BATCH_USER}
+      DB_BATCH_PASSWORD: ${DB_BATCH_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      KEYCLOAK_JWK_SET_URI: ${KEYCLOAK_JWK_SET_URI}
+      KEYCLOAK_ADMIN_BASE_URL: ${KEYCLOAK_ADMIN_BASE_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_API_CLIENT_ID: ${KEYCLOAK_API_CLIENT_ID}
+      KEYCLOAK_API_CLIENT_SECRET: ${KEYCLOAK_API_CLIENT_SECRET}
+      APP_CORS_ALLOWED_ORIGIN: ${APP_CORS_ALLOWED_ORIGIN:?APP_CORS_ALLOWED_ORIGIN}
+      APP_INVITATION_BASE_URL: ${APP_INVITATION_BASE_URL:?APP_INVITATION_BASE_URL}
+      QUITTANCE_HMAC_SECRET: ${QUITTANCE_HMAC_SECRET:?QUITTANCE_HMAC_SECRET}
+      QUITTANCE_TOKEN_KID: ${QUITTANCE_TOKEN_KID:-1}
+      QUITTANCE_VERIFY_BASE_URL: ${QUITTANCE_VERIFY_BASE_URL:?QUITTANCE_VERIFY_BASE_URL}
+      # Canaux externes : FERMÉS (K8, ADR-18). Aucun secret Twilio/Resend n'est copié depuis un autre hôte.
+      NOTIFICATIONS_EXTERNAL_ENABLED: ${NOTIFICATIONS_EXTERNAL_ENABLED:-false}
+      TWILIO_WHATSAPP_ENABLED: ${TWILIO_WHATSAPP_ENABLED:-false}
+      TWILIO_SMS_ENABLED: ${TWILIO_SMS_ENABLED:-false}
+      NOTIFICATION_DRY_RUN: ${NOTIFICATION_DRY_RUN:-true}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_WHATSAPP_FROM: ${TWILIO_WHATSAPP_FROM:-}
+      TWILIO_SMS_FROM: ${TWILIO_SMS_FROM:-}
+      TWILIO_STATUS_CALLBACK_BASE_URL: ${TWILIO_STATUS_CALLBACK_BASE_URL:?TWILIO_STATUS_CALLBACK_BASE_URL}
+      NOTIFICATION_FALLBACK_ENABLED: ${NOTIFICATION_FALLBACK_ENABLED:-false}
+      NOTIFICATION_BUDGET_MENSUEL_MAX: ${NOTIFICATION_BUDGET_MENSUEL_MAX:-0}
+      NOTIFICATION_BUDGET_SEUIL_ALERTE: ${NOTIFICATION_BUDGET_SEUIL_ALERTE:-0.8}
+      RESEND_EMAIL_ENABLED: ${RESEND_EMAIL_ENABLED:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+      RESEND_FROM_NAME: ${RESEND_FROM_NAME:-LoyerTracker}
+      RESEND_REPLY_TO: ${RESEND_REPLY_TO:-}
+      RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET:-}
+      RESEND_BASE_URL: ${RESEND_BASE_URL:-https://api.resend.com}
+      RESEND_CONNECT_TIMEOUT_MS: ${RESEND_CONNECT_TIMEOUT_MS:-3000}
+      RESEND_READ_TIMEOUT_MS: ${RESEND_READ_TIMEOUT_MS:-10000}
+    depends_on:
+      postgres: { condition: service_healthy }
+      keycloak: { condition: service_started }
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    logging: *log
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 1G }
+
+  nginx:
+    image: ${WEB_IMAGE_REF:?WEB_IMAGE_REF = ghcr.io/.../loyertracker-web@sha256:...}
+    # AUCUN `ports:`. Le seul port 8080 clair de l'image redirige tout vers HTTPS : Traefik cible donc 8443
+    # en TLS (certificat auto-signé interne, transport `skipverify-internal@file`, voir transports.yml).
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      api: { condition: service_started }
+      keycloak: { condition: service_started }
+    networks: [internal, edge]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz | grep -q ok"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+    logging: *log
+    deploy:
+      resources:
+        limits: { cpus: "0.5", memory: 128M }
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=edge-loyertracker
+      # Service : nginx en HTTPS 8443, transport vers certificat interne auto-signé.
+      - traefik.http.services.loyertracker.loadbalancer.server.port=8443
+      - traefik.http.services.loyertracker.loadbalancer.server.scheme=https
+      - traefik.http.services.loyertracker.loadbalancer.serverstransport=skipverify-internal@file
+      # Routeur par défaut : TOUT est protégé par staging-auth (SPA, /auth/).
+      - traefik.http.routers.loyertracker.rule=Host(`${APP_PUBLIC_HOST}`)
+      - traefik.http.routers.loyertracker.priority=10
+      - traefik.http.routers.loyertracker.entrypoints=websecure
+      - traefik.http.routers.loyertracker.tls.certresolver=le
+      - traefik.http.routers.loyertracker.middlewares=staging-auth@file,staging-headers@file
+      - traefik.http.routers.loyertracker.service=loyertracker
+      # Exceptions explicites (priorité supérieure, SANS staging-auth) : l'API porte un JWT Bearer qu'une
+      # basic-auth intercepterait (écart NPM 5), et /verify/ est une page publique par conception (écart 6).
+      - traefik.http.routers.loyertracker-open.rule=Host(`${APP_PUBLIC_HOST}`) && (PathPrefix(`/api/`) || PathPrefix(`/verify/`))
+      - traefik.http.routers.loyertracker-open.priority=100
+      - traefik.http.routers.loyertracker-open.entrypoints=websecure
+      - traefik.http.routers.loyertracker-open.tls.certresolver=le
+      - traefik.http.routers.loyertracker-open.middlewares=staging-headers@file
+      - traefik.http.routers.loyertracker-open.service=loyertracker
+
+networks:
+  # Non `internal: true` : sortie Internet nécessaire (voir en-tête). Nom namespacé par le projet Compose.
+  internal:
+    driver: bridge
+  edge:
+    name: edge-loyertracker
+    external: true
+
+volumes:
+  postgres-data:

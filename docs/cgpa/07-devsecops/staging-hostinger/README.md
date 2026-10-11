@@ -10,6 +10,7 @@
 | `edge/edge.sh` | Edge mutualisé : `install`, `add-project <projet>`, `verify` (à lancer après `harden-host.sh prepare`) |
 | `edge/compose.yml` | Traefik v3.7 + `docker-socket-proxy`, seul projet publiant 80/443 ; réseaux `public`, `socket` (internal) et `edge-<projet>` |
 | `edge/dynamic/middlewares.yml` | `staging-auth` (basic-auth, `removeHeader`), `staging-headers`, TLS ≥ 1.2 |
+| `loyertracker/` | **Proposé** (onboarding de LoyerTracker, voir [`../plan-onboarding-loyertracker-staging-hostinger.md`](../plan-onboarding-loyertracker-staging-hostinger.md)) : `compose.yml`, `keycloak-public-host-init.sh`, `gen-env.sh`, `transports.yml`. Non exécutés, non versionnés dans `infra/`. |
 
 ### Edge — déroulé (à faire par le CDO, sur l'hôte, en root)
 

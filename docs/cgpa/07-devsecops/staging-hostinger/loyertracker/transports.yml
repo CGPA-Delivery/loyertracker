@@ -1,0 +1,12 @@
+# PROPOSÉ — NON EXÉCUTÉ. À ajouter à l'edge (/srv/edge/dynamic/transports.yml) par changement contrôlé
+# (PR sur edge/ + edge.sh install, qui devra copier tous les dynamic/*.yml et pas seulement middlewares.yml).
+#
+# Transport vers un backend HTTPS à certificat auto-signé INTERNE (nginx de l'image web LoyerTracker,
+# port 8443, certificat localhost). La vérification est désactivée UNIQUEMENT pour ce saut, sur un réseau
+# bridge dédié `edge-<projet>` (aucun autre projet n'y est attaché). Les clients Internet voient le
+# certificat Let's Encrypt de Traefik. Alternative plus stricte, à instruire en ADR : certificat interne
+# signé par une CA privée et `rootCAs` ici.
+http:
+  serversTransports:
+    skipverify-internal:
+      insecureSkipVerify: true
