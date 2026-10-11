@@ -10,7 +10,7 @@
 | `edge/edge.sh` | Edge mutualisé : `install`, `add-project <projet>`, `verify` (à lancer après `harden-host.sh prepare`) |
 | `edge/compose.yml` | Traefik v3.7 + `docker-socket-proxy`, seul projet publiant 80/443 ; réseaux `public`, `socket` (internal) et `edge-<projet>` |
 | `edge/dynamic/middlewares.yml` | `staging-auth` (basic-auth, `removeHeader`), `staging-headers`, TLS ≥ 1.2 |
-| `loyertracker/` | **Proposé** (onboarding de LoyerTracker, voir [`../plan-onboarding-loyertracker-staging-hostinger.md`](../plan-onboarding-loyertracker-staging-hostinger.md)) : `compose.yml`, `keycloak-public-host-init.sh`, `gen-env.sh`, `transports.yml`. Non exécutés, non versionnés dans `infra/`. |
+| `loyertracker/` | **Proposé** (onboarding de LoyerTracker, voir [`../plan-onboarding-loyertracker-staging-hostinger.md`](../plan-onboarding-loyertracker-staging-hostinger.md)) : `compose.yml`, `keycloak-public-host-init.sh`, `gen-env.sh`, `transports.yml`, `stg-deploy.sh`, `project-prep.sh`, `run-smoke.sh` et le **runbook L1 à L3** [`loyertracker/RUNBOOK-L1-L3.md`](loyertracker/RUNBOOK-L1-L3.md). Non exécutés, non versionnés dans `infra/`. |
 
 ### Edge — déroulé (à faire par le CDO, sur l'hôte, en root)
 
@@ -61,3 +61,7 @@ Le 2026-10-10, `edge.sh install` a été lancé par erreur sur `srv2044374` (Son
 `srv2050514`. Les scripts exigent désormais `EXPECTED_HOSTNAME=<hôte visé>` (sans valeur par défaut) et
 s'arrêtent si `hostname -s` diffère. `prepare` refuse en plus de tourner si des conteneurs existent déjà,
 et `install` refuse si les ports 80/443 sont occupés. Vérifier `hostname` avant toute commande.
+
+## Intégrité des fichiers
+
+`SHA256SUMS` liste les empreintes (contenu en fins de ligne LF) des scripts et fichiers de configuration. Après copie sur l'hôte : `find . -type f \( -name '*.sh' -o -name '*.yml' -o -name SHA256SUMS \) -exec sed -i 's/\r$//' {} + && sha256sum -c SHA256SUMS`. À régénérer à chaque modification d'un de ces fichiers.
