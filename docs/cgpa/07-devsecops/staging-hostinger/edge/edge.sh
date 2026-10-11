@@ -89,7 +89,10 @@ cmd_install() {
     mv -f "$tmp" "$dst"
   }
   install_atomic "$SRC_DIR/compose.yml" "$EDGE_DIR/compose.yml"
-  install_atomic "$SRC_DIR/dynamic/middlewares.yml" "$EDGE_DIR/dynamic/middlewares.yml"
+  # Tous les fichiers de configuration dynamique (middlewares.yml, transports.yml…), pas seulement le premier.
+  for f in "$SRC_DIR"/dynamic/*.yml; do
+    install_atomic "$f" "$EDGE_DIR/dynamic/$(basename "$f")"
+  done
   [ -f "$EDGE_DIR/networks.yml" ] || printf 'services:\n  traefik: {}\n' >"$EDGE_DIR/networks.yml"
   [ -f "$EDGE_DIR/projects.list" ] || : >"$EDGE_DIR/projects.list"
   if [ ! -f "$EDGE_DIR/letsencrypt/acme.json" ]; then
@@ -221,9 +224,19 @@ cmd_verify() {
   [ "$ko" -eq 0 ]
 }
 
+# Instantané manuel (preuve STG-ISOL-01 avant/après un déploiement de projet) : conteneurs, réseaux, volumes.
+cmd_snapshot() {
+  need_root; guard_host
+  local label="${1:-manuel}"
+  [[ "$label" =~ ^[a-z0-9-]{1,40}$ ]] || die "libellé invalide (minuscules, chiffres, tirets)"
+  [ -d "$EDGE_DIR" ] || die "edge non installé"
+  snapshot "$label"
+}
+
 case "${1:-}" in
+  snapshot)    shift; cmd_snapshot "${1:-}" ;;
   install)     cmd_install ;;
   add-project) shift; cmd_add_project "${1:-}" ;;
   verify)      cmd_verify ;;
-  *) die "usage : ACME_EMAIL=<email> $0 install | $0 add-project <projet> | $0 verify" ;;
+  *) die "usage : ACME_EMAIL=<email> $0 install | $0 add-project <projet> | $0 verify | $0 snapshot <libellé>" ;;
 esac
