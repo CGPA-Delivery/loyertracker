@@ -1,5 +1,7 @@
 # État Staging — LoyerTracker
 
+> **Nouvel hôte Staging mutualisé Hostinger `srv2050514` — en construction, aucun projet déployé (2026-10-11).** `ai-test-server` reste le Staging de référence de LoyerTracker ; rien n'y est modifié. L'hôte Hostinger (KVM 4, Düsseldorf, `187.7.72.186`) est durci et porte l'edge Traefik (`edge.sh verify` 8 PASS / 0 FAIL) ; LoyerTracker n'y est pas encore déployé. Voir §12, `docs/cgpa/07-devsecops/plan-staging-partage-hostinger.md` et `docs/cgpa/07-devsecops/plan-onboarding-loyertracker-staging-hostinger.md` (plans **proposés**, décisions du CDO ouvertes).
+
 > **Gate Staging US-125 — GO / STAGING_DEPLOYED (2026-08-08T22:09:25Z).** Validation humaine explicite reçue. Candidat `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a` promu sur `ai-test-server` avec API `ghcr.io/cgpa-delivery/loyertracker-api@sha256:8e94c002a65bff590c9694b1dd79ca2eb9ab04639f9f59ddb5b735afe001a30d` et Web `ghcr.io/cgpa-delivery/loyertracker-web@sha256:18ade4b483955691fedd7d46a2c893ff27facd9d6dcf5249350005080d679d67`. STG-ISOL-01 PASS avant/après : NPM `restart=0`, stacks voisines inchangées, seuls `api`/`nginx` recréés. Backup PostgreSQL vérifié : `loyertracker-staging-20260808-220627.dump` SHA-256 `7445b35bd5f1ccac2530ade5785aba136928eaa9330fac7c23757f60c1c378dc` + globals SHA-256 `ac79437acbb67a3bbc251f73924290380abd66427e6e0aad88b2d1201c0137da`. Flyway 32/32. Smoke réel **63 PASS / 0 FAIL**, health 200, Actuator interne 200/public 404, isolation cross-tenant et ports internes non publiés PASS. Décision détaillée : `docs/cgpa/07-devsecops/gate-staging-us125-decision.md`. Production non autorisée ; CHECK-REL-01 et Gate Production distincts requis.
 
 > Rapport de déploiement staging réel et de smoke test contre staging (plan Production
@@ -495,3 +497,66 @@ n'introduisent ni port, ni volume nommé, ni réseau externe (bind-mount lecture
 le réseau `loyertracker-net` déjà dédié). Confirmé live : 9 conteneurs `loyertracker-staging-*` +
 `nginx-proxy-manager` identiques avant/après, seul `keycloak` recréé. Détail complet §8, entrée du
 2026-08-03.
+
+## 12. Staging mutualisé Hostinger `srv2050514` — en construction (2026-10-10/11)
+
+> **Statut : hôte et edge prêts, aucun projet déployé.** Ce n'est pas un Gate Staging : aucune décision de
+> Gate n'est rendue ici. Plans (proposés) : `docs/cgpa/07-devsecops/plan-staging-partage-hostinger.md` et
+> `docs/cgpa/07-devsecops/plan-onboarding-loyertracker-staging-hostinger.md`. Artefacts :
+> `docs/cgpa/07-devsecops/staging-hostinger/`.
+
+### Hôte et réseau
+
+| Champ | Valeur |
+|---|---|
+| Hôte | `srv2050514` — KVM 4 (4 vCPU / 16 Go / 200 Go), datacenter Düsseldorf (`dus`), Ubuntu 26.04 LTS |
+| Écart accepté | Achat décidé : KVM 2, Francfort ; réalisé : KVM 4, Düsseldorf (décision D2 ter du CDO, 2026-10-10) |
+| Adresses | IPv4 `187.7.72.186`, tailnet `100.107.177.98` (Tailscale) |
+| Pare-feu Hostinger | `srv2050514-baseline` (id `375064`) : TCP 80 et 443 ouverts à tous ; règle 22 retirée le 2026-10-10 13:16 UTC |
+| Accès administrateur | SSH par clé, compte nominatif `deploy`, via le tailnet ; `root` et mot de passe refusés (`00-staging.conf`) |
+| DNS | `*.staging.tshilo.dev` A `187.7.72.186`, TTL 300 s (zone `tshilo.dev` chez Hostinger) |
+| Sauvegarde Hostinger | Décision CDO du 2026-10-11 : **manuelle, chaque semaine, dans hPanel** (pas d'automatisation). **Aucune sauvegarde réalisée à ce jour** : la première est un prérequis bloquant de tout déploiement ; chaque sauvegarde est datée au journal. RPO jusqu'à 7 jours ; un seul snapshot conservé (le suivant écrase le précédent) |
+
+### Edge (Traefik + docker-socket-proxy)
+
+Projet Compose `edge` dans `/srv/edge`, seul à publier 80/443. Digests figés : Traefik
+`sha256:575fa15b…`, docker-socket-proxy `sha256:9e4b9e75…`. TLS Let's Encrypt (HTTP-01 par hôte) ;
+`staging-auth` (basic-auth) et `staging-headers` disponibles pour les routeurs de projet ; `sniStrict`.
+`edge.sh verify` du 2026-10-10 : **8 PASS / 0 FAIL** (ports 22/80/443 hors boucle locale, seul
+`edge-traefik-1` publie des ports, Traefik `healthy`, socket-proxy `running`, hôte inconnu refusé par TLS,
+HTTP → 301, `.env` et `acme.json` en 0600). Instantanés avant/après dans `/srv/edge/snapshots/`.
+Aucun projet n'est routé (`projects.list` vide).
+
+### Registre des ressources partagées (plan parent §5.3)
+
+| Ressource | Propriétaire proposé | Conditions d'usage |
+|---|---|---|
+| VPS Hostinger `srv2050514` | CDO / DevSecOps Lead | Aucun projet ne publie de port hôte ; pas d'accès root pour les projets |
+| Traefik + socket-proxy | DevSecOps Lead | Modifié par PR et changement contrôlé uniquement |
+| Compte ACME / `acme.json` | DevSecOps Lead | Droits 0600, à sauvegarder |
+| Zone DNS `staging.tshilo.dev` | CDO | TTL ≤ 300 s avant toute bascule |
+| Pare-feu Hostinger `375064` | DevSecOps Lead | Toute règle datée et justifiée |
+| Sauvegardes hors hôte | À désigner (D6) | Chiffrées, restauration éprouvée |
+
+### Incident du 2026-10-10 — exécution sur le mauvais serveur
+
+Un profil SSH visant `92.112.194.1` (`srv2044374`, SonarQube) a conduit à exécuter `harden-host.sh prepare`
+puis `edge.sh install` sur ce serveur à la place de `srv2050514`. Constat : UFW, fail2ban, `daemon.json`
+(non appliqué : Docker n'a pas redémarré) et un sudo sans mot de passe ajoutés ; `ssh-lockdown` non lancé ;
+SonarQube non interrompu (analyse CI de 11:10 UTC aboutie ; son état `unhealthy` n'est pas imputable à ces
+changements, cause non établie). Projet `edge` retiré. Garde-fous ajoutés aux scripts (`EXPECTED_HOSTNAME`,
+refus de `root`, contrôle du sudo, ports 80/443 libres). **Nettoyage restant à décider** : `daemon.json`,
+sudoers, images Traefik/socket-proxy, UFW et fail2ban sur `srv2044374`.
+
+### Points ouverts
+
+- **Sauvegarde** : manuelle hebdomadaire par décision du CDO (2026-10-11), **première sauvegarde non
+  réalisée** (R-HOST-15 / R-ONB-09, requalifiés, non levés) ; UFW de l'hôte conserve le 22 ouvert (le
+  pare-feu Hostinger le bloque déjà). Les plans `plan-staging-partage-hostinger.md` (§1, §8.0a) et
+  `plan-onboarding-loyertracker-staging-hostinger.md` (§0, §9) parlent encore d'activation automatique :
+  à aligner par erratum.
+- **VPS Francfort `srv2011505`** hors gouvernance : secrets exposés à faire tourner, canaux externes à
+  remettre à `false`, `KC_HOSTNAME` à corriger (R-HOST-02 à 04) ; sort à décider (D1).
+- **Décisions** D1, D4, D6 à D10 (plan parent) et D-ONB-1 à 10 (plan d'onboarding) ouvertes.
+- **STG-ISOL-01** : preuves de l'edge produites ; contrôle `non exécuté` pour LoyerTracker (aucun
+  déploiement). CHECK-CICD-01, CHECK-REL-01, CHECK-OPS-01, CHECK-VAL-01 : `non exécuté`.
