@@ -186,7 +186,7 @@ Attendu : 8 PASS ; les instantanés ne diffèrent que par les conteneurs, le ré
 
 | Étape | Heure UTC | Résultat | Preuve |
 |---|---|---|---|
-| P5 snapshot | | | id : |
+| P5 snapshot | 2026-10-11 13:50 | `ct_snapshot_create` 119524229 : success | id `395915`, expire 2026-10-12 13:50:17 UTC (24 h) |
 | L1.1 empreintes | | | |
 | L1.2 edge verify | | | 8 PASS |
 | L1.3 add-project | | | |
