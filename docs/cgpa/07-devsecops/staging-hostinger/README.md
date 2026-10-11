@@ -64,4 +64,4 @@ et `install` refuse si les ports 80/443 sont occupés. Vérifier `hostname` avan
 
 ## Intégrité des fichiers
 
-`SHA256SUMS` liste les empreintes (contenu en fins de ligne LF) des scripts et fichiers de configuration. Après copie sur l'hôte : `find . -type f \( -name '*.sh' -o -name '*.yml' \) -exec sed -i 's/\r$//' {} + && sha256sum -c SHA256SUMS`. À régénérer à chaque modification d'un de ces fichiers.
+`SHA256SUMS` liste les empreintes (contenu en fins de ligne LF) des scripts et fichiers de configuration. Après copie sur l'hôte : `find . -type f \( -name '*.sh' -o -name '*.yml' -o -name SHA256SUMS \) -exec sed -i 's/\r$//' {} + && sha256sum -c SHA256SUMS`. À régénérer à chaque modification d'un de ces fichiers.

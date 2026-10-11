@@ -58,7 +58,7 @@ Toutes les commandes se lancent sur `srv2050514`, en `deploy`.
 **L1.1** Vérifier le dossier copié (les empreintes doivent toutes afficher `OK`) :
 
 ```bash
-cd ~/staging-hostinger && find . -type f \( -name '*.sh' -o -name '*.yml' \) -exec sed -i 's/\r$//' {} + && sha256sum -c SHA256SUMS
+cd ~/staging-hostinger && find . -type f \( -name '*.sh' -o -name '*.yml' -o -name SHA256SUMS \) -exec sed -i 's/\r$//' {} + && sha256sum -c SHA256SUMS
 ```
 
 **L1.2** Mettre à jour l'edge (copie `transports.yml`, idempotent) puis le contrôler :
