@@ -5,6 +5,13 @@
 > Delivery Officer (CDO). Cadre : CGPA v6.1.1 Enterprise. Date : 2026-10-11.
 > Plan parent : [`plan-staging-partage-hostinger.md`](plan-staging-partage-hostinger.md) (PR #555, fusionnée).
 > Artefacts proposés : [`staging-hostinger/loyertracker/`](staging-hostinger/loyertracker/).
+>
+> **Erratum du 2026-10-11 — sauvegarde.** Ce plan exigeait l'activation de la sauvegarde automatique Hostinger
+> avant L3. Le CDO a décidé d'une **sauvegarde manuelle hebdomadaire dans hPanel**. Le snapshot de
+> `srv2050514` (id `395915`, recréé le 2026-10-11 à 13:50:17 UTC) **expire 24 h après sa création** : le
+> prérequis de L3 devient « **un snapshot de moins de 24 h au moment du lancement**, plus un `pg_dump -Fc` avec
+> copie hors hôte (D6) ». Les mentions d'activation automatique (§0, §8, §9, R-ONB-09, §12) sont remplacées
+> en conséquence ; le prérequis reste **bloquant**.
 
 ## 0. Périmètre et préconditions
 
@@ -19,7 +26,7 @@ Francfort `srv2011505`, `srv2044374` (SonarQube).
 | Hôte durci, SSH par clé et Tailscale, 22 fermé côté Hostinger | Fait (journal du plan parent) |
 | Edge Traefik + socket-proxy, `edge.sh verify` | 8 PASS / 0 FAIL |
 | DNS `*.staging.tshilo.dev` → `187.7.72.186` | Fait |
-| Sauvegarde automatique Hostinger | **Non activée** (hPanel) — bloquante avant tout déploiement (§9) |
+| Sauvegarde Hostinger | Décision du CDO du 2026-10-11 : **manuelle hebdomadaire** ; snapshot `395915` recréé le 2026-10-11 à 13:50 UTC, **expire 24 h après sa création** : un snapshot valide au moment du lancement reste **bloquant** avant tout déploiement (§9) |
 | Nettoyage de `srv2044374` | À finir (non bloquant pour ce plan) |
 | Décisions D-ONB-1 à D-ONB-10 (§11) | **Ouvertes** |
 
@@ -138,7 +145,7 @@ ce plan.**
 
 ## 8. Déploiement par digest et preuves (STG-ISOL-01 et smoke)
 
-1. Préflight : sauvegarde Hostinger active ; `edge.sh verify` PASS ; instantané `STG-ISOL-01` **avant**.
+1. Préflight : snapshot Hostinger **valide à cet instant** (créé depuis moins de 24 h) ; `edge.sh verify` PASS ; instantané `STG-ISOL-01` **avant**.
 2. `edge.sh add-project loyertracker` (réseau `edge-loyertracker`, recréation ciblée de Traefik).
 3. Checkout du commit de release et empreinte consignée ; certificat interne ; `gen-env.sh` ; `docker login`.
 4. Déploiement : `pull` puis `up -d` des services, par `stg-deploy`, avec les deux références digest.
@@ -160,7 +167,9 @@ ce plan.**
 
 ## 9. Sauvegarde, restauration, rollback
 
-- **Sauvegarde Hostinger automatique : prérequis bloquant** (R-HOST-15), plus `infra/backup/backup-postgres.sh`
+- **Sauvegarde Hostinger manuelle hebdomadaire (décision du CDO du 2026-10-11) : un snapshot valide au moment du
+  lancement est un prérequis bloquant** (R-HOST-15) ; expirant 24 h après sa création, il ne remplace pas la
+  sauvegarde applicative ; plus `infra/backup/backup-postgres.sh`
   en cron avec `BACKUP_DIR=/srv/loyertracker/backups` et un projet Compose explicite ; copie hors hôte
   (D6 du plan parent, à désigner). La restauration est éprouvée **une fois** avant le Gate.
 - **Rollback applicatif** : redéployer le jeu de digests précédent. **Rollback complet** : `docker compose -p
@@ -201,7 +210,7 @@ ce plan.**
 | R-ONB-06 | Saut TLS interne sans vérification de certificat | Faible | Réseau dédié ; CA privée en option (ADR) |
 | R-ONB-07 | Limites Let's Encrypt (émissions par domaine enregistré, `tshilo.dev`) | Faible | Un certificat par hôte, essais en `staging` ACME avant le réel |
 | R-ONB-08 | Dérive entre digests d'images et fichiers `infra/` du checkout | Moyenne | Commit de release fixé, empreinte consignée, contrôle avant `up` |
-| R-ONB-09 | Sauvegarde Hostinger non active ; restauration non éprouvée | Élevée | Prérequis bloquant §0 et §9 |
+| R-ONB-09 | Sauvegarde Hostinger manuelle hebdomadaire ; snapshot valide 24 h seulement ; restauration non éprouvée | Élevée | Prérequis bloquant §0 et §9 : snapshot de moins de 24 h au lancement + `pg_dump` hors hôte |
 | R-ONB-10 | Cible de déploiement des workflows CI non établie (non trouvée dans `ci.yml`) | Moyenne | Inventaire au lot L1 ; aucun secret ni accès Production touché |
 
 Une réserve ne neutralise jamais un bloqueur : R-ONB-05 et R-ONB-09 sont **bloquants** pour L3.
@@ -211,19 +220,19 @@ Une réserve ne neutralise jamais un bloqueur : R-ONB-05 et R-ONB-09 sont **bloq
 | # | Question | Proposition |
 |---|---|---|
 | D-ONB-1 | Données : démarrage à vide ou migration | À vide (§6) |
-| D-ONB-2 | Candidat : digests du Gate US-125 ou dernier `main` | Digests du Gate US-125 (§1.7), puis Gate dédié |
-| D-ONB-3 | Hôte applicatif | `loyertracker.staging.tshilo.dev` |
-| D-ONB-4 | Exceptions sans basic-auth sur `/api/` et `/verify/` | Reconduites (§4) |
-| D-ONB-5 | Saut TLS interne | `insecureSkipVerify` sur réseau dédié, CA privée plus tard |
-| D-ONB-6 | SMTP Keycloak | Différé (profil `smtp`) |
-| D-ONB-7 | Monitoring | Lot séparé après la sauvegarde |
-| D-ONB-8 | Provenance du dépôt sur l'hôte | Archive du commit de release (empreinte consignée) plutôt qu'un `git clone` authentifié |
-| D-ONB-9 | Jeton GHCR lecture seule : propriétaire et rotation | À désigner |
-| D-ONB-10 | Premier calendrier de L1 à L4 | À fixer |
+| D-ONB-2 | Candidat : digests du Gate US-125 ou dernier `main` | Digests du Gate US-125 (§1.7), puis Gate dédié — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-3 | Hôte applicatif | `loyertracker.staging.tshilo.dev` — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-4 | Exceptions sans basic-auth sur `/api/` et `/verify/` | Reconduites (§4) — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-5 | Saut TLS interne | `insecureSkipVerify` sur réseau dédié, CA privée plus tard — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-6 | SMTP Keycloak | Différé (profil `smtp`) — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-7 | Monitoring | Lot séparé après la sauvegarde — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-8 | Provenance du dépôt sur l'hôte | Archive du commit de release (empreinte consignée) plutôt qu'un `git clone` authentifié — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-9 | Jeton GHCR lecture seule : propriétaire et rotation | À désigner — **décidé le 2026-10-11** (fiche de décision) |
+| D-ONB-10 | Premier calendrier de L1 à L4 | À fixer — **décidé le 2026-10-11** (fiche de décision) |
 
 ## 12. Prochaines étapes
 
 1. Relecture et décisions D-ONB-1 à 10 par le CDO.
-2. Activation de la sauvegarde Hostinger (hPanel) : prérequis de L3.
+2. Sauvegarde valide au moment du lancement (snapshot de moins de 24 h, plus `pg_dump` hors hôte) : prérequis de L3.
 3. Sur « oui » explicite, L1 puis L2 : chaque action (compte, clé, réseau, changement de l'edge, PR) est
    annoncée avec ses paramètres et son impact avant exécution.

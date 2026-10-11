@@ -4,6 +4,15 @@
 > autorisation d'achat, de changement DNS, de modification de pare-feu ou de promotion.
 > Décision CGPA finale : CGPA Chief Delivery Officer (CDO). Cadre : CGPA v6.1.1 Enterprise.
 > Prompt d'origine : `docs/prompts/prompt-staging-partage-hostinger.md`.
+>
+> **Erratum du 2026-10-11 — sauvegarde.** Ce plan prévoyait l'activation de la sauvegarde automatique Hostinger.
+> Le CDO a décidé le 2026-10-11 d'une **sauvegarde manuelle hebdomadaire dans hPanel** (aucune automatisation).
+> Le snapshot de `srv2050514` (id `395915`, recréé le 2026-10-11 à 13:50:17 UTC) **expire 24 h après sa
+> création** (confirmé) : il ne couvre qu'une journée et ne constitue pas une sauvegarde hebdomadaire. Les
+> mentions d'activation de la sauvegarde automatique (§1, R-HOST-15) sont **remplacées** par cette décision ;
+> l'historique du journal (§8.0a) est conservé tel quel. Un complément reste à décider (D6) : `pg_dump -Fc`
+> par projet avec copie hors hôte, ou sauvegarde automatique Hostinger. Sans sauvegarde valide au moment du
+> lancement, tout déploiement reste bloqué.
 > Date : 2026-10-10 — branche `docs/staging-partage-hostinger`.
 
 ## 0. Constats préalables (lecture seule, 2026-10-10)
@@ -70,8 +79,9 @@ hors gouvernance ; il n'est ni réutilisé ni migré en place.
 **Alternatives** : KVM 2 (8 Go) — suffisant pour 2 à 3 projets seulement, non conforme à ≥ 5 + 30 % ;
 KVM 8 (32 Go) — à n'envisager qu'au-delà de 8 projets. **Prix : non vérifiés** (voir §0.1).
 
-Sauvegardes et reprise : sauvegarde automatique Hostinger **activée** ; snapshot avant chaque
-changement structurant (un seul snapshot conservé, **le suivant écrase le précédent**) ; en plus,
+Sauvegardes et reprise : sauvegarde Hostinger **manuelle hebdomadaire** (décision du CDO du 2026-10-11,
+voir l'erratum en tête) ; snapshot avant chaque changement structurant (un seul snapshot conservé, **le
+suivant écrase le précédent**, et il **expire 24 h après sa création**) ; en plus,
 `pg_dump -Fc` par projet vers `/srv/<projet>/backups` avec copie hors hôte (cible à décider, D6),
 conformément au mode opératoire `infra/backup/`.
 
@@ -376,11 +386,11 @@ décommissionner après M5 sur décision CDO. Il n'est pas supprimé ni modifié
 | R-HOST-05 | SSH ouvert à `any` (VPS A) | Moyenne | Restriction IP (§4) |
 | R-HOST-06 | `docker.sock` monté dans Traefik (VPS A) | Moyenne | `docker-socket-proxy` |
 | R-HOST-07 | Mouvement latéral entre projets via un réseau partagé | Moyenne | `edge-<projet>` ; sinon acceptation CDO |
-| R-HOST-08 | Un seul snapshot, écrasé par le suivant ; restauration non éprouvée | Moyenne | Sauvegardes `pg_dump` + test de restauration |
+| R-HOST-08 | Un seul snapshot, écrasé par le suivant, **expirant 24 h après sa création** (confirmé le 2026-10-11) ; restauration non éprouvée | Moyenne | Sauvegardes `pg_dump` + test de restauration ; complément hors hôte (D6) |
 | R-HOST-09 | Prix et plans non vérifiables par l'API | Faible | Relevé hPanel avant achat |
 | R-HOST-10 | VPS B (SonarQube, utilisé par la CI) : datacenter 15 inconnu, pare-feu non synchronisé, SSH ouvert à `any`. Y ajouter le Staging mêlerait outillage CI et Staging | Moyenne | Ne pas y héberger le Staging sans décision D2 bis ; vérifier l'emplacement ; synchroniser et restreindre son pare-feu |
 | R-HOST-13 | ~~KVM 2 (8 Go) : capacité de 2 projets~~ **Levé le 2026-10-10** : KVM 4 retenu (D2 ter) | — | — |
-| R-HOST-15 | `srv2050514` livré sans pare-feu Hostinger, sans sauvegarde ni snapshot ; SSH root par clé ouvert | Élevée | Créer et activer un pare-feu (22, 80, 443) ; activer la sauvegarde (hPanel) ; durcir ; Tailscale puis fermer le 22 |
+| R-HOST-15 | `srv2050514` livré sans pare-feu Hostinger, sans sauvegarde ni snapshot ; SSH root par clé ouvert | Élevée | Créer et activer un pare-feu (22, 80, 443) ; sauvegarde manuelle hebdomadaire dans hPanel (décision du CDO du 2026-10-11, erratum) avec un snapshot valide avant tout déploiement ; durcir ; Tailscale puis fermer le 22 |
 | R-HOST-16 | Datacenter Düsseldorf ≠ Francfort (écart au prompt, accepté par le CDO) ; latence et résidence des données restent en Allemagne | Faible | Écart consigné (D2 ter) ; à rappeler dans l'ADR région |
 | R-HOST-14 | Sans IP fixe, SSH restreint par IP impossible | Moyenne | Réseau privé Tailscale (§4.1b) ou acceptation CDO du SSH ouvert en clé seule |
 | R-HOST-11 | Hôte unique = point de défaillance pour tous les Staging | Moyenne | Acceptable en Staging ; snapshot + reprise documentée |
@@ -393,18 +403,18 @@ promotion** vers le VPS A et restent ouvertes tant que leur preuve de traitement
 
 | # | Question | Proposition |
 |---|---|---|
-| D1 | Statut du VPS A (geler/décommissionner, ou conserver) | §6.4 — **à confirmer** (réponse reçue « KVM 2 » ambiguë) |
+| D1 | Statut du VPS A (geler/décommissionner, ou conserver) | §6.4 — recommandation de la fiche de décision (geler, rotation des secrets, décommissionnement différé) — **décidé le 2026-10-11** (fiche de décision) |
 | D2 | Taille de l'hôte | KVM 2 reçu, **remplacé par D2 ter : KVM 4** |
 | D2 bis | Nouveau KVM 2 à acheter à Francfort, ou réutilisation de `srv2044374` (SonarQube) | Nouvel achat décidé ; réalisé en KVM 4 à Düsseldorf (D2 ter) |
 | D2 ter | Conserver `srv2050514` (KVM 4, Düsseldorf, Ubuntu 26.04) | **Décidé : conservé** (2026-10-10) |
 | D3 | Domaine Staging | **`*.staging.tshilo.dev` — décidé** ; zone chez Hostinger, HTTP-01 par hôte |
-| D4 | Reverse proxy | Traefik (Q2) |
+| D4 | Reverse proxy | Traefik (Q2) — **décidé le 2026-10-11** (fiche de décision) |
 | D5 | Accès SSH sans IP fixe | **IP fixe indisponible ; Tailscale accepté** (§4.1b) |
-| D6 | Cible des sauvegardes hors hôte | à désigner |
-| D7 | Quotas disque par projet | XFS `prjquota` ou supervision seule |
-| D8 | VPS B : usage et emplacement | à confirmer |
-| D9 | Propriétaire de l'hôte et astreinte | à désigner |
-| D10 | Calendrier de M0 à M6 et autres projets d'`ai-test-server` | jalon distinct (Q5) |
+| D6 | Cible des sauvegardes hors hôte | à désigner — **décidé le 2026-10-11** (fiche de décision) |
+| D7 | Quotas disque par projet | XFS `prjquota` ou supervision seule — **décidé le 2026-10-11** (fiche de décision) |
+| D8 | VPS B : usage et emplacement | à confirmer — **décidé le 2026-10-11** (fiche de décision) |
+| D9 | Propriétaire de l'hôte et astreinte | à désigner — **décidé le 2026-10-11** (fiche de décision) |
+| D10 | Calendrier de M0 à M6 et autres projets d'`ai-test-server` | jalon distinct (Q5) — **décidé le 2026-10-11** (fiche de décision) |
 
 ## 8. Gouvernance et prochaines étapes
 
