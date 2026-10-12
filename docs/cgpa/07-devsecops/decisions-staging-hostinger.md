@@ -60,6 +60,10 @@ avec ces changements.
   distincte**, après L3 et une semaine de stabilité.
 - **D6** : décidé = copie hebdomadaire du `pg_dump -Fc` vers le poste du CDO par le tailnet. **La procédure reste
   à écrire** (script ou étape de runbook) et n'est pas exécutée.
+- **D6 — note du 2026-10-12** : `srv2011505` a des sauvegardes Hostinger hebdomadaires (`backup_create` des
+  2026-10-03 et 2026-10-10) ; aucune n'est listée pour `srv2050514`. Si elle y est ou y sera active, le
+  complément `pg_dump -Fc` reste utile (sauvegarde applicative) mais l'hypothèse « aucune sauvegarde
+  automatique » est à corriger. **Aucune décision n'est modifiée** ; à confirmer par le CDO.
 - **D8** : décidé = pas de Staging sur `srv2044374`, pare-feu `sonar-baseline` à synchroniser et restreindre,
   emplacement du datacenter 15 à demander à Hostinger. Au nettoyage : `daemon.json`, sudo sans mot de passe et
   images Traefik et socket-proxy à retirer (recommandation acceptée) ; **UFW et fail2ban : toujours à décider**.
