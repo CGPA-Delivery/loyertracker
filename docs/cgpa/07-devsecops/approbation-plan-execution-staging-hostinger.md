@@ -1,9 +1,9 @@
 # Approbation du Plan d'Exécution — Staging mutualisé Hostinger et onboarding de LoyerTracker (lots L1 à L3)
 
-> **Statut : TEXTE PRÊT — EN ATTENTE DE LA FORMULATION DU CDO.** Ce document **n'approuve rien** tant que le
-> CGPA Chief Delivery Officer n'a pas prononcé, dans le chat, la phrase d'approbation du §6. Les « validé »
-> et « OK recommandations » donnés sur des PR ou sur la fiche de décision **ne valent pas** approbation du Plan
-> d'Exécution. Décision CGPA finale : CDO. Cadre : CGPA v6.1.1 Enterprise.
+> **Statut : APPROUVÉ par le CDO pour les lots L1 à L3 — le 2026-10-12 (enregistré à 14:00 UTC).** Phrase
+> prononcée dans le chat : « J'approuve le Plan d'Exécution pour les lots L1 à L3 » (voir §7). Les « validé » et « OK recommandations » donnés sur des PR
+> ou sur la fiche de décision ne valent toujours pas approbation : **seule** cette phrase l'établit. Les lots
+> L4 et L5 restent soumis à des décisions distinctes. Décision CGPA finale : CDO. Cadre : CGPA v6.1.1 Enterprise.
 
 ## 1. Objet
 
@@ -58,17 +58,22 @@ DNS et décommissionnement (L5, M5, M6), tout changement de code applicatif, tou
 > lots L1 à L3, aux conditions du document `approbation-plan-execution-staging-hostinger.md`, à la date du
 > [date].** »
 
-Toute autre formulation (« OK », « validé », fusion d'une PR) n'établit pas l'approbation. L'approbation peut être
+Toute autre formulation (« OK », « validé », fusion d'une PR) n'établit pas l'approbation. **Cas du 2026-10-12** :
+le CDO a prononcé une version abrégée qui nomme explicitement l'approbation du Plan d'Exécution et son périmètre
+(L1 à L3) ; elle a été retenue, **sans réserve** et donc **aux conditions des §4 et §5**. Le CDO peut la
+préciser ou la limiter à tout moment. L'approbation peut être
 **limitée ou assortie de réserves** : les préciser dans la même phrase.
 
 ## 7. Enregistrement (à remplir par l'assistant après la phrase du CDO)
 
 | Champ | Valeur |
 |---|---|
-| Statut | **EN ATTENTE** |
-| Approuvé par | — |
-| Date et heure (UTC) | — |
-| Périmètre et réserves | — |
-| Inscription | `project-state.md` (en tête), `staging-state.md` §12, plans (bandeau « Statut ») — **après approbation seulement** |
+| Statut | **APPROUVÉ (L1 à L3)** |
+| Approuvé par | Le CGPA Chief Delivery Officer (PO/CDO), dans le chat de la session |
+| Phrase prononcée | « J'approuve le Plan d'Exécution pour les lots L1 à L3 » |
+| Date et heure (UTC) | 2026-10-12, enregistré à 14:00 UTC |
+| Périmètre et réserves | Lots L1 à L3 ; **aucune réserve formulée** ; aux conditions des §4 et §5 ; L4 et L5, promotion : hors approbation |
+| Exécution | **Aucune à ce jour** : conditions préalables du §4 non encore réunies (jeton GHCR, archive et empreinte, copie sur l'hôte, snapshot de moins de 24 h au lancement) |
+| Inscription | `project-state.md` (en tête), `staging-state.md` §12, bandeaux des deux plans et du runbook, fiche de décision §C |
 
 Un changement de périmètre (ajout de L4 ou L5, nouvel hôte, nouveau projet) exige une **nouvelle formulation**.

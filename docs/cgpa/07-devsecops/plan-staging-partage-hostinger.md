@@ -1,7 +1,9 @@
 # Plan d'Exécution proposé — Staging mutualisé multi-projets sur Hostinger (Francfort)
 
-> **Statut : PROPOSÉ — aucune ressource créée.** Ce document ne vaut ni Plan d'Exécution approuvé, ni
-> autorisation d'achat, de changement DNS, de modification de pare-feu ou de promotion.
+> **Statut : Plan d'Exécution APPROUVÉ par le CDO pour les lots L1 à L3 le 2026-10-12 ; le reste du plan
+> demeure PROPOSÉ** (voir `approbation-plan-execution-staging-hostinger.md`). Ce document ne vaut ni
+> autorisation d'achat, de changement DNS, de modification de pare-feu ou de promotion ; chaque action payante
+> ou irréversible exige un « oui » explicite précédé de l'opération, des paramètres, du coût et de l'impact.
 > Décision CGPA finale : CGPA Chief Delivery Officer (CDO). Cadre : CGPA v6.1.1 Enterprise.
 > Prompt d'origine : `docs/prompts/prompt-staging-partage-hostinger.md`.
 >
