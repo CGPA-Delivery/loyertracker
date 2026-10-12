@@ -123,19 +123,15 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 
 ## 9. Questions ouvertes (bloquantes pour le lot 2)
 
-- **Q0** : jeu de statuts du bail : `ACTIF/INTERROMPU/CLOS` (v1) ou `BROUILLON/ACTIF/RESILIE/TERMINE/INTERROMPU` (demande PO) ? Réutiliser `date_cloture_effective` comme `dateEffetFin` ? Voir audit §6.
-
 ### Décisions PO (2026-10-12)
+
+- **Q0 — Statuts du bail** : **`ACTIF` / `CLOS`.** Pas de `BROUILLON`, pas de `INTERROMPU`. Un préavis est un bail `ACTIF` avec une date de fin future. Un job le passe à `CLOS` à cette date, avec un motif de fin. Les baux `CLOS` existants ne sont pas migrés ; `uq_bail_actif` est préservé. Remplace la proposition v1 de R1.
+- **Q0 bis — Date d'effet de fin** : **réutiliser `date_cloture_effective`.** Pas de nouvelle colonne `dateEffetFin`.
+
 
 - **Q1 — Impayés** : **Non bloquant.** L'interruption passe après confirmation affichant le montant dû. Impayés, retards et partiels restent sur le bail clos, visibles et recouvrables, jamais supprimés. Remplace R7 (blocage à la LoyerPro).
 - **Q2 — Statut de l'échéance clôturée** : **Nouveau statut de paiement `CLOTUREE`.** Migration du CHECK sur `paiement.statut` requise. La génération des loyers ne recrée pas ces échéances.
 - **Q3 — Auto-approbation** : **Interdite.** L'approbateur n'est jamais le demandeur. Le bailleur modifie directement son locataire, avec journal avant/après. L'approbation ne concerne que les demandes d'un gestionnaire.
-
-Q0 (jeu de statuts du bail) n'est pas tranché : la réponse proposée ci-dessous reste à valider.
-
-### Réponses proposées (Claude Sonnet 5.5, 2026-10-09) — Q0 seul reste à confirmer
-
-Ce tableau conserve les propositions d'origine. Q1 à Q3 ont été tranchées par le PO ci-dessus.
 
 ### Réponses proposées (Claude Sonnet 5.5, 2026-10-09) — à confirmer par le PO/CDO
 
