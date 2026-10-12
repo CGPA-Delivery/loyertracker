@@ -130,6 +130,9 @@ services:
 
   # SMTP Keycloak (« mot de passe oublié ») : inactif par défaut. Activer par `--profile smtp` UNIQUEMENT
   # quand de NOUVEAUX identifiants SMTP sont fournis sur l'hôte (les anciens sont à considérer exposés).
+  # LIMITES CONNUES : stg-deploy ne transmet pas `--profile` (profil inactivable par le wrapper) et
+  # configure-smtp-staging.sh n'existe pas au commit d19c4fea (monté depuis ./repo/infra/keycloak/) :
+  # à corriger dans une PR dédiée avant d'activer le SMTP (D-ONB-6, différé).
   keycloak-smtp-init:
     profiles: [smtp]
     image: quay.io/keycloak/keycloak:24.0@sha256:f8ade94c1d0ad2f2fa7734a455fee5392764f402c43ca35e9af6bf63a2541dc9
@@ -216,7 +219,7 @@ services:
   nginx:
     image: ${WEB_IMAGE_REF:?WEB_IMAGE_REF = ghcr.io/.../loyertracker-web@sha256:...}
     # AUCUN `ports:`. Le seul port 8080 clair de l'image redirige tout vers HTTPS : Traefik cible donc 8443
-    # en TLS (certificat auto-signé interne, transport `skipverify-internal@file`, voir transports.yml).
+    # en TLS (certificat auto-signé interne, transport `skipverify-internal@file`, voir edge/dynamic/transports.yml).
     volumes:
       - ./certs:/etc/nginx/certs:ro
     depends_on:

@@ -49,8 +49,9 @@ Il sera saisi sur l'hôte, jamais dans le chat.
 **P4.** Dossier `docs/cgpa/07-devsecops/staging-hostinger/` à jour (branche `main` après fusion de la PR de ce
 runbook) copié sur l'hôte, ainsi que l'archive, par exemple dans `~/`.
 
-**P5.** Sauvegarde valide avant L3 : le snapshot `395915` expire le 2026-10-11 à 13:30 UTC. Prenez-en un
-nouveau (hPanel, ou demandez-le à l'assistant) et notez son identifiant et sa date.
+**P5.** Sauvegarde valide avant L3 : un snapshot Hostinger de **moins de 24 h au lancement de L3** (il expire
+24 h après sa création). Le snapshot `395915` expire le 2026-10-12 à 13:50:17 UTC : prenez-en un nouveau
+**juste avant L3** (hPanel, ou demandez-le à l'assistant) et notez son identifiant et sa date dans le journal.
 
 ## L1. Préparation de l'hôte
 

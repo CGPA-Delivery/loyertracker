@@ -99,7 +99,7 @@ Gabarit : [`loyertracker/compose.yml`](staging-hostinger/loyertracker/compose.ym
 | `loyertracker-open` | `Host(<hôte>) && (PathPrefix(/api/) \|\| PathPrefix(/verify/))` | 100 | `staging-headers` | Exceptions **explicites** : JWT Bearer (écart NPM 5) et page publique (écart NPM 6) |
 
 - Service : `server.port=8443`, `scheme=https`, `serverstransport=skipverify-internal@file`
-  ([`transports.yml`](staging-hostinger/loyertracker/transports.yml), changement contrôlé de l'edge : `edge.sh`
+  ([`transports.yml`](staging-hostinger/edge/dynamic/transports.yml), changement contrôlé de l'edge : `edge.sh`
   doit alors copier **tous** les `dynamic/*.yml`).
 - `/api/actuator/prometheus` reste bloqué en 404 par Nginx (comportement hérité, vérifié au smoke).
 - Les en-têtes de sécurité sont posés à la fois par Nginx et par `staging-headers` : doublons de
