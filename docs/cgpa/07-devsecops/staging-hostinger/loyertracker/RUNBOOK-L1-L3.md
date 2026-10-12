@@ -1,8 +1,9 @@
 # Runbook — Onboarding de LoyerTracker sur `srv2050514` (lots L1 à L3)
 
-> **Statut : PROPOSÉ — rien n'a été exécuté.** À jouer par le CDO sur l'hôte, une étape à la fois.
+> **Statut : lots L1 à L3 APPROUVÉS par le CDO le 2026-10-12 — rien n'a été exécuté à ce jour.** À jouer par le
+> CDO sur l'hôte, une étape à la fois.
 > Plan parent : [`../../plan-onboarding-loyertracker-staging-hostinger.md`](../../plan-onboarding-loyertracker-staging-hostinger.md).
-> Ne vaut ni approbation du Plan d'Exécution ni autorisation de promotion.
+> L'approbation ne vaut pas autorisation de promotion (Gate Staging L4 distinct).
 
 ## 0. Décisions retenues pour ce runbook
 

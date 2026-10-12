@@ -73,7 +73,7 @@ avec ces changements.
 
 ## C. Points hors fiche mais bloquants pour L3
 
-- **Approbation du Plan d'Exécution** : les deux plans portent « Proposé » ; la fusion des PR ne l'établit pas.
-  À formuler explicitement par le CDO, avec sa date.
+- **Approbation du Plan d'Exécution** : **formulée par le CDO le 2026-10-12** pour les lots L1 à L3 (voir
+  `approbation-plan-execution-staging-hostinger.md`) ; L4 et L5 restent soumis à des décisions distinctes.
 - **Rotation des secrets de `srv2011505`** (R-HOST-02) et remise à `false` de ses canaux externes (R-HOST-03).
 - **Snapshot valide au lancement** (erratum sur la sauvegarde).
