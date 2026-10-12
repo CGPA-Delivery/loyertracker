@@ -37,26 +37,38 @@ Sans décision, le lot 4 (patrimoine multi-bailleurs) et le lot 5 (approbation p
 3. Quel est le propriétaire d'un locataire ou d'un bail quand plusieurs bailleurs partagent le patrimoine ?
 4. Comment se fait l'approbation (D3) sans auto-approbation et sans contourner la RLS ?
 
-## Décisions à trancher
+## Décisions
 
-### D-MB-01 — Table de liaison des bailleurs (recommandé : Option A)
+Décisions PO/CDO du 2026-10-12 : toutes les options recommandées sont retenues. Les options rejetées sont conservées pour la trace.
+
+| Code | Décision retenue |
+|---|---|
+| D-MB-01 | Table de liaison `patrimoine_bailleur` (Option A). |
+| D-MB-02 | Policy RLS sur `patrimoine` par `EXISTS` sur `patrimoine_bailleur` (Option A). |
+| D-MB-03 | Visibilité des tables filles héritée du patrimoine (Option A). |
+| D-MB-04 | Locataire rattaché à un bailleur créateur, visibilité par patrimoine (Option A). |
+| D-MB-05 | Un seul bailleur du patrimoine suffit pour approuver ; jamais le demandeur (Option A). |
+
+Détail des options, pour référence :
+
+### D-MB-01 — Table de liaison des bailleurs (retenue : Option A)
 
 - **Option A (recommandée)** : table `patrimoine_bailleur (patrimoine_id, bailleur_id, role, date_ajout)`, clé composite. `patrimoine.bailleur_id` devient le **bailleur créateur**, informatif, non discriminant.
 - **Option B** : tableau `bailleur_ids UUID[]` sur `patrimoine`. Rejetée : pas de contrainte d'intégrité, pas de clé étrangère, pas de traçabilité par bailleur.
 
-### D-MB-02 — Policy RLS sur `patrimoine` (recommandé : Option A)
+### D-MB-02 — Policy RLS sur `patrimoine` (retenue : Option A)
 
 - **Option A (recommandée)** : `USING (EXISTS (SELECT 1 FROM patrimoine_bailleur pb WHERE pb.patrimoine_id = patrimoine.id AND pb.bailleur_id = current_bailleur))`. La table `patrimoine_bailleur` est elle-même sous RLS (un bailleur voit ses propres lignes et celles de ses co-bailleurs sur ses patrimoines).
 - **Option B** : policy par `bailleur_id` créateur + vue `patrimoine_partage` pour les co-bailleurs. Rejetée : deux chemins d'accès à maintenir, risque d'oubli.
 
-### D-MB-03 — Visibilité des tables filles (recommandé : Option A)
+### D-MB-03 — Visibilité des tables filles (retenue : Option A)
 
 Les tables `bien`, `bail`, `paiement`, `garantie`, `quittance` héritent de la visibilité du patrimoine par jointure (`patrimoine_id` ou `bien_id` → `patrimoine`), et non d'un `bailleur_id` propre.
 
 - **Option A (recommandée)** : policy RLS sur chaque table fille par `EXISTS` vers `patrimoine_bailleur`. `bailleur_id` reste en colonne informative (créateur).
 - **Option B** : maintenir `bailleur_id` sur chaque table fille avec une copie par bailleur. Rejetée : duplication, incohérence possible à la rotation.
 
-### D-MB-04 — Locataire : propriété et visibilité (à trancher par le PO)
+### D-MB-04 — Locataire : propriété et visibilité (retenue : Option A)
 
 Question ouverte : un locataire lié à un bail sur un patrimoine partagé, qui est son propriétaire ?
 
@@ -64,7 +76,7 @@ Question ouverte : un locataire lié à un bail sur un patrimoine partagé, qui 
 - **Option B** : locataire rattaché à l'**organisation** (nouveau concept), visible par tous les bailleurs qui partagent un patrimoine où il apparaît. Plus propre, mais impose une migration du modèle locataire.
 - **Option C** : un locataire par bailleur (doublons acceptés, rapprochement manuel). Rejetée : contredit l'historique unifié demandé (P3, P5).
 
-### D-MB-05 — Approbation des modifications (D3) (recommandé : Option A)
+### D-MB-05 — Approbation des modifications (D3) (retenue : Option A)
 
 - **Option A (recommandée)** : une `DemandeModificationLocataire` est créée par le gestionnaire. N'importe quel bailleur du patrimoine concerné peut l'approuver ou la refuser. L'approbateur n'est jamais le demandeur (Q3 du plan). L'approbation s'exécute dans la transaction du bailleur approbateur, avec RLS normale.
 - **Option B** : approbation par **tous** les bailleurs. Rejetée par le PO (D3 : un seul suffit).
@@ -92,4 +104,5 @@ Question ouverte : un locataire lié à un bail sur un patrimoine partagé, qui 
 ## Gouvernance
 
 - Cet ADR ne vaut pas approbation des lots 4 et 5.
-- Statut à passer en « Acceptée » uniquement après décision PO/CDO sur D-MB-01 à D-MB-05, et revue sécurité.
+- Décisions D-MB-01 à D-MB-05 prises par le PO/CDO le 2026-10-12.
+- Statut à passer en « Acceptée » après revue sécurité de la policy RLS et du `EXISTS`. Cette revue n'a pas encore eu lieu.
