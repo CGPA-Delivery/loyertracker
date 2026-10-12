@@ -1,7 +1,9 @@
 # Plan d'Exécution proposé — Staging mutualisé multi-projets sur Hostinger (Francfort)
 
-> **Statut : PROPOSÉ — aucune ressource créée.** Ce document ne vaut ni Plan d'Exécution approuvé, ni
-> autorisation d'achat, de changement DNS, de modification de pare-feu ou de promotion.
+> **Statut : Plan d'Exécution APPROUVÉ par le CDO pour les lots L1 à L3 le 2026-10-12 ; le reste du plan
+> demeure PROPOSÉ** (voir `approbation-plan-execution-staging-hostinger.md`). Ce document ne vaut ni
+> autorisation d'achat, de changement DNS, de modification de pare-feu ou de promotion ; chaque action payante
+> ou irréversible exige un « oui » explicite précédé de l'opération, des paramètres, du coût et de l'impact.
 > Décision CGPA finale : CGPA Chief Delivery Officer (CDO). Cadre : CGPA v6.1.1 Enterprise.
 > Prompt d'origine : `docs/prompts/prompt-staging-partage-hostinger.md`.
 >
@@ -438,6 +440,9 @@ promotion** vers le VPS A et restent ouvertes tant que leur preuve de traitement
 | 2026-10-10 13:30 UTC | Snapshot Hostinger de `srv2050514` (id `395915`, action `ct_snapshot_create` en succès) | Créé **hors assistant**, vraisemblablement par le CDO (à confirmer) ; expiration indiquée à 24 h (2026-10-11 13:30 UTC) |
 | 2026-10-11 (heure non relevée) | `vps_snapshots_create` sur la VM `2050514`, deux tentatives de l'assistant | Échec `ECONNRESET` des deux fois ; aucune action `ct_snapshot_create` côté Hostinger (vérifié par `vps_actions_list`), snapshot existant inchangé |
 | 2026-10-11 13:50 UTC | `vps_snapshots_create` sur la VM `2050514` (action `119524229`), sur « oui » explicite du CDO, après lecture du snapshot existant (id `395915`) | `ct_snapshot_create` = `success` (13:50:13 → 13:50:17). **L'identifiant `395915` est conservé : le nouveau snapshot remplace l'ancien** (créé 13:50:17, expire **2026-10-12 13:50:17 UTC**). L'expiration à 24 h après la création est **confirmée** : un snapshot ne constitue pas une sauvegarde hebdomadaire (R-HOST-15, R-ONB-09). Prérequis P5 du runbook L1 à L3 |
+| 2026-10-12 13:41 UTC | Snapshot Hostinger de `srv2050514` (id `395915`, action `119708487`, `success`) | Créé **hors assistant**, par le CDO ; l'identifiant est conservé (il remplace celui du 2026-10-11 13:50 UTC) ; expire **2026-10-13 13:41:29 UTC**, 24 h après la création. Constaté en lecture seule par l'assistant |
+| 2026-10-12 (lecture seule) | `vps_backups_list` et `vps_actions_list` sur `srv2011505` et `srv2050514` | **`srv2011505` a des sauvegardes Hostinger hebdomadaires** : deux `backup_create` en `success` (2026-10-03 11:00 UTC, id `54584865` ; 2026-10-10 23:05 UTC, id `55520619`), délai de restauration 1800 s. **`srv2050514` : aucune sauvegarde listée** (créé le 2026-10-10 à 09:50 UTC). Cause non établie : premier cycle pas encore passé (sur `srv2011505`, le premier est tombé 7 jours après la création) ou sauvegarde non active. L'affirmation « sauvegarde automatique non activée » des journaux précédents n'était pas vérifiée côté Hostinger ; à confirmer dans hPanel (rubrique Sauvegardes) ou par un `backup_create` vers le 2026-10-17 |
+| 2026-10-12 14:13 UTC | `vps_snapshots_create` sur la VM `2050514` (action `119710439`), sur demande explicite du CDO, après approbation du Plan d'Exécution L1 à L3 et avant le runbook | `ct_snapshot_create` = `success` (14:13:32 → 14:13:36). **L'identifiant `395915` est conservé : le nouveau snapshot remplace celui du 2026-10-12 13:41 UTC** (créé 14:13:36, expire **2026-10-13 14:13:36 UTC**). Aucun changement de l'hôte depuis le précédent. Aucune erreur `ECONNRESET` cette fois. Prérequis P5 du runbook L1 à L3 |
 | heure non relevée (après 10:13) | `dns_records_update` zone `tshilo.dev`, `overwrite: false` : ajout de `*.staging` A `187.7.72.186` TTL 300 | Accepté ; liste relue : seul ajout, les autres enregistrements sont inchangés. Demandé explicitement par le CDO |
 
 Aucune autre action n'a été exécutée. Sauvegarde automatique Hostinger : **non activée** (à faire dans hPanel).

@@ -1,6 +1,6 @@
 # État Staging — LoyerTracker
 
-> **Nouvel hôte Staging mutualisé Hostinger `srv2050514` — en construction, aucun projet déployé (2026-10-11).** `ai-test-server` reste le Staging de référence de LoyerTracker ; rien n'y est modifié. L'hôte Hostinger (KVM 4, Düsseldorf, `187.7.72.186`) est durci et porte l'edge Traefik (`edge.sh verify` 8 PASS / 0 FAIL) ; LoyerTracker n'y est pas encore déployé. Voir §12, `docs/cgpa/07-devsecops/plan-staging-partage-hostinger.md` et `docs/cgpa/07-devsecops/plan-onboarding-loyertracker-staging-hostinger.md` (plans **proposés**, décisions du CDO ouvertes).
+> **Nouvel hôte Staging mutualisé Hostinger `srv2050514` — en construction, aucun projet déployé (2026-10-11).** `ai-test-server` reste le Staging de référence de LoyerTracker ; rien n'y est modifié. L'hôte Hostinger (KVM 4, Düsseldorf, `187.7.72.186`) est durci et porte l'edge Traefik (`edge.sh verify` 8 PASS / 0 FAIL) ; LoyerTracker n'y est pas encore déployé. Voir §12, `docs/cgpa/07-devsecops/plan-staging-partage-hostinger.md` et `docs/cgpa/07-devsecops/plan-onboarding-loyertracker-staging-hostinger.md` (Plan d'Exécution **approuvé pour L1 à L3 le 2026-10-12**, aucun déploiement exécuté).
 
 > **Gate Staging US-125 — GO / STAGING_DEPLOYED (2026-08-08T22:09:25Z).** Validation humaine explicite reçue. Candidat `d19c4fea850263c5bfbb92fcb288dd7bd2e56e2a` promu sur `ai-test-server` avec API `ghcr.io/cgpa-delivery/loyertracker-api@sha256:8e94c002a65bff590c9694b1dd79ca2eb9ab04639f9f59ddb5b735afe001a30d` et Web `ghcr.io/cgpa-delivery/loyertracker-web@sha256:18ade4b483955691fedd7d46a2c893ff27facd9d6dcf5249350005080d679d67`. STG-ISOL-01 PASS avant/après : NPM `restart=0`, stacks voisines inchangées, seuls `api`/`nginx` recréés. Backup PostgreSQL vérifié : `loyertracker-staging-20260808-220627.dump` SHA-256 `7445b35bd5f1ccac2530ade5785aba136928eaa9330fac7c23757f60c1c378dc` + globals SHA-256 `ac79437acbb67a3bbc251f73924290380abd66427e6e0aad88b2d1201c0137da`. Flyway 32/32. Smoke réel **63 PASS / 0 FAIL**, health 200, Actuator interne 200/public 404, isolation cross-tenant et ports internes non publiés PASS. Décision détaillée : `docs/cgpa/07-devsecops/gate-staging-us125-decision.md`. Production non autorisée ; CHECK-REL-01 et Gate Production distincts requis.
 
@@ -515,7 +515,7 @@ le réseau `loyertracker-net` déjà dédié). Confirmé live : 9 conteneurs `lo
 | Pare-feu Hostinger | `srv2050514-baseline` (id `375064`) : TCP 80 et 443 ouverts à tous ; règle 22 retirée le 2026-10-10 13:16 UTC |
 | Accès administrateur | SSH par clé, compte nominatif `deploy`, via le tailnet ; `root` et mot de passe refusés (`00-staging.conf`) |
 | DNS | `*.staging.tshilo.dev` A `187.7.72.186`, TTL 300 s (zone `tshilo.dev` chez Hostinger) |
-| Sauvegarde Hostinger | Décision CDO du 2026-10-11 : **manuelle, chaque semaine, dans hPanel** (pas d'automatisation). **Un snapshot existe** (id `395915`, **recréé le 2026-10-11 à 13:50:17 UTC** par l'assistant sur « oui » du CDO, état de l'hôte durci avec edge, avant tout déploiement de projet ; il a remplacé celui du 2026-10-10 13:30 UTC) et **expire le 2026-10-12 à 13:50:17 UTC** : l'expiration à 24 h après la création est **confirmée** par cette recréation, donc un snapshot ne constitue pas une sauvegarde hebdomadaire. Une sauvegarde valide reste un prérequis bloquant de tout déploiement ; chaque sauvegarde est datée au journal. RPO jusqu'à 7 jours ; un seul snapshot conservé (le suivant écrase le précédent). Deux premières tentatives de création le 2026-10-11 avaient échoué (`ECONNRESET`) |
+| Sauvegarde Hostinger | **Dernière mise à jour (2026-10-12, 14:13:36 UTC)** : snapshot **renouvelé par l'assistant sur demande du CDO** (action `119710439`, id `395915` conservé ; expire le **2026-10-13 à 14:13:36 UTC**), avant L1 à L3 ; état de l'hôte inchangé depuis le précédent. **Mise à jour précédente du 2026-10-12** : le CDO a créé un snapshot à 13:41:29 UTC (id `395915` conservé ; expire le **2026-10-13 à 13:41:29 UTC**). **Constat** : `srv2011505` a des sauvegardes Hostinger **hebdomadaires** (`backup_create` des 2026-10-03 et 2026-10-10), alors qu'**aucune sauvegarde n'est listée pour `srv2050514`** : cause non établie, à confirmer (hPanel ou `backup_create` vers le 2026-10-17). *Historique* — Décision CDO du 2026-10-11 : **manuelle, chaque semaine, dans hPanel** (pas d'automatisation). **Un snapshot existe** (id `395915`, **recréé le 2026-10-11 à 13:50:17 UTC** par l'assistant sur « oui » du CDO, état de l'hôte durci avec edge, avant tout déploiement de projet ; il a remplacé celui du 2026-10-10 13:30 UTC) et **expire le 2026-10-12 à 13:50:17 UTC** : l'expiration à 24 h après la création est **confirmée** par cette recréation, donc un snapshot ne constitue pas une sauvegarde hebdomadaire. Une sauvegarde valide reste un prérequis bloquant de tout déploiement ; chaque sauvegarde est datée au journal. RPO jusqu'à 7 jours ; un seul snapshot conservé (le suivant écrase le précédent). Deux premières tentatives de création le 2026-10-11 avaient échoué (`ECONNRESET`) |
 
 ### Edge (Traefik + docker-socket-proxy)
 
@@ -558,10 +558,15 @@ sudoers, images Traefik/socket-proxy, UFW et fail2ban sur `srv2044374`.
   pare-feu Hostinger le bloque déjà). Les plans `plan-staging-partage-hostinger.md` (§1, §8.0a) et
   `plan-onboarding-loyertracker-staging-hostinger.md` (§0, §9) parlent encore d'activation automatique :
   à aligner par erratum.
+- **Sauvegardes hebdomadaires Hostinger** (constat du 2026-10-12) : présentes sur `srv2011505`, **aucune listée**
+  sur `srv2050514`. Si un `backup_create` apparaît vers le 2026-10-17, la sauvegarde hebdomadaire existe déjà et
+  la mention « sauvegarde automatique non activée » des plans est à corriger ; sinon l'activer dans hPanel
+  (action du CDO). La décision du 2026-10-11 n'est pas modifiée ici.
 - **VPS Francfort `srv2011505`** hors gouvernance : secrets exposés à faire tourner, canaux externes à
   remettre à `false`, `KC_HOSTNAME` à corriger (R-HOST-02 à 04) ; sort à décider (D1).
 - **Décisions** : D1, D4, D6 à D10 (plan parent) et D-ONB-2 à 10 (plan d'onboarding) **décidées le 2026-10-11**
   (« OK recommandations », fiche `docs/cgpa/07-devsecops/decisions-staging-hostinger.md`) ; **leur exécution
-  n'est pas faite**, et l'approbation du Plan d'Exécution reste à formuler.
+  n'est pas faite**, et l'approbation du Plan d'Exécution (L1 à L3) a été **formulée par le CDO le 2026-10-12** (aucun déploiement
+  exécuté à ce jour).
 - **STG-ISOL-01** : preuves de l'edge produites ; contrôle `non exécuté` pour LoyerTracker (aucun
   déploiement). CHECK-CICD-01, CHECK-REL-01, CHECK-OPS-01, CHECK-VAL-01 : `non exécuté`.

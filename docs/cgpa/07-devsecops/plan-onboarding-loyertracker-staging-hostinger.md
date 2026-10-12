@@ -1,7 +1,8 @@
 # Plan d'Exécution proposé — Onboarding de LoyerTracker sur le Staging mutualisé Hostinger
 
-> **Statut : PROPOSÉ — aucune ressource créée, aucun code applicatif modifié.** Ne vaut ni Plan d'Exécution
-> approuvé, ni autorisation de déploiement, ni autorisation de promotion. Décision CGPA finale : CGPA Chief
+> **Statut : lots L1 à L3 APPROUVÉS par le CDO le 2026-10-12 ; lots L4 et L5 PROPOSÉS (décisions distinctes).**
+> Aucun code applicatif modifié, aucun déploiement de LoyerTracker exécuté à ce jour. L'approbation ne vaut
+> pas autorisation de promotion (voir `approbation-plan-execution-staging-hostinger.md`). Décision CGPA finale : CGPA Chief
 > Delivery Officer (CDO). Cadre : CGPA v6.1.1 Enterprise. Date : 2026-10-11.
 > Plan parent : [`plan-staging-partage-hostinger.md`](plan-staging-partage-hostinger.md) (PR #555, fusionnée).
 > Artefacts proposés : [`staging-hostinger/loyertracker/`](staging-hostinger/loyertracker/).
