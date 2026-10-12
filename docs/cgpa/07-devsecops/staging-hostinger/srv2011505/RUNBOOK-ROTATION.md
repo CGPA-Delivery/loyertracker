@@ -27,6 +27,24 @@
 | `QUITTANCE_HMAC_SECRET` | Forge de jetons de vérification (cet environnement) | R2.e |
 | Mots de passe PostgreSQL (`loyertracker`, `keycloak-db`) | Interne (aucun port publié) | **Conservés jusqu'au décommissionnement** |
 
+## Ordre d'exécution et impacts
+
+Les modifications de fichiers se font **toutes avant** la recréation, pour ne recréer chaque service qu'**une fois**.
+
+| Ordre | Étape | Où | Interruption |
+|---|---|---|---|
+| 1 | R0 (hôte, snapshot, copies) puis R1 (relevé) | Hôte | Aucune |
+| 2 | R2.a et R2.b : **créer** le nouveau webhook et les nouveaux identifiants SES (ne rien supprimer) | Discord, AWS | Aucune |
+| 3 | R2.c : mot de passe admin et secret du client Keycloak | Console Keycloak | Aucune |
+| 4 | R2.d, R2.e, R3 : modifier les `.env` (dashboard, HMAC et `kid`, drapeaux, `KC_HOSTNAME`) et reporter les nouvelles valeurs de R2.a à R2.c | Hôte (`sudoedit`) | Aucune |
+| 5 | R4 : recréer `api` puis Traefik | Hôte | **API : environ 1 à 2 minutes** ; **Traefik : quelques secondes sur toutes les routes de l'hôte** (`loyertracker`, `auth`, `traefik`) |
+| 6 | R5 : vérifications | Hôte, poste | Aucune |
+| 7 | R2.a et R2.b : **supprimer** les anciens webhook et identifiants SES, une fois leurs consommateurs vérifiés | Discord, AWS | Aucune |
+| 8 | R6 : clôture ; destruction des copies **après 24 h d'observation** | Hôte | Aucune |
+
+Prévoir 45 minutes à 1 heure, hors délais des consoles externes. L'hôte est un Staging gelé : aucune fenêtre de maintenance
+formelle n'est requise, mais **prévenir** les utilisateurs éventuels de `loyertracker.tshilo.dev` et `auth.tshilo.dev`.
+
 ## R0. Précautions
 
 **R0.1** Confirmer l'hôte :
@@ -57,6 +75,16 @@ for c in loyertracker-api-1 loyertracker-nginx-1 loyertracker-postgres-1 keycloa
 
 **Collez-moi cette sortie** (aucun secret) : elle fixe les `-f`, `--env-file` et profils à utiliser en R4. **Ne
 relancez aucun projet sans elle.**
+
+### Lecture de la sortie de R1
+
+- **`fichiers=`** donne la liste exacte des `-f` à reprendre dans R4 (séparés par des virgules dans l'étiquette).
+- **`env=`** donne l'`--env-file` ; vide = `.env` du répertoire de travail (`dir=`), lu automatiquement par Compose.
+- **`dir=`** donne le `cd` de R4 ; **ne jamais** lancer la commande depuis un autre répertoire.
+- **Profils** : l'étiquette n'en garde pas la trace. Les services sous profil (par exemple Mailpit, `ci`) ne sont pas démarrés
+  par défaut : **n'ajoutez aucun `--profile`**. Pour les lister, sans rien lancer :
+  `sudo docker compose -p loyertracker -f <FICHIERS> config --profiles`.
+- Si `projet=` est vide ou diffère de `loyertracker` / `keycloak` / `traefik`, **arrêtez-vous** et collez la sortie.
 
 ## R2. Secrets exposés à l'extérieur
 
@@ -143,7 +171,8 @@ Discord de test avec les **nouvelles** valeurs ; l'ancien mot de passe admin Key
 
 ## R6. Clôture
 
-1. Détruire les copies : `sudo shred -u /root/rotation-20261012/*.bak && sudo rmdir /root/rotation-20261012`.
+1. **Après R5 et au moins 24 h d'observation** (les copies servent au retour arrière R7), détruire les copies :
+   `sudo shred -u /root/rotation-20261012/*.bak && sudo rmdir /root/rotation-20261012`.
 2. Ne **supprimer** les anciens identifiants SES et le webhook Discord qu'après vérification de leurs autres
    consommateurs (R2.a, R2.b).
 3. Journal ci-dessous ; l'assistant met ensuite à jour R-HOST-02 à 04 dans `project-state.md` et `staging-state.md`.
@@ -160,6 +189,23 @@ Discord de test avec les **nouvelles** valeurs ; l'ancien mot de passe admin Key
 | R3 drapeaux et `KC_HOSTNAME` | | | |
 | R4 recréation `api`, `traefik` | | | |
 | R5 vérifications | | | |
+
+## R7. Retour arrière
+
+Un retour arrière **ne doit jamais rétablir un secret exposé en production d'usage** : il sert à remettre un service en état
+de marche le temps de corriger, puis à refaire la rotation.
+
+| Élément | Retour arrière | Remarque |
+|---|---|---|
+| `.env` modifiés (`/opt/loyertracker`, `/docker/traefik`) | `sudo cp -a /root/rotation-20261012/<fichier>.bak <destination>` puis recréation **ciblée** (R4) | Les copies existent jusqu'à R6 ; elles contiennent les **anciens** secrets exposés |
+| Recréation `api` en échec | Restaurer le `.env`, recréer `api` seul ; consulter `sudo docker logs --tail 100 loyertracker-api-1` | Ne pas coller de journal contenant des secrets |
+| Traefik en échec | Restaurer `/docker/traefik/.env`, `sudo docker compose up -d traefik` | Remet le dashboard public : à **refermer aussitôt** (R2.d) |
+| Mot de passe admin Keycloak | **Pas de restauration** : définir un autre mot de passe dans la console | L'ancien est exposé |
+| Secret du client `loyertracker-admin` | Régénérer à nouveau dans la console et reporter dans `KEYCLOAK_API_CLIENT_SECRET` | Idem |
+| Secret HMAC et `kid` | Restaurer l'ancien secret **et** `kid=1` seulement si les anciens QR doivent rester vérifiables | À éviter : l'ancien secret est exposé |
+| Webhook Discord, identifiants SES | Tant que les anciens ne sont pas supprimés (étape 7), remettre temporairement l'ancienne valeur depuis la copie | **Ne supprimer** les anciens qu'après R5 réussi |
+| Canaux externes (`false`) | Aucun retour arrière : **ne jamais** les rouvrir sans Gate explicite (K8, ADR-18) | |
+| **Dernier recours** : restauration du snapshot R0.2 | `vps_snapshots_restore` sur `srv2011505` | **Destructif** : ramène **toute** la VM à l'état du snapshot, données comprises ; sur « oui » explicite uniquement ; le snapshot expire 24 h après sa création |
 
 ## Suites hors rotation
 
