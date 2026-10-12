@@ -24,7 +24,7 @@ Corriger P1 à P6 de façon durable :
 | R4 | Le bien reste `LOUE` pendant le préavis, tant que la date d'effet n'est pas atteinte (D5). |
 | R5 | Un bien ne peut recevoir un nouveau bail que s'il est `LIBRE` **et** sans bail `ACTIF` (double garde). |
 | R6 | À l'effet d'interruption, les échéances futures passent au statut `CLOTUREE`. Elles ne sont **jamais supprimées** (D4, C7). |
-| R7 | Une interruption est refusée si des échéances `IMPAYE`, `EN_RETARD` ou `PARTIEL` existent. Le blocage est une règle, pas un avertissement (C6). À confirmer par PO (voir Q1). |
+| R7 | Une interruption n'est **pas bloquée** par les impayés (décision PO, Q1). Confirmation explicite affichant le montant dû. Les échéances `IMPAYE`, `EN_RETARD` et `PARTIEL` restent sur le bail clos, visibles et recouvrables, jamais supprimées. |
 | R8 | Un patrimoine peut avoir plusieurs biens et plusieurs bailleurs. Un gestionnaire peut être assigné à plusieurs patrimoines (D2). |
 | R9 | La modification d'un locataire par un gestionnaire crée une **demande** en attente. Un seul bailleur du patrimoine concerné suffit à l'approuver (D3). |
 | R10 | Un bail peut être créé par un bailleur ou par un gestionnaire habilité, uniquement sur un bien `LIBRE`. |
@@ -123,11 +123,15 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 
 ## 9. Questions ouvertes (bloquantes pour le lot 2)
 
-- **Q0** : jeu de statuts du bail : `ACTIF/INTERROMPU/CLOS` (v1) ou `BROUILLON/ACTIF/RESILIE/TERMINE/INTERROMPU` (demande PO) ? Réutiliser `date_cloture_effective` comme `dateEffetFin` ? Voir audit §6.
+### Décisions PO (2026-10-12)
 
-- **Q1** : confirmer R7 : une interruption est-elle **refusée** tant qu'il y a des impayés, ou seulement signalée ?
-- **Q2** : `CLOTUREE` est-il un nouveau statut de paiement, ou un marqueur sur l'échéance ?
-- **Q3** : un bailleur qui approuve sa propre demande (cas de patrimoine à un seul bailleur) : autorisé ?
+- **Q0 — Statuts du bail** : **`ACTIF` / `CLOS`.** Pas de `BROUILLON`, pas de `INTERROMPU`. Un préavis est un bail `ACTIF` avec une date de fin future. Un job le passe à `CLOS` à cette date, avec un motif de fin. Les baux `CLOS` existants ne sont pas migrés ; `uq_bail_actif` est préservé. Remplace la proposition v1 de R1.
+- **Q0 bis — Date d'effet de fin** : **réutiliser `date_cloture_effective`.** Pas de nouvelle colonne `dateEffetFin`.
+
+
+- **Q1 — Impayés** : **Non bloquant.** L'interruption passe après confirmation affichant le montant dû. Impayés, retards et partiels restent sur le bail clos, visibles et recouvrables, jamais supprimés. Remplace R7 (blocage à la LoyerPro).
+- **Q2 — Statut de l'échéance clôturée** : **Nouveau statut de paiement `CLOTUREE`.** Migration du CHECK sur `paiement.statut` requise. La génération des loyers ne recrée pas ces échéances.
+- **Q3 — Auto-approbation** : **Interdite.** L'approbateur n'est jamais le demandeur. Le bailleur modifie directement son locataire, avec journal avant/après. L'approbation ne concerne que les demandes d'un gestionnaire.
 
 ### Réponses proposées (Claude Sonnet 5.5, 2026-10-09) — à confirmer par le PO/CDO
 
