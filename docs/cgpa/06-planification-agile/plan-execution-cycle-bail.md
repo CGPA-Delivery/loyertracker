@@ -1,9 +1,10 @@
 # Plan d'exécution — Cycle de vie du bail, statut du bien, historique, échéancier
 
 - **Statut** : **Proposé — en attente de validation PO/CDO.** Aucun code applicatif ne doit être écrit avant approbation.
-- **Date** : 2026-10-09
+- **Date** : 2026-10-09 — mis à jour le 2026-10-14 (alignement sur les décisions Q0 à Q3 et sur ADR-20)
 - **Source** : `docs/cgpa/reports/audit-cycle-bail-phase1-2026-10-09.md`
 - **Propriétaire** : PO (décisions D1 à D5 du rapport d'audit)
+- **ADR lié** : `docs/cgpa/05-architecture-conception/adr/ADR-20-patrimoine-multi-bailleurs.md` (décisions D-MB-01 à D-MB-05 prises ; statut « Proposée » jusqu'à revue sécurité)
 
 ## 1. Objectif
 
@@ -18,9 +19,9 @@ Corriger P1 à P6 de façon durable :
 
 | Règle | Description |
 |---|---|
-| R1 | Un bail a un statut `ACTIF`, `INTERROMPU` (nouveau), ou `CLOS`. |
-| R2 | Une interruption enregistre `dateDemande`, `dateEffet` (≥ aujourd'hui), `motif`, `auteur`. Elle est **prospective** (D1). |
-| R3 | À la date d'effet, le bail passe à `CLOS` (ou `INTERROMPU`) et le bien redevient `LIBRE` si aucun autre bail `ACTIF` ne porte sur le bien. |
+| R1 | Un bail a un statut `ACTIF` ou `CLOS` (décision Q0). Pas de `INTERROMPU`, pas de `BROUILLON`. Un préavis est un bail `ACTIF` dont la date de fin effective est future. |
+| R2 | Une interruption enregistre `date_demande`, `motif_fin`, `auteur`, et la date d'effet dans `date_cloture_effective` réutilisée (≥ aujourd'hui, décision Q0 bis). Elle est **prospective** (D1). |
+| R3 | À la date d'effet, un job passe le bail à `CLOS` et le bien redevient `LIBRE` si aucun autre bail `ACTIF` ne porte sur le bien. |
 | R4 | Le bien reste `LOUE` pendant le préavis, tant que la date d'effet n'est pas atteinte (D5). |
 | R5 | Un bien ne peut recevoir un nouveau bail que s'il est `LIBRE` **et** sans bail `ACTIF` (double garde). |
 | R6 | À l'effet d'interruption, les échéances futures passent au statut `CLOTUREE`. Elles ne sont **jamais supprimées** (D4, C7). |
@@ -29,15 +30,19 @@ Corriger P1 à P6 de façon durable :
 | R9 | La modification d'un locataire par un gestionnaire crée une **demande** en attente. Un seul bailleur du patrimoine concerné suffit à l'approuver (D3). |
 | R10 | Un bail peut être créé par un bailleur ou par un gestionnaire habilité, uniquement sur un bien `LIBRE`. |
 
-## 3. Prérequis : ADR multi-bailleurs (bloquant)
+## 3. Prérequis : ADR-20 multi-bailleurs (bloquant)
 
 C9 : le locataire est lié à un seul bailleur, avec RLS (ADR-01). D2 et D3 exigent plusieurs bailleurs par patrimoine.
 
-- **Action** : rédiger un ADR `docs/cgpa/adr/` qui tranche :
-  - où vit la propriété multi-bailleurs (table de liaison `patrimoine_bailleur`) ;
-  - comment la RLS évolue (le locataire reste rattaché à l'organisation, pas à un seul bailleur) ;
-  - le sort de `locataire.bailleur_id` (migration progressive, ou dérivation via les patrimoines).
-- **Gate** : aucun lot 4 ou 5 ne démarre sans ADR approuvé.
+ADR-20 est rédigé. Décisions PO/CDO du 2026-10-12 :
+
+- `patrimoine_bailleur` : table de liaison N-N ; `patrimoine.bailleur_id` devient le bailleur créateur, informatif (D-MB-01) ;
+- RLS sur `patrimoine` par `EXISTS` sur `patrimoine_bailleur` (D-MB-02) ;
+- les tables filles (`bien`, `bail`, `paiement`, `garantie`, `quittance`) héritent de la visibilité du patrimoine (D-MB-03) ;
+- le locataire reste rattaché à un bailleur créateur, visible des co-bailleurs des patrimoines où il a un bail (D-MB-04) ;
+- un seul bailleur du patrimoine suffit pour approuver une modification de locataire, jamais le demandeur (D-MB-05).
+
+**Gate** : aucun lot 4 ou 5 ne démarre tant qu'ADR-20 n'est pas « Acceptée ». Le passage à « Acceptée » exige la revue sécurité de la policy RLS et du `EXISTS` (`docs/cgpa/reports/revue-securite-adr20-rls-multi-bailleurs.md`).
 
 ## 4. Lots de travail
 
@@ -54,14 +59,17 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 - **Rollback** : code (feature flag) ; données : la migration de correction est réversible par export préalable.
 
 ### Lot 2 — Interruption de bail prospective (P1 : C4, C5, C6, C7)
-- **Objectif** : R1, R2, R6, R7.
+- **Objectif** : R1, R2, R3, R6, R7.
 - **Périmètre** :
-  - statut `INTERROMPU` ajouté à `StatutBail` (migration CHECK) ;
-  - champs `dateDemande`, `dateEffet`, `motif` ;
-  - échéances futures passent à `CLOTUREE` (nouveau statut de paiement), **sans suppression** ;
-  - le bien reste `LOUE` jusqu'à `dateEffet` (lot 1 prend le relais).
-- **Migration** : additive (nouvelles colonnes, nouveau statut). Remplacement du `deleteBy...` de `BailService.java:176` par un passage à `CLOTUREE`.
-- **Tests** : interruption future vs passée (refus) ; échéances futures clôturées, aucune suppression ; bien `LOUE` pendant le préavis.
+  - `StatutBail` reste `ACTIF` / `CLOS` (Q0) : aucune migration des baux `CLOS` existants, `uq_bail_actif` préservé ;
+  - nouvelles colonnes `date_demande` et `motif_fin` ; `date_cloture_effective` réutilisée comme date d'effet (Q0 bis) ;
+  - un bail `ACTIF` avec `date_cloture_effective` future est en préavis ; un job le passe à `CLOS` à cette date ;
+  - échéances futures passent à `CLOTUREE` (nouveau statut de paiement, Q2), **sans suppression** ;
+  - confirmation avec montant dû, sans blocage sur impayés (Q1, R7) ;
+  - le bien reste `LOUE` jusqu'à la date d'effet (lot 1 prend le relais).
+- **Point à vérifier avant développement** : V25 documente `date_cloture_effective` comme « renseignée uniquement à la clôture manuelle ». Avec Q0 bis, elle peut être future sur un bail `ACTIF`. Lister toutes les requêtes, alertes et vues qui la lisent (`V25__ep13_fin_de_bail.sql`, `BailService`) et prouver qu'aucune ne traite « non nul » comme « clos ».
+- **Migration** : additive (colonnes `date_demande`, `motif_fin` ; CHECK de `paiement.statut` étendu à `CLOTUREE`). Remplacement du `deleteBy...` de `BailService.java:176` par un passage à `CLOTUREE`. La génération des loyers ne recrée pas les échéances `CLOTUREE`.
+- **Tests** : interruption à date future ; date passée refusée ; échéances futures clôturées, aucune suppression ; bien `LOUE` pendant le préavis ; job de passage à `CLOS` idempotent.
 - **Rollback** : code ; données : les échéances `CLOTUREE` restent visibles, pas de perte.
 
 ### Lot 3 — Affectation contrôlée d'un bien libre (P2)
@@ -70,13 +78,19 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 - **Dépend de** : lot 1.
 
 ### Lot 4 — Patrimoine multi-bailleurs (P3, D2)
-- **Dépend de** : ADR (section 3).
-- **Périmètre** : table de liaison, RLS, `peutAccederBien` révisé pour plusieurs bailleurs, gestionnaires multi-patrimoines.
+- **Dépend de** : ADR-20 « Acceptée » (section 3) et revue sécurité.
+- **Périmètre** (ADR-20) :
+  - table `patrimoine_bailleur` (clé composite, index `(bailleur_id, patrimoine_id)`), migration : une ligne par patrimoine existant avec son bailleur créateur ;
+  - policy RLS `EXISTS` sur `patrimoine` et sur les tables filles ; `patrimoine_bailleur` elle-même sous RLS ;
+  - `AuthorizationService.peutAccederBien` révisé : co-bailleur, gestionnaire affecté (ADR-11), locataire visible via bail ;
+  - gestionnaires multi-patrimoines ;
+  - feature flag `multi_bailleur_enabled`.
+- **Tests** : suite d'autorisation croisée (co-bailleur autorisé, bailleur tiers refusé, gestionnaire hors affectation refusé) ; objectif 0 accès cross-bailleur non autorisé (ENF-02).
 - **Risque** : élevé (sécurité et RLS). Revue humaine obligatoire.
 
 ### Lot 5 — Demande de modification de locataire approuvée par un bailleur (P4, D3)
-- **Dépend de** : lot 4.
-- **Périmètre** : entité `DemandeModificationLocataire` (avant/après, auteur, statut `EN_ATTENTE`/`APPROUVEE`/`REFUSEE`, approbateur) ; un bailleur suffit ; journalisation.
+- **Dépend de** : lot 4 et ADR-20 (D-MB-04, D-MB-05).
+- **Périmètre** : entité `DemandeModificationLocataire` (avant/après, auteur, statut `EN_ATTENTE`/`APPROUVEE`/`REFUSEE`, approbateur) ; un bailleur du patrimoine concerné suffit ; l'approbateur n'est jamais le demandeur (Q3) ; l'approbation s'exécute dans la transaction du bailleur approbateur, avec RLS normale ; journalisation.
 - **Précision (audit §6, C8)** : le Gestionnaire n'a aujourd'hui aucun droit de modification (`LocataireController` = BAILLEUR). Le lot **ajoute** cette capacité sous approbation ; `LocataireService.modifier` reste l'action du bailleur. Ajouter un avant/après au journal d'audit.
 
 ### Lot 6 — Historique par bien (P5)
@@ -116,12 +130,14 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 
 | Risque | Propriétaire | Mitigation |
 |---|---|---|
-| RLS multi-bailleurs mal conçue (fuite de données) | Tech lead | ADR + revue humaine + tests d'isolation |
+| RLS multi-bailleurs mal conçue (fuite de données) | Tech lead | ADR-20 + revue sécurité + tests d'isolation |
+| `date_cloture_effective` future lue comme « clos » par une requête ou alerte existante | Tech | Inventaire des lectures (lot 2) avant développement ; tests sur les alertes V25 |
+| Dégradation de performance par jointure `patrimoine_bailleur` | Tech | Index `(bailleur_id, patrimoine_id)` ; mesure avant/après sur le lot 4 |
 | Données existantes incohérentes | PO | Détection lecture seule, décision cas par cas |
 | Régression sur encaissements | Financial | Tests non-régression paiements ; pas de suppression |
 | Scheduler de clôture manqué | Tech | Job idempotent + alerte + rattrapage au démarrage |
 
-## 9. Questions ouvertes (bloquantes pour le lot 2)
+## 9. Décisions PO (Q0 à Q3 tranchées ; aucune question métier ouverte)
 
 ### Décisions PO (2026-10-12)
 
@@ -146,6 +162,7 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 
 ## 10. Gates et preuves attendues
 
-- Gate : Plan approuvé → ADR approuvé (lot 4) → recette par lot → Gate Staging `STG-ISOL-01` → Gate Production.
+- Gate : Plan approuvé → ADR-20 « Acceptée » après revue sécurité (lots 4 et 5) → recette par lot → Gate Staging `STG-ISOL-01` → Gate Production.
+- Les lots 1, 2, 3, 6 et 7 ne dépendent pas d'ADR-20 et peuvent démarrer dès l'approbation du plan ; les lots 4 et 5 attendent ADR-20.
 - Preuves par lot : tests verts, script de détection joint, rapport de migration, revue humaine des contributions IA.
 - Aucune promotion sans validation humaine (CDO).
