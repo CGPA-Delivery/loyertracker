@@ -116,10 +116,13 @@ Question ouverte : un locataire lié à un bail sur un patrimoine partagé, qui 
 
 **Correction.** La rédaction initiale affirmait qu'un feature flag `multi_bailleur_enabled` désactivé ramenait la RLS à un fonctionnement strictement par `bailleur_id` créateur. C'est inexact : les policies sont en base, un flag applicatif ne les modifie pas.
 
-Rollback en trois niveaux (la production actuelle n'ayant aucun co-bailleur, la contrainte de réattribution du niveau 2 ne s'applique qu'une fois des co-bailleurs ajoutés) :
+Rollback en trois niveaux (la production actuelle n'ayant aucun co-bailleur, la perte de visibilité du niveau 2 ne s'applique qu'une fois des co-bailleurs ajoutés) :
 
 1. **Arrêt de l'extension (flag applicatif).** `multi_bailleur_enabled` désactivé empêche d'ajouter de nouveaux co-bailleurs et masque les écrans de partage. Il ne change **aucune** policy.
-2. **Retour à l'état « un seul membre par patrimoine ».** Après export, retirer de `patrimoine_bailleur` toutes les lignes non créateur. La policy par appartenance donne alors le même résultat que l'ancien fonctionnement (seul le créateur est membre). **Contrainte** : les lignes créées par un co-bailleur portent son `bailleur_id` ; avant retrait, elles doivent être réattribuées au créateur, sinon elles deviennent invisibles du créateur sous l'ancienne policy. Cette réattribution est une décision de données à valider par le PO.
+2. **Retour à l'état « un seul membre par patrimoine ».** Après export, retirer de `patrimoine_bailleur` toutes les lignes non créateur. La policy par appartenance donne alors le même résultat que l'ancien fonctionnement (seul le créateur est membre). **Décision PO (2026-10-14) : la perte de visibilité est acceptée, sans réattribution.** Les lignes créées par un co-bailleur portent son `bailleur_id` ; elles ne sont **ni supprimées ni réattribuées**. Après le rollback, elles deviennent invisibles du créateur sous l'ancienne policy (elles restent visibles du co-bailleur qui les a créées, pour ses propres données). Garde-fous obligatoires, sans changer cette décision :
+   - avant le retrait, un script **en lecture seule** liste les lignes concernées par table (baux, paiements, garanties, quittances, locataires, etc.) et ce rapport est archivé avec le rapport de rollback ;
+   - un export de ces lignes est conservé avant retrait ;
+   - les quittances émises par un co-bailleur restent valides (numérotation par `bailleur_id`) ; leur invisibilité côté créateur est consignée dans le rapport, pour la Financial Governance.
 3. **Migration inverse versionnée** restaurant les policies `bailleur_isolation` d'origine (V1, V12, V20, V22, V24, V27) et les fonctions `SECURITY DEFINER` précédentes. Elle doit être écrite, testée sur une base de test avant la migration directe (test T15 du dossier de revue) et jouée seulement après le niveau 2.
 
 - Données : la table `patrimoine_bailleur` est additive ; la supprimer après la migration inverse ne touche pas aux tables existantes.
