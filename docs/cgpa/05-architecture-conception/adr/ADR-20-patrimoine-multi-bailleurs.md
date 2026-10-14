@@ -88,19 +88,41 @@ Question ouverte : un locataire lié à un bail sur un patrimoine partagé, qui 
 - **Option A (recommandée)** : une `DemandeModificationLocataire` est créée par le gestionnaire. N'importe quel bailleur du patrimoine concerné peut l'approuver ou la refuser. L'approbateur n'est jamais le demandeur (Q3 du plan). L'approbation s'exécute dans la transaction du bailleur approbateur, avec RLS normale.
 - **Option B** : approbation par **tous** les bailleurs. Rejetée par le PO (D3 : un seul suffit).
 
-## Contexte d'exécution et gestionnaires (correction S3 — proposition à confirmer)
+## Décisions complémentaires (PO/CDO, 2026-10-14)
+
+Prises pendant la préparation de la revue sécurité (points S6 à S14 du dossier). Toutes les options recommandées sont retenues.
+
+| Code | Point | Décision retenue |
+|---|---|---|
+| D-MB-06 | S6 — Alertes | Une alerte par bien et par période, portée par le patrimoine, visible de tous les co-bailleurs. Pas de doublon par bailleur. |
+| D-MB-07 | S7 — Quittances | Un **émetteur unique par bail**, désigné à la création du bail parmi les co-bailleurs. La numérotation reste continue par émetteur et par année (clé `(bailleur_id, annee)` inchangée). Les autres co-bailleurs voient les quittances. |
+| D-MB-08 | S8 — RGPD | Les co-bailleurs du patrimoine sont **co-responsables de traitement**. Une demande d'effacement **anonymise** les données personnelles du locataire pour tous ; baux, paiements et quittances sont conservés (obligation comptable). |
+| D-MB-09 | S9 — Historique | Un nouveau co-bailleur voit **tout l'historique** du patrimoine, sans filtre par date d'ajout. |
+| D-MB-10 | S10 — Affectations | Les affectations de gestionnaires sont **portées par le patrimoine** : tout co-bailleur les voit, les crée et les révoque. Chaque action est tracée. |
+| D-MB-11 | S13 — Audit | Ajout de `acteur_bailleur_id`, distinct du bailleur propriétaire, dans `audit_log`. |
+| D-MB-12 | S14 — Membres | Ajout d'un co-bailleur sur **accord d'un membre** (invitation à accepter) ; retrait de soi-même, ou d'un autre membre par le **créateur** ; le dernier membre ne peut pas partir. Toutes les actions sont tracées. |
+
+Conséquences à traiter au plan d'exécution (lots 4 et 5) :
+
+- D-MB-07 : le bail porte un champ `emetteur_bailleur_id` ; revue Financial Governance avant le lot concerné.
+- D-MB-08 : `RgpdService` (export et effacement) est à revoir pour la co-responsabilité ; l'anonymisation ne doit jamais supprimer les pièces financières.
+- D-MB-10 : `affectation` passe d'une isolation par `bailleur_id` à une isolation par patrimoine ; la migration reprend les affectations existantes sans changer leur périmètre.
+
+## Contexte d'exécution et gestionnaires (correction S3 — règles confirmées par le PO/CDO le 2026-10-14)
 
 **Problème.** Le contexte RLS repose sur un seul GUC, `app.current_bailleur_id`, positionné par `TenantContext.positionner`. Pour un gestionnaire, `activerDepuisBien` résout `bien.bailleur_id` (le créateur) et agit sous son identité (`V4`, `resolve_bien_bailleur`). Avec plusieurs bailleurs, si le créateur n'est plus membre du patrimoine, le gestionnaire agirait sous une identité qui n'a plus accès, ou perdrait l'accès.
 
 **Faits vérifiés.** `Patrimoine.bailleurId` est `updatable = false` (`patrimoine/Patrimoine.java:22`) : le créateur ne change pas. Le GUC reste un **seul** bailleur par transaction.
 
-**Règles proposées** (à confirmer par le PO/CDO ; elles dépendent aussi de S10 et S14 du dossier de revue) :
+**Règles retenues** (confirmées telles qu'écrites par le PO/CDO le 2026-10-14) :
 
 1. Le GUC reste un bailleur unique, appelé « bailleur acteur ». Aucun GUC multiple.
 2. Pour un gestionnaire, le bailleur acteur est un **membre actif** du patrimoine du bien : le créateur tant qu'il est membre, sinon le membre dont `date_ajout` est la plus ancienne. `resolve_bien_bailleur` est réécrite en ce sens.
 3. Le dernier membre d'un patrimoine ne peut pas être retiré.
 4. Un membre qui est créateur d'affectations `ACTIVE` ne peut pas être retiré tant que ces affectations n'ont pas été transférées à un autre membre.
 5. Une ligne créée par un co-bailleur porte son `bailleur_id` (informatif) ; sa visibilité vient du patrimoine, pas de ce champ.
+
+**Point d'articulation à faire examiner par la revue.** La règle 4 suppose que les affectations appartiennent au bailleur qui les a créées. Avec D-MB-10, elles sont portées par le patrimoine : la règle 4 devient sans objet une fois la migration faite. Elle est conservée telle que confirmée, pour la période de transition et pour les affectations historiques, et le relecteur confirmera si elle peut être retirée.
 
 ## Conséquences
 
@@ -138,6 +160,8 @@ Rollback en trois niveaux (la production actuelle n'ayant aucun co-bailleur, la 
 
 - Cet ADR ne vaut pas approbation des lots 4 et 5.
 - Décisions D-MB-01 à D-MB-05 prises par le PO/CDO le 2026-10-12.
-- Révision du 2026-10-14 : corrections techniques S1 (récursion de policy), S2 (rollback) et proposition S3 (bailleur acteur). Aucune décision PO n'est modifiée.
-- **Restent ouverts**, voir le dossier de revue §2 : S4 (inventaire des tables), S5 (réaudit des fonctions `SECURITY DEFINER`), S6, S7 (numérotation des quittances), S8 (RGPD), S9, S10, S11, S12, S13, S14. Ils conditionnent le passage à « Acceptée ».
+- Révision du 2026-10-14 : corrections techniques S1 (récursion de policy), S2 (rollback) et règles S3 (bailleur acteur, confirmées). Aucune décision PO antérieure n'est modifiée.
+- Décisions complémentaires D-MB-06 à D-MB-12 (S6 à S10, S13, S14) prises par le PO/CDO le 2026-10-14.
+- Décision PO du 2026-10-14 : la perte de visibilité après rollback est acceptée (voir §Rollback).
+- **Restent ouverts**, tous techniques, à traiter à la revue (dossier de revue §2) : S4 (inventaire des tables, à compléter avec les nouvelles décisions : `alerte`, `affectation`, `quittance`, `audit_log`), S5 (réaudit des fonctions `SECURITY DEFINER`), S11 (performance de la fonction d'appartenance), S12 (vérifier `bien.patrimoine_id NOT NULL`). Ils conditionnent le passage à « Acceptée ».
 - Statut à passer en « Acceptée » après revue sécurité humaine et traitement des points ci-dessus. Cette revue n'a pas encore eu lieu.
