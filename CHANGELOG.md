@@ -8,6 +8,16 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Non publié]
 
+### Modifié — Lot 1 « Cycle de vie du bail » : statut du bien dérivé du bail
+
+- Clôturer un bail libère le bien s'il n'a plus de bail actif ; rouvrir un bail le remet loué. Le bien est verrouillé en écriture pendant les opérations de bail pour que le statut ne diverge pas sous concurrence.
+- `LOUE` et `LIBRE` saisis dans `PUT /api/biens/{id}` sont ignorés : la réponse renvoie le statut déduit des baux. Un bien créé est toujours `LIBRE`. **Changement de comportement de l'API.**
+- `EN_TRAVAUX` et l'archivage sont refusés (409) tant qu'un bail est actif ; la réouverture d'un bail est refusée (409) si le bien est en travaux ou archivé ; une clôture à date future est refusée (400) jusqu'à l'interruption programmée (lot 2).
+- Drapeau `app.biens.statut-derive.enabled` (variable `APP_BIENS_STATUT_DERIVE_ENABLED`, activé par défaut) : `false` rétablit le comportement antérieur. Il n'est pas encore transmis par les fichiers `docker-compose*.yml`.
+- Frontend : le formulaire du bien ne propose plus « libre » / « loué » en saisie (« Libre ou loué (selon les baux) », « En travaux », « Archivé ») et relit le statut après une clôture ou une réouverture.
+- Aucune migration de schéma. Les biens laissés « loués » par d'anciennes clôtures (anomalie A1 du script `infra/scripts/detection-incoherences-bail-bien.sql`) ne sont pas corrigés par ce lot : correction soumise à l'autorisation du CDO.
+- Plan : `docs/cgpa/06-planification-agile/plan-execution-lot1-statut-bien-derive.md` (approuvé le 2026-10-16).
+
 ### Gouvernance — synchronisation Product Backlog et clôture EP-20
 
 - Décision PO/CDO : ajouter une vue canonique datée du 2026-08-15 sans réécrire la table historique du 2026-08-10.

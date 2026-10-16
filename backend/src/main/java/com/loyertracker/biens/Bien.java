@@ -2,6 +2,9 @@ package com.loyertracker.biens;
 
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -59,8 +62,28 @@ public class Bien {
         this.statut = StatutBien.ARCHIVE;
     }
 
+    /**
+     * Le bien passe {@code LOUE} à la création ou à la réouverture d'un bail. Un bien déjà
+     * {@code LOUE} reste inchangé (donnée historique laissée {@code LOUE} par une clôture
+     * antérieure au lot 1) ; {@code EN_TRAVAUX} et {@code ARCHIVE} sont des états manuels qu'un
+     * bail n'écrase jamais.
+     */
     public void louer() {
+        if (this.statut == StatutBien.EN_TRAVAUX || this.statut == StatutBien.ARCHIVE) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Un bien en travaux ou archivé ne peut pas être loué.");
+        }
         this.statut = StatutBien.LOUE;
+    }
+
+    /**
+     * Le bien redevient {@code LIBRE} quand son dernier bail actif prend fin. Sans effet sur les
+     * états manuels ({@code EN_TRAVAUX}, {@code ARCHIVE}), qui ne dépendent pas des baux.
+     */
+    public void liberer() {
+        if (this.statut == StatutBien.LOUE) {
+            this.statut = StatutBien.LIBRE;
+        }
     }
 
     public UUID getId() {

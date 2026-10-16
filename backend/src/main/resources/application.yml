@@ -95,6 +95,14 @@ quittances:
   url-base-verification: ${QUITTANCE_VERIFY_BASE_URL:https://loyertracker.loyerpro.org}
 
 app:
+  biens:
+    # Lot 1 « Cycle de vie du bail » (plan-execution-lot1-statut-bien-derive.md, décision L1-D5) :
+    # le statut LOUE / LIBRE d'un bien est déduit des baux (la clôture libère le bien, la
+    # réouverture le reloue, LOUE / LIBRE saisis sont ignorés, EN_TRAVAUX / ARCHIVE refusés sous
+    # bail actif, clôture à date future refusée). Activé par défaut. Mettre `false` rétablit le
+    # comportement antérieur au lot 1 (retour arrière sans redéploiement du code).
+    statut-derive:
+      enabled: ${APP_BIENS_STATUT_DERIVE_ENABLED:true}
   cors:
     allowed-origin: ${APP_CORS_ALLOWED_ORIGIN:https://localhost}
   invitation:

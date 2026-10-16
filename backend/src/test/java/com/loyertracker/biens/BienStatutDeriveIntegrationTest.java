@@ -174,6 +174,21 @@ class BienStatutDeriveIntegrationTest {
         assertThat(statutDuBien(bailleur, bien.id())).isEqualTo("LOUE");
     }
 
+    @Test
+    void clotureNeChangePasLEtatManuelDunBienEnTravauxHerite() throws Exception {
+        String bailleur = "kc-" + UUID.randomUUID();
+        inscrireBailleur(bailleur);
+        BienCree bien = creerBien(bailleur, "12 rue Heritage");
+        String bailId = creerBail(bailleur, bien.id(), "2026-01-01", "2026-12-31");
+        // Donnée héritée d'avant le lot 1 (anomalie A4) : le contrôle L1-D2 empêche désormais de
+        // la créer par l'API, elle n'est atteignable qu'en base.
+        jdbc.update("UPDATE bien SET statut = 'EN_TRAVAUX' WHERE id = ?::uuid", bien.id());
+
+        mockMvc.perform(cloturer(bien.id(), bailId, bailleur, null)).andExpect(status().isOk());
+
+        assertThat(statutDuBien(bailleur, bien.id())).isEqualTo("EN_TRAVAUX");
+    }
+
     // ---- L1-D3 : clôture à date future refusée jusqu'au lot 2 -----------------------
 
     @Test
