@@ -89,10 +89,9 @@ import { BailleurInscriptionService } from '../inscription/bailleur-inscription.
         </lt-form-field>
         <lt-form-field #fStatut="ltFormField" inputId="bien-statut" label="Statut">
           <select id="bien-statut" formControlName="statut" [attr.aria-describedby]="fStatut.describedBy()">
-            <option value="LIBRE">LIBRE</option>
-            <option value="LOUE">LOUE</option>
-            <option value="EN_TRAVAUX">EN_TRAVAUX</option>
-            <option value="ARCHIVE">ARCHIVE</option>
+            <option value="LIBRE">Libre ou loué (selon les baux)</option>
+            <option value="EN_TRAVAUX">En travaux</option>
+            <option value="ARCHIVE">Archivé</option>
           </select>
         </lt-form-field>
         <div class="actions">
@@ -725,6 +724,7 @@ export class BailleurDashboardComponent implements OnInit {
           this.bailSelectionne.set(resultat.bail);
           this.message.set(resultat.avertissements.length ? `Bail clôturé — ${resultat.avertissements.join(' ')}` : 'Bail clôturé');
           this.chargerDetails(bienId);
+          this.rafraichirStatutBien(bienId);
         },
         error: (err: unknown) => this.signalerErreur(err),
         complete: () => this.chargement.set(false),
@@ -746,6 +746,7 @@ export class BailleurDashboardComponent implements OnInit {
           this.bailSelectionne.set(rouvert);
           this.message.set('Bail rouvert');
           this.chargerDetails(bienId);
+          this.rafraichirStatutBien(bienId);
         },
         error: (err: unknown) => this.signalerErreur(err),
         complete: () => this.chargement.set(false),
@@ -920,13 +921,32 @@ export class BailleurDashboardComponent implements OnInit {
     );
   }
 
+  /**
+   * Le statut libre / loué d'un bien est déduit des baux (lot 1) : il change à la clôture et à la
+   * réouverture d'un bail. On relit la liste sans toucher au message affiché.
+   */
+  private rafraichirStatutBien(bienId: string): void {
+    this.api.listerBiens().subscribe({
+      next: (biens) => {
+        this.biens.set(biens);
+        const bien = biens.find((b) => b.id === bienId);
+        if (bien && this.bienSelectionneId() === bienId) {
+          this.bienSelectionne.set(bien);
+        }
+      },
+      error: (err: unknown) => this.signalerErreur(err),
+    });
+  }
+
   selectionnerBien(bien: Bien): void {
     this.bienSelectionne.set(bien);
     this.bailSelectionne.set(null);
     this.bienForm.setValue({
       adresse: bien.adresse,
       type: bien.type,
-      statut: bien.statut,
+      // Libre / loué est déduit des baux (lot 1) : le formulaire ne propose plus que « selon les
+      // baux », « en travaux » et « archivé ».
+      statut: bien.statut === 'LOUE' ? 'LIBRE' : bien.statut,
       patrimoineId: bien.patrimoineId,
     });
     this.chargerDetails(bien.id);

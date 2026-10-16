@@ -172,6 +172,9 @@ services:
       KEYCLOAK_API_CLIENT_SECRET: ${KEYCLOAK_API_CLIENT_SECRET}
       APP_CORS_ALLOWED_ORIGIN: ${APP_CORS_ALLOWED_ORIGIN:-https://localhost}
       APP_INVITATION_BASE_URL: ${APP_INVITATION_BASE_URL:-https://localhost}
+      # Lot 1 « Cycle de vie du bail » (décision L1-D5) : statut LOUE / LIBRE du bien déduit des
+      # baux. `false` rétablit le comportement antérieur (retour arrière sans redéploiement du code).
+      APP_BIENS_STATUT_DERIVE_ENABLED: ${APP_BIENS_STATUT_DERIVE_ENABLED:-true}
       # Quittances certifiées (EP-14, ADR-15 D3) : secret HMAC des tokens de vérification QR.
       # À renseigner dans le .env de l'hôte AVANT le prochain déploiement (préflight Gate
       # Staging) — vide, l'API démarre avec un secret éphémère et les QR émis ne restent pas

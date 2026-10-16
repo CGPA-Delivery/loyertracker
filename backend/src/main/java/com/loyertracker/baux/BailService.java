@@ -2,6 +2,7 @@ package com.loyertracker.baux;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -52,10 +54,14 @@ public class BailService {
     private final TenantContext tenant;
     private final AuditService audit;
     private final NotificationOutboxService notifications;
+    /** Lot 1 : statut {@code LOUE} / {@code LIBRE} du bien déduit des baux (retour arrière : {@code false}). */
+    private final boolean statutBienDerive;
 
     public BailService(BailRepository baux, BienRepository biens, GarantieRepository garanties,
             PaiementRepository paiements, LocataireRepository locataires, TenantContext tenant,
-            AuditService audit, NotificationOutboxService notifications) {
+            AuditService audit, NotificationOutboxService notifications,
+            @Value("${app.biens.statut-derive.enabled:true}") boolean statutBienDerive) {
+        this.statutBienDerive = statutBienDerive;
         this.baux = baux;
         this.biens = biens;
         this.garanties = garanties;
@@ -69,9 +75,9 @@ public class BailService {
     @Transactional
     public BailDto creer(UUID bienId, BailRequest requete) {
         UUID bailleurId = tenant.activerDepuisBien(bienId);
-        Bien bien = biens.findById(bienId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Bien introuvable."));
+        // Verrou sur le bien : une création et une clôture simultanées sur le même bien sont
+        // sérialisées, le statut dérivé ne peut pas diverger du bail.
+        Bien bien = bienVerrouille(bienId);
         if (bien.getStatut() != StatutBien.LIBRE) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Un bail ne peut être créé que sur un bien libre.");
@@ -149,10 +155,21 @@ public class BailService {
         UUID bailleurId = tenant.activerDepuisBien(bienId);
         Bail bail = exigerBailDuBien(bienId, bailId);
         LocalDate dateCloture = (requete != null && requete.dateClotureEffective() != null)
-                ? requete.dateClotureEffective() : LocalDate.now();
+                ? requete.dateClotureEffective() : aujourdHui();
+        if (statutBienDerive && dateCloture.isAfter(aujourdHui())) {
+            // Un bien en préavis reste loué jusqu'à la date d'effet : une clôture à date future
+            // exige l'interruption programmée (lot 2) et ne peut pas libérer le bien tout de suite.
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "La date de clôture ne peut pas être dans le futur : une fin de bail à date "
+                            + "ultérieure relève de l'interruption programmée.");
+        }
+        Bien bien = bienVerrouille(bienId);
 
         bail.cloturer(dateCloture); // 409 si déjà CLOS
         Bail enregistre = baux.save(bail);
+        if (statutBienDerive && !baux.existsByBienIdAndStatut(bienId, StatutBail.ACTIF)) {
+            bien.liberer(); // même transaction que la clôture ; sans effet si EN_TRAVAUX / ARCHIVE
+        }
 
         List<String> avertissements = new ArrayList<>();
 
@@ -189,13 +206,22 @@ public class BailService {
     public BailDto rouvrir(UUID bienId, UUID bailId, Authentication authentication) {
         UUID bailleurId = tenant.activerDepuisBien(bienId);
         Bail bail = exigerBailDuBien(bienId, bailId);
+        Bien bien = bienVerrouille(bienId);
         if (baux.existsByBienIdAndStatut(bienId, StatutBail.ACTIF)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Un bail actif existe déjà sur ce bien.");
         }
+        if (statutBienDerive && (bien.getStatut() == StatutBien.EN_TRAVAUX
+                || bien.getStatut() == StatutBien.ARCHIVE)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Le bien est en travaux ou archivé : remettez-le en service avant de rouvrir ce bail.");
+        }
         bail.rouvrir(); // 409 si le bail n'est pas CLOS
         try {
             Bail enregistre = baux.saveAndFlush(bail);
+            if (statutBienDerive) {
+                bien.louer();
+            }
             audit.enregistrer(authentication, bailleurId, "ROUVRIR_BAIL", ENTITY_TYPE, bailId);
             Locataire locataire = trouverLocataire(enregistre.getLocataireId());
             return BailDto.from(enregistre, garanties.sommeMontantDeposeParBail(bailId), locataire);
@@ -209,6 +235,18 @@ public class BailService {
             }
             throw e;
         }
+    }
+
+    /** Date du jour au fuseau du serveur : le comportement historique de {@code LocalDate.now()}, rendu explicite. */
+    private static LocalDate aujourdHui() {
+        return LocalDate.now(ZoneId.systemDefault());
+    }
+
+    /** Lit le bien avec un verrou en écriture (sérialise les opérations de bail sur ce bien). */
+    private Bien bienVerrouille(UUID bienId) {
+        return biens.findWithLockById(bienId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Bien introuvable."));
     }
 
     private Bail exigerBailDuBien(UUID bienId, UUID bailId) {

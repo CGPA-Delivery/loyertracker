@@ -125,9 +125,62 @@ describe('BailleurDashboardComponent', () => {
       req.flush({ bail: { ...bail, statut: 'CLOS' }, avertissements: [] });
       http.expectOne('/api/biens/bien-1/baux').flush([]);
       http.expectOne('/api/biens/bien-1/affectations').flush([]);
+      // Lot 1 : le statut libre / loué est déduit des baux, la clôture libère le bien.
+      http
+        .expectOne('/api/biens')
+        .flush([{ id: 'bien-1', adresse: '1 rue Test', type: 'APPARTEMENT', statut: 'LIBRE', patrimoineId: 'patrimoine-1' }]);
 
       expect(cmp.message()).toBe('Bail clôturé');
       expect(cmp.bailSelectionne()?.statut).toBe('CLOS');
+      expect(cmp.bienSelectionne()?.statut).toBe('LIBRE');
+    });
+
+    it('rouvre le bail sélectionné après confirmation et relit le statut du bien (loué)', () => {
+      const cmp = fixture.componentInstance;
+      const bail = {
+        id: 'bail-1',
+        bienId: 'bien-1',
+        locataireNom: 'Locataire',
+        locataireEmail: null,
+        loyerHc: 800,
+        provisionCharges: 0,
+        loyerCc: 800,
+        depotGarantie: 0,
+        dateDebut: '2026-01-01',
+        dateFin: null,
+        statut: 'CLOS',
+        devise: 'EUR' as const,
+      };
+      cmp.bienSelectionne.set({ id: 'bien-1', adresse: '1 rue Test', type: 'APPARTEMENT', statut: 'LIBRE', patrimoineId: 'patrimoine-1' });
+      cmp.bailSelectionne.set(bail);
+
+      cmp.rouvrirBail();
+
+      const req = http.expectOne('/api/biens/bien-1/baux/bail-1/reouverture');
+      expect(req.request.method).toBe('POST');
+      req.flush({ ...bail, statut: 'ACTIF' });
+      http.expectOne('/api/biens/bien-1/baux').flush([]);
+      http.expectOne('/api/biens/bien-1/affectations').flush([]);
+      http
+        .expectOne('/api/biens')
+        .flush([{ id: 'bien-1', adresse: '1 rue Test', type: 'APPARTEMENT', statut: 'LOUE', patrimoineId: 'patrimoine-1' }]);
+
+      expect(cmp.message()).toBe('Bail rouvert');
+      expect(cmp.bienSelectionne()?.statut).toBe('LOUE');
+    });
+
+    it('formulaire du bien : un bien loué est présenté « selon les baux », jamais « loué » en saisie', () => {
+      const cmp = fixture.componentInstance;
+
+      cmp.selectionnerBien({ id: 'bien-1', adresse: '1 rue Test', type: 'APPARTEMENT', statut: 'LOUE', patrimoineId: 'patrimoine-1' });
+      http.expectOne('/api/biens/bien-1/baux').flush([]);
+      http.expectOne('/api/biens/bien-1/affectations').flush([]);
+
+      expect(cmp.bienForm.getRawValue().statut).toBe('LIBRE');
+      const valeurs = Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLOptionElement>('#bien-statut option'),
+      ).map((option) => option.value);
+      expect(valeurs).toEqual(['LIBRE', 'EN_TRAVAUX', 'ARCHIVE']);
     });
 
     it('refuse la réouverture avant confirmation', () => {
