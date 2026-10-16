@@ -101,12 +101,22 @@ Prises pendant la préparation de la revue sécurité (points S6 à S14 du dossi
 | D-MB-10 | S10 — Affectations | Les affectations de gestionnaires sont **portées par le patrimoine** : tout co-bailleur les voit, les crée et les révoque. Chaque action est tracée. |
 | D-MB-11 | S13 — Audit | Ajout de `acteur_bailleur_id`, distinct du bailleur propriétaire, dans `audit_log`. |
 | D-MB-12 | S14 — Membres | Ajout d'un co-bailleur sur **accord d'un membre** (invitation à accepter) ; retrait de soi-même, ou d'un autre membre par le **créateur** ; le dernier membre ne peut pas partir. Toutes les actions sont tracées. |
+| D-MB-13 | O1 — Notifications | Un événement sur un patrimoine partagé notifie **chaque co-bailleur membre**, selon ses propres préférences (canal, langue). |
+| D-MB-14 | O2 — Audit | Un co-bailleur voit le journal d'audit **par patrimoine** : ajout d'un `patrimoine_id` à `audit_log`, visibilité par appartenance. |
+| D-MB-15 | O3 — Lecture des alertes | L'alerte reste unique par bien et période (D-MB-06), avec un **statut de lecture par destinataire** (table de lecture dédiée). |
+| D-MB-16 | O4 — Invitations | La table `invitation` est **étendue** avec un type (`GESTIONNAIRE`, `CO_BAILLEUR`) et un patrimoine cible. Elle reste isolée par bailleur émetteur. |
+| D-MB-17 | O5 — Honoraires | Un **redevable est désigné à la création de l'affectation**, parmi les co-bailleurs. Pas de quotes-parts de propriété modélisées. Les autres co-bailleurs voient l'honoraire. |
 
 Conséquences à traiter au plan d'exécution (lots 4 et 5) :
 
 - D-MB-07 : le bail porte un champ `emetteur_bailleur_id` ; revue Financial Governance avant le lot concerné.
 - D-MB-08 : `RgpdService` (export et effacement) est à revoir pour la co-responsabilité ; l'anonymisation ne doit jamais supprimer les pièces financières.
 - D-MB-10 : `affectation` passe d'une isolation par `bailleur_id` à une isolation par patrimoine ; la migration reprend les affectations existantes sans changer leur périmètre.
+- D-MB-13 : les notifications d'un événement partagé sont produites **par destinataire** (une ligne d'envoi par co-bailleur). Le rattachement RLS exact de `notification_event`, `notification_outbox` et `notification_delivery` est à fixer à la conception du lot et à valider en revue sécurité.
+- D-MB-14 : `audit_log` reçoit `patrimoine_id` et `acteur_bailleur_id` ; reprise des lignes existantes sans changer leur visibilité.
+- D-MB-15 : nouvelle table de lecture (alerte, destinataire, date de lecture) ; le statut existant est recopié pour le destinataire actuel.
+- D-MB-16 : migration de `invitation` avec `type = GESTIONNAIRE` pour l'existant.
+- D-MB-17 : `affectation` (ou `honoraire`) porte un champ de bailleur redevable ; revue Financial Governance avant le lot concerné ; pour l'existant, redevable = `bailleur_id` actuel.
 
 ## Contexte d'exécution et gestionnaires (correction S3 — règles confirmées par le PO/CDO le 2026-10-14)
 
@@ -163,5 +173,7 @@ Rollback en trois niveaux (la production actuelle n'ayant aucun co-bailleur, la 
 - Révision du 2026-10-14 : corrections techniques S1 (récursion de policy), S2 (rollback) et règles S3 (bailleur acteur, confirmées). Aucune décision PO antérieure n'est modifiée.
 - Décisions complémentaires D-MB-06 à D-MB-12 (S6 à S10, S13, S14) prises par le PO/CDO le 2026-10-14.
 - Décision PO du 2026-10-14 : la perte de visibilité après rollback est acceptée (voir §Rollback).
-- **Restent ouverts**, tous techniques, à traiter à la revue (dossier de revue §2) : S4 (inventaire des tables, à compléter avec les nouvelles décisions : `alerte`, `affectation`, `quittance`, `audit_log`), S5 (réaudit des fonctions `SECURITY DEFINER`), S11 (performance de la fonction d'appartenance), S12 (vérifier `bien.patrimoine_id NOT NULL`). Ils conditionnent le passage à « Acceptée ».
+- Décisions D-MB-13 à D-MB-17 (O1 à O5, nées de l'inventaire S4) prises par le PO/CDO le 2026-10-16.
+- **Traités** : S4 (inventaire des 24 tables, `docs/cgpa/evidence/adr20-s4/inventaire-tables-rls.md`) ; S12 (`bien.patrimoine_id NOT NULL` vérifié, `docs/cgpa/evidence/adr20-s12/controle-coherence-bien-patrimoine.md`).
+- **Restent ouverts**, tous techniques, à traiter à la revue (dossier de revue §2) : S5 (réaudit des fonctions `SECURITY DEFINER`), S11 (performance de la fonction d'appartenance), S12b (cohérence du bailleur entre bien et patrimoine : script de contrôle à exécuter sur une copie de la production, avec l'autorisation du PO). Ils conditionnent le passage à « Acceptée ».
 - Statut à passer en « Acceptée » après revue sécurité humaine et traitement des points ci-dessus. Cette revue n'a pas encore eu lieu.
