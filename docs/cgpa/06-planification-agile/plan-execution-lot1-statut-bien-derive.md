@@ -1,6 +1,6 @@
 # Plan d'Exécution — Lot 1 : statut du bien dérivé du bail
 
-- **Statut** : **En attente d'approbation.** Aucun code applicatif ne doit être écrit avant l'approbation de ce plan par le PO/CDO.
+- **Statut** : **Approuvé (2026-10-16).** Approbation exprimée dans le chat par le PO/CDO : « j'approuve le plan détaillé du lot 1 ». Le code du lot 1 peut démarrer sur une branche dédiée, avec PR et revue humaine. **Restent soumis à une autorisation distincte du CDO** : l'exécution du script de détection sur une copie de la production et toute correction de données en production (§13). **Aucune promotion** (Gate Staging avec `STG-ISOL-01`, puis Gate 09 / Gate Production).
 - **Plan-cadre** : `docs/cgpa/06-planification-agile/plan-execution-cycle-bail.md` (approbation du plan-cadre enregistrée dans la PR #581 ; à vérifier sur `main` avant de démarrer)
 - **Rédigé par** : Claude Code (contribution IA) ; **à relire par un humain** avant décision.
 
@@ -204,8 +204,8 @@ Ces décisions sont intégrées aux étapes 7, 8, 9 et 10 du §7 et aux scénari
 
 ## 14. Statut
 
-* **En attente d'approbation**
-* Approuvé
+* En attente d'approbation
+* **Approuvé (2026-10-16)**
 * Refusé
 * Exécuté
 * Clôturé
