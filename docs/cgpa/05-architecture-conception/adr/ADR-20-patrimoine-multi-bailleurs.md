@@ -118,6 +118,21 @@ Conséquences à traiter au plan d'exécution (lots 4 et 5) :
 - D-MB-16 : migration de `invitation` avec `type = GESTIONNAIRE` pour l'existant.
 - D-MB-17 : `affectation` (ou `honoraire`) porte un champ de bailleur redevable ; revue Financial Governance avant le lot concerné ; pour l'existant, redevable = `bailleur_id` actuel.
 
+### Décisions techniques (PO/CDO, 2026-10-16)
+
+Prises sur S5, S11 et S12b du dossier de revue. Détail, conséquences et registre des fonctions : `docs/cgpa/evidence/adr20-s5-s11-s12b/decisions-techniques-et-registre.md`.
+
+| Code | Point | Décision retenue |
+|---|---|---|
+| DT-01 | S5 — Lignes générées par les fonctions batch | La ligne générée reprend le `bailleur_id` **de sa ligne parente** (échéance : bail ; alerte : bail ou bien ; honoraire : affectation). La visibilité vient du patrimoine, pas de ce champ. |
+| DT-02 | S5 — Gouvernance `SECURITY DEFINER` | **Contrôle CI + revue sécurité obligatoire** : échec si une fonction `SECURITY DEFINER` est ajoutée ou modifiée sans revue référencée ; registre tenu à jour. Changement de pipeline : Plan d'Exécution requis (CHECK-CICD-01). |
+| DT-03 | S11 — Approche | **Mesurer d'abord, dénormaliser `patrimoine_id` seulement si nécessaire** (avec contrainte de cohérence). |
+| DT-04 | S11 — Seuil | Dégradation **au plus +20 % de latence p95** (liste des paiements, quittances, échéancier), avant/après sur la même base de test à volume réaliste. |
+| DT-05 | S12b — Lieu du contrôle | **Copie restaurée de la production**, dans une base isolée ; jamais sur le staging mutualisé sans `STG-ISOL-01`. Autorisation du PO requise. |
+| DT-06 | S12b — Anomalies | **Cas par cas, validé par le PO avant correction.** Pas de correction automatique. Migration bloquée tant qu'une anomalie n'est pas décidée. |
+
+Le registre recense **23 fonctions `SECURITY DEFINER`** (V1 à V36). Impact présumé d'après leurs noms, à confirmer par un audit humain : 1 sans impact, 3 à réécrire (`resolve_bien_bailleur`, `bien_appartient_au_bailleur`, `patrimoine_appartient_au_bailleur`), 3 batch à modifier (`generer_echeances_loyers`, `generer_alertes`, `calculer_honoraires`), 11 à revoir, 5 à vérifier.
+
 ## Contexte d'exécution et gestionnaires (correction S3 — règles confirmées par le PO/CDO le 2026-10-14)
 
 **Problème.** Le contexte RLS repose sur un seul GUC, `app.current_bailleur_id`, positionné par `TenantContext.positionner`. Pour un gestionnaire, `activerDepuisBien` résout `bien.bailleur_id` (le créateur) et agit sous son identité (`V4`, `resolve_bien_bailleur`). Avec plusieurs bailleurs, si le créateur n'est plus membre du patrimoine, le gestionnaire agirait sous une identité qui n'a plus accès, ou perdrait l'accès.
@@ -165,6 +180,9 @@ Rollback en trois niveaux (la production actuelle n'ayant aucun co-bailleur, la 
 - Script de détection en lecture seule : patrimoines sans bailleur créateur, locataires sans bail.
 - Revue humaine (sécurité) de la policy RLS, de la fonction `bailleur_est_membre_patrimoine` et de la règle du bailleur acteur.
 - Test de la migration inverse sur une base de test (T15 du dossier de revue).
+- Audit humain des 23 fonctions `SECURITY DEFINER` (corps, propriétaire, `search_path`, `GRANT EXECUTE`, comportement multi-bailleurs), consigné par fichier de revue référencé depuis le registre (DT-02).
+- Rapport de mesure de performance : p95 avant/après sur la même base à volume réaliste, seuil +20 % (DT-03, DT-04), et décision de dénormalisation si le seuil n'est pas tenu.
+- Rapport d'exécution horodaté du script de contrôle S12b sur une copie de la production : chaque anomalie listée avec la décision du PO (DT-05, DT-06) ; aucune anomalie non décidée.
 
 ## Gouvernance
 
@@ -175,5 +193,10 @@ Rollback en trois niveaux (la production actuelle n'ayant aucun co-bailleur, la 
 - Décision PO du 2026-10-14 : la perte de visibilité après rollback est acceptée (voir §Rollback).
 - Décisions D-MB-13 à D-MB-17 (O1 à O5, nées de l'inventaire S4) prises par le PO/CDO le 2026-10-16.
 - **Traités** : S4 (inventaire des 24 tables, `docs/cgpa/evidence/adr20-s4/inventaire-tables-rls.md`) ; S12 (`bien.patrimoine_id NOT NULL` vérifié, `docs/cgpa/evidence/adr20-s12/controle-coherence-bien-patrimoine.md`).
-- **Restent ouverts**, tous techniques, à traiter à la revue (dossier de revue §2) : S5 (réaudit des fonctions `SECURITY DEFINER`), S11 (performance de la fonction d'appartenance), S12b (cohérence du bailleur entre bien et patrimoine : script de contrôle à exécuter sur une copie de la production, avec l'autorisation du PO). Ils conditionnent le passage à « Acceptée ».
+- Décisions techniques DT-01 à DT-06 (S5, S11, S12b) prises par le PO/CDO le 2026-10-16.
+- **Décisions prises, travail restant à faire** (aucune décision PO n'est plus en attente sur ces points) :
+  - S5 : audit humain des 23 fonctions `SECURITY DEFINER` ; spécification du contrôle CI (DT-02) par un Plan d'Exécution.
+  - S11 : plan et exécution de la mesure de performance (DT-03, DT-04).
+  - S12b : exécution du script de contrôle sur une copie de la production, avec l'autorisation du PO d'accéder à une sauvegarde (DT-05, DT-06).
+- Ces trois travaux conditionnent le passage à « Acceptée », avec la revue sécurité humaine de la policy RLS.
 - Statut à passer en « Acceptée » après revue sécurité humaine et traitement des points ci-dessus. Cette revue n'a pas encore eu lieu.
