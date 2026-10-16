@@ -1,10 +1,11 @@
 # Plan d'exécution — Cycle de vie du bail, statut du bien, historique, échéancier
 
-- **Statut** : **Proposé — en attente de validation PO/CDO.** Aucun code applicatif ne doit être écrit avant approbation.
+- **Statut** : **Approuvé comme plan-cadre (2026-10-16).** Approbation exprimée dans le chat par le PO/CDO : « plan approuver ». Périmètre de l'approbation : ce plan-cadre et la rédaction des Plans d'Exécution détaillés des lots 1, 2, 3, 6 et 7. **Aucun code applicatif d'un lot avant l'approbation de son Plan d'Exécution détaillé.** Les lots 4 et 5 restent bloqués tant qu'ADR-20 n'est pas « Acceptée ». Aucune promotion. Voir `demande-approbation-plan-cycle-bail.md` §1 et §9.
 - **Date** : 2026-10-09 — mis à jour le 2026-10-14 (alignement sur les décisions Q0 à Q3 et sur ADR-20)
 - **Source** : `docs/cgpa/reports/audit-cycle-bail-phase1-2026-10-09.md`
 - **Propriétaire** : PO (décisions D1 à D5 du rapport d'audit)
-- **ADR lié** : `docs/cgpa/05-architecture-conception/adr/ADR-20-patrimoine-multi-bailleurs.md` (décisions D-MB-01 à D-MB-05 prises ; statut « Proposée » jusqu'à revue sécurité)
+- **ADR lié** : `docs/cgpa/05-architecture-conception/adr/ADR-20-patrimoine-multi-bailleurs.md` (décisions D-MB-01 à D-MB-17 et DT-01 à DT-06 prises ; statut « Proposée » jusqu'à revue sécurité)
+- **Demande d'approbation** : `docs/cgpa/06-planification-agile/demande-approbation-plan-cycle-bail.md`
 
 ## 1. Objectif
 
@@ -37,10 +38,12 @@ C9 : le locataire est lié à un seul bailleur, avec RLS (ADR-01). D2 et D3 exig
 ADR-20 est rédigé. Décisions PO/CDO du 2026-10-12 :
 
 - `patrimoine_bailleur` : table de liaison N-N ; `patrimoine.bailleur_id` devient le bailleur créateur, informatif (D-MB-01) ;
-- RLS sur `patrimoine` par `EXISTS` sur `patrimoine_bailleur` (D-MB-02) ;
+- RLS sur `patrimoine` par appartenance via `patrimoine_bailleur`, évaluée par une fonction `SECURITY DEFINER` (D-MB-02, correction S1) ;
 - les tables filles (`bien`, `bail`, `paiement`, `garantie`, `quittance`) héritent de la visibilité du patrimoine (D-MB-03) ;
 - le locataire reste rattaché à un bailleur créateur, visible des co-bailleurs des patrimoines où il a un bail (D-MB-04) ;
 - un seul bailleur du patrimoine suffit pour approuver une modification de locataire, jamais le demandeur (D-MB-05).
+
+Décisions complémentaires de l'ADR-20 (2026-10-14 et 2026-10-16) : alertes uniques par bien avec lecture par destinataire (D-MB-06, D-MB-15), émetteur unique de quittances par bail (D-MB-07), co-responsabilité RGPD (D-MB-08), historique complet pour un nouveau co-bailleur (D-MB-09), affectations portées par le patrimoine (D-MB-10), audit avec `acteur_bailleur_id` et `patrimoine_id` (D-MB-11, D-MB-14), règles d'ajout et de retrait des membres (D-MB-12), notifications par co-bailleur (D-MB-13), invitations étendues (D-MB-16), redevable des honoraires (D-MB-17), et décisions techniques DT-01 à DT-06.
 
 **Gate** : aucun lot 4 ou 5 ne démarre tant qu'ADR-20 n'est pas « Acceptée ». Le passage à « Acceptée » exige la revue sécurité de la policy RLS et du `EXISTS` (`docs/cgpa/reports/revue-securite-adr20-rls-multi-bailleurs.md`).
 
@@ -81,10 +84,13 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 - **Dépend de** : ADR-20 « Acceptée » (section 3) et revue sécurité.
 - **Périmètre** (ADR-20) :
   - table `patrimoine_bailleur` (clé composite, index `(bailleur_id, patrimoine_id)`), migration : une ligne par patrimoine existant avec son bailleur créateur ;
-  - policy RLS `EXISTS` sur `patrimoine` et sur les tables filles ; `patrimoine_bailleur` elle-même sous RLS ;
+  - policy RLS par appartenance (fonction `bailleur_est_membre_patrimoine`, `SECURITY DEFINER`) sur `patrimoine` et sur les tables filles ; `patrimoine_bailleur` sous policy simple `bailleur_id = GUC` pour éviter la récursion (S1) ;
   - `AuthorizationService.peutAccederBien` révisé : co-bailleur, gestionnaire affecté (ADR-11), locataire visible via bail ;
   - gestionnaires multi-patrimoines ;
-  - feature flag `multi_bailleur_enabled`.
+  - feature flag `multi_bailleur_enabled` (arrête l'extension du partage ; ne modifie pas les policies, voir rollback d'ADR-20) ;
+  - périmètre ajouté par les décisions D-MB-06 à D-MB-17 : alertes et lecture par destinataire, émetteur de quittances (`emetteur_bailleur_id`), affectations portées par le patrimoine, audit (`acteur_bailleur_id`, `patrimoine_id`), notifications par destinataire, invitations de co-bailleurs, redevable des honoraires ;
+  - réécriture des fonctions `SECURITY DEFINER` identifiées au registre d'ADR-20 (23 fonctions) et contrôle CI (DT-02).
+- **Découpage recommandé** : ce lot est volumineux. Son Plan d'Exécution détaillé doit le scinder (modèle et RLS d'abord, puis alertes, notifications, audit, invitations, quittances, honoraires), chaque partie avec sa propre revue.
 - **Tests** : suite d'autorisation croisée (co-bailleur autorisé, bailleur tiers refusé, gestionnaire hors affectation refusé) ; objectif 0 accès cross-bailleur non autorisé (ENF-02).
 - **Risque** : élevé (sécurité et RLS). Revue humaine obligatoire.
 
@@ -94,7 +100,7 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 - **Précision (audit §6, C8)** : le Gestionnaire n'a aujourd'hui aucun droit de modification (`LocataireController` = BAILLEUR). Le lot **ajoute** cette capacité sous approbation ; `LocataireService.modifier` reste l'action du bailleur. Ajouter un avant/après au journal d'audit.
 
 ### Lot 6 — Historique par bien (P5)
-- **Périmètre** : chronologie des baux, locataires, dates, loyers, motif de fin, statut d'interruption ; affichage sur la fiche bien.
+- **Périmètre** : chronologie des baux, locataires, dates, loyers, motif de fin et préavis en cours (bail `ACTIF` à date de fin future) ; affichage sur la fiche bien.
 - **Dépend de** : lots 2 et 4 pour les données complètes.
 
 ### Lot 7 — Page échéancier dédiée (P6, C11)
@@ -149,9 +155,9 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 - **Q2 — Statut de l'échéance clôturée** : **Nouveau statut de paiement `CLOTUREE`.** Migration du CHECK sur `paiement.statut` requise. La génération des loyers ne recrée pas ces échéances.
 - **Q3 — Auto-approbation** : **Interdite.** L'approbateur n'est jamais le demandeur. Le bailleur modifie directement son locataire, avec journal avant/après. L'approbation ne concerne que les demandes d'un gestionnaire.
 
-### Réponses proposées (Claude Sonnet 5.5, 2026-10-09) — à confirmer par le PO/CDO
+### Réponses proposées (Claude Sonnet 5.5, 2026-10-09) — conservées pour la trace
 
-**Statut : proposées, non validées.** Elles ne valent pas approbation du plan. Si elles sont retenues, R1, R3 et R7 du §2 et les lots 1 et 2 devront être alignés.
+**Statut : historique.** Ces propositions ont été retenues par le PO/CDO (Q0, Q0 bis, Q1, Q2, Q3 ci-dessus) ; R1, R3, R7 du §2 et les lots 1 et 2 ont été alignés. Elles ne valent pas approbation du plan.
 
 | Q | Réponse proposée | Justification | Non vérifié |
 |---|---|---|---|
@@ -164,5 +170,6 @@ Ordre par valeur et risque. Les lots 1 et 2 règlent P1 et P2.
 
 - Gate : Plan approuvé → ADR-20 « Acceptée » après revue sécurité (lots 4 et 5) → recette par lot → Gate Staging `STG-ISOL-01` → Gate Production.
 - Les lots 1, 2, 3, 6 et 7 ne dépendent pas d'ADR-20 et peuvent démarrer dès l'approbation du plan ; les lots 4 et 5 attendent ADR-20.
+- **Un Plan d'Exécution détaillé par lot** (modèle `docs/cgpa/templates/plan-execution.md` : fichiers concernés, étapes, commandes prévues, tests, critères de validation) est requis et doit être approuvé avant le code de ce lot. Le présent document est le plan-cadre du programme.
 - Preuves par lot : tests verts, script de détection joint, rapport de migration, revue humaine des contributions IA.
 - Aucune promotion sans validation humaine (CDO).
