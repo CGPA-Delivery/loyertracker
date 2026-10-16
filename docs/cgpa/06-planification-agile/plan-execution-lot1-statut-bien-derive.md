@@ -18,7 +18,7 @@
 * Livrables déjà validés : audit phase 1 (`docs/cgpa/reports/audit-cycle-bail-phase1-2026-10-09.md`) ; plan-cadre approuvé comme cadre.
 * Décisions déjà prises : D1 interruption prospective ; D5 un bien en préavis reste loué ; Q0 statuts de bail `ACTIF` / `CLOS` ; Q1, Q2, Q3 (voir plan-cadre §9).
 * Développements déjà réalisés : script de détection en lecture seule `infra/scripts/detection-incoherences-bail-bien.sql` (anomalies A1 à A12) et son test d'intégration `backend/src/test/java/com/loyertracker/db/DetectionIncoherencesBailBienScriptTest.java` (commits `cb27180`, `4d97ee1`, 2026-10-10). **Ils sont réutilisés, pas recréés.**
-* Points ouverts : décisions L1-D1 à L1-D5 (§13) ; exécution du script sur une copie de la production, sous autorisation du CDO.
+* Points ouverts : exécution du script sur une copie de la production, sous autorisation du CDO. Les décisions L1-D1 à L1-D5 sont prises (§13).
 
 ## 3. Où l'on est
 
@@ -91,7 +91,7 @@ Chemins qui modifient `bail.statut` : uniquement `BailService.creer`, `cloturer`
 
 ## 7. Étapes techniques prévues
 
-1. **Cadrage** : obtenir les décisions L1-D1 à L1-D5 (§13), vérifier que le plan-cadre approuvé est sur `main`, créer la branche de travail.
+1. **Cadrage** : décisions L1-D1 à L1-D5 prises (§13) ; vérifier que le plan-cadre approuvé est sur `main` et que le présent plan est approuvé, créer la branche de travail.
 2. **Preuve de base** : lancer le test existant `DetectionIncoherencesBailBienScriptTest` et consigner le résultat réel ; ne conserver la mention « NON EXÉCUTÉ » de l'en-tête du script que si le test ne passe pas.
 3. **Tests d'abord** : écrire les tests qui échouent aujourd'hui (clôture ne libère pas le bien, création après clôture refusée, modification manuelle du statut).
 4. **Domaine** : `Bien.liberer()` (autorisé depuis `LOUE` seulement), `Bien.louer()` (autorisé depuis `LIBRE` seulement), refus explicite depuis `EN_TRAVAUX` et `ARCHIVE`.
@@ -188,15 +188,17 @@ La correction ne s'exécute qu'après décision du PO, sur la copie d'abord. Auc
 * Corriger le plan
 * Refuser
 
-**Décisions à prendre avant ou avec l'approbation** (réponse recommandée en premier) :
+**Décisions du PO/CDO du 2026-10-16** (exprimées dans le chat ; options recommandées retenues) :
 
-| Code | Question | Réponse recommandée | Alternative |
+| Code | Question | Décision retenue | Alternative écartée |
 |---|---|---|---|
-| L1-D1 | Réouvrir un bail dont le bien est `EN_TRAVAUX` ou `ARCHIVE` | Refus 409 avec message explicite | Réouverture qui force `LOUE` (écrase l'état manuel) |
-| L1-D2 | Passer un bien en `EN_TRAVAUX` ou `ARCHIVE` alors qu'un bail `ACTIF` existe | Refus 409 (anomalies A3 et A4 deviennent impossibles) | Autoriser `EN_TRAVAUX` avec bail actif |
-| L1-D3 | Clôture avec une date future | Refus 400 jusqu'au lot 2 | Accepter et libérer immédiatement (contredit D5) |
-| L1-D4 | Saisie de `LOUE` / `LIBRE` dans `BienRequest` | Ignorer la valeur, renvoyer le statut dérivé, documenter | Refuser (400), contrat cassé |
-| L1-D5 | Drapeau `app.biens.statut-derive.enabled` | Oui, activé par défaut, pour permettre un retour arrière | Pas de drapeau |
+| L1-D1 | Réouvrir un bail dont le bien est `EN_TRAVAUX` ou `ARCHIVE` | **Refus 409** avec message explicite | Réouverture qui force `LOUE` (écrase l'état manuel) |
+| L1-D2 | Passer un bien en `EN_TRAVAUX` ou `ARCHIVE` alors qu'un bail `ACTIF` existe | **Refus 409 pour les deux** (anomalies A3 et A4 deviennent impossibles) | Autoriser `EN_TRAVAUX`, ou les deux, avec bail actif |
+| L1-D3 | Clôture avec une date future | **Refus 400** jusqu'au lot 2, avec renvoi vers l'interruption programmée | Accepter et libérer immédiatement (contredit D5) |
+| L1-D4 | Saisie de `LOUE` / `LIBRE` dans `BienRequest` | **Valeur ignorée, statut dérivé renvoyé**, comportement documenté et testé | Refuser (400), contrat cassé |
+| L1-D5 | Drapeau `app.biens.statut-derive.enabled` | **Oui, activé par défaut**, pour permettre un retour arrière | Pas de drapeau |
+
+Ces décisions sont intégrées aux étapes 7, 8, 9 et 10 du §7 et aux scénarios du §10. **Elles ne valent pas approbation du plan** : le statut reste « En attente d'approbation ».
 
 **Autorisation distincte requise du CDO** : exécution du script de détection sur une copie de la production, puis toute correction de données en production.
 
