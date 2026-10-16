@@ -17,7 +17,11 @@
 --     explicitement la base loyertracker (STG-ISOL-01).
 --   * psql -v ON_ERROR_STOP=1 -d <base> -f detection-incoherences-bail-bien.sql
 --
--- ÉTAT : écrit le 2026-10-09 — NON EXÉCUTÉ, syntaxe non vérifiée contre PostgreSQL.
+-- ÉTAT : écrit le 2026-10-09. Exécuté tel quel sur le schéma réel migré par Flyway
+--   (PostgreSQL 16, Testcontainers) par DetectionIncoherencesBailBienScriptTest : 3 tests,
+--   0 échec, 0 ignoré (CI du 2026-10-16, run 38900839095). Preuve :
+--   docs/cgpa/evidence/lot1-statut-bien/preuve-test-detection.md.
+--   JAMAIS exécuté sur des données de production : autorisation distincte du CDO requise.
 --
 -- RÉSULTAT : 2 jeux. 1) une ligne par anomalie (code, gravite, bien_id, bail_id, detail). Aucune
 -- correction n'est proposée : chaque cas est tranché par le PO avant tout UPDATE.
