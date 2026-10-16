@@ -2,6 +2,7 @@ package com.loyertracker.baux;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,8 +155,8 @@ public class BailService {
         UUID bailleurId = tenant.activerDepuisBien(bienId);
         Bail bail = exigerBailDuBien(bienId, bailId);
         LocalDate dateCloture = (requete != null && requete.dateClotureEffective() != null)
-                ? requete.dateClotureEffective() : LocalDate.now();
-        if (statutBienDerive && dateCloture.isAfter(LocalDate.now())) {
+                ? requete.dateClotureEffective() : aujourdHui();
+        if (statutBienDerive && dateCloture.isAfter(aujourdHui())) {
             // Un bien en préavis reste loué jusqu'à la date d'effet : une clôture à date future
             // exige l'interruption programmée (lot 2) et ne peut pas libérer le bien tout de suite.
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -234,6 +235,11 @@ public class BailService {
             }
             throw e;
         }
+    }
+
+    /** Date du jour au fuseau du serveur : le comportement historique de {@code LocalDate.now()}, rendu explicite. */
+    private static LocalDate aujourdHui() {
+        return LocalDate.now(ZoneId.systemDefault());
     }
 
     /** Lit le bien avec un verrou en écriture (sérialise les opérations de bail sur ce bien). */

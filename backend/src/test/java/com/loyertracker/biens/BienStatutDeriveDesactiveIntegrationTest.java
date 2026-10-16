@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -104,7 +105,7 @@ class BienStatutDeriveDesactiveIntegrationTest {
 
         // Comportement d'origine : une date de clôture future est acceptée, et la clôture ne
         // touche pas au bien, qui reste LOUE.
-        String demain = LocalDate.now().plusDays(1).toString();
+        String demain = LocalDate.now(ZoneId.systemDefault()).plusDays(1).toString();
         mockMvc.perform(post("/api/biens/{bienId}/baux/{bailId}/cloture", bienId, bailId)
                         .with(bailleurJwt(bailleur))
                         .contentType(MediaType.APPLICATION_JSON)

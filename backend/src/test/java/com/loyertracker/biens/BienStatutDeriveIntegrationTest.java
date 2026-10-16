@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -197,7 +198,7 @@ class BienStatutDeriveIntegrationTest {
         inscrireBailleur(bailleur);
         BienCree bien = creerBien(bailleur, "7 rue Preavis");
         String bailId = creerBail(bailleur, bien.id(), "2026-01-01", "2026-12-31");
-        String demain = LocalDate.now().plusDays(1).toString();
+        String demain = LocalDate.now(ZoneId.systemDefault()).plusDays(1).toString();
 
         mockMvc.perform(cloturer(bien.id(), bailId, bailleur,
                         "{\"dateClotureEffective\":\"" + demain + "\"}"))
