@@ -1,6 +1,6 @@
 # Plan d'Exécution — Lot 2 : interruption de bail prospective et échéancier clôturé
 
-- **Statut** : **Approuvé (2026-10-16).** Approbation exprimée dans le chat par le PO/CDO : « j'approuve le plan détaillé du lot 2 ». Le code du lot 2 peut démarrer sur une branche dédiée, avec PR et revue humaine, **sous réserve de l'avis Financial Governance exigé au §13 avant développement** : cet avis n'est pas encore produit et l'approbation du plan ne le remplace pas. **Restent soumis à une autorisation distincte du CDO** : la vérification de l'absence de doublons `(bien_id, periode)` sur une copie de la production et toute exécution en production. **Aucune promotion** (Gate Staging avec `STG-ISOL-01`, puis Gate 09 / Gate Production).
+- **Statut** : **Approuvé (2026-10-16).** Approbation exprimée dans le chat par le PO/CDO : « j'approuve le plan détaillé du lot 2 ». Le code du lot 2 peut démarrer sur une branche dédiée, avec PR et revue humaine, **et sous les conditions de l'avis Financial Governance** (`docs/cgpa/evidence/lot2-fin-de-bail/rapport-financial-governance.md`, PR #591, validé par le PO/CDO le 2026-10-16) : les conditions C1 à C5 sont intégrées par l'**amendement n°1** (§15) ; C6 à C10 sont exigées avant le merge. **Restent soumis à une autorisation distincte du CDO** : la vérification de l'absence de doublons `(bien_id, periode)` sur une copie de la production et toute exécution en production. **Aucune promotion** (Gate Staging avec `STG-ISOL-01`, puis Gate 09 / Gate Production).
 - **Plan-cadre** : `docs/cgpa/06-planification-agile/plan-execution-cycle-bail.md` (approuvé le 2026-10-16)
 - **Lot précédent** : lot 1 « statut du bien dérivé du bail », livré dans `main` (PR #586 et #587). Ce lot en dépend.
 - **Rédigé par** : Claude Code (contribution IA) ; **à relire par un humain** avant décision.
@@ -16,10 +16,10 @@
 
 ## 2. D'où l'on vient
 
-* Livrables déjà validés : audit phase 1, plan-cadre, plan détaillé du lot 1 (tous approuvés) ; ADR-20 reste « Proposée » et n'est pas une dépendance de ce lot.
+* Livrables déjà validés : audit phase 1, plan-cadre, plan détaillé du lot 1 (tous approuvés), avis Financial Governance préalable du lot 2 (validé le 2026-10-16) ; ADR-20 reste « Proposée » et n'est pas une dépendance de ce lot.
 * Décisions déjà prises : D1 (interruption prospective), D4 (échéancier clôturé), D5 (un bien en préavis reste loué) ; Q0 (statuts `ACTIF` / `CLOS`), Q0 bis (`date_cloture_effective` réutilisée), Q1 (interruption non bloquée par les impayés, confirmation avec montant dû), Q2 (statut de paiement `CLOTUREE`) ; L1-D3 (une clôture à date future est refusée jusqu'à ce lot).
 * Développements déjà réalisés : lot 1 (la clôture libère le bien, la réouverture le reloue, drapeau `app.biens.statut-derive.enabled`).
-* Points ouverts : revue Financial Governance avant développement ; revue des fonctions `SECURITY DEFINER` modifiées ou créées (DT-02). Les décisions L2-D1 à L2-D8 sont prises (§13).
+* Points ouverts : `CHECK-FIN-01` à exécuter avec preuves avant le merge ; revue des fonctions `SECURITY DEFINER` modifiées ou créées (DT-02). Les décisions L2-D1 à L2-D8 sont prises (§13).
 
 ## 3. Où l'on est
 
@@ -112,10 +112,10 @@ Le risque « date future lue comme clos » est donc **levé par lecture** ; il r
 ### À modifier
 
 * `Bail.java`, `BailDto.java`, `BailRequest.java` / `ClotureRequest.java` (motif), `BailController.java` (nouveaux endpoints), `BailService.java` (clôture : plus de suppression, déléguée à `FinDeBailService`).
-* `Paiement.java`, `StatutPaiement.java` (`CLOTUREE`), `PaiementRepository.java` (finder hors `CLOTUREE`, mise à jour en masse), `PaiementService.java` (pointage refusé), `QuittanceService.java`, `QuittanceCertifieeService.java` (finder).
-* `AuditService.java` (surcharge acteur système), `BatchController.java`, `BatchMetrics.java` (nouveau job), `application.yml` (cron et drapeau), `.env.example`, `docker-compose.yml`, `docker-compose.staging.yml` (drapeau, comme au lot 1).
+* `Paiement.java` (reste dû nul pour `CLOTUREE`, garde de clôture : C1, C3), `StatutPaiement.java` (`CLOTUREE`), `PaiementRepository.java` (finder hors `CLOTUREE`, mise à jour en masse), `PaiementService.java` (pointage refusé), `QuittanceService.java`, `QuittanceCertifieeService.java` (finder).
+* `AuditService.java` (surcharge acteur système et écriture de `audit_log.details` : C4), `BatchController.java`, `BatchMetrics.java` (nouveau job), `application.yml` (cron et drapeau), `.env.example`, `docker-compose.yml`, `docker-compose.staging.yml` (drapeau, comme au lot 1).
 * `infra/scripts/detection-incoherences-bail-bien.sql` (règle A13, en-tête) et son test.
-* Frontend : `core/s02/s02-api.service.ts`, `bailleur/dashboard/dashboard.component.ts` et son spec, `shared/status-tag/status-tag.component.ts` (`CLOTUREE`), `paiements/paiements-bien.component.ts` et son spec.
+* Frontend : `core/s02/s02-api.service.ts`, `bailleur/dashboard/dashboard.component.ts` et son spec, `shared/status-tag/status-tag.component.ts` (`CLOTUREE`), `paiements/paiements-bien.component.ts` et son spec, `garanties/garanties-bail.component.ts` et son spec (exclusion des échéances `CLOTUREE` de la liste de retenue sur garantie : C3).
 * `CHANGELOG.md`, `docs/project-state.md`.
 
 ### À ne pas toucher
@@ -124,24 +124,25 @@ Le risque « date future lue comme clos » est donc **levé par lecture** ; il r
 * `generer_alertes` (décision L2-D6, recommandation : inchangée) ; `marquer_loyers_en_retard`.
 * Le multi-bailleurs (lots 4 et 5), l'historique (lot 6), la page échéancier (lot 7).
 * La sémantique de `date_fin` (terme contractuel).
+* **`GarantieService` : ne pas le modifier** (avis Financial Governance, C3). Le modifier déclencherait l'écart FIN-CONC-01 (« bloquant au prochain changement Garantie »). La garde est portée par l'entité `Paiement` (reste dû nul), que le contrôle existant de la retenue (`montant` supérieur au reste dû) applique déjà.
 
 ## 7. Étapes techniques prévues
 
 1. **Cadrage** : décisions L2-D1 à L2-D8 prises (§13) ; avis Financial Governance, vérification du numéro de migration, vérification que le présent plan est approuvé, branche de travail.
 2. **Preuve de base** : lancer la suite backend existante et consigner le résultat réel.
 3. **Tests d'abord (rouges)** : scénarios de programmation, d'annulation, de job, d'échéances `CLOTUREE`, de réouverture, de nouveau bail sur le même bien, de pointage refusé.
-4. **Migration V37** : colonnes ; CHECK `paiement.statut` ; `uq_paiement_periode` partiel ; `generer_echeances_loyers` adaptée (cible `ON CONFLICT` alignée sur l'index partiel) ; fonction de lecture `baux_arrives_a_terme(date)`.
-5. **Domaine** : `Bail.programmerFin(...)` / `annulerFinProgrammee()` ; `cloturer(...)` avec motif ; `Paiement.cloturer()` / `rouvrir()`.
-6. **`PaiementRepository` et services** : finder hors `CLOTUREE` ; pointage d'une échéance clôturée refusé (409) ; mise à jour en masse des échéances futures.
-7. **`FinDeBailService`** : `terminerBail(bailId, dateEffet, motif, acteur)` commun à la clôture immédiate et au job — clôture du bail, libération du bien (lot 1), échéances `A_VENIR` de période postérieure au mois d'effet → `CLOTUREE`, audit, notification `BAIL_CLOS`.
+4. **Migration V37** : colonnes ; CHECK `paiement.statut` ; `uq_paiement_periode` partiel ; contrainte de données `CHECK (statut <> 'CLOTUREE' OR montant_recu = 0)` (C1) ; `generer_echeances_loyers` adaptée (cible `ON CONFLICT` alignée sur l'index partiel) ; fonction de lecture `baux_arrives_a_terme(date)`.
+5. **Domaine** : `Bail.programmerFin(...)` / `annulerFinProgrammee()` ; `cloturer(...)` avec motif ; `Paiement.cloturer()` / `rouvrir()` ; `Paiement.cloturer()` ne s'applique qu'à une échéance `A_VENIR` à montant reçu nul (C1) ; `Paiement.getResteDu()` retourne 0 pour `CLOTUREE` (C3).
+6. **`PaiementRepository` et services** : finder hors `CLOTUREE` ; pointage d'une échéance clôturée refusé (409) ; mise à jour en masse des échéances futures ; les finders de pointage et de quittance ignorent `CLOTUREE` (C3).
+7. **`FinDeBailService`** : `terminerBail(bailId, dateEffet, motif, acteur)` commun à la clôture immédiate et au job — clôture du bail, libération du bien (lot 1), échéances `A_VENIR` de période postérieure au mois d'effet → `CLOTUREE`, audit (C4), notification `BAIL_CLOS`. L'aperçu et l'avertissement de fin de bail indiquent, par devise, les sommes déjà perçues pour des périodes postérieures au mois d'effet (avances « à régulariser », sans mouvement automatique : C2).
 8. **`BailService.cloturer`** : délègue à `FinDeBailService` ; suppression physique retirée ; avertissements (garantie non restituée, impayés) conservés.
-9. **`BailService.rouvrir`** : échéances `CLOTUREE` du bail → `A_VENIR` ; effacement de `motif_fin`, `commentaire_fin`, `date_demande_fin`, `date_cloture_effective`.
+9. **`BailService.rouvrir`** : échéances `CLOTUREE` du bail → `A_VENIR` ; effacement de `motif_fin`, `commentaire_fin`, `date_demande_fin`, `date_cloture_effective` ; réouverture **refusée (409)** si une échéance active d'un autre bail existe pour une période à rétablir, sans aucune modification (C5).
 10. **API** : `POST .../interruption`, `DELETE .../interruption`, `GET .../fin-apercu` ; mêmes droits que la clôture actuelle (décision L2-D8) ; la clôture à date future garde son refus (400) tant que la fonctionnalité est désactivée.
 11. **Job** : `BailFinScheduler` (cron quotidien, zone `app.batch.zone`) ; liste via `baux_arrives_a_terme`, traitement bailleur par bailleur dans une transaction distincte ; idempotent ; rattrapage au démarrage ; déclenchement manuel ; métrique.
-12. **Audit système** : surcharge d'`AuditService` pour le job.
+12. **Audit** : surcharge d'`AuditService` (acteur « système » pour le job) et écriture de `audit_log.details` (JSONB, colonne existante non mappée par JPA) : nombre d'échéances et somme des montants attendus par devise, pour la clôture immédiate, le job, l'annulation et la réouverture (C4).
 13. **Drapeau** : `app.baux.fin-programmee.enabled` ; désactivé, programmation et job inactifs, la clôture immédiate garde le comportement du lot 1.
 14. **Détection** : règle A13 « bail `ACTIF` dont `date_cloture_effective` est passée » dans le script et son test ; mise à jour de la description d'A9.
-15. **Frontend** : formulaire de programmation (date, motif, commentaire), aperçu avec montant dû, annulation, mention « fin programmée le … », tag `CLOTUREE`.
+15. **Frontend** : formulaire de programmation (date, motif, commentaire), aperçu avec montant dû, annulation, mention « fin programmée le … », tag `CLOTUREE`, avances perçues signalées dans l'aperçu (C2), échéances `CLOTUREE` exclues de la liste de retenue sur garantie (C3).
 16. **Revue des fonctions SQL** : fichier de revue des deux fonctions (création, modification) ; mise à jour du registre `SECURITY DEFINER` d'ADR-20 (23 → 24 fonctions).
 17. **Documentation et revue** : `CHANGELOG.md`, `docs/project-state.md`, revue humaine, revue UX, PR.
 18. **Données de production** : aucune reprise nécessaire pour ce lot, hors la vérification en lecture seule de l'absence de doublons `(bien_id, periode)` avant la modification de l'index (simple relâchement, mais à prouver) — exécution soumise à l'autorisation du CDO.
@@ -149,7 +150,7 @@ Le risque « date future lue comme clos » est donc **levé par lecture** ; il r
 ## 8. Dépendances
 
 * Techniques : lot 1 livré ; Docker pour Testcontainers.
-* Fonctionnelles : décisions L2-D1 à L2-D8 ; avis Financial Governance.
+* Fonctionnelles : décisions L2-D1 à L2-D8 ; avis Financial Governance produit et validé (conditions C1 à C10).
 * Sécurité : une fonction `SECURITY DEFINER` **créée** (lecture seule) et une **modifiée** (`generer_echeances_loyers`) : revue obligatoire (DT-02), registre d'ADR-20 à mettre à jour ; aucune policy RLS modifiée ; les nouveaux endpoints reprennent les `@PreAuthorize` de la clôture.
 * DevOps : migration Flyway additive (hors l'index rendu partiel) ; variable `APP_BAUX_FIN_PROGRAMMEE_ENABLED` transmise par `docker-compose.yml` et `docker-compose.staging.yml` ; aucun changement d'image ni de dépendance. Supervision : règle d'alerte Prometheus pour le nouveau job à décider (`infra/monitoring/alerts.yml`, hors fichiers listés ci-dessus).
 * Autorisations humaines : exécution de la vérification de doublons sur une copie de la production, sous autorisation du CDO.
@@ -167,6 +168,9 @@ Le risque « date future lue comme clos » est donc **levé par lecture** ; il r
 | Suppression physique remplacée par un statut | Écart avec la pratique actuelle de purge | Avis Financial Governance avant développement |
 | Alertes `FIN_BAIL` / `PREAVIS` sur la date contractuelle (F7) | Alerte trompeuse pendant un préavis programmé | Limitation consignée (L2-D6) |
 | Gestionnaire qui programme la fin d'un bail | Droit étendu | Même périmètre que la clôture actuelle ; décision L2-D8 |
+| Avance perçue après la date d'effet, non clôturée et non signalée (C2) | Trop-perçu invisible | Signalée dans l'aperçu et l'avertissement, par devise ; régularisation manuelle (pas de flux de remboursement de loyer) |
+| Échéance `CLOTUREE` proposée à une retenue sur garantie (C3) | Mouvement de garantie sur une créance inexistante | Reste dû nul porté par l'entité ; `GarantieService` non modifié ; exclusion côté frontend |
+| Réouverture qui recrée une échéance active en doublon (C5) | Erreur d'unicité ou écrasement | Contrôle préalable, refus 409 sans modification |
 
 ## 10. Tests prévus
 
@@ -186,7 +190,12 @@ Le risque « date future lue comme clos » est donc **levé par lecture** ; il r
   12. clôture immédiate : plus aucune suppression physique, échéances futures `CLOTUREE`, motif enregistré ;
   13. drapeau désactivé : programmation indisponible, job inactif, comportement du lot 1 conservé ;
   14. concurrence : annulation et job simultanés sur le même bail ;
-  15. migration V37 appliquée sur une base existante contenant des échéances (jeu synthétique), sans perte.
+  15. migration V37 appliquée sur une base existante contenant des échéances (jeu synthétique), sans perte : sommes `montant_attendu` et `montant_recu` par bail identiques avant et après ;
+  16. contrainte de données (C1) : l'enregistrement d'une échéance `CLOTUREE` avec un montant reçu supérieur à 0 est refusé par la base ; le job ne clôture jamais une échéance déjà payée ;
+  17. avance perçue (C2) : une échéance future `RECU` ou `PARTIEL` postérieure au mois d'effet n'est pas clôturée et figure, avec la somme par devise, dans l'aperçu et l'avertissement ;
+  18. échéance `CLOTUREE` (C3) : reste dû nul, retenue sur garantie refusée par le contrôle existant sans modification de `GarantieService`, absente de la liste de retenue du frontend ;
+  19. audit (C4) : une entrée par bail et par opération (clôture immédiate, job, annulation, réouverture), avec nombre et somme par devise dans `details`, acteur « système » pour le job ;
+  20. réouverture en conflit (C5) : une échéance active d'un autre bail existe pour une période à rétablir, réponse 409 et aucune modification.
 * Tests API : codes HTTP, droits (bailleur, gestionnaire habilité, autre bailleur refusé), validations.
 * Tests UI : formulaire de programmation, aperçu, annulation, tag `CLOTUREE` ; tests de composant existants adaptés.
 * Tests sécurité : `SecurityIntegrationTest` et `AuthorizationServiceIntegrationTest` inchangés et verts ; test d'accès croisé sur les nouveaux endpoints.
@@ -216,10 +225,11 @@ Rendu des fichiers compose pour contrôler le drapeau (sans démarrer de contene
 6. L'interruption n'est jamais bloquée par des impayés ; le montant dû est affiché avant confirmation et les créances restent visibles.
 7. La clôture immédiate ne supprime plus aucune échéance.
 8. Le job est idempotent, rattrape les retards et publie une métrique ; la règle A13 du script détecte un préavis échu non clos.
-9. Les 15 scénarios de §10 passent ; la suite backend, la suite frontend et les contrôles CI restent verts.
-10. Revue DT-02 des deux fonctions SQL consignée ; registre d'ADR-20 mis à jour ; avis Financial Governance produit.
+9. Les 20 scénarios de §10 passent ; la suite backend, la suite frontend et les contrôles CI restent verts.
+10. Revue DT-02 des deux fonctions SQL consignée ; registre d'ADR-20 mis à jour ; avis Financial Governance produit et validé, conditions C1 à C5 vérifiées par les scénarios 16 à 20.
 11. Rollback documenté et testé (§Rollback).
 12. Revue humaine de la contribution IA consignée.
+13. Les conditions C6 à C10 de l'avis Financial Governance sont prouvées dans `CHECK-FIN-01` avant le merge ; un `FAIL` sur la traçabilité, l'idempotence ou la cohérence d'une opération critique impose `NO GO`.
 
 ## 13. Décision attendue
 
@@ -243,7 +253,7 @@ Rendu des fichiers compose pour contrôler le drapeau (sans démarrer de contene
 
 Ces décisions sont intégrées aux étapes du §7 et aux scénarios du §10. **Elles ne valent pas approbation du plan** : le statut reste « En attente d'approbation ».
 
-**Avis requis avant développement** : Financial Governance sur le remplacement de la suppression physique par le statut `CLOTUREE`, la clé d'unicité partielle et le traitement du loyer du mois d'effet.
+**Avis Financial Governance** : produit et validé par le PO/CDO le 2026-10-16 (favorable sous réserves, conditions C1 à C10). C1 à C5 sont intégrées au plan par l'amendement n°1 (§15). `CHECK-FIN-01` reste à exécuter avec preuves avant le merge du lot.
 
 **Autorisation distincte du CDO** : vérification de l'absence de doublons `(bien_id, periode)` sur une copie de la production, puis toute exécution en production.
 
@@ -255,6 +265,20 @@ Ces décisions sont intégrées aux étapes du §7 et aux scénarios du §10. **
 * Exécuté
 * Clôturé
 
+## 15. Amendement n°1 (2026-10-16) — conditions C1 à C5 de l'avis Financial Governance
+
+Cet amendement reporte dans le plan les conditions « avant développement » de l'avis `docs/cgpa/evidence/lot2-fin-de-bail/rapport-financial-governance.md` (PR #591, validé par le PO/CDO le 2026-10-16). **Il n'élargit pas le périmètre fonctionnel approuvé** : il ajoute des gardes financières exigées par l'avis validé. Sa fusion vaut prise de connaissance par le PO/CDO ; toute objection est à exprimer avant le démarrage du code.
+
+| Condition | Exigence | Où dans le plan |
+|---|---|---|
+| C1 | Seules les échéances `A_VENIR` à montant reçu nul passent à `CLOTUREE`, garanti par contrainte de données et par le code | §7 étapes 4 et 5 ; §10 scénario 16 |
+| C2 | Les avances perçues au-delà de la date d'effet sont signalées par devise dans l'aperçu et l'avertissement ; aucun mouvement automatique | §7 étapes 7 et 15 ; §9 ; §10 scénario 17 |
+| C3 | Une échéance `CLOTUREE` n'est pas une créance : reste dû nul, exclue des listes et des totaux, pointage refusé, finders ignorant `CLOTUREE` ; `GarantieService` non modifié | §6 ; §7 étapes 5, 6 et 15 ; §9 ; §10 scénario 18 |
+| C4 | Audit de chaque opération avec nombre et somme des échéances par devise dans `audit_log.details`, acteur « système » pour le job | §6 ; §7 étape 12 ; §10 scénario 19 |
+| C5 | Réouverture refusée (409) si elle créerait un doublon d'échéance active, sans aucune modification | §7 étape 9 ; §9 ; §10 scénario 20 |
+
+Conditions C6 à C10 (idempotence et concurrence, migration et rollback sans perte, aucun montant dans les logs, non-régression honoraires / quittances / alertes, changement de comportement documenté) : couvertes par les scénarios 5, 14 et 15 du §10, par le §Rollback et par `CHECK-FIN-01`, à exécuter avec preuves avant le merge (§12, critère 13).
+
 ## Rollback
 
 * **Application** : drapeau `app.baux.fin-programmee.enabled` désactivé : programmation indisponible, job inactif ; la clôture immédiate garde le comportement du lot 1 avec échéances `CLOTUREE`. Retour à l'image précédente possible, **sous la condition ci-dessous**.
@@ -265,7 +289,7 @@ Ces décisions sont intégrées aux étapes du §7 et aux scénarios du §10. **
 ## Gouvernances applicables
 
 * DevSecOps / Enterprise Delivery : migration, fonctions `SECURITY DEFINER`, job planifié ; CHECK-CICD-01, CHECK-REL-01, CHECK-OPS-01, CHECK-VAL-01 : `non exécuté`, à appliquer au jalon de livraison.
-* Financial Governance : **applicable** (échéances, loyers, statut de paiement, clé d'unicité) ; avis requis avant développement.
+* Financial Governance : **applicable** (échéances, loyers, statut de paiement, clé d'unicité) ; avis préalable produit et validé, conditions C1 à C5 intégrées (§15), `CHECK-FIN-01` à exécuter avant le merge.
 * UX / Design / Frontend : écran de programmation et d'annulation, aperçu, tag `CLOTUREE` ; revue UX obligatoire.
 * Staging : `STG-ISOL-01` bloquant avant toute promotion.
 * Traçabilité et revue humaine de la contribution IA.
