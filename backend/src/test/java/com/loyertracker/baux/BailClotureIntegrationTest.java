@@ -135,10 +135,8 @@ class BailClotureIntegrationTest {
         String bailA = creerBail(bailleur, bienId, "2026-01-01", "2026-06-30");
         mockMvc.perform(cloturer(bienId, bailA, bailleur, null)).andExpect(status().isOk());
 
-        // Le bien redevient LIBRE côté base uniquement pour permettre la création du bail B :
-        // aucun endpoint applicatif ne remet Bien.statut à LIBRE après clôture (hors périmètre
-        // ADR-17, cf. Plan d'Exécution — libérer le bien reste une action bailleur séparée).
-        jdbc.update("UPDATE bien SET statut = 'LIBRE' WHERE id = ?::uuid", bienId);
+        // Lot 1 : la clôture libère le bien, la création du bail B n'exige plus aucune
+        // intervention manuelle (ni UPDATE en base, ni modification du statut du bien).
         creerBail(bailleur, bienId, "2026-07-01", "2027-06-30");
 
         mockMvc.perform(rouvrir(bienId, bailA, bailleur)).andExpect(status().isConflict());
