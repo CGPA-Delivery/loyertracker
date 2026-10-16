@@ -3,7 +3,7 @@
 - **Date de la demande** : 2026-10-16
 - **Destinataires** : PO (décision métier) et CGPA Chief Delivery Officer (décision CGPA finale)
 - **Plan concerné** : `docs/cgpa/06-planification-agile/plan-execution-cycle-bail.md`
-- **Statut de cette demande** : **en attente d'approbation.** Ce document ne vaut ni approbation du plan, ni autorisation de code, ni autorisation de promotion.
+- **Statut de cette demande** : **traitée le 2026-10-16 : plan-cadre approuvé** (voir §9). Ce document ne vaut ni autorisation de code, ni autorisation de promotion.
 - **Préparé par** : Claude Code (contribution IA) ; **à relire par un humain** avant décision.
 
 ## 1. Ce qui est demandé
@@ -94,11 +94,14 @@ Pour que l'ADR-20 passe à « Acceptée » et libère les lots 4 et 5 :
 
 ## 9. Décision
 
-| Champ | PO | CDO |
-|---|---|---|
-| Décision (Approuver / Approuver sous réserve / Corriger le plan / Refuser) | ______ | ______ |
-| Réserves éventuelles | ______ | ______ |
-| Nom | ______ | ______ |
-| Date | ______ | ______ |
+| Champ | Décision |
+|---|---|
+| Décision | **Approuver** |
+| Formulation | « plan approuver », exprimée dans le chat par le PO/CDO |
+| Date | 2026-10-16 |
+| Réserves exprimées | Aucune dans le message. |
+| Périmètre retenu (interprétation) | Plan-cadre approuvé ; rédaction des Plans d'Exécution détaillés des lots 1, 2, 3, 6 et 7 autorisée. Lots 4 et 5 bloqués par ADR-20. Aucun code, aucune promotion. |
 
-Après décision, mettre à jour le statut du plan (« Approuvé », « Refusé »…) et `docs/project-state.md`. Une réserve ne neutralise jamais un bloqueur.
+**Interprétation à confirmer.** Le message ne précisait pas le périmètre. Il a été interprété comme l'approbation demandée au §1, sans extension : il n'autorise pas de code avant le Plan détaillé d'un lot, ni les lots 4 et 5, ni une promotion. Si l'intention était plus large, elle doit être exprimée explicitement avant toute action.
+
+Statut du plan mis à jour (« Approuvé comme plan-cadre ») et `docs/project-state.md` mis à jour. Une réserve ne neutralise jamais un bloqueur.

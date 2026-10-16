@@ -1,6 +1,6 @@
 # Plan d'exécution — Cycle de vie du bail, statut du bien, historique, échéancier
 
-- **Statut** : **Proposé — en attente de validation PO/CDO.** Aucun code applicatif ne doit être écrit avant approbation.
+- **Statut** : **Approuvé comme plan-cadre (2026-10-16).** Approbation exprimée dans le chat par le PO/CDO : « plan approuver ». Périmètre de l'approbation : ce plan-cadre et la rédaction des Plans d'Exécution détaillés des lots 1, 2, 3, 6 et 7. **Aucun code applicatif d'un lot avant l'approbation de son Plan d'Exécution détaillé.** Les lots 4 et 5 restent bloqués tant qu'ADR-20 n'est pas « Acceptée ». Aucune promotion. Voir `demande-approbation-plan-cycle-bail.md` §1 et §9.
 - **Date** : 2026-10-09 — mis à jour le 2026-10-14 (alignement sur les décisions Q0 à Q3 et sur ADR-20)
 - **Source** : `docs/cgpa/reports/audit-cycle-bail-phase1-2026-10-09.md`
 - **Propriétaire** : PO (décisions D1 à D5 du rapport d'audit)
