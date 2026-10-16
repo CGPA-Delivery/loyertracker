@@ -19,7 +19,7 @@
 * Livrables déjà validés : audit phase 1, plan-cadre, plan détaillé du lot 1 (tous approuvés) ; ADR-20 reste « Proposée » et n'est pas une dépendance de ce lot.
 * Décisions déjà prises : D1 (interruption prospective), D4 (échéancier clôturé), D5 (un bien en préavis reste loué) ; Q0 (statuts `ACTIF` / `CLOS`), Q0 bis (`date_cloture_effective` réutilisée), Q1 (interruption non bloquée par les impayés, confirmation avec montant dû), Q2 (statut de paiement `CLOTUREE`) ; L1-D3 (une clôture à date future est refusée jusqu'à ce lot).
 * Développements déjà réalisés : lot 1 (la clôture libère le bien, la réouverture le reloue, drapeau `app.biens.statut-derive.enabled`).
-* Points ouverts : décisions L2-D1 à L2-D8 (§13) ; revue Financial Governance avant développement ; revue des fonctions `SECURITY DEFINER` modifiées ou créées (DT-02).
+* Points ouverts : revue Financial Governance avant développement ; revue des fonctions `SECURITY DEFINER` modifiées ou créées (DT-02). Les décisions L2-D1 à L2-D8 sont prises (§13).
 
 ## 3. Où l'on est
 
@@ -127,7 +127,7 @@ Le risque « date future lue comme clos » est donc **levé par lecture** ; il r
 
 ## 7. Étapes techniques prévues
 
-1. **Cadrage** : décisions L2-D1 à L2-D8 (§13), avis Financial Governance, vérification du numéro de migration, branche de travail.
+1. **Cadrage** : décisions L2-D1 à L2-D8 prises (§13) ; avis Financial Governance, vérification du numéro de migration, vérification que le présent plan est approuvé, branche de travail.
 2. **Preuve de base** : lancer la suite backend existante et consigner le résultat réel.
 3. **Tests d'abord (rouges)** : scénarios de programmation, d'annulation, de job, d'échéances `CLOTUREE`, de réouverture, de nouveau bail sur le même bien, de pointage refusé.
 4. **Migration V37** : colonnes ; CHECK `paiement.statut` ; `uq_paiement_periode` partiel ; `generer_echeances_loyers` adaptée (cible `ON CONFLICT` alignée sur l'index partiel) ; fonction de lecture `baux_arrives_a_terme(date)`.
@@ -228,18 +228,20 @@ Rendu des fichiers compose pour contrôler le drapeau (sans démarrer de contene
 * Corriger le plan
 * Refuser
 
-**Décisions à prendre avant ou avec l'approbation** (réponse recommandée en premier) :
+**Décisions du PO/CDO du 2026-10-16** (exprimées dans le chat ; options recommandées retenues) :
 
-| Code | Question | Réponse recommandée | Alternative |
+| Code | Question | Décision retenue | Alternative écartée |
 |---|---|---|---|
-| L2-D1 | Motifs de fin de bail | Liste fermée : résiliation par le bailleur, résiliation par le locataire, terme, autre ; plus un commentaire libre (500 caractères) | Texte libre seul |
-| L2-D2 | Date d'effet égale à aujourd'hui | Traitée comme une clôture immédiate (même code) | Refusée : la date d'effet doit être strictement future |
-| L2-D3 | Annuler une fin programmée avant la date | Autorisé, tracé en audit | Interdit : seule la clôture manuelle est possible |
-| L2-D4 | Moment du passage des échéances à `CLOTUREE` | À la date d'effet, par le job (réversible tant que la date n'est pas atteinte) | Dès la programmation (à défaire en cas d'annulation) |
-| L2-D5 | Loyer du mois d'effet | Dû en entier : échéances conservées jusqu'au mois d'effet inclus, comme la purge actuelle | Prorata (nouveau périmètre, hors ce lot) |
-| L2-D6 | Alertes `FIN_BAIL` / `PREAVIS` | Inchangées (basées sur `date_fin`) ; limitation consignée | Basées sur la date d'effet (modifie `generer_alertes`, fonction sensible) |
-| L2-D7 | Réouverture d'un bail clos | Les échéances `CLOTUREE` du bail repassent `A_VENIR` | Elles restent `CLOTUREE` (régénération manuelle) |
-| L2-D8 | Qui programme ou annule une fin de bail | Mêmes droits que la clôture actuelle : bailleur et gestionnaire habilité | Bailleur seul |
+| L2-D1 | Motifs de fin de bail | **Liste fermée** : résiliation par le bailleur, résiliation par le locataire, terme, autre ; **plus un commentaire libre** (500 caractères) | Texte libre seul |
+| L2-D2 | Date d'effet égale à aujourd'hui | **Traitée comme une clôture immédiate** (même code) | Refusée : la date d'effet doit être strictement future |
+| L2-D3 | Annuler une fin programmée avant la date | **Autorisé**, tracé en audit | Interdit : seule la clôture manuelle est possible |
+| L2-D4 | Moment du passage des échéances à `CLOTUREE` | **À la date d'effet, par le job** (réversible tant que la date n'est pas atteinte) | Dès la programmation |
+| L2-D5 | Loyer du mois d'effet | **Dû en entier** : échéances conservées jusqu'au mois d'effet inclus, comme la purge actuelle | Prorata (hors ce lot) |
+| L2-D6 | Alertes `FIN_BAIL` / `PREAVIS` | **Inchangées** (basées sur `date_fin`) ; limitation consignée | Basées sur la date d'effet (modifie `generer_alertes`) |
+| L2-D7 | Réouverture d'un bail clos | **Les échéances `CLOTUREE` du bail repassent `A_VENIR`** | Elles restent `CLOTUREE` |
+| L2-D8 | Qui programme ou annule une fin de bail | **Mêmes droits que la clôture actuelle** : bailleur et gestionnaire habilité | Bailleur seul |
+
+Ces décisions sont intégrées aux étapes du §7 et aux scénarios du §10. **Elles ne valent pas approbation du plan** : le statut reste « En attente d'approbation ».
 
 **Avis requis avant développement** : Financial Governance sur le remplacement de la suppression physique par le statut `CLOTUREE`, la clé d'unicité partielle et le traitement du loyer du mois d'effet.
 
